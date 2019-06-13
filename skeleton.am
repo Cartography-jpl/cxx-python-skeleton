@@ -1,0 +1,14 @@
+# Stuff specific to skeleton
+
+# Build these up as we go
+libskeleton_la_SOURCES = 
+SWIG_SRC=
+skeletonincdir = @includedir@/skeleton
+skeletoninc_HEADERS =
+skeletonswiginc_HEADERS =
+skeleton_test_all_SOURCES = 
+dist_installskeleton_SCRIPTS = 
+SWIG_FLAG =
+
+libskeleton_la_CPPFLAGS = $(AM_CPPFLAGS)
+

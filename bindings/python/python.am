@@ -1,0 +1,25 @@
+pkgpythonswigdir = $(prefix)/@pythondir@/skeleton_swig
+COMPILE_SWIG_SRC = $(SWIG_SRC)
+FULL_SWIG_SRC = $(SWIG_SRC)
+CONDITIONAL_SWIG_SRC = $(SWIG_SRC)
+
+SWIG_CPPFLAGS = $(AM_CPPFLAGS)
+SWIG_TYPE_TABLE_NAME = skeleton
+SWIG_MODULE_NAME = skeleton
+SWIG_LIBADD = libskeleton.la
+
+# Shortcut for building just python
+install-python-2: install-libLTLIBRARIES install-python-skeleton install-pkgpythonswigLTLIBRARIES install-pkgpythonswigPYTHON
+	$(noop)
+
+install-python: all
+	$(MAKE) -j 1 install-python-2 
+
+skeletoninc_HEADERS+= @swigrules@/lib/swig_type_mapper_base.h
+skeletoninc_HEADERS+= @swigrules@/lib/python_lib_init.h
+skeletoninc_HEADERS+= @swigrules@/lib/swig_type_mapper.h
+skeletoninc_HEADERS+= @swigrules@/lib/swig_to_python.h
+libskeleton_la_SOURCES+= @swigrules@/lib/swig_type_mapper_base.cc
+libskeleton_la_CPPFLAGS+= -DSWIG_MAPPER_NAMESPACE=GeoCal
+
+

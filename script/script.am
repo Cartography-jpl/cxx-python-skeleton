@@ -1,0 +1,1 @@
+installskeleton_DATA = @srcscript@/setup_skeleton.csh @srcscript@/setup_skeleton.sh
