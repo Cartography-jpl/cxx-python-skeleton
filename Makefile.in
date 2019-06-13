@@ -141,18 +141,20 @@ POST_UNINSTALL = :
 build_triplet = @build@
 host_triplet = @host@
 bin_PROGRAMS =
-TESTS =
 @HAVE_SWIG_TRUE@@MAINTAINER_MODE_TRUE@am__append_1 = $(addprefix \
 @HAVE_SWIG_TRUE@@MAINTAINER_MODE_TRUE@	$(srcdir)/, \
 @HAVE_SWIG_TRUE@@MAINTAINER_MODE_TRUE@	$(COMPILE_SWIG_SRC)) \
 @HAVE_SWIG_TRUE@@MAINTAINER_MODE_TRUE@	$(addprefix $(srcdir)/, \
 @HAVE_SWIG_TRUE@@MAINTAINER_MODE_TRUE@	$(ADDITONAL_SWIG_SRC)) \
 @HAVE_SWIG_TRUE@@MAINTAINER_MODE_TRUE@	$(srcdir)/$(swigsrc)/swig_wrap.cc
+check_PROGRAMS = skeleton_test_all$(EXEEXT)
 subdir = .
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps =  \
 	$(top_srcdir)/config/m4_local/skeleton_common.m4 \
 	$(top_srcdir)/config/m4_local/skeleton_source_directory.m4 \
+	$(top_srcdir)/config/m4/ac_blitz.m4 \
+	$(top_srcdir)/config/m4/ac_boost.m4 \
 	$(top_srcdir)/config/m4/ac_check_found.m4 \
 	$(top_srcdir)/config/m4/ac_doxygen.m4 \
 	$(top_srcdir)/config/m4/ac_enable_debug.m4 \
@@ -162,6 +164,7 @@ am__aclocal_m4_deps =  \
 	$(top_srcdir)/config/m4/ac_python_module_with_version.m4 \
 	$(top_srcdir)/config/m4/ac_python_pytest.m4 \
 	$(top_srcdir)/config/m4/ac_python_sphinx.m4 \
+	$(top_srcdir)/config/m4/ac_search_lib.m4 \
 	$(top_srcdir)/config/m4/afids_python.m4 \
 	$(top_srcdir)/config/m4/libtool.m4 \
 	$(top_srcdir)/config/m4/loc_msg.m4 \
@@ -183,8 +186,9 @@ DIST_COMMON = $(srcdir)/Makefile.am $(top_srcdir)/configure \
 am__CONFIG_DISTCLEAN_FILES = config.status config.cache config.log \
  configure.lineno config.status.lineno
 mkinstalldirs = $(install_sh) -d
+CONFIG_HEADER = $(top_builddir)/lib/skeleton_config.h
 CONFIG_CLEAN_FILES = script/setup_skeleton.csh \
-	script/setup_skeleton.sh
+	script/setup_skeleton.sh lib/global_fixture_default.cc
 CONFIG_CLEAN_VPATH_FILES =
 am__installdirs = "$(DESTDIR)$(bindir)" "$(DESTDIR)$(libdir)" \
 	"$(DESTDIR)$(pkgpythonswigdir)" "$(DESTDIR)$(bindir)" \
@@ -240,6 +244,30 @@ _swig_wrap_la_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CXX \
 	$(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=link $(CXXLD) \
 	$(_swig_wrap_la_CXXFLAGS) $(CXXFLAGS) $(_swig_wrap_la_LDFLAGS) \
 	$(LDFLAGS) -o $@
+libskeleton_la_LIBADD =
+am_libskeleton_la_OBJECTS =  \
+	@swigrules@/lib/libskeleton_la-swig_type_mapper_base.lo \
+	@swigrules@/lib/libskeleton_la-serialize_function.lo \
+	@srclib@/libskeleton_la-generic_object.lo \
+	@srclib@/libskeleton_la-iostream_swig.lo \
+	@srclib@/libskeleton_la-blitz_array_serialize_support.lo
+libskeleton_la_OBJECTS = $(am_libskeleton_la_OBJECTS)
+libskeleton_la_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CXX \
+	$(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=link $(CXXLD) \
+	$(AM_CXXFLAGS) $(CXXFLAGS) $(libskeleton_la_LDFLAGS) \
+	$(LDFLAGS) -o $@
+am_skeleton_test_all_OBJECTS =  \
+	@srclib@/skeleton_test_all-test_all.$(OBJEXT) \
+	@srclib@/skeleton_test_all-global_fixture.$(OBJEXT) \
+	@srclib@/skeleton_test_all-global_fixture_default.$(OBJEXT) \
+	@srclib@/skeleton_test_all-printable_test.$(OBJEXT) \
+	@srclib@/skeleton_test_all-blitz_array_serialize_support_test.$(OBJEXT)
+skeleton_test_all_OBJECTS = $(am_skeleton_test_all_OBJECTS)
+skeleton_test_all_DEPENDENCIES = libskeleton.la
+skeleton_test_all_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CXX \
+	$(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=link $(CXXLD) \
+	$(AM_CXXFLAGS) $(CXXFLAGS) $(skeleton_test_all_LDFLAGS) \
+	$(LDFLAGS) -o $@
 SCRIPTS = $(dist_bin_SCRIPTS) $(dist_installskeleton_SCRIPTS)
 AM_V_P = $(am__v_P_@AM_V@)
 am__v_P_ = $(am__v_P_@AM_DEFAULT_V@)
@@ -256,7 +284,16 @@ am__v_at_1 =
 DEFAULT_INCLUDES = 
 depcomp = $(SHELL) $(top_srcdir)/config/depcomp
 am__maybe_remake_depfiles = depfiles
-am__depfiles_remade =  \
+am__depfiles_remade = @srclib@/$(DEPDIR)/libskeleton_la-blitz_array_serialize_support.Plo \
+	@srclib@/$(DEPDIR)/libskeleton_la-generic_object.Plo \
+	@srclib@/$(DEPDIR)/libskeleton_la-iostream_swig.Plo \
+	@srclib@/$(DEPDIR)/skeleton_test_all-blitz_array_serialize_support_test.Po \
+	@srclib@/$(DEPDIR)/skeleton_test_all-global_fixture.Po \
+	@srclib@/$(DEPDIR)/skeleton_test_all-global_fixture_default.Po \
+	@srclib@/$(DEPDIR)/skeleton_test_all-printable_test.Po \
+	@srclib@/$(DEPDIR)/skeleton_test_all-test_all.Po \
+	@swigrules@/lib/$(DEPDIR)/libskeleton_la-serialize_function.Plo \
+	@swigrules@/lib/$(DEPDIR)/libskeleton_la-swig_type_mapper_base.Plo \
 	@swigsrc@/$(DEPDIR)/_swig_wrap_la-swig_array_wrap.Plo \
 	@swigsrc@/$(DEPDIR)/_swig_wrap_la-swig_boost_array_wrap.Plo \
 	@swigsrc@/$(DEPDIR)/_swig_wrap_la-swig_wrap.Plo
@@ -279,8 +316,10 @@ AM_V_CXXLD = $(am__v_CXXLD_@AM_V@)
 am__v_CXXLD_ = $(am__v_CXXLD_@AM_DEFAULT_V@)
 am__v_CXXLD_0 = @echo "  CXXLD   " $@;
 am__v_CXXLD_1 = 
-SOURCES = $(_swig_wrap_la_SOURCES)
-DIST_SOURCES = $(_swig_wrap_la_SOURCES)
+SOURCES = $(_swig_wrap_la_SOURCES) $(libskeleton_la_SOURCES) \
+	$(skeleton_test_all_SOURCES)
+DIST_SOURCES = $(_swig_wrap_la_SOURCES) $(libskeleton_la_SOURCES) \
+	$(skeleton_test_all_SOURCES)
 am__can_run_installinfo = \
   case $$AM_UPDATE_INFO_DIR in \
     n|no|NO) false;; \
@@ -472,12 +511,8 @@ am__set_TESTS_bases = \
 RECHECK_LOGS = $(TEST_LOGS)
 TEST_SUITE_LOG = test-suite.log
 TEST_EXTENSIONS = @EXEEXT@ .test
-am__test_logs1 = $(TESTS:=.log)
-am__test_logs2 = $(am__test_logs1:@EXEEXT@.log=.log)
-TEST_LOGS = $(am__test_logs2:.test.log=.log)
-TEST_LOG_DRIVER = $(SHELL) $(top_srcdir)/config/test-driver
-TEST_LOG_COMPILE = $(TEST_LOG_COMPILER) $(AM_TEST_LOG_FLAGS) \
-	$(TEST_LOG_FLAGS)
+LOG_DRIVER = $(SHELL) $(top_srcdir)/config/test-driver
+LOG_COMPILE = $(LOG_COMPILER) $(AM_LOG_FLAGS) $(LOG_FLAGS)
 am__set_b = \
   case '$@' in \
     */*) \
@@ -488,15 +523,24 @@ am__set_b = \
     *) \
       b='$*';; \
   esac
+am__test_logs1 = $(TESTS:=.log)
+am__test_logs2 = $(am__test_logs1:@EXEEXT@.log=.log)
+TEST_LOGS = $(am__test_logs2:.test.log=.log)
+TEST_LOG_DRIVER = $(SHELL) $(top_srcdir)/config/test-driver
+TEST_LOG_COMPILE = $(TEST_LOG_COMPILER) $(AM_TEST_LOG_FLAGS) \
+	$(TEST_LOG_FLAGS)
 am__DIST_COMMON = $(srcdir)/Makefile.in \
 	$(srcdir)/bindings/python/python.am $(srcdir)/common.am \
-	$(srcdir)/include.am $(srcdir)/script/script.am \
-	$(srcdir)/skeleton.am $(srcdir)/swig_rules/swig_rules.am \
+	$(srcdir)/include.am $(srcdir)/lib/lib.am \
+	$(srcdir)/script/script.am $(srcdir)/skeleton.am \
+	$(srcdir)/swig_rules/swig_rules.am \
 	$(top_srcdir)/config/compile $(top_srcdir)/config/config.guess \
 	$(top_srcdir)/config/config.sub $(top_srcdir)/config/depcomp \
 	$(top_srcdir)/config/install-sh $(top_srcdir)/config/ltmain.sh \
 	$(top_srcdir)/config/missing $(top_srcdir)/config/py-compile \
 	$(top_srcdir)/config/test-driver \
+	$(top_srcdir)/lib/global_fixture_default.cc.in \
+	$(top_srcdir)/lib/skeleton_config.h.in \
 	$(top_srcdir)/script/setup_skeleton.csh.in \
 	$(top_srcdir)/script/setup_skeleton.sh.in AUTHORS COPYING \
 	ChangeLog INSTALL NEWS README config/compile \
@@ -528,6 +572,15 @@ AUTOCONF = @AUTOCONF@
 AUTOHEADER = @AUTOHEADER@
 AUTOMAKE = @AUTOMAKE@
 AWK = @AWK@
+BLITZ_CFLAGS = @BLITZ_CFLAGS@
+BLITZ_LIBS = @BLITZ_LIBS@
+BOOST_CPPFLAGS = @BOOST_CPPFLAGS@
+BOOST_DATETIME_LIB = @BOOST_DATETIME_LIB@
+BOOST_FILESYSTEM_LIB = @BOOST_FILESYSTEM_LIB@
+BOOST_IOSTREAMS_LIB = @BOOST_IOSTREAMS_LIB@
+BOOST_LIBDIR = @BOOST_LIBDIR@
+BOOST_REGEX_LIB = @BOOST_REGEX_LIB@
+BOOST_SERIALIZATION_LIB = @BOOST_SERIALIZATION_LIB@
 CC = @CC@
 CCDEPMODE = @CCDEPMODE@
 CFLAGS = @CFLAGS@
@@ -696,23 +749,46 @@ ACLOCAL_AMFLAGS = -I config/m4
 noop = 
 
 # Build these up as we go
-lib_LTLIBRARIES = 
+
+# Set up for the library
+lib_LTLIBRARIES = libskeleton.la
 noinst_LTLIBRARIES = 
 dist_bin_SCRIPTS = 
 AM_LDFLAGS = 
 BUILT_SOURCES = complain_if_afids $(am__append_1)
 include_HEADERS = 
+
+# Files that contain SWIG wrapper information.
+#SWIG_SRC += @swigsrc@/skeleton_exception_wrap.cc
+#skeletonswiginc_HEADERS+= @srclib@/skeleton_exception.i
+
+#SWIG_SRC += @swigsrc@/skeleton_swig_array_wrap.cc
+#skeletonswiginc_HEADERS+= @srclib@/skeleton_swig_array.i
+#SWIG_SRC += @swigsrc@/ecostress_scan_mirror_wrap.cc
+#skeletonswiginc_HEADERS+= @srclib@/ecostress_scan_mirror.i
+#SWIG_SRC += @swigsrc@/spectrum_camera_wrap.cc
+#skeletonswiginc_HEADERS+= @srclib@/spectrum_camera.i
+
+# Test files
 EXTRA_DIST = @swigrules@/doxy2swig.py @swigrules@/doxygen_single.cfg \
-	@swigrules@/README.md @swigrules@/swig_wrap.tmpl $(patsubst \
-	%_wrap.cc, %.py, $(FULL_SWIG_SRC)) $(patsubst %_wrap.cc, %.py, \
-	$(ADDITONAL_SWIG_SRC)) $(FULL_SWIG_SRC) $(ADDITONAL_SWIG_SRC) \
-	$(srcdir)/$(swigsrc)/*_wrap.h
+	@swigrules@/README.md @swigrules@/swig_wrap.tmpl \
+	@swigrules@/lib/generic_object.h.sample \
+	@swigrules@/lib/printable.h.sample \
+	@swigrules@/lib/serialize_support.h.sample \
+	@swigrules@/lib/blitz_array_serialize_support.h.sample \
+	@swigrules@/lib/blitz_array_serialize_support.cc.sample \
+	$(patsubst %_wrap.cc, %.py, $(FULL_SWIG_SRC)) $(patsubst \
+	%_wrap.cc, %.py, $(ADDITONAL_SWIG_SRC)) $(FULL_SWIG_SRC) \
+	$(ADDITONAL_SWIG_SRC) $(srcdir)/$(swigsrc)/*_wrap.h \
+	@srclib@/test_all.sh @srclib@/unit_test_support.h \
+	@srclib@/global_fixture.h
 CYTHON_SRC = 
 pkgconfig_DATA = 
 
 # Allow files to be include in other directories
+# To pick up generated skeleton_config.h file
 AM_CPPFLAGS = -I$(srcdir)/@swigrules@/include \
-	-I$(srcdir)/@swigrules@/lib
+	-I$(srcdir)/@swigrules@/lib -I$(srcdir)/@srclib@ -I@srclib@
 
 #=================================================================
 # Some flags needed for GCC compilers.
@@ -733,23 +809,45 @@ UNINSTALL_HOOK =
 CLEAN_HOOK = 
 INSTALLCHECK_HOOK = 
 CHECK_HOOK = 
+TESTS = @srclib@/test_all.sh
 check_PROGRAM = 
 check_DATA = 
 
 # Build these up as we go
-libskeleton_la_SOURCES = @swigrules@/lib/swig_type_mapper_base.cc
+libskeleton_la_SOURCES = @swigrules@/lib/swig_type_mapper_base.cc \
+	@swigrules@/lib/serialize_function.cc \
+	@srclib@/generic_object.cc @srclib@/iostream_swig.cc \
+	@srclib@/blitz_array_serialize_support.cc
 SWIG_SRC = 
+
+# Include blitz in builds
+libskeleton_la_LDFLAGS = -R $(BOOST_LIBDIR) -L$(BOOST_LIBDIR) \
+	$(BOOST_REGEX_LIB) $(BOOST_DATETIME_LIB) \
+	$(BOOST_IOSTREAMS_LIB) $(BOOST_FILESYSTEM_LIB) \
+	$(BOOST_SERIALIZATION_LIB) $(BLITZ_LIBS)
 skeletonincdir = @includedir@/skeleton
+
+#=================================================================
+# List of source files
 skeletoninc_HEADERS = @swigrules@/lib/swig_type_mapper_base.h \
 	@swigrules@/lib/python_lib_init.h \
 	@swigrules@/lib/swig_type_mapper.h \
-	@swigrules@/lib/swig_to_python.h
+	@swigrules@/lib/swig_to_python.h \
+	@swigrules@/lib/serialize_function.h \
+	@srclib@/skeleton_serialize_support.h \
+	@srclib@/generic_object.h @srclib@/printable.h \
+	@srclib@/skeleton_exception.i @srclib@/iostream_swig.h \
+	@srclib@/blitz_array_serialize_support.h
 skeletonswiginc_HEADERS = 
-skeleton_test_all_SOURCES = 
+skeleton_test_all_SOURCES = @srclib@/test_all.cc \
+	@srclib@/global_fixture.cc @srclib@/global_fixture_default.cc \
+	@srclib@/printable_test.cc \
+	@srclib@/blitz_array_serialize_support_test.cc
 dist_installskeleton_SCRIPTS = 
 SWIG_FLAG = -O
-libskeleton_la_CPPFLAGS = $(AM_CPPFLAGS) \
-	-DSWIG_MAPPER_NAMESPACE=GeoCal
+libskeleton_la_CPPFLAGS = $(AM_CPPFLAGS) $(BOOST_CPPFLAGS) \
+	$(BLITZ_CFLAGS) -DSWIG_MAPPER_NAMESPACE=Skeleton \
+	-DSWIG_HAVE_BOOST_SERIALIZATION=@SKELETON_HAVE_BOOST_SERIALIZATION@
 installskeleton_DATA = @srcscript@/setup_skeleton.csh @srcscript@/setup_skeleton.sh
 swiginc_HEADERS = @swigrules@/include/swig_python_attribute.i \
 	@swigrules@/include/my_shared_ptr.i \
@@ -779,6 +877,9 @@ SWIG_CPPFLAGS = $(AM_CPPFLAGS)
 SWIG_TYPE_TABLE_NAME = skeleton
 SWIG_MODULE_NAME = skeleton
 SWIG_LIBADD = libskeleton.la
+skeleton_test_all_LDADD = libskeleton.la 
+skeleton_test_all_LDFLAGS = -no-install 
+skeleton_test_all_CPPFLAGS = $(AM_CPPFLAGS)
 all: $(BUILT_SOURCES)
 	$(MAKE) $(AM_MAKEFLAGS) all-am
 
@@ -786,7 +887,7 @@ all: $(BUILT_SOURCES)
 .SUFFIXES: .cc .lo .log .o .obj .test .test$(EXEEXT) .trs
 am--refresh: Makefile
 	@:
-$(srcdir)/Makefile.in: @MAINTAINER_MODE_TRUE@ $(srcdir)/Makefile.am $(srcdir)/common.am $(srcdir)/include.am $(srcdir)/skeleton.am $(srcdir)/script/script.am $(srcdir)/swig_rules/swig_rules.am $(srcdir)/bindings/python/python.am $(am__configure_deps)
+$(srcdir)/Makefile.in: @MAINTAINER_MODE_TRUE@ $(srcdir)/Makefile.am $(srcdir)/common.am $(srcdir)/include.am $(srcdir)/skeleton.am $(srcdir)/script/script.am $(srcdir)/swig_rules/swig_rules.am $(srcdir)/bindings/python/python.am $(srcdir)/lib/lib.am $(am__configure_deps)
 	@for dep in $?; do \
 	  case '$(am__configure_deps)' in \
 	    *$$dep*) \
@@ -808,7 +909,7 @@ Makefile: $(srcdir)/Makefile.in $(top_builddir)/config.status
 	    echo ' cd $(top_builddir) && $(SHELL) ./config.status $@ $(am__maybe_remake_depfiles)'; \
 	    cd $(top_builddir) && $(SHELL) ./config.status $@ $(am__maybe_remake_depfiles);; \
 	esac;
-$(srcdir)/common.am $(srcdir)/include.am $(srcdir)/skeleton.am $(srcdir)/script/script.am $(srcdir)/swig_rules/swig_rules.am $(srcdir)/bindings/python/python.am $(am__empty):
+$(srcdir)/common.am $(srcdir)/include.am $(srcdir)/skeleton.am $(srcdir)/script/script.am $(srcdir)/swig_rules/swig_rules.am $(srcdir)/bindings/python/python.am $(srcdir)/lib/lib.am $(am__empty):
 
 $(top_builddir)/config.status: $(top_srcdir)/configure $(CONFIG_STATUS_DEPENDENCIES)
 	$(SHELL) ./config.status --recheck
@@ -818,9 +919,26 @@ $(top_srcdir)/configure: @MAINTAINER_MODE_TRUE@ $(am__configure_deps)
 $(ACLOCAL_M4): @MAINTAINER_MODE_TRUE@ $(am__aclocal_m4_deps)
 	$(am__cd) $(srcdir) && $(ACLOCAL) $(ACLOCAL_AMFLAGS)
 $(am__aclocal_m4_deps):
+
+lib/skeleton_config.h: lib/stamp-h1
+	@test -f $@ || rm -f lib/stamp-h1
+	@test -f $@ || $(MAKE) $(AM_MAKEFLAGS) lib/stamp-h1
+
+lib/stamp-h1: $(top_srcdir)/lib/skeleton_config.h.in $(top_builddir)/config.status
+	@rm -f lib/stamp-h1
+	cd $(top_builddir) && $(SHELL) ./config.status lib/skeleton_config.h
+$(top_srcdir)/lib/skeleton_config.h.in: @MAINTAINER_MODE_TRUE@ $(am__configure_deps) 
+	($(am__cd) $(top_srcdir) && $(AUTOHEADER))
+	rm -f lib/stamp-h1
+	touch $@
+
+distclean-hdr:
+	-rm -f lib/skeleton_config.h lib/stamp-h1
 script/setup_skeleton.csh: $(top_builddir)/config.status $(top_srcdir)/script/setup_skeleton.csh.in
 	cd $(top_builddir) && $(SHELL) ./config.status $@
 script/setup_skeleton.sh: $(top_builddir)/config.status $(top_srcdir)/script/setup_skeleton.sh.in
+	cd $(top_builddir) && $(SHELL) ./config.status $@
+lib/global_fixture_default.cc: $(top_builddir)/config.status $(top_srcdir)/lib/global_fixture_default.cc.in
 	cd $(top_builddir) && $(SHELL) ./config.status $@
 install-binPROGRAMS: $(bin_PROGRAMS)
 	@$(NORMAL_INSTALL)
@@ -865,6 +983,15 @@ uninstall-binPROGRAMS:
 
 clean-binPROGRAMS:
 	@list='$(bin_PROGRAMS)'; test -n "$$list" || exit 0; \
+	echo " rm -f" $$list; \
+	rm -f $$list || exit $$?; \
+	test -n "$(EXEEXT)" || exit 0; \
+	list=`for p in $$list; do echo "$$p"; done | sed 's/$(EXEEXT)$$//'`; \
+	echo " rm -f" $$list; \
+	rm -f $$list
+
+clean-checkPROGRAMS:
+	@list='$(check_PROGRAMS)'; test -n "$$list" || exit 0; \
 	echo " rm -f" $$list; \
 	rm -f $$list || exit $$?; \
 	test -n "$(EXEEXT)" || exit 0; \
@@ -967,6 +1094,47 @@ clean-pkgpythonswigLTLIBRARIES:
 
 _swig_wrap.la: $(_swig_wrap_la_OBJECTS) $(_swig_wrap_la_DEPENDENCIES) $(EXTRA__swig_wrap_la_DEPENDENCIES) 
 	$(AM_V_CXXLD)$(_swig_wrap_la_LINK) -rpath $(pkgpythonswigdir) $(_swig_wrap_la_OBJECTS) $(_swig_wrap_la_LIBADD) $(LIBS)
+@swigrules@/lib/$(am__dirstamp):
+	@$(MKDIR_P) @swigrules@/lib
+	@: > @swigrules@/lib/$(am__dirstamp)
+@swigrules@/lib/$(DEPDIR)/$(am__dirstamp):
+	@$(MKDIR_P) @swigrules@/lib/$(DEPDIR)
+	@: > @swigrules@/lib/$(DEPDIR)/$(am__dirstamp)
+@swigrules@/lib/libskeleton_la-swig_type_mapper_base.lo:  \
+	@swigrules@/lib/$(am__dirstamp) \
+	@swigrules@/lib/$(DEPDIR)/$(am__dirstamp)
+@swigrules@/lib/libskeleton_la-serialize_function.lo:  \
+	@swigrules@/lib/$(am__dirstamp) \
+	@swigrules@/lib/$(DEPDIR)/$(am__dirstamp)
+@srclib@/$(am__dirstamp):
+	@$(MKDIR_P) @srclib@
+	@: > @srclib@/$(am__dirstamp)
+@srclib@/$(DEPDIR)/$(am__dirstamp):
+	@$(MKDIR_P) @srclib@/$(DEPDIR)
+	@: > @srclib@/$(DEPDIR)/$(am__dirstamp)
+@srclib@/libskeleton_la-generic_object.lo: @srclib@/$(am__dirstamp) \
+	@srclib@/$(DEPDIR)/$(am__dirstamp)
+@srclib@/libskeleton_la-iostream_swig.lo: @srclib@/$(am__dirstamp) \
+	@srclib@/$(DEPDIR)/$(am__dirstamp)
+@srclib@/libskeleton_la-blitz_array_serialize_support.lo:  \
+	@srclib@/$(am__dirstamp) @srclib@/$(DEPDIR)/$(am__dirstamp)
+
+libskeleton.la: $(libskeleton_la_OBJECTS) $(libskeleton_la_DEPENDENCIES) $(EXTRA_libskeleton_la_DEPENDENCIES) 
+	$(AM_V_CXXLD)$(libskeleton_la_LINK) -rpath $(libdir) $(libskeleton_la_OBJECTS) $(libskeleton_la_LIBADD) $(LIBS)
+@srclib@/skeleton_test_all-test_all.$(OBJEXT):  \
+	@srclib@/$(am__dirstamp) @srclib@/$(DEPDIR)/$(am__dirstamp)
+@srclib@/skeleton_test_all-global_fixture.$(OBJEXT):  \
+	@srclib@/$(am__dirstamp) @srclib@/$(DEPDIR)/$(am__dirstamp)
+@srclib@/skeleton_test_all-global_fixture_default.$(OBJEXT):  \
+	@srclib@/$(am__dirstamp) @srclib@/$(DEPDIR)/$(am__dirstamp)
+@srclib@/skeleton_test_all-printable_test.$(OBJEXT):  \
+	@srclib@/$(am__dirstamp) @srclib@/$(DEPDIR)/$(am__dirstamp)
+@srclib@/skeleton_test_all-blitz_array_serialize_support_test.$(OBJEXT):  \
+	@srclib@/$(am__dirstamp) @srclib@/$(DEPDIR)/$(am__dirstamp)
+
+skeleton_test_all$(EXEEXT): $(skeleton_test_all_OBJECTS) $(skeleton_test_all_DEPENDENCIES) $(EXTRA_skeleton_test_all_DEPENDENCIES) 
+	@rm -f skeleton_test_all$(EXEEXT)
+	$(AM_V_CXXLD)$(skeleton_test_all_LINK) $(skeleton_test_all_OBJECTS) $(skeleton_test_all_LDADD) $(LIBS)
 install-dist_binSCRIPTS: $(dist_bin_SCRIPTS)
 	@$(NORMAL_INSTALL)
 	@list='$(dist_bin_SCRIPTS)'; test -n "$(bindir)" || list=; \
@@ -1040,12 +1208,26 @@ uninstall-dist_installskeletonSCRIPTS:
 
 mostlyclean-compile:
 	-rm -f *.$(OBJEXT)
+	-rm -f @srclib@/*.$(OBJEXT)
+	-rm -f @srclib@/*.lo
+	-rm -f @swigrules@/lib/*.$(OBJEXT)
+	-rm -f @swigrules@/lib/*.lo
 	-rm -f @swigsrc@/*.$(OBJEXT)
 	-rm -f @swigsrc@/*.lo
 
 distclean-compile:
 	-rm -f *.tab.c
 
+@AMDEP_TRUE@@am__include@ @am__quote@@srclib@/$(DEPDIR)/libskeleton_la-blitz_array_serialize_support.Plo@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@@srclib@/$(DEPDIR)/libskeleton_la-generic_object.Plo@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@@srclib@/$(DEPDIR)/libskeleton_la-iostream_swig.Plo@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@@srclib@/$(DEPDIR)/skeleton_test_all-blitz_array_serialize_support_test.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@@srclib@/$(DEPDIR)/skeleton_test_all-global_fixture.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@@srclib@/$(DEPDIR)/skeleton_test_all-global_fixture_default.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@@srclib@/$(DEPDIR)/skeleton_test_all-printable_test.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@@srclib@/$(DEPDIR)/skeleton_test_all-test_all.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@@swigrules@/lib/$(DEPDIR)/libskeleton_la-serialize_function.Plo@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@@swigrules@/lib/$(DEPDIR)/libskeleton_la-swig_type_mapper_base.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@@swigsrc@/$(DEPDIR)/_swig_wrap_la-swig_array_wrap.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@@swigsrc@/$(DEPDIR)/_swig_wrap_la-swig_boost_array_wrap.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@@swigsrc@/$(DEPDIR)/_swig_wrap_la-swig_wrap.Plo@am__quote@ # am--include-marker
@@ -1101,11 +1283,118 @@ am--depfiles: $(am__depfiles_remade)
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(_swig_wrap_la_CPPFLAGS) $(CPPFLAGS) $(_swig_wrap_la_CXXFLAGS) $(CXXFLAGS) -c -o @swigsrc@/_swig_wrap_la-swig_wrap.lo `test -f '@swigsrc@/swig_wrap.cc' || echo '$(srcdir)/'`@swigsrc@/swig_wrap.cc
 
+@swigrules@/lib/libskeleton_la-swig_type_mapper_base.lo: @swigrules@/lib/swig_type_mapper_base.cc
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libskeleton_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT @swigrules@/lib/libskeleton_la-swig_type_mapper_base.lo -MD -MP -MF @swigrules@/lib/$(DEPDIR)/libskeleton_la-swig_type_mapper_base.Tpo -c -o @swigrules@/lib/libskeleton_la-swig_type_mapper_base.lo `test -f '@swigrules@/lib/swig_type_mapper_base.cc' || echo '$(srcdir)/'`@swigrules@/lib/swig_type_mapper_base.cc
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) @swigrules@/lib/$(DEPDIR)/libskeleton_la-swig_type_mapper_base.Tpo @swigrules@/lib/$(DEPDIR)/libskeleton_la-swig_type_mapper_base.Plo
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='@swigrules@/lib/swig_type_mapper_base.cc' object='@swigrules@/lib/libskeleton_la-swig_type_mapper_base.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libskeleton_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o @swigrules@/lib/libskeleton_la-swig_type_mapper_base.lo `test -f '@swigrules@/lib/swig_type_mapper_base.cc' || echo '$(srcdir)/'`@swigrules@/lib/swig_type_mapper_base.cc
+
+@swigrules@/lib/libskeleton_la-serialize_function.lo: @swigrules@/lib/serialize_function.cc
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libskeleton_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT @swigrules@/lib/libskeleton_la-serialize_function.lo -MD -MP -MF @swigrules@/lib/$(DEPDIR)/libskeleton_la-serialize_function.Tpo -c -o @swigrules@/lib/libskeleton_la-serialize_function.lo `test -f '@swigrules@/lib/serialize_function.cc' || echo '$(srcdir)/'`@swigrules@/lib/serialize_function.cc
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) @swigrules@/lib/$(DEPDIR)/libskeleton_la-serialize_function.Tpo @swigrules@/lib/$(DEPDIR)/libskeleton_la-serialize_function.Plo
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='@swigrules@/lib/serialize_function.cc' object='@swigrules@/lib/libskeleton_la-serialize_function.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libskeleton_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o @swigrules@/lib/libskeleton_la-serialize_function.lo `test -f '@swigrules@/lib/serialize_function.cc' || echo '$(srcdir)/'`@swigrules@/lib/serialize_function.cc
+
+@srclib@/libskeleton_la-generic_object.lo: @srclib@/generic_object.cc
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libskeleton_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT @srclib@/libskeleton_la-generic_object.lo -MD -MP -MF @srclib@/$(DEPDIR)/libskeleton_la-generic_object.Tpo -c -o @srclib@/libskeleton_la-generic_object.lo `test -f '@srclib@/generic_object.cc' || echo '$(srcdir)/'`@srclib@/generic_object.cc
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) @srclib@/$(DEPDIR)/libskeleton_la-generic_object.Tpo @srclib@/$(DEPDIR)/libskeleton_la-generic_object.Plo
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='@srclib@/generic_object.cc' object='@srclib@/libskeleton_la-generic_object.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libskeleton_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o @srclib@/libskeleton_la-generic_object.lo `test -f '@srclib@/generic_object.cc' || echo '$(srcdir)/'`@srclib@/generic_object.cc
+
+@srclib@/libskeleton_la-iostream_swig.lo: @srclib@/iostream_swig.cc
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libskeleton_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT @srclib@/libskeleton_la-iostream_swig.lo -MD -MP -MF @srclib@/$(DEPDIR)/libskeleton_la-iostream_swig.Tpo -c -o @srclib@/libskeleton_la-iostream_swig.lo `test -f '@srclib@/iostream_swig.cc' || echo '$(srcdir)/'`@srclib@/iostream_swig.cc
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) @srclib@/$(DEPDIR)/libskeleton_la-iostream_swig.Tpo @srclib@/$(DEPDIR)/libskeleton_la-iostream_swig.Plo
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='@srclib@/iostream_swig.cc' object='@srclib@/libskeleton_la-iostream_swig.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libskeleton_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o @srclib@/libskeleton_la-iostream_swig.lo `test -f '@srclib@/iostream_swig.cc' || echo '$(srcdir)/'`@srclib@/iostream_swig.cc
+
+@srclib@/libskeleton_la-blitz_array_serialize_support.lo: @srclib@/blitz_array_serialize_support.cc
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libskeleton_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT @srclib@/libskeleton_la-blitz_array_serialize_support.lo -MD -MP -MF @srclib@/$(DEPDIR)/libskeleton_la-blitz_array_serialize_support.Tpo -c -o @srclib@/libskeleton_la-blitz_array_serialize_support.lo `test -f '@srclib@/blitz_array_serialize_support.cc' || echo '$(srcdir)/'`@srclib@/blitz_array_serialize_support.cc
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) @srclib@/$(DEPDIR)/libskeleton_la-blitz_array_serialize_support.Tpo @srclib@/$(DEPDIR)/libskeleton_la-blitz_array_serialize_support.Plo
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='@srclib@/blitz_array_serialize_support.cc' object='@srclib@/libskeleton_la-blitz_array_serialize_support.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libskeleton_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o @srclib@/libskeleton_la-blitz_array_serialize_support.lo `test -f '@srclib@/blitz_array_serialize_support.cc' || echo '$(srcdir)/'`@srclib@/blitz_array_serialize_support.cc
+
+@srclib@/skeleton_test_all-test_all.o: @srclib@/test_all.cc
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(skeleton_test_all_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT @srclib@/skeleton_test_all-test_all.o -MD -MP -MF @srclib@/$(DEPDIR)/skeleton_test_all-test_all.Tpo -c -o @srclib@/skeleton_test_all-test_all.o `test -f '@srclib@/test_all.cc' || echo '$(srcdir)/'`@srclib@/test_all.cc
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) @srclib@/$(DEPDIR)/skeleton_test_all-test_all.Tpo @srclib@/$(DEPDIR)/skeleton_test_all-test_all.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='@srclib@/test_all.cc' object='@srclib@/skeleton_test_all-test_all.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(skeleton_test_all_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o @srclib@/skeleton_test_all-test_all.o `test -f '@srclib@/test_all.cc' || echo '$(srcdir)/'`@srclib@/test_all.cc
+
+@srclib@/skeleton_test_all-test_all.obj: @srclib@/test_all.cc
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(skeleton_test_all_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT @srclib@/skeleton_test_all-test_all.obj -MD -MP -MF @srclib@/$(DEPDIR)/skeleton_test_all-test_all.Tpo -c -o @srclib@/skeleton_test_all-test_all.obj `if test -f '@srclib@/test_all.cc'; then $(CYGPATH_W) '@srclib@/test_all.cc'; else $(CYGPATH_W) '$(srcdir)/@srclib@/test_all.cc'; fi`
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) @srclib@/$(DEPDIR)/skeleton_test_all-test_all.Tpo @srclib@/$(DEPDIR)/skeleton_test_all-test_all.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='@srclib@/test_all.cc' object='@srclib@/skeleton_test_all-test_all.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(skeleton_test_all_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o @srclib@/skeleton_test_all-test_all.obj `if test -f '@srclib@/test_all.cc'; then $(CYGPATH_W) '@srclib@/test_all.cc'; else $(CYGPATH_W) '$(srcdir)/@srclib@/test_all.cc'; fi`
+
+@srclib@/skeleton_test_all-global_fixture.o: @srclib@/global_fixture.cc
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(skeleton_test_all_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT @srclib@/skeleton_test_all-global_fixture.o -MD -MP -MF @srclib@/$(DEPDIR)/skeleton_test_all-global_fixture.Tpo -c -o @srclib@/skeleton_test_all-global_fixture.o `test -f '@srclib@/global_fixture.cc' || echo '$(srcdir)/'`@srclib@/global_fixture.cc
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) @srclib@/$(DEPDIR)/skeleton_test_all-global_fixture.Tpo @srclib@/$(DEPDIR)/skeleton_test_all-global_fixture.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='@srclib@/global_fixture.cc' object='@srclib@/skeleton_test_all-global_fixture.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(skeleton_test_all_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o @srclib@/skeleton_test_all-global_fixture.o `test -f '@srclib@/global_fixture.cc' || echo '$(srcdir)/'`@srclib@/global_fixture.cc
+
+@srclib@/skeleton_test_all-global_fixture.obj: @srclib@/global_fixture.cc
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(skeleton_test_all_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT @srclib@/skeleton_test_all-global_fixture.obj -MD -MP -MF @srclib@/$(DEPDIR)/skeleton_test_all-global_fixture.Tpo -c -o @srclib@/skeleton_test_all-global_fixture.obj `if test -f '@srclib@/global_fixture.cc'; then $(CYGPATH_W) '@srclib@/global_fixture.cc'; else $(CYGPATH_W) '$(srcdir)/@srclib@/global_fixture.cc'; fi`
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) @srclib@/$(DEPDIR)/skeleton_test_all-global_fixture.Tpo @srclib@/$(DEPDIR)/skeleton_test_all-global_fixture.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='@srclib@/global_fixture.cc' object='@srclib@/skeleton_test_all-global_fixture.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(skeleton_test_all_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o @srclib@/skeleton_test_all-global_fixture.obj `if test -f '@srclib@/global_fixture.cc'; then $(CYGPATH_W) '@srclib@/global_fixture.cc'; else $(CYGPATH_W) '$(srcdir)/@srclib@/global_fixture.cc'; fi`
+
+@srclib@/skeleton_test_all-global_fixture_default.o: @srclib@/global_fixture_default.cc
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(skeleton_test_all_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT @srclib@/skeleton_test_all-global_fixture_default.o -MD -MP -MF @srclib@/$(DEPDIR)/skeleton_test_all-global_fixture_default.Tpo -c -o @srclib@/skeleton_test_all-global_fixture_default.o `test -f '@srclib@/global_fixture_default.cc' || echo '$(srcdir)/'`@srclib@/global_fixture_default.cc
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) @srclib@/$(DEPDIR)/skeleton_test_all-global_fixture_default.Tpo @srclib@/$(DEPDIR)/skeleton_test_all-global_fixture_default.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='@srclib@/global_fixture_default.cc' object='@srclib@/skeleton_test_all-global_fixture_default.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(skeleton_test_all_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o @srclib@/skeleton_test_all-global_fixture_default.o `test -f '@srclib@/global_fixture_default.cc' || echo '$(srcdir)/'`@srclib@/global_fixture_default.cc
+
+@srclib@/skeleton_test_all-global_fixture_default.obj: @srclib@/global_fixture_default.cc
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(skeleton_test_all_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT @srclib@/skeleton_test_all-global_fixture_default.obj -MD -MP -MF @srclib@/$(DEPDIR)/skeleton_test_all-global_fixture_default.Tpo -c -o @srclib@/skeleton_test_all-global_fixture_default.obj `if test -f '@srclib@/global_fixture_default.cc'; then $(CYGPATH_W) '@srclib@/global_fixture_default.cc'; else $(CYGPATH_W) '$(srcdir)/@srclib@/global_fixture_default.cc'; fi`
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) @srclib@/$(DEPDIR)/skeleton_test_all-global_fixture_default.Tpo @srclib@/$(DEPDIR)/skeleton_test_all-global_fixture_default.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='@srclib@/global_fixture_default.cc' object='@srclib@/skeleton_test_all-global_fixture_default.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(skeleton_test_all_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o @srclib@/skeleton_test_all-global_fixture_default.obj `if test -f '@srclib@/global_fixture_default.cc'; then $(CYGPATH_W) '@srclib@/global_fixture_default.cc'; else $(CYGPATH_W) '$(srcdir)/@srclib@/global_fixture_default.cc'; fi`
+
+@srclib@/skeleton_test_all-printable_test.o: @srclib@/printable_test.cc
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(skeleton_test_all_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT @srclib@/skeleton_test_all-printable_test.o -MD -MP -MF @srclib@/$(DEPDIR)/skeleton_test_all-printable_test.Tpo -c -o @srclib@/skeleton_test_all-printable_test.o `test -f '@srclib@/printable_test.cc' || echo '$(srcdir)/'`@srclib@/printable_test.cc
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) @srclib@/$(DEPDIR)/skeleton_test_all-printable_test.Tpo @srclib@/$(DEPDIR)/skeleton_test_all-printable_test.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='@srclib@/printable_test.cc' object='@srclib@/skeleton_test_all-printable_test.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(skeleton_test_all_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o @srclib@/skeleton_test_all-printable_test.o `test -f '@srclib@/printable_test.cc' || echo '$(srcdir)/'`@srclib@/printable_test.cc
+
+@srclib@/skeleton_test_all-printable_test.obj: @srclib@/printable_test.cc
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(skeleton_test_all_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT @srclib@/skeleton_test_all-printable_test.obj -MD -MP -MF @srclib@/$(DEPDIR)/skeleton_test_all-printable_test.Tpo -c -o @srclib@/skeleton_test_all-printable_test.obj `if test -f '@srclib@/printable_test.cc'; then $(CYGPATH_W) '@srclib@/printable_test.cc'; else $(CYGPATH_W) '$(srcdir)/@srclib@/printable_test.cc'; fi`
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) @srclib@/$(DEPDIR)/skeleton_test_all-printable_test.Tpo @srclib@/$(DEPDIR)/skeleton_test_all-printable_test.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='@srclib@/printable_test.cc' object='@srclib@/skeleton_test_all-printable_test.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(skeleton_test_all_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o @srclib@/skeleton_test_all-printable_test.obj `if test -f '@srclib@/printable_test.cc'; then $(CYGPATH_W) '@srclib@/printable_test.cc'; else $(CYGPATH_W) '$(srcdir)/@srclib@/printable_test.cc'; fi`
+
+@srclib@/skeleton_test_all-blitz_array_serialize_support_test.o: @srclib@/blitz_array_serialize_support_test.cc
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(skeleton_test_all_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT @srclib@/skeleton_test_all-blitz_array_serialize_support_test.o -MD -MP -MF @srclib@/$(DEPDIR)/skeleton_test_all-blitz_array_serialize_support_test.Tpo -c -o @srclib@/skeleton_test_all-blitz_array_serialize_support_test.o `test -f '@srclib@/blitz_array_serialize_support_test.cc' || echo '$(srcdir)/'`@srclib@/blitz_array_serialize_support_test.cc
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) @srclib@/$(DEPDIR)/skeleton_test_all-blitz_array_serialize_support_test.Tpo @srclib@/$(DEPDIR)/skeleton_test_all-blitz_array_serialize_support_test.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='@srclib@/blitz_array_serialize_support_test.cc' object='@srclib@/skeleton_test_all-blitz_array_serialize_support_test.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(skeleton_test_all_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o @srclib@/skeleton_test_all-blitz_array_serialize_support_test.o `test -f '@srclib@/blitz_array_serialize_support_test.cc' || echo '$(srcdir)/'`@srclib@/blitz_array_serialize_support_test.cc
+
+@srclib@/skeleton_test_all-blitz_array_serialize_support_test.obj: @srclib@/blitz_array_serialize_support_test.cc
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(skeleton_test_all_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT @srclib@/skeleton_test_all-blitz_array_serialize_support_test.obj -MD -MP -MF @srclib@/$(DEPDIR)/skeleton_test_all-blitz_array_serialize_support_test.Tpo -c -o @srclib@/skeleton_test_all-blitz_array_serialize_support_test.obj `if test -f '@srclib@/blitz_array_serialize_support_test.cc'; then $(CYGPATH_W) '@srclib@/blitz_array_serialize_support_test.cc'; else $(CYGPATH_W) '$(srcdir)/@srclib@/blitz_array_serialize_support_test.cc'; fi`
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) @srclib@/$(DEPDIR)/skeleton_test_all-blitz_array_serialize_support_test.Tpo @srclib@/$(DEPDIR)/skeleton_test_all-blitz_array_serialize_support_test.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='@srclib@/blitz_array_serialize_support_test.cc' object='@srclib@/skeleton_test_all-blitz_array_serialize_support_test.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(skeleton_test_all_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o @srclib@/skeleton_test_all-blitz_array_serialize_support_test.obj `if test -f '@srclib@/blitz_array_serialize_support_test.cc'; then $(CYGPATH_W) '@srclib@/blitz_array_serialize_support_test.cc'; else $(CYGPATH_W) '$(srcdir)/@srclib@/blitz_array_serialize_support_test.cc'; fi`
+
 mostlyclean-libtool:
 	-rm -f *.lo
 
 clean-libtool:
 	-rm -rf .libs _libs
+	-rm -rf @srclib@/.libs @srclib@/_libs
+	-rm -rf @swigrules@/lib/.libs @swigrules@/lib/_libs
 	-rm -rf @swigsrc@/.libs @swigsrc@/_libs
 
 distclean-libtool:
@@ -1459,7 +1748,7 @@ $(TEST_SUITE_LOG): $(TEST_LOGS)
 	fi;								\
 	$$success || exit 1
 
-check-TESTS: $(check_DATA)
+check-TESTS: $(check_PROGRAMS) $(check_DATA)
 	@list='$(RECHECK_LOGS)';           test -z "$$list" || rm -f $$list
 	@list='$(RECHECK_LOGS:.log=.trs)'; test -z "$$list" || rm -f $$list
 	@test -z "$(TEST_SUITE_LOG)" || rm -f $(TEST_SUITE_LOG)
@@ -1469,7 +1758,7 @@ check-TESTS: $(check_DATA)
 	log_list=`echo $$log_list`; trs_list=`echo $$trs_list`; \
 	$(MAKE) $(AM_MAKEFLAGS) $(TEST_SUITE_LOG) TEST_LOGS="$$log_list"; \
 	exit $$?;
-recheck: all $(check_DATA)
+recheck: all $(check_PROGRAMS) $(check_DATA)
 	@test -z "$(TEST_SUITE_LOG)" || rm -f $(TEST_SUITE_LOG)
 	@set +e; $(am__set_TESTS_bases); \
 	bases=`for i in $$bases; do echo $$i; done \
@@ -1480,6 +1769,13 @@ recheck: all $(check_DATA)
 	        am__force_recheck=am--force-recheck \
 	        TEST_LOGS="$$log_list"; \
 	exit $$?
+@srclib@/test_all.sh.log: @srclib@/test_all.sh
+	@p='@srclib@/test_all.sh'; \
+	b='@srclib@/test_all.sh'; \
+	$(am__check_pre) $(LOG_DRIVER) --test-name "$$f" \
+	--log-file $$b.log --trs-file $$b.trs \
+	$(am__common_driver_flags) $(AM_LOG_DRIVER_FLAGS) $(LOG_DRIVER_FLAGS) -- $(LOG_COMPILE) \
+	"$$tst" $(AM_TESTS_FD_REDIRECT)
 .test.log:
 	@p='$<'; \
 	$(am__set_b); \
@@ -1662,7 +1958,7 @@ distcleancheck: distclean
 	       $(distcleancheck_listfiles) ; \
 	       exit 1; } >&2
 check-am: all-am
-	$(MAKE) $(AM_MAKEFLAGS) $(check_DATA)
+	$(MAKE) $(AM_MAKEFLAGS) $(check_PROGRAMS) $(check_DATA)
 	$(MAKE) $(AM_MAKEFLAGS) check-TESTS check-local
 check: $(BUILT_SOURCES)
 	$(MAKE) $(AM_MAKEFLAGS) check-am
@@ -1704,6 +2000,10 @@ clean-generic:
 distclean-generic:
 	-test -z "$(CONFIG_CLEAN_FILES)" || rm -f $(CONFIG_CLEAN_FILES)
 	-test . = "$(srcdir)" || test -z "$(CONFIG_CLEAN_VPATH_FILES)" || rm -f $(CONFIG_CLEAN_VPATH_FILES)
+	-rm -f @srclib@/$(DEPDIR)/$(am__dirstamp)
+	-rm -f @srclib@/$(am__dirstamp)
+	-rm -f @swigrules@/lib/$(DEPDIR)/$(am__dirstamp)
+	-rm -f @swigrules@/lib/$(am__dirstamp)
 	-rm -f @swigsrc@/$(DEPDIR)/$(am__dirstamp)
 	-rm -f @swigsrc@/$(am__dirstamp)
 
@@ -1713,18 +2013,29 @@ maintainer-clean-generic:
 	-test -z "$(BUILT_SOURCES)" || rm -f $(BUILT_SOURCES)
 clean: clean-am
 
-clean-am: clean-binPROGRAMS clean-generic clean-libLTLIBRARIES \
-	clean-libtool clean-local clean-noinstLTLIBRARIES \
-	clean-pkgpythonswigLTLIBRARIES mostlyclean-am
+clean-am: clean-binPROGRAMS clean-checkPROGRAMS clean-generic \
+	clean-libLTLIBRARIES clean-libtool clean-local \
+	clean-noinstLTLIBRARIES clean-pkgpythonswigLTLIBRARIES \
+	mostlyclean-am
 
 distclean: distclean-am
 	-rm -f $(am__CONFIG_DISTCLEAN_FILES)
-		-rm -f @swigsrc@/$(DEPDIR)/_swig_wrap_la-swig_array_wrap.Plo
+		-rm -f @srclib@/$(DEPDIR)/libskeleton_la-blitz_array_serialize_support.Plo
+	-rm -f @srclib@/$(DEPDIR)/libskeleton_la-generic_object.Plo
+	-rm -f @srclib@/$(DEPDIR)/libskeleton_la-iostream_swig.Plo
+	-rm -f @srclib@/$(DEPDIR)/skeleton_test_all-blitz_array_serialize_support_test.Po
+	-rm -f @srclib@/$(DEPDIR)/skeleton_test_all-global_fixture.Po
+	-rm -f @srclib@/$(DEPDIR)/skeleton_test_all-global_fixture_default.Po
+	-rm -f @srclib@/$(DEPDIR)/skeleton_test_all-printable_test.Po
+	-rm -f @srclib@/$(DEPDIR)/skeleton_test_all-test_all.Po
+	-rm -f @swigrules@/lib/$(DEPDIR)/libskeleton_la-serialize_function.Plo
+	-rm -f @swigrules@/lib/$(DEPDIR)/libskeleton_la-swig_type_mapper_base.Plo
+	-rm -f @swigsrc@/$(DEPDIR)/_swig_wrap_la-swig_array_wrap.Plo
 	-rm -f @swigsrc@/$(DEPDIR)/_swig_wrap_la-swig_boost_array_wrap.Plo
 	-rm -f @swigsrc@/$(DEPDIR)/_swig_wrap_la-swig_wrap.Plo
 	-rm -f Makefile
 distclean-am: clean-am distclean-compile distclean-generic \
-	distclean-libtool distclean-tags
+	distclean-hdr distclean-libtool distclean-tags
 
 dvi: dvi-am
 
@@ -1775,7 +2086,17 @@ installcheck-am: installcheck-local
 maintainer-clean: maintainer-clean-am
 	-rm -f $(am__CONFIG_DISTCLEAN_FILES)
 	-rm -rf $(top_srcdir)/autom4te.cache
-		-rm -f @swigsrc@/$(DEPDIR)/_swig_wrap_la-swig_array_wrap.Plo
+		-rm -f @srclib@/$(DEPDIR)/libskeleton_la-blitz_array_serialize_support.Plo
+	-rm -f @srclib@/$(DEPDIR)/libskeleton_la-generic_object.Plo
+	-rm -f @srclib@/$(DEPDIR)/libskeleton_la-iostream_swig.Plo
+	-rm -f @srclib@/$(DEPDIR)/skeleton_test_all-blitz_array_serialize_support_test.Po
+	-rm -f @srclib@/$(DEPDIR)/skeleton_test_all-global_fixture.Po
+	-rm -f @srclib@/$(DEPDIR)/skeleton_test_all-global_fixture_default.Po
+	-rm -f @srclib@/$(DEPDIR)/skeleton_test_all-printable_test.Po
+	-rm -f @srclib@/$(DEPDIR)/skeleton_test_all-test_all.Po
+	-rm -f @swigrules@/lib/$(DEPDIR)/libskeleton_la-serialize_function.Plo
+	-rm -f @swigrules@/lib/$(DEPDIR)/libskeleton_la-swig_type_mapper_base.Plo
+	-rm -f @swigsrc@/$(DEPDIR)/_swig_wrap_la-swig_array_wrap.Plo
 	-rm -f @swigsrc@/$(DEPDIR)/_swig_wrap_la-swig_boost_array_wrap.Plo
 	-rm -f @swigsrc@/$(DEPDIR)/_swig_wrap_la-swig_wrap.Plo
 	-rm -f Makefile
@@ -1807,16 +2128,16 @@ uninstall-am: uninstall-binPROGRAMS uninstall-dist_binSCRIPTS \
 
 .PHONY: CTAGS GTAGS TAGS all all-am am--depfiles am--refresh check \
 	check-TESTS check-am check-local clean clean-binPROGRAMS \
-	clean-cscope clean-generic clean-libLTLIBRARIES clean-libtool \
-	clean-local clean-noinstLTLIBRARIES \
-	clean-pkgpythonswigLTLIBRARIES cscope cscopelist-am ctags \
-	ctags-am dist dist-all dist-bzip2 dist-gzip dist-lzip \
-	dist-shar dist-tarZ dist-xz dist-zip distcheck distclean \
-	distclean-compile distclean-generic distclean-libtool \
-	distclean-tags distcleancheck distdir distuninstallcheck dvi \
-	dvi-am html html-am info info-am install install-am \
-	install-binPROGRAMS install-data install-data-am \
-	install-data-hook install-dist_binSCRIPTS \
+	clean-checkPROGRAMS clean-cscope clean-generic \
+	clean-libLTLIBRARIES clean-libtool clean-local \
+	clean-noinstLTLIBRARIES clean-pkgpythonswigLTLIBRARIES cscope \
+	cscopelist-am ctags ctags-am dist dist-all dist-bzip2 \
+	dist-gzip dist-lzip dist-shar dist-tarZ dist-xz dist-zip \
+	distcheck distclean distclean-compile distclean-generic \
+	distclean-hdr distclean-libtool distclean-tags distcleancheck \
+	distdir distuninstallcheck dvi dvi-am html html-am info \
+	info-am install install-am install-binPROGRAMS install-data \
+	install-data-am install-data-hook install-dist_binSCRIPTS \
 	install-dist_installskeletonSCRIPTS install-dvi install-dvi-am \
 	install-exec install-exec-am install-html install-html-am \
 	install-includeHEADERS install-info install-info-am \
@@ -1923,8 +2244,34 @@ install-python-2: install-libLTLIBRARIES install-python-skeleton install-pkgpyth
 install-python: all
 	$(MAKE) -j 1 install-python-2 
 
+# Variables used in testing
+export abs_top_srcdir 
+export abs_top_builddir
+export testdatadir
+export run_test = *
+
+#=================================================================
+# Normally check builds all the libraries, and tests all the pyton. This
+# version builds just what is needed for C++ unit tests, which is faster
+# to do during development.
+
+skeleton-check: $(BUILT_SOURCES)
+	$(MAKE) $(AM_MAKEFLAGS) skeleton-check-am
+
+skeleton-check-am: skeleton_test_all
+	@echo "====================================================="
+	@echo "This just builds and runs the skeleton C++ unit tests"
+	@echo "(useful during development). It does run the python "
+	@echo "tests, use check for that"
+	@echo "====================================================="
+	$(srcdir)/$(srclib)/test_all.sh
+
+# Allow searchs for .i, .h. and .cc files in this directory
+vpath %.cc $(srcdir)/@srclib@
+vpath %.h $(srcdir)/@srclib@
+vpath %.i $(srcdir)/@srclib@
+
 #include python/python.am
-#include lib/lib.am
 #include unit_test_data/unit_test_data.am
 
 # Tell versions [3.59,3.63) of GNU make to not export all variables.

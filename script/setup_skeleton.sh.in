@@ -4,8 +4,6 @@ if [ -z "$SKELETONTOP" ]; then
     export SKELETONTOP=@prefix@
 fi
 
-source @geocaldir@/setup_geocal.sh
-
 if [ -n "$PYTHONPATH" ]; then
   export PYTHONPATH=${SKELETONTOP}/@pythondir@:${SKELETONTOP}/@platpythondir@:${PYTHONPATH}
 else

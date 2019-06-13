@@ -5,7 +5,8 @@ AC_CONFIG_AUX_DIR([config])
 AC_CONFIG_MACRO_DIR([config/m4])
 AC_CONFIG_MACRO_DIR([config/m4_local])
 AC_CONFIG_FILES([script/setup_skeleton.csh script/setup_skeleton.sh])
-#AC_CONFIG_FILES([lib/global_fixture_default.cc])
+AC_CONFIG_HEADERS([lib/skeleton_config.h])
+AC_CONFIG_FILES([lib/global_fixture_default.cc])
 
 SKELETON_COMMON
 
@@ -29,6 +30,8 @@ LD_LIBRARY_PATH="${original_ld_library_path}"
 #=================================================================
 # Various thirdparty libraries.
 AC_DOXYGEN(optional, cannot_build, default_search)
+AC_BOOST(required, can_build, default_search, 1.46.0)
+AC_BLITZ(required, cannot_build, default_search)
 
 #=================================================================
 # Location of all the source code directories
@@ -48,6 +51,20 @@ AC_ARG_WITH([swig],
 AC_PROG_SWIG(3.0.7)
 SWIG_ENABLE_CXX
 SWIG_PYTHON
+
+#=================================================================
+# Turn off use of boost serialization of desired. Don't have a use
+# case for this yet, but it is easier to put in and not use than
+# to not have it and find we need it.
+
+AC_ARG_WITH([boost-serialization],
+            [AS_HELP_STRING([--without-boost-serialization],
+	      [Do not include code to support doing boost serialization with GeoCal objects])],
+	      [with_boost_serialization=no],
+              [with_boost_serialization=yes])
+if test "$with_boost_serialization" = "yes"; then
+    AC_DEFINE(SKELETON_HAVE_BOOST_SERIALIZATION,,[Defined if we have boost serialization])
+fi
 
 #=================================================================
 # Option to bypass running doxygen to update documentation. This is useful
@@ -93,5 +110,5 @@ LOC_MSG([  CXX compiler:                  ${CXX} ${CXXFLAGS}])
 LOC_MSG()
 LOC_MSG([  Generate SWIG wrappers:        ${generate_swig}])
 LOC_MSG([  Install documentation:         ${with_documentation}])
-LOC_MSG([  Generate cython wrappers:      ${generate_cython}])
+
 

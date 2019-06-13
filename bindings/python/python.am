@@ -19,7 +19,11 @@ skeletoninc_HEADERS+= @swigrules@/lib/swig_type_mapper_base.h
 skeletoninc_HEADERS+= @swigrules@/lib/python_lib_init.h
 skeletoninc_HEADERS+= @swigrules@/lib/swig_type_mapper.h
 skeletoninc_HEADERS+= @swigrules@/lib/swig_to_python.h
+skeletoninc_HEADERS+= @swigrules@/lib/serialize_function.h
 libskeleton_la_SOURCES+= @swigrules@/lib/swig_type_mapper_base.cc
-libskeleton_la_CPPFLAGS+= -DSWIG_MAPPER_NAMESPACE=GeoCal
+libskeleton_la_SOURCES+= @swigrules@/lib/serialize_function.cc
+libskeleton_la_CPPFLAGS+= -DSWIG_MAPPER_NAMESPACE=Skeleton
+libskeleton_la_CPPFLAGS+= -DSWIG_HAVE_BOOST_SERIALIZATION=@SKELETON_HAVE_BOOST_SERIALIZATION@
+
 
 
