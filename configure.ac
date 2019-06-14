@@ -15,7 +15,7 @@ SKELETON_COMMON
 # (note for skeleton we don't depend on AFIDS, but leave this name in
 # place in case we need to add this back in).
 
-AFIDS_LOCATION
+#AFIDS_LOCATION
 
 #=================================================================
 # Find python. Note that the virtual environment has modules that
