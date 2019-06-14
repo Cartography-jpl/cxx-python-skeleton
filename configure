@@ -655,6 +655,7 @@ srccython
 srcpythonbin
 srcpythonlib
 srclib
+testsupportsrc
 srcpython
 srcscript
 swigrules
@@ -19463,6 +19464,8 @@ swigrules=swig_rules
 srcscript=script
 
 srcpython=python
+
+testsupportsrc=python/test_support
 
 srclib=lib
 

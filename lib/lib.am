@@ -17,7 +17,7 @@ skeletoninc_HEADERS+= @srclib@/skeleton_serialize_support.h
 skeletoninc_HEADERS+= @srclib@/generic_object.h
 libskeleton_la_SOURCES+= @srclib@/generic_object.cc
 skeletoninc_HEADERS+= @srclib@/printable.h
-skeletoninc_HEADERS+= @srclib@/skeleton_exception.i
+skeletoninc_HEADERS+= @srclib@/skeleton_exception.h
 skeletoninc_HEADERS+= @srclib@/iostream_swig.h
 libskeleton_la_SOURCES+= @srclib@/iostream_swig.cc
 skeletoninc_HEADERS+= @srclib@/blitz_array_serialize_support.h
@@ -31,6 +31,7 @@ skeletonswiginc_HEADERS+= @srclib@/skeleton_exception.i
 SWIG_SRC += @swigsrc@/generic_object_wrap.cc
 skeletonswiginc_HEADERS += @srclib@/generic_object.i
 SWIG_SRC += @swigsrc@/iostream_swig_wrap.cc
+skeletonswiginc_HEADERS += @srclib@/iostream_swig.i
 
 # Test files
 EXTRA_DIST+= @srclib@/unit_test_support.h

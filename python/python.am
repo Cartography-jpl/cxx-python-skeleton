@@ -3,7 +3,6 @@ skeletonpkgpython_PYTHON = @srcpython@/init/__init__.py
 install-python-skeleton: install-skeletonpkgpythonPYTHON install-dist_skeletonpkgpythonDATA install-dist_binSCRIPTS install-pynitf
 
 EXTRA_DIST+=@srcpython@/pytest.ini
-EXTRA_DIST+=@srcpython@/setup.cfg
 EXTRA_DIST+=@srcpython@/conftest.py
 
 # Make sure we don't have any pyc or pycache files floating around
@@ -30,3 +29,4 @@ INSTALLCHECK_HOOK+= python-check
 
 include python/lib/lib.am
 include python/bin/bin.am
+include python/test_support/test_support.am

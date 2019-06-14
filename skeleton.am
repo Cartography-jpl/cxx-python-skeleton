@@ -21,3 +21,8 @@ libskeleton_la_LDFLAGS+= $(BOOST_SERIALIZATION_LIB)
 # Include blitz in builds
 libskeleton_la_LDFLAGS+= $(BLITZ_LIBS)
 
+EXTRA_DIST+= README.md bootstrap
+EXTRA_DIST+= config/m4_local/README
+# Automake doesn't seem to include two directories of m4 macros, so explicitly
+# add
+EXTRA_DIST+= config/m4

@@ -4,6 +4,7 @@ AC_DEFUN([SKELETON_SOURCE_DIRECTORY], [
 AC_SUBST([swigrules], [swig_rules])
 AC_SUBST([srcscript], [script])
 AC_SUBST([srcpython], [python])
+AC_SUBST([testsupportsrc], [python/test_support])
 AC_SUBST([srclib], [lib])
 AC_SUBST([srcpythonlib], [${srcpython}/lib])
 AC_SUBST([srcpythonbin], [${srcpython}/bin])

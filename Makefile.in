@@ -541,8 +541,10 @@ am__DIST_COMMON = $(srcdir)/Makefile.in \
 	$(srcdir)/bindings/python/python.am $(srcdir)/common.am \
 	$(srcdir)/include.am $(srcdir)/lib/lib.am \
 	$(srcdir)/python/bin/bin.am $(srcdir)/python/lib/lib.am \
-	$(srcdir)/python/python.am $(srcdir)/script/script.am \
-	$(srcdir)/skeleton.am $(srcdir)/swig_rules/swig_rules.am \
+	$(srcdir)/python/python.am \
+	$(srcdir)/python/test_support/test_support.am \
+	$(srcdir)/script/script.am $(srcdir)/skeleton.am \
+	$(srcdir)/swig_rules/swig_rules.am \
 	$(srcdir)/unit_test_data/unit_test_data.am \
 	$(top_srcdir)/config/compile $(top_srcdir)/config/config.guess \
 	$(top_srcdir)/config/config.sub $(top_srcdir)/config/depcomp \
@@ -743,6 +745,7 @@ swigrules = @swigrules@
 swigsrc = @swigsrc@
 sysconfdir = @sysconfdir@
 target_alias = @target_alias@
+testsupportsrc = @testsupportsrc@
 top_build_prefix = @top_build_prefix@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
@@ -767,12 +770,17 @@ dist_bin_SCRIPTS =
 AM_LDFLAGS = 
 BUILT_SOURCES = complain_if_afids $(am__append_1)
 include_HEADERS = 
+# Automake doesn't seem to include two directories of m4 macros, so explicitly
+# add
 
 # Test files
-EXTRA_DIST = @srcpython@/pytest.ini @srcpython@/setup.cfg \
-	@srcpython@/conftest.py @srcpythonlib@/__init__.py \
-	@srcpythonlib@/dummy_test.py \
-	@srcpythonlib@/iostream_swig_test.py @swigrules@/doxy2swig.py \
+EXTRA_DIST = README.md bootstrap config/m4_local/README config/m4 \
+	@srcpython@/pytest.ini @srcpython@/conftest.py \
+	@srcpythonlib@/__init__.py @srcpythonlib@/dummy_test.py \
+	@srcpythonlib@/iostream_swig_test.py \
+	@testsupportsrc@/__init__.py @testsupportsrc@/test_support.py \
+	@testsupportsrc@/README @swigrules@/doxy2swig.py \
+	@swigrules@/create_python_init.py \
 	@swigrules@/doxygen_single.cfg @swigrules@/README.md \
 	@swigrules@/swig_wrap.tmpl \
 	@swigrules@/lib/generic_object.h.sample \
@@ -843,13 +851,13 @@ skeletoninc_HEADERS = @swigrules@/lib/swig_type_mapper_base.h \
 	@swigrules@/lib/serialize_function.h \
 	@srclib@/skeleton_serialize_support.h \
 	@srclib@/generic_object.h @srclib@/printable.h \
-	@srclib@/skeleton_exception.i @srclib@/iostream_swig.h \
+	@srclib@/skeleton_exception.h @srclib@/iostream_swig.h \
 	@srclib@/blitz_array_serialize_support.h
 
 # Files that contain SWIG wrapper information.
 skeletonswiginc_HEADERS = @srclib@/skeleton_common.i \
 	@srclib@/skeleton_shared_ptr.i @srclib@/skeleton_exception.i \
-	@srclib@/generic_object.i
+	@srclib@/generic_object.i @srclib@/iostream_swig.i
 skeleton_test_all_SOURCES = @srclib@/test_all.cc \
 	@srclib@/global_fixture.cc @srclib@/global_fixture_default.cc \
 	@srclib@/printable_test.cc \
@@ -887,7 +895,8 @@ swiginc_HEADERS = @swigrules@/include/swig_python_attribute.i \
 	@swigrules@/include/swig_std.i \
 	@swigrules@/include/swig_boost_optional.i \
 	@swigrules@/include/swig_iostream_inc.i \
-	@swigrules@/include/swig_iostream.i
+	@swigrules@/include/swig_iostream.i \
+	@swigrules@/lib/serialize_function.i
 ADDITONAL_SWIG_SRC = @swigsrc@/swig_array_wrap.cc \
 	@swigsrc@/swig_boost_array_wrap.cc
 pkgpythonswig_PYTHON = @swigrules@/__init__.py $(patsubst %_wrap.cc, \
@@ -919,7 +928,7 @@ all: $(BUILT_SOURCES)
 .SUFFIXES: .cc .lo .log .o .obj .test .test$(EXEEXT) .trs
 am--refresh: Makefile
 	@:
-$(srcdir)/Makefile.in: @MAINTAINER_MODE_TRUE@ $(srcdir)/Makefile.am $(srcdir)/common.am $(srcdir)/include.am $(srcdir)/skeleton.am $(srcdir)/script/script.am $(srcdir)/python/python.am $(srcdir)/python/lib/lib.am $(srcdir)/python/bin/bin.am $(srcdir)/swig_rules/swig_rules.am $(srcdir)/bindings/python/python.am $(srcdir)/lib/lib.am $(srcdir)/unit_test_data/unit_test_data.am $(am__configure_deps)
+$(srcdir)/Makefile.in: @MAINTAINER_MODE_TRUE@ $(srcdir)/Makefile.am $(srcdir)/common.am $(srcdir)/include.am $(srcdir)/skeleton.am $(srcdir)/script/script.am $(srcdir)/python/python.am $(srcdir)/python/lib/lib.am $(srcdir)/python/bin/bin.am $(srcdir)/python/test_support/test_support.am $(srcdir)/swig_rules/swig_rules.am $(srcdir)/bindings/python/python.am $(srcdir)/lib/lib.am $(srcdir)/unit_test_data/unit_test_data.am $(am__configure_deps)
 	@for dep in $?; do \
 	  case '$(am__configure_deps)' in \
 	    *$$dep*) \
@@ -941,7 +950,7 @@ Makefile: $(srcdir)/Makefile.in $(top_builddir)/config.status
 	    echo ' cd $(top_builddir) && $(SHELL) ./config.status $@ $(am__maybe_remake_depfiles)'; \
 	    cd $(top_builddir) && $(SHELL) ./config.status $@ $(am__maybe_remake_depfiles);; \
 	esac;
-$(srcdir)/common.am $(srcdir)/include.am $(srcdir)/skeleton.am $(srcdir)/script/script.am $(srcdir)/python/python.am $(srcdir)/python/lib/lib.am $(srcdir)/python/bin/bin.am $(srcdir)/swig_rules/swig_rules.am $(srcdir)/bindings/python/python.am $(srcdir)/lib/lib.am $(srcdir)/unit_test_data/unit_test_data.am $(am__empty):
+$(srcdir)/common.am $(srcdir)/include.am $(srcdir)/skeleton.am $(srcdir)/script/script.am $(srcdir)/python/python.am $(srcdir)/python/lib/lib.am $(srcdir)/python/bin/bin.am $(srcdir)/python/test_support/test_support.am $(srcdir)/swig_rules/swig_rules.am $(srcdir)/bindings/python/python.am $(srcdir)/lib/lib.am $(srcdir)/unit_test_data/unit_test_data.am $(am__empty):
 
 $(top_builddir)/config.status: $(top_srcdir)/configure $(CONFIG_STATUS_DEPENDENCIES)
 	$(SHELL) ./config.status --recheck
