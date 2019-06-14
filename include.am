@@ -2,9 +2,9 @@
 
 include skeleton.am
 include script/script.am
-#include python/python.am
+include python/python.am
 include swig_rules/swig_rules.am
 include bindings/python/python.am
 include lib/lib.am
-#include unit_test_data/unit_test_data.am
+include unit_test_data/unit_test_data.am
 

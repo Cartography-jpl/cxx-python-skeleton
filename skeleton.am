@@ -10,7 +10,7 @@ skeletonswiginc_HEADERS =
 skeleton_test_all_SOURCES = 
 dist_installskeleton_SCRIPTS = 
 SWIG_FLAG =
-
+DIST_HOOK = 
 libskeleton_la_CPPFLAGS = $(AM_CPPFLAGS) $(BOOST_CPPFLAGS) $(BLITZ_CFLAGS)
 
 libskeleton_la_LDFLAGS+= -R $(BOOST_LIBDIR) -L$(BOOST_LIBDIR)

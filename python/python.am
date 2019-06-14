@@ -1,0 +1,32 @@
+skeletonpkgpython_PYTHON = @srcpython@/init/__init__.py
+# Backdoor rule to do a quick install when we are just varying python
+install-python-skeleton: install-skeletonpkgpythonPYTHON install-dist_skeletonpkgpythonDATA install-dist_binSCRIPTS install-pynitf
+
+EXTRA_DIST+=@srcpython@/pytest.ini
+EXTRA_DIST+=@srcpython@/setup.cfg
+EXTRA_DIST+=@srcpython@/conftest.py
+
+# Make sure we don't have any pyc or pycache files floating around
+DIST_HOOK += dist-clean-up-python
+
+dist-clean-up-python:
+	rm -rf `find $(distdir) -name '__pycache__'`
+	rm -f `find $(distdir) -name '*.pyc'`
+
+# Number of jobs to run at once. Default is to automatically determine this,
+# but you can specify a different number.
+PYTEST_NJOB=10
+
+# Note useful flags to use here might be PYTEST_EXTRAFLAGS="--instafail" or
+# PYTEST_EXTRAFLAGS="--timeout=20"
+PYTEST_EXTRAFLAGS=
+PYTEST_FLAGS= -q -n $(PYTEST_NJOB)
+
+python-check: script/setup_skeleton.sh
+	source $< && \
+        $(PYTEST) $(PYTEST_FLAGS) $(PYTEST_EXTRAFLAGS) $(srcdir)/@srcpython@ $(EXTRA_PYTHON_TEST)
+
+INSTALLCHECK_HOOK+= python-check
+
+include python/lib/lib.am
+include python/bin/bin.am

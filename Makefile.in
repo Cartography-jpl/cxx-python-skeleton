@@ -34,6 +34,8 @@
 
 # Stuff specific to skeleton
 
+# Nothing here yet, but put in place as a placeholder
+
 # You can include this automake file to add the swig rules stuff. Should
 # define the variables:
 #
@@ -180,9 +182,9 @@ am__configure_deps = $(am__aclocal_m4_deps) $(CONFIGURE_DEPENDENCIES) \
 DIST_COMMON = $(srcdir)/Makefile.am $(top_srcdir)/configure \
 	$(am__configure_deps) $(dist_bin_SCRIPTS) \
 	$(dist_installskeleton_SCRIPTS) $(pkgpythonswig_PYTHON) \
-	$(include_HEADERS) $(skeletoninc_HEADERS) \
-	$(skeletonswiginc_HEADERS) $(swiginc_HEADERS) \
-	$(am__DIST_COMMON)
+	$(skeletonpkgpython_PYTHON) $(include_HEADERS) \
+	$(skeletoninc_HEADERS) $(skeletonswiginc_HEADERS) \
+	$(swiginc_HEADERS) $(am__DIST_COMMON)
 am__CONFIG_DISTCLEAN_FILES = config.status config.cache config.log \
  configure.lineno config.status.lineno
 mkinstalldirs = $(install_sh) -d
@@ -194,6 +196,7 @@ am__installdirs = "$(DESTDIR)$(bindir)" "$(DESTDIR)$(libdir)" \
 	"$(DESTDIR)$(pkgpythonswigdir)" "$(DESTDIR)$(bindir)" \
 	"$(DESTDIR)$(installskeletondir)" \
 	"$(DESTDIR)$(pkgpythonswigdir)" \
+	"$(DESTDIR)$(skeletonpkgpythondir)" \
 	"$(DESTDIR)$(installskeletondir)" "$(DESTDIR)$(pkgconfigdir)" \
 	"$(DESTDIR)$(includedir)" "$(DESTDIR)$(skeletonincdir)" \
 	"$(DESTDIR)$(skeletonswigincdir)" "$(DESTDIR)$(swigincdir)"
@@ -532,8 +535,10 @@ TEST_LOG_COMPILE = $(TEST_LOG_COMPILER) $(AM_TEST_LOG_FLAGS) \
 am__DIST_COMMON = $(srcdir)/Makefile.in \
 	$(srcdir)/bindings/python/python.am $(srcdir)/common.am \
 	$(srcdir)/include.am $(srcdir)/lib/lib.am \
-	$(srcdir)/script/script.am $(srcdir)/skeleton.am \
-	$(srcdir)/swig_rules/swig_rules.am \
+	$(srcdir)/python/bin/bin.am $(srcdir)/python/lib/lib.am \
+	$(srcdir)/python/python.am $(srcdir)/script/script.am \
+	$(srcdir)/skeleton.am $(srcdir)/swig_rules/swig_rules.am \
+	$(srcdir)/unit_test_data/unit_test_data.am \
 	$(top_srcdir)/config/compile $(top_srcdir)/config/config.guess \
 	$(top_srcdir)/config/config.sub $(top_srcdir)/config/depcomp \
 	$(top_srcdir)/config/install-sh $(top_srcdir)/config/ltmain.sh \
@@ -770,7 +775,9 @@ include_HEADERS =
 #skeletonswiginc_HEADERS+= @srclib@/spectrum_camera.i
 
 # Test files
-EXTRA_DIST = @swigrules@/doxy2swig.py @swigrules@/doxygen_single.cfg \
+EXTRA_DIST = @srcpython@/pytest.ini @srcpython@/setup.cfg \
+	@srcpython@/conftest.py @srcpythonlib@/__init__.py \
+	@swigrules@/doxy2swig.py @swigrules@/doxygen_single.cfg \
 	@swigrules@/README.md @swigrules@/swig_wrap.tmpl \
 	@swigrules@/lib/generic_object.h.sample \
 	@swigrules@/lib/printable.h.sample \
@@ -807,7 +814,7 @@ AM_CPPFLAGS = -I$(srcdir)/@swigrules@/include \
 INSTALL_DATA_HOOK = 
 UNINSTALL_HOOK = 
 CLEAN_HOOK = 
-INSTALLCHECK_HOOK = 
+INSTALLCHECK_HOOK = python-check
 CHECK_HOOK = 
 TESTS = @srclib@/test_all.sh
 check_PROGRAM = 
@@ -845,10 +852,24 @@ skeleton_test_all_SOURCES = @srclib@/test_all.cc \
 	@srclib@/blitz_array_serialize_support_test.cc
 dist_installskeleton_SCRIPTS = 
 SWIG_FLAG = -O
+
+# Make sure we don't have any pyc or pycache files floating around
+DIST_HOOK = dist-clean-up-python
 libskeleton_la_CPPFLAGS = $(AM_CPPFLAGS) $(BOOST_CPPFLAGS) \
 	$(BLITZ_CFLAGS) -DSWIG_MAPPER_NAMESPACE=Skeleton \
 	-DSWIG_HAVE_BOOST_SERIALIZATION=@SKELETON_HAVE_BOOST_SERIALIZATION@
 installskeleton_DATA = @srcscript@/setup_skeleton.csh @srcscript@/setup_skeleton.sh
+skeletonpkgpython_PYTHON = @srcpython@/init/__init__.py \
+	@srcpythonlib@/dummy.py
+
+# Number of jobs to run at once. Default is to automatically determine this,
+# but you can specify a different number.
+PYTEST_NJOB = 10
+
+# Note useful flags to use here might be PYTEST_EXTRAFLAGS="--instafail" or
+# PYTEST_EXTRAFLAGS="--timeout=20"
+PYTEST_EXTRAFLAGS = 
+PYTEST_FLAGS = -q -n $(PYTEST_NJOB)
 swiginc_HEADERS = @swigrules@/include/swig_python_attribute.i \
 	@swigrules@/include/my_shared_ptr.i \
 	@swigrules@/include/shared_ptr_type_mapper.i \
@@ -887,7 +908,7 @@ all: $(BUILT_SOURCES)
 .SUFFIXES: .cc .lo .log .o .obj .test .test$(EXEEXT) .trs
 am--refresh: Makefile
 	@:
-$(srcdir)/Makefile.in: @MAINTAINER_MODE_TRUE@ $(srcdir)/Makefile.am $(srcdir)/common.am $(srcdir)/include.am $(srcdir)/skeleton.am $(srcdir)/script/script.am $(srcdir)/swig_rules/swig_rules.am $(srcdir)/bindings/python/python.am $(srcdir)/lib/lib.am $(am__configure_deps)
+$(srcdir)/Makefile.in: @MAINTAINER_MODE_TRUE@ $(srcdir)/Makefile.am $(srcdir)/common.am $(srcdir)/include.am $(srcdir)/skeleton.am $(srcdir)/script/script.am $(srcdir)/python/python.am $(srcdir)/python/lib/lib.am $(srcdir)/python/bin/bin.am $(srcdir)/swig_rules/swig_rules.am $(srcdir)/bindings/python/python.am $(srcdir)/lib/lib.am $(srcdir)/unit_test_data/unit_test_data.am $(am__configure_deps)
 	@for dep in $?; do \
 	  case '$(am__configure_deps)' in \
 	    *$$dep*) \
@@ -909,7 +930,7 @@ Makefile: $(srcdir)/Makefile.in $(top_builddir)/config.status
 	    echo ' cd $(top_builddir) && $(SHELL) ./config.status $@ $(am__maybe_remake_depfiles)'; \
 	    cd $(top_builddir) && $(SHELL) ./config.status $@ $(am__maybe_remake_depfiles);; \
 	esac;
-$(srcdir)/common.am $(srcdir)/include.am $(srcdir)/skeleton.am $(srcdir)/script/script.am $(srcdir)/swig_rules/swig_rules.am $(srcdir)/bindings/python/python.am $(srcdir)/lib/lib.am $(am__empty):
+$(srcdir)/common.am $(srcdir)/include.am $(srcdir)/skeleton.am $(srcdir)/script/script.am $(srcdir)/python/python.am $(srcdir)/python/lib/lib.am $(srcdir)/python/bin/bin.am $(srcdir)/swig_rules/swig_rules.am $(srcdir)/bindings/python/python.am $(srcdir)/lib/lib.am $(srcdir)/unit_test_data/unit_test_data.am $(am__empty):
 
 $(top_builddir)/config.status: $(top_srcdir)/configure $(CONFIG_STATUS_DEPENDENCIES)
 	$(SHELL) ./config.status --recheck
@@ -1442,6 +1463,49 @@ uninstall-pkgpythonswigPYTHON:
 	    $(am__uninstall_files_from_dir) || st=$$?; \
 	  done || exit $$?; \
 	exit $$st
+install-skeletonpkgpythonPYTHON: $(skeletonpkgpython_PYTHON)
+	@$(NORMAL_INSTALL)
+	@list='$(skeletonpkgpython_PYTHON)'; dlist=; list2=; test -n "$(skeletonpkgpythondir)" || list=; \
+	if test -n "$$list"; then \
+	  echo " $(MKDIR_P) '$(DESTDIR)$(skeletonpkgpythondir)'"; \
+	  $(MKDIR_P) "$(DESTDIR)$(skeletonpkgpythondir)" || exit 1; \
+	fi; \
+	for p in $$list; do \
+	  if test -f "$$p"; then b=; else b="$(srcdir)/"; fi; \
+	  if test -f $$b$$p; then \
+	    $(am__strip_dir) \
+	    dlist="$$dlist $$f"; \
+	    list2="$$list2 $$b$$p"; \
+	  else :; fi; \
+	done; \
+	for file in $$list2; do echo $$file; done | $(am__base_list) | \
+	while read files; do \
+	  echo " $(INSTALL_DATA) $$files '$(DESTDIR)$(skeletonpkgpythondir)'"; \
+	  $(INSTALL_DATA) $$files "$(DESTDIR)$(skeletonpkgpythondir)" || exit $$?; \
+	done || exit $$?; \
+	if test -n "$$dlist"; then \
+	  $(am__py_compile) --destdir "$(DESTDIR)" \
+	                    --basedir "$(skeletonpkgpythondir)" $$dlist; \
+	else :; fi
+
+uninstall-skeletonpkgpythonPYTHON:
+	@$(NORMAL_UNINSTALL)
+	@list='$(skeletonpkgpython_PYTHON)'; test -n "$(skeletonpkgpythondir)" || list=; \
+	py_files=`for p in $$list; do echo $$p; done | sed -e 's|^.*/||'`; \
+	test -n "$$py_files" || exit 0; \
+	dir='$(DESTDIR)$(skeletonpkgpythondir)'; \
+	pyc_files=`echo "$$py_files" | sed 's|$$|c|'`; \
+	pyo_files=`echo "$$py_files" | sed 's|$$|o|'`; \
+	st=0; \
+	for files in "$$py_files" "$$pyc_files" "$$pyo_files"; do \
+	  $(am__uninstall_files_from_dir) || st=$$?; \
+	done; \
+	dir='$(DESTDIR)$(skeletonpkgpythondir)/__pycache__'; \
+	echo "$$py_files" | $(am__pep3147_tweak) | $(am__base_list) | \
+	  while read files; do \
+	    $(am__uninstall_files_from_dir) || st=$$?; \
+	  done || exit $$?; \
+	exit $$st
 install-installskeletonDATA: $(installskeleton_DATA)
 	@$(NORMAL_INSTALL)
 	@list='$(installskeleton_DATA)'; test -n "$(installskeletondir)" || list=; \
@@ -1967,7 +2031,7 @@ all-am: Makefile $(PROGRAMS) $(LTLIBRARIES) $(SCRIPTS) $(DATA) \
 install-binPROGRAMS: install-libLTLIBRARIES
 
 installdirs:
-	for dir in "$(DESTDIR)$(bindir)" "$(DESTDIR)$(libdir)" "$(DESTDIR)$(pkgpythonswigdir)" "$(DESTDIR)$(bindir)" "$(DESTDIR)$(installskeletondir)" "$(DESTDIR)$(pkgpythonswigdir)" "$(DESTDIR)$(installskeletondir)" "$(DESTDIR)$(pkgconfigdir)" "$(DESTDIR)$(includedir)" "$(DESTDIR)$(skeletonincdir)" "$(DESTDIR)$(skeletonswigincdir)" "$(DESTDIR)$(swigincdir)"; do \
+	for dir in "$(DESTDIR)$(bindir)" "$(DESTDIR)$(libdir)" "$(DESTDIR)$(pkgpythonswigdir)" "$(DESTDIR)$(bindir)" "$(DESTDIR)$(installskeletondir)" "$(DESTDIR)$(pkgpythonswigdir)" "$(DESTDIR)$(skeletonpkgpythondir)" "$(DESTDIR)$(installskeletondir)" "$(DESTDIR)$(pkgconfigdir)" "$(DESTDIR)$(includedir)" "$(DESTDIR)$(skeletonincdir)" "$(DESTDIR)$(skeletonswigincdir)" "$(DESTDIR)$(swigincdir)"; do \
 	  test -z "$$dir" || $(MKDIR_P) "$$dir"; \
 	done
 install: $(BUILT_SOURCES)
@@ -2053,7 +2117,8 @@ install-data-am: install-dist_installskeletonSCRIPTS \
 	install-includeHEADERS install-installskeletonDATA \
 	install-pkgconfigDATA install-pkgpythonswigLTLIBRARIES \
 	install-pkgpythonswigPYTHON install-skeletonincHEADERS \
-	install-skeletonswigincHEADERS install-swigincHEADERS
+	install-skeletonpkgpythonPYTHON install-skeletonswigincHEADERS \
+	install-swigincHEADERS
 	@$(NORMAL_INSTALL)
 	$(MAKE) $(AM_MAKEFLAGS) install-data-hook
 install-dvi: install-dvi-am
@@ -2120,6 +2185,7 @@ uninstall-am: uninstall-binPROGRAMS uninstall-dist_binSCRIPTS \
 	uninstall-installskeletonDATA uninstall-libLTLIBRARIES \
 	uninstall-pkgconfigDATA uninstall-pkgpythonswigLTLIBRARIES \
 	uninstall-pkgpythonswigPYTHON uninstall-skeletonincHEADERS \
+	uninstall-skeletonpkgpythonPYTHON \
 	uninstall-skeletonswigincHEADERS uninstall-swigincHEADERS
 	@$(NORMAL_INSTALL)
 	$(MAKE) $(AM_MAKEFLAGS) uninstall-hook
@@ -2145,18 +2211,19 @@ uninstall-am: uninstall-binPROGRAMS uninstall-dist_binSCRIPTS \
 	install-pdf install-pdf-am install-pkgconfigDATA \
 	install-pkgpythonswigLTLIBRARIES install-pkgpythonswigPYTHON \
 	install-ps install-ps-am install-skeletonincHEADERS \
-	install-skeletonswigincHEADERS install-strip \
-	install-swigincHEADERS installcheck installcheck-am \
-	installcheck-local installdirs maintainer-clean \
-	maintainer-clean-generic mostlyclean mostlyclean-compile \
-	mostlyclean-generic mostlyclean-libtool pdf pdf-am ps ps-am \
-	recheck tags tags-am uninstall uninstall-am \
-	uninstall-binPROGRAMS uninstall-dist_binSCRIPTS \
+	install-skeletonpkgpythonPYTHON install-skeletonswigincHEADERS \
+	install-strip install-swigincHEADERS installcheck \
+	installcheck-am installcheck-local installdirs \
+	maintainer-clean maintainer-clean-generic mostlyclean \
+	mostlyclean-compile mostlyclean-generic mostlyclean-libtool \
+	pdf pdf-am ps ps-am recheck tags tags-am uninstall \
+	uninstall-am uninstall-binPROGRAMS uninstall-dist_binSCRIPTS \
 	uninstall-dist_installskeletonSCRIPTS uninstall-hook \
 	uninstall-includeHEADERS uninstall-installskeletonDATA \
 	uninstall-libLTLIBRARIES uninstall-pkgconfigDATA \
 	uninstall-pkgpythonswigLTLIBRARIES \
 	uninstall-pkgpythonswigPYTHON uninstall-skeletonincHEADERS \
+	uninstall-skeletonpkgpythonPYTHON \
 	uninstall-skeletonswigincHEADERS uninstall-swigincHEADERS
 
 .PRECIOUS: Makefile
@@ -2182,6 +2249,19 @@ complain_if_afids:
           echo "sourcing setup_afids_env.sh or setup_afids_env.csh${default}"; \
           exit 1; \
         fi
+# Backdoor rule to do a quick install when we are just varying python
+install-python-skeleton: install-skeletonpkgpythonPYTHON install-dist_skeletonpkgpythonDATA install-dist_binSCRIPTS install-pynitf
+
+dist-clean-up-python:
+	rm -rf `find $(distdir) -name '__pycache__'`
+	rm -f `find $(distdir) -name '*.pyc'`
+
+python-check: script/setup_skeleton.sh
+	source $< && \
+        $(PYTEST) $(PYTEST_FLAGS) $(PYTEST_EXTRAFLAGS) $(srcdir)/@srcpython@ $(EXTRA_PYTHON_TEST)
+
+# Allow searchs for .pyx files in this directory
+vpath %.pyx $(srcdir)/@srcpythonlib@
 
 # Allow searchs for .i in this directory
 vpath %.i $(srcdir)/@swigrules@/include
@@ -2271,8 +2351,7 @@ vpath %.cc $(srcdir)/@srclib@
 vpath %.h $(srcdir)/@srclib@
 vpath %.i $(srcdir)/@srclib@
 
-#include python/python.am
-#include unit_test_data/unit_test_data.am
+# Nothing here yet, but put in place as a placeholder
 
 # Tell versions [3.59,3.63) of GNU make to not export all variables.
 # Otherwise a system limit (for SysV at least) may be exceeded.
