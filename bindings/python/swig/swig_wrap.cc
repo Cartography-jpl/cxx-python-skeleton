@@ -5,18 +5,22 @@ extern "C" {
 #include "skeleton_config.h"
   INIT_TYPE INIT_FUNC(_swig_array)(void);
   INIT_TYPE INIT_FUNC(_swig_boost_array)(void);
+  INIT_TYPE INIT_FUNC(_swig_std)(void);
   INIT_TYPE INIT_FUNC(_skeleton_exception)(void);
   INIT_TYPE INIT_FUNC(_generic_object)(void);
   INIT_TYPE INIT_FUNC(_iostream_swig)(void);
+  INIT_TYPE INIT_FUNC(_serialize_function)(void);
 }
 
 static void module_init(PyObject* module)
 {
   INIT_MODULE(module, "_swig_array", INIT_FUNC(_swig_array));
   INIT_MODULE(module, "_swig_boost_array", INIT_FUNC(_swig_boost_array));
+  INIT_MODULE(module, "_swig_std", INIT_FUNC(_swig_std));
   INIT_MODULE(module, "_skeleton_exception", INIT_FUNC(_skeleton_exception));
   INIT_MODULE(module, "_generic_object", INIT_FUNC(_generic_object));
   INIT_MODULE(module, "_iostream_swig", INIT_FUNC(_iostream_swig));
+  INIT_MODULE(module, "_serialize_function", INIT_FUNC(_serialize_function));
 }
 
 
