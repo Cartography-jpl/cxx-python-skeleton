@@ -901,7 +901,8 @@ swiginc_HEADERS = @swigrules@/include/swig_python_attribute.i \
 	@swigrules@/include/swig_std.i \
 	@swigrules@/include/swig_boost_optional.i \
 	@swigrules@/include/swig_iostream_inc.i \
-	@swigrules@/include/swig_iostream.i
+	@swigrules@/include/swig_iostream.i \
+	@swigrules@/include/swig_rational.i
 ADDITONAL_SWIG_SRC = @swigsrc@/swig_array_wrap.cc \
 	@swigsrc@/swig_boost_array_wrap.cc @swigsrc@/swig_std_wrap.cc
 pkgpythonswig_PYTHON = @swigrules@/__init__.py $(patsubst %_wrap.cc, \
