@@ -798,7 +798,9 @@ EXTRA_DIST = README.md bootstrap config/m4_local/README config/m4 \
 	@swigrules@/lib/serialize_support.h.sample \
 	@swigrules@/lib/blitz_array_serialize_support.h.sample \
 	@swigrules@/lib/blitz_array_serialize_support.cc.sample \
-	@swigrules@/lib/serialize_function.i.sample $(patsubst \
+	@swigrules@/lib/serialize_function.i.sample \
+	@swigrules@/python/swig_shelve.py.sample \
+	@swigrules@/python/swig_shelve_test.py.sample $(patsubst \
 	%_wrap.cc, %.py, $(FULL_SWIG_SRC)) $(patsubst %_wrap.cc, %.py, \
 	$(ADDITONAL_SWIG_SRC)) $(FULL_SWIG_SRC) $(ADDITONAL_SWIG_SRC) \
 	$(srcdir)/$(swigsrc)/*_wrap.h @srclib@/test_all.sh \
