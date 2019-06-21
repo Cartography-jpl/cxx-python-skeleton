@@ -22,6 +22,7 @@ skeletoninc_HEADERS+= @srclib@/iostream_swig.h
 libskeleton_la_SOURCES+= @srclib@/iostream_swig.cc
 skeletoninc_HEADERS+= @srclib@/blitz_array_serialize_support.h
 libskeleton_la_SOURCES+= @srclib@/blitz_array_serialize_support.cc
+skeletoninc_HEADERS+= @srclib@/numpy_sample.h
 
 # Files that contain SWIG wrapper information.
 skeletonswiginc_HEADERS+= @srclib@/skeleton_common.i
@@ -34,6 +35,8 @@ SWIG_SRC += @swigsrc@/iostream_swig_wrap.cc
 skeletonswiginc_HEADERS += @srclib@/iostream_swig.i
 SWIG_SRC += @swigsrc@/serialize_function_wrap.cc
 skeletonswiginc_HEADERS += @srclib@/serialize_function.i
+SWIG_SRC += @swigsrc@/numpy_sample_wrap.cc
+skeletonswiginc_HEADERS += @srclib@/numpy_sample.i
 
 # Test files
 EXTRA_DIST+= @srclib@/unit_test_support.h

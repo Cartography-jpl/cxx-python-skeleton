@@ -11,9 +11,11 @@
 // directors=1 and allprotected=1 set.
 
 %module(directors="1", allprotected="1") geocal
+#define SWIG_MODULE skeleton_swig
 
 %{
 #include <boost/shared_ptr.hpp>
+#include <boost/rational.hpp>
 %}
 
 // Short cut for ingesting a base class
@@ -41,3 +43,4 @@
 %include "swig_iostream_inc.i"
 %import "swig_iostream.i"
 %include "swig_vector_shared_ptr.i"
+%import "swig_rational.i"

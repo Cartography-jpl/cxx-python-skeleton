@@ -3668,6 +3668,7 @@ namespace swig {
 
 
 #include <boost/shared_ptr.hpp>
+#include <boost/rational.hpp>
 
 
 #include <iostream>

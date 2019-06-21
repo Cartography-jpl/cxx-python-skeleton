@@ -149,13 +149,13 @@ def _new_from_init(cls, version, *args):
     return inst
 
 def _new_from_serialization(data):
-    return SWIG_MODULE.serialize_read_binary(data)
+    return skeleton_swig.serialize_read_binary(data)
 
 def _new_from_serialization_dir(dir, data):
     curdir = os.getcwd()
     try:
       os.chdir(dir)
-      return SWIG_MODULE.serialize_read_binary(data)
+      return skeleton_swig.serialize_read_binary(data)
     finally:
       os.chdir(curdir)
 
