@@ -787,6 +787,7 @@ EXTRA_DIST = README.md bootstrap config/m4_local/README config/m4 \
 	@swigrules@/create_python_init.py \
 	@swigrules@/doxygen_single.cfg @swigrules@/README.md \
 	@swigrules@/swig_wrap.tmpl \
+	@swigrules@/lib/generic_object.cc.sample \
 	@swigrules@/lib/generic_object.h.sample \
 	@swigrules@/lib/generic_object.i.sample \
 	@swigrules@/lib/common.i.sample \
