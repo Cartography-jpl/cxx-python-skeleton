@@ -896,21 +896,22 @@ PYTEST_NJOB = 10
 # PYTEST_EXTRAFLAGS="--timeout=20"
 PYTEST_EXTRAFLAGS = 
 PYTEST_FLAGS = -q -n $(PYTEST_NJOB)
-swiginc_HEADERS = @swigrules@/include/swig_python_attribute.i \
-	@swigrules@/include/my_shared_ptr.i \
+swiginc_HEADERS = @swigrules@/include/my_shared_ptr.i \
 	@swigrules@/include/shared_ptr_type_mapper.i \
 	@swigrules@/include/swig_array.i \
 	@swigrules@/include/swig_array_inc.i \
 	@swigrules@/include/swig_boost_array.i \
 	@swigrules@/include/swig_boost_array_inc.i \
-	@swigrules@/include/swig_exception.i \
-	@swigrules@/include/swig_print.i \
-	@swigrules@/include/swig_pickle.i \
-	@swigrules@/include/swig_std.i \
 	@swigrules@/include/swig_boost_optional.i \
-	@swigrules@/include/swig_iostream_inc.i \
+	@swigrules@/include/swig_exception.i \
 	@swigrules@/include/swig_iostream.i \
-	@swigrules@/include/swig_rational.i
+	@swigrules@/include/swig_iostream_inc.i \
+	@swigrules@/include/swig_pickle.i \
+	@swigrules@/include/swig_print.i \
+	@swigrules@/include/swig_python_attribute.i \
+	@swigrules@/include/swig_rational.i \
+	@swigrules@/include/swig_std.i \
+	@swigrules@/include/swig_vector_shared_ptr.i
 ADDITONAL_SWIG_SRC = @swigsrc@/swig_array_wrap.cc \
 	@swigsrc@/swig_boost_array_wrap.cc @swigsrc@/swig_std_wrap.cc
 pkgpythonswig_PYTHON = @swigrules@/__init__.py $(patsubst %_wrap.cc, \
