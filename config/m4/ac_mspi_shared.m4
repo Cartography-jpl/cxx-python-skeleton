@@ -28,14 +28,18 @@ if test "x$want_mspi_shared" = "xyes"; then
             MSPI_SHARED_CFLAGS="-I$ac_mspi_shared_path/include"
             succeeded=yes
         else
-          for ac_path_tmp in $prefix $CONDA_PREFIX $THIRDPARTY /data/smyth/MSPI-Shared/install ; do
-             if test -e "$ac_path_tmp/lib/libMSPI-Shared.la" && test -r "$ac_path_tmp/lib/libMSPI-Shared.la"; then
-                MSPI_SHARED_LIBS="-R$ac_path_tmp/lib -L$ac_path_tmp/lib -lMSPI-Shared"
-                MSPI_SHARED_CFLAGS="-I$ac_path_tmp/include"
-                succeeded=yes
-                break
-             fi
-           done
+	  PKG_CHECK_MODULES([MSPI_SHARED], [MSPI-Shared], [succeeded=yes], [succeeded=no])
+          if test "$succeeded" = "no"; then
+
+             for ac_path_tmp in $prefix $CONDA_PREFIX $THIRDPARTY /data/smyth/MSPI-Shared/install ; do
+                if test -e "$ac_path_tmp/lib/libMSPI-Shared.la" && test -r "$ac_path_tmp/lib/libMSPI-Shared.la"; then
+                   MSPI_SHARED_LIBS="-R$ac_path_tmp/lib -L$ac_path_tmp/lib -lMSPI-Shared"
+                   MSPI_SHARED_CFLAGS="-I$ac_path_tmp/include"
+                   succeeded=yes
+                   break
+                fi
+              done
+	  fi
         fi
 # We can only use MSPI shared if we also have HDFEOS5
         if test "$have_hdfeos5" != "yes"; then

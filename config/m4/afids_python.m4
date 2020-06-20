@@ -35,8 +35,8 @@ if test "x$want_python" = "xyes"; then
    if test "$build_python" == "yes"; then
      AM_PATH_PYTHON(,, [:])
      # Will need to update this if we change the version we are building
-     python_inc_path=python3.5m
-     python_lib_path=python3.5
+     python_inc_path=python3.7m
+     python_lib_path=python3.7
      PYTHON=`pwd`"/external/python_wrap.sh" 
      PYTHON_CPPFLAGS="-I\${prefix}/include/${python_inc_path}"
      PYTHON_NUMPY_CPPFLAGS="-I\${prefix}/lib/${python_lib_path}/site-packages/numpy/core/include"
@@ -58,7 +58,7 @@ if test "x$want_python" = "xyes"; then
         if test "x$PYTHON" = "x" -a "x$ac_python_path" != "x"; then
             PYTHON=$ac_python_path
 	fi
-	AC_PYTHON_DEVEL([>= '2.6.1'])
+	AC_PYTHON_DEVEL([>= '3.4.0'])
 	old_ld_library_path="$LD_LIBRARY_PATH"
 	PYTHON_LDPATH=$PYTHON_PREFIX/lib:$PYTHON_PREFIX/lib64:
 	export LD_LIBRARY_PATH=$PYTHON_LDPATH$LD_LIBRARY_PATH
@@ -94,7 +94,7 @@ if test "x$want_python" = "xyes"; then
         if test "x$PYTHON" = "x" -a "x$ac_python_path" != "x"; then
             PYTHON=$ac_python_path
 	fi
-        AC_PYTHON_DEVEL([>= '2.6.1'])
+        AC_PYTHON_DEVEL([>= '3.4.0'])
         if test "x$PYTHON" != "x"; then
            pythondir=`$PYTHON -c "from distutils.sysconfig import *; print(get_python_lib(False,False,''))"`
            platpythondir=`$PYTHON -c "from distutils.sysconfig import *; print(get_python_lib(True,False,''))"`
@@ -112,8 +112,8 @@ if test "$succeeded" != "yes" -a "x$build_needed_python" == "xyes" ; then
      ac_python_path="\${prefix}"
      AM_PATH_PYTHON(,, [:])
      # Will need to update this if we change the version we are building
-     python_inc_path=python3.5m
-     python_lib_path=python3.5
+     python_inc_path=python3.7m
+     python_lib_path=python3.7
      PYTHON=`pwd`"/external/python_wrap.sh" 
      PYTHON_CPPFLAGS="-I\${prefix}/include/${python_inc_path}"
      PYTHON_NUMPY_CPPFLAGS="-I\${prefix}/lib/${python_lib_path}/site-packages/numpy/core/include"

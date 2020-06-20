@@ -81,8 +81,8 @@ if test "x$want_hdfeos5" = "xyes"; then
 		HDFEOS5_LIBS=""
 		have_hdfeos5="no"
         else
-                HDFEOS5_CFLAGS="$HDFEOS5_CFLAGS \$(HDF5_CFLAGS)"
-		HDFEOS5_LIBS="$HDFEOS5_LIBS \$(HDF5_LIBS)"
+                HDFEOS5_CFLAGS="$HDFEOS5_CFLAGS $HDF5_CFLAGS"
+		HDFEOS5_LIBS="$HDFEOS5_LIBS $HDF5_LIBS"
                 AC_MSG_RESULT([yes])
                 AC_SUBST(HDFEOS5_CFLAGS)
                 AC_SUBST(HDFEOS5_LIBS)

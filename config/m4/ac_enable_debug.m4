@@ -5,7 +5,15 @@ AC_ARG_ENABLE(debug,
 AS_HELP_STRING([--enable-debug],[Enable compiler debugging flags]),
 [if test "$enableval" = yes; then
   AC_MSG_RESULT([yes])
-  if test "$GCC" = yes; then
+  if test "x$CONDA_PREFIX" != x; then
+    CXXFLAGS="$DEBUG_CXXFLAGS"
+    CFLAGS="$DEBUG_CFLAGS"
+# There are some legitimate uses of mve in p1 that appear to violate the
+# bounds-check. This is because arrays are passed into fortran that have
+# negative indicies, which is allowed in fortran. So turn off the bound-check
+# for fortran.
+    FFLAGS="$DEBUG_FFLAGS -fno-bounds-check"
+  elif test "$GCC" = yes; then
     CXXFLAGS="-ggdb -DBZ_DEBUG -fbounds-check"
     CFLAGS="-ggdb -fbounds-check"
 # There are some legitimate uses of mve in p1 that appear to violate the

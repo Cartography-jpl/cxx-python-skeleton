@@ -119,5 +119,31 @@ export PKG_CONFIG_PATH
 AC_SUBST([pkgconfigdir], [${libdir}/pkgconfig])
 AC_SUBST([geocalsupportdir], [$geocal_support_path])
 
+#=================================================================
+# Conda on the mac has a couple of issues. It adds the LD flags
+# "-Wl,-dead-strip_dylibs".  Not really clear why this would be
+# imposed on all environments, but it is at least currently done. This
+# causes "lazy symbol bindings failed" errors, in particular libgsl
+# does lazy bindings with libgslcblas. It is common to include
+# libraries on the link line for reasons other than directly providing
+# symbols, so we really want makefile rule to determine what
+# libraries to include rather than having the linker toss libraries
+# out it "thinks" it doesn't need. We strip the option out if it gets
+# set by the passed in LDFLAGS from the Anaconda environment.
+#
+# Also the mac has its crappy SIP thing. This is a major pain. Among
+# other things, it ignores DYLD_LIBRARY_PATH in subshells. Libtool
+# seems to depend on this, so things like running geocal_check was failing.
+# The solution is to add -Wl,-rpath,${CONDA_PREFIX}/lib to the LDFLAGS
+# (for some reason the normal -R passed to libtool *doesn't* fix this).
+# =================================================================
+
+if(test ! -z "`uname | grep Darwin`"); then
+   LDFLAGS="$(echo $LDFLAGS | sed s/-Wl,-dead_strip_dylibs//)"
+   if test "x$CONDA_PREFIX" != x; then
+      LDFLAGS="$LDFLAGS -Wl,-rpath,${CONDA_PREFIX}/lib"
+   fi
+fi
+
 ])
 
