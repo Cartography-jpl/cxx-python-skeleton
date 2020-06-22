@@ -234,6 +234,7 @@ _swig_wrap_la_DEPENDENCIES = $(SWIG_LIBADD)
 am__dirstamp = $(am__leading_dot)dirstamp
 am__objects_1 = @swigsrc@/_swig_wrap_la-skeleton_exception_wrap.lo \
 	@swigsrc@/_swig_wrap_la-generic_object_wrap.lo \
+	@swigsrc@/_swig_wrap_la-generic_object_map_wrap.lo \
 	@swigsrc@/_swig_wrap_la-iostream_swig_wrap.lo \
 	@swigsrc@/_swig_wrap_la-serialize_function_wrap.lo \
 	@swigsrc@/_swig_wrap_la-numpy_sample_wrap.lo
@@ -257,6 +258,8 @@ am_libskeleton_la_OBJECTS =  \
 	@swigrules@/lib/libskeleton_la-swig_type_mapper_base.lo \
 	@swigrules@/lib/libskeleton_la-serialize_function.lo \
 	@srclib@/libskeleton_la-generic_object.lo \
+	@srclib@/libskeleton_la-generic_object_sample.lo \
+	@srclib@/libskeleton_la-generic_object_map.lo \
 	@srclib@/libskeleton_la-iostream_swig.lo \
 	@srclib@/libskeleton_la-blitz_array_serialize_support.lo
 libskeleton_la_OBJECTS = $(am_libskeleton_la_OBJECTS)
@@ -268,6 +271,7 @@ am_skeleton_test_all_OBJECTS =  \
 	@srclib@/skeleton_test_all-test_all.$(OBJEXT) \
 	@srclib@/skeleton_test_all-global_fixture.$(OBJEXT) \
 	@srclib@/skeleton_test_all-global_fixture_default.$(OBJEXT) \
+	@srclib@/skeleton_test_all-generic_object_map_test.$(OBJEXT) \
 	@srclib@/skeleton_test_all-printable_test.$(OBJEXT) \
 	@srclib@/skeleton_test_all-blitz_array_serialize_support_test.$(OBJEXT)
 skeleton_test_all_OBJECTS = $(am_skeleton_test_all_OBJECTS)
@@ -294,14 +298,18 @@ depcomp = $(SHELL) $(top_srcdir)/config/depcomp
 am__maybe_remake_depfiles = depfiles
 am__depfiles_remade = @srclib@/$(DEPDIR)/libskeleton_la-blitz_array_serialize_support.Plo \
 	@srclib@/$(DEPDIR)/libskeleton_la-generic_object.Plo \
+	@srclib@/$(DEPDIR)/libskeleton_la-generic_object_map.Plo \
+	@srclib@/$(DEPDIR)/libskeleton_la-generic_object_sample.Plo \
 	@srclib@/$(DEPDIR)/libskeleton_la-iostream_swig.Plo \
 	@srclib@/$(DEPDIR)/skeleton_test_all-blitz_array_serialize_support_test.Po \
+	@srclib@/$(DEPDIR)/skeleton_test_all-generic_object_map_test.Po \
 	@srclib@/$(DEPDIR)/skeleton_test_all-global_fixture.Po \
 	@srclib@/$(DEPDIR)/skeleton_test_all-global_fixture_default.Po \
 	@srclib@/$(DEPDIR)/skeleton_test_all-printable_test.Po \
 	@srclib@/$(DEPDIR)/skeleton_test_all-test_all.Po \
 	@swigrules@/lib/$(DEPDIR)/libskeleton_la-serialize_function.Plo \
 	@swigrules@/lib/$(DEPDIR)/libskeleton_la-swig_type_mapper_base.Plo \
+	@swigsrc@/$(DEPDIR)/_swig_wrap_la-generic_object_map_wrap.Plo \
 	@swigsrc@/$(DEPDIR)/_swig_wrap_la-generic_object_wrap.Plo \
 	@swigsrc@/$(DEPDIR)/_swig_wrap_la-iostream_swig_wrap.Plo \
 	@swigsrc@/$(DEPDIR)/_swig_wrap_la-numpy_sample_wrap.Plo \
@@ -793,6 +801,9 @@ EXTRA_DIST = README.md bootstrap config/m4_local/README config/m4 \
 	@swigrules@/lib/generic_object.cc.sample \
 	@swigrules@/lib/generic_object.h.sample \
 	@swigrules@/lib/generic_object.i.sample \
+	@swigrules@/lib/generic_object_map.cc.sample \
+	@swigrules@/lib/generic_object_map.h.sample \
+	@swigrules@/lib/generic_object_map.i.sample \
 	@swigrules@/lib/common.i.sample \
 	@swigrules@/lib/printable.h.sample \
 	@swigrules@/lib/serialize_support.h.sample \
@@ -839,10 +850,12 @@ check_DATA =
 # Build these up as we go
 libskeleton_la_SOURCES = @swigrules@/lib/swig_type_mapper_base.cc \
 	@swigrules@/lib/serialize_function.cc \
-	@srclib@/generic_object.cc @srclib@/iostream_swig.cc \
+	@srclib@/generic_object.cc @srclib@/generic_object_sample.cc \
+	@srclib@/generic_object_map.cc @srclib@/iostream_swig.cc \
 	@srclib@/blitz_array_serialize_support.cc
 SWIG_SRC = @swigsrc@/skeleton_exception_wrap.cc \
 	@swigsrc@/generic_object_wrap.cc \
+	@swigsrc@/generic_object_map_wrap.cc \
 	@swigsrc@/iostream_swig_wrap.cc \
 	@swigsrc@/serialize_function_wrap.cc \
 	@swigsrc@/numpy_sample_wrap.cc
@@ -862,7 +875,8 @@ skeletoninc_HEADERS = @swigrules@/lib/swig_type_mapper_base.h \
 	@swigrules@/lib/swig_to_python.h \
 	@swigrules@/lib/serialize_function.h \
 	@srclib@/skeleton_serialize_support.h \
-	@srclib@/generic_object.h @srclib@/printable.h \
+	@srclib@/generic_object.h @srclib@/generic_object_sample.h \
+	@srclib@/generic_object_map.h @srclib@/printable.h \
 	@srclib@/skeleton_exception.h @srclib@/iostream_swig.h \
 	@srclib@/blitz_array_serialize_support.h \
 	@srclib@/numpy_sample.h
@@ -870,11 +884,12 @@ skeletoninc_HEADERS = @swigrules@/lib/swig_type_mapper_base.h \
 # Files that contain SWIG wrapper information.
 skeletonswiginc_HEADERS = @srclib@/skeleton_common.i \
 	@srclib@/skeleton_shared_ptr.i @srclib@/skeleton_exception.i \
-	@srclib@/generic_object.i @srclib@/iostream_swig.i \
-	@srclib@/serialize_function.i @srclib@/numpy_sample.i
+	@srclib@/generic_object.i @srclib@/generic_object_map.i \
+	@srclib@/iostream_swig.i @srclib@/serialize_function.i \
+	@srclib@/numpy_sample.i
 skeleton_test_all_SOURCES = @srclib@/test_all.cc \
 	@srclib@/global_fixture.cc @srclib@/global_fixture_default.cc \
-	@srclib@/printable_test.cc \
+	@srclib@/generic_object_map_test.cc @srclib@/printable_test.cc \
 	@srclib@/blitz_array_serialize_support_test.cc
 dist_installskeleton_SCRIPTS = 
 SWIG_FLAG = -O
@@ -1145,6 +1160,8 @@ clean-pkgpythonswigLTLIBRARIES:
 	@swigsrc@/$(am__dirstamp) @swigsrc@/$(DEPDIR)/$(am__dirstamp)
 @swigsrc@/_swig_wrap_la-generic_object_wrap.lo:  \
 	@swigsrc@/$(am__dirstamp) @swigsrc@/$(DEPDIR)/$(am__dirstamp)
+@swigsrc@/_swig_wrap_la-generic_object_map_wrap.lo:  \
+	@swigsrc@/$(am__dirstamp) @swigsrc@/$(DEPDIR)/$(am__dirstamp)
 @swigsrc@/_swig_wrap_la-iostream_swig_wrap.lo:  \
 	@swigsrc@/$(am__dirstamp) @swigsrc@/$(DEPDIR)/$(am__dirstamp)
 @swigsrc@/_swig_wrap_la-serialize_function_wrap.lo:  \
@@ -1182,6 +1199,10 @@ _swig_wrap.la: $(_swig_wrap_la_OBJECTS) $(_swig_wrap_la_DEPENDENCIES) $(EXTRA__s
 	@: > @srclib@/$(DEPDIR)/$(am__dirstamp)
 @srclib@/libskeleton_la-generic_object.lo: @srclib@/$(am__dirstamp) \
 	@srclib@/$(DEPDIR)/$(am__dirstamp)
+@srclib@/libskeleton_la-generic_object_sample.lo:  \
+	@srclib@/$(am__dirstamp) @srclib@/$(DEPDIR)/$(am__dirstamp)
+@srclib@/libskeleton_la-generic_object_map.lo:  \
+	@srclib@/$(am__dirstamp) @srclib@/$(DEPDIR)/$(am__dirstamp)
 @srclib@/libskeleton_la-iostream_swig.lo: @srclib@/$(am__dirstamp) \
 	@srclib@/$(DEPDIR)/$(am__dirstamp)
 @srclib@/libskeleton_la-blitz_array_serialize_support.lo:  \
@@ -1194,6 +1215,8 @@ libskeleton.la: $(libskeleton_la_OBJECTS) $(libskeleton_la_DEPENDENCIES) $(EXTRA
 @srclib@/skeleton_test_all-global_fixture.$(OBJEXT):  \
 	@srclib@/$(am__dirstamp) @srclib@/$(DEPDIR)/$(am__dirstamp)
 @srclib@/skeleton_test_all-global_fixture_default.$(OBJEXT):  \
+	@srclib@/$(am__dirstamp) @srclib@/$(DEPDIR)/$(am__dirstamp)
+@srclib@/skeleton_test_all-generic_object_map_test.$(OBJEXT):  \
 	@srclib@/$(am__dirstamp) @srclib@/$(DEPDIR)/$(am__dirstamp)
 @srclib@/skeleton_test_all-printable_test.$(OBJEXT):  \
 	@srclib@/$(am__dirstamp) @srclib@/$(DEPDIR)/$(am__dirstamp)
@@ -1288,14 +1311,18 @@ distclean-compile:
 
 @AMDEP_TRUE@@am__include@ @am__quote@@srclib@/$(DEPDIR)/libskeleton_la-blitz_array_serialize_support.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@@srclib@/$(DEPDIR)/libskeleton_la-generic_object.Plo@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@@srclib@/$(DEPDIR)/libskeleton_la-generic_object_map.Plo@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@@srclib@/$(DEPDIR)/libskeleton_la-generic_object_sample.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@@srclib@/$(DEPDIR)/libskeleton_la-iostream_swig.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@@srclib@/$(DEPDIR)/skeleton_test_all-blitz_array_serialize_support_test.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@@srclib@/$(DEPDIR)/skeleton_test_all-generic_object_map_test.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@@srclib@/$(DEPDIR)/skeleton_test_all-global_fixture.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@@srclib@/$(DEPDIR)/skeleton_test_all-global_fixture_default.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@@srclib@/$(DEPDIR)/skeleton_test_all-printable_test.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@@srclib@/$(DEPDIR)/skeleton_test_all-test_all.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@@swigrules@/lib/$(DEPDIR)/libskeleton_la-serialize_function.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@@swigrules@/lib/$(DEPDIR)/libskeleton_la-swig_type_mapper_base.Plo@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@@swigsrc@/$(DEPDIR)/_swig_wrap_la-generic_object_map_wrap.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@@swigsrc@/$(DEPDIR)/_swig_wrap_la-generic_object_wrap.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@@swigsrc@/$(DEPDIR)/_swig_wrap_la-iostream_swig_wrap.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@@swigsrc@/$(DEPDIR)/_swig_wrap_la-numpy_sample_wrap.Plo@am__quote@ # am--include-marker
@@ -1349,6 +1376,13 @@ am--depfiles: $(am__depfiles_remade)
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='@swigsrc@/generic_object_wrap.cc' object='@swigsrc@/_swig_wrap_la-generic_object_wrap.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(_swig_wrap_la_CPPFLAGS) $(CPPFLAGS) $(_swig_wrap_la_CXXFLAGS) $(CXXFLAGS) -c -o @swigsrc@/_swig_wrap_la-generic_object_wrap.lo `test -f '@swigsrc@/generic_object_wrap.cc' || echo '$(srcdir)/'`@swigsrc@/generic_object_wrap.cc
+
+@swigsrc@/_swig_wrap_la-generic_object_map_wrap.lo: @swigsrc@/generic_object_map_wrap.cc
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(_swig_wrap_la_CPPFLAGS) $(CPPFLAGS) $(_swig_wrap_la_CXXFLAGS) $(CXXFLAGS) -MT @swigsrc@/_swig_wrap_la-generic_object_map_wrap.lo -MD -MP -MF @swigsrc@/$(DEPDIR)/_swig_wrap_la-generic_object_map_wrap.Tpo -c -o @swigsrc@/_swig_wrap_la-generic_object_map_wrap.lo `test -f '@swigsrc@/generic_object_map_wrap.cc' || echo '$(srcdir)/'`@swigsrc@/generic_object_map_wrap.cc
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) @swigsrc@/$(DEPDIR)/_swig_wrap_la-generic_object_map_wrap.Tpo @swigsrc@/$(DEPDIR)/_swig_wrap_la-generic_object_map_wrap.Plo
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='@swigsrc@/generic_object_map_wrap.cc' object='@swigsrc@/_swig_wrap_la-generic_object_map_wrap.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(_swig_wrap_la_CPPFLAGS) $(CPPFLAGS) $(_swig_wrap_la_CXXFLAGS) $(CXXFLAGS) -c -o @swigsrc@/_swig_wrap_la-generic_object_map_wrap.lo `test -f '@swigsrc@/generic_object_map_wrap.cc' || echo '$(srcdir)/'`@swigsrc@/generic_object_map_wrap.cc
 
 @swigsrc@/_swig_wrap_la-iostream_swig_wrap.lo: @swigsrc@/iostream_swig_wrap.cc
 @am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(_swig_wrap_la_CPPFLAGS) $(CPPFLAGS) $(_swig_wrap_la_CXXFLAGS) $(CXXFLAGS) -MT @swigsrc@/_swig_wrap_la-iostream_swig_wrap.lo -MD -MP -MF @swigsrc@/$(DEPDIR)/_swig_wrap_la-iostream_swig_wrap.Tpo -c -o @swigsrc@/_swig_wrap_la-iostream_swig_wrap.lo `test -f '@swigsrc@/iostream_swig_wrap.cc' || echo '$(srcdir)/'`@swigsrc@/iostream_swig_wrap.cc
@@ -1420,6 +1454,20 @@ am--depfiles: $(am__depfiles_remade)
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libskeleton_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o @srclib@/libskeleton_la-generic_object.lo `test -f '@srclib@/generic_object.cc' || echo '$(srcdir)/'`@srclib@/generic_object.cc
 
+@srclib@/libskeleton_la-generic_object_sample.lo: @srclib@/generic_object_sample.cc
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libskeleton_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT @srclib@/libskeleton_la-generic_object_sample.lo -MD -MP -MF @srclib@/$(DEPDIR)/libskeleton_la-generic_object_sample.Tpo -c -o @srclib@/libskeleton_la-generic_object_sample.lo `test -f '@srclib@/generic_object_sample.cc' || echo '$(srcdir)/'`@srclib@/generic_object_sample.cc
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) @srclib@/$(DEPDIR)/libskeleton_la-generic_object_sample.Tpo @srclib@/$(DEPDIR)/libskeleton_la-generic_object_sample.Plo
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='@srclib@/generic_object_sample.cc' object='@srclib@/libskeleton_la-generic_object_sample.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libskeleton_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o @srclib@/libskeleton_la-generic_object_sample.lo `test -f '@srclib@/generic_object_sample.cc' || echo '$(srcdir)/'`@srclib@/generic_object_sample.cc
+
+@srclib@/libskeleton_la-generic_object_map.lo: @srclib@/generic_object_map.cc
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libskeleton_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT @srclib@/libskeleton_la-generic_object_map.lo -MD -MP -MF @srclib@/$(DEPDIR)/libskeleton_la-generic_object_map.Tpo -c -o @srclib@/libskeleton_la-generic_object_map.lo `test -f '@srclib@/generic_object_map.cc' || echo '$(srcdir)/'`@srclib@/generic_object_map.cc
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) @srclib@/$(DEPDIR)/libskeleton_la-generic_object_map.Tpo @srclib@/$(DEPDIR)/libskeleton_la-generic_object_map.Plo
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='@srclib@/generic_object_map.cc' object='@srclib@/libskeleton_la-generic_object_map.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libskeleton_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o @srclib@/libskeleton_la-generic_object_map.lo `test -f '@srclib@/generic_object_map.cc' || echo '$(srcdir)/'`@srclib@/generic_object_map.cc
+
 @srclib@/libskeleton_la-iostream_swig.lo: @srclib@/iostream_swig.cc
 @am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libskeleton_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT @srclib@/libskeleton_la-iostream_swig.lo -MD -MP -MF @srclib@/$(DEPDIR)/libskeleton_la-iostream_swig.Tpo -c -o @srclib@/libskeleton_la-iostream_swig.lo `test -f '@srclib@/iostream_swig.cc' || echo '$(srcdir)/'`@srclib@/iostream_swig.cc
 @am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) @srclib@/$(DEPDIR)/libskeleton_la-iostream_swig.Tpo @srclib@/$(DEPDIR)/libskeleton_la-iostream_swig.Plo
@@ -1475,6 +1523,20 @@ am--depfiles: $(am__depfiles_remade)
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='@srclib@/global_fixture_default.cc' object='@srclib@/skeleton_test_all-global_fixture_default.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(skeleton_test_all_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o @srclib@/skeleton_test_all-global_fixture_default.obj `if test -f '@srclib@/global_fixture_default.cc'; then $(CYGPATH_W) '@srclib@/global_fixture_default.cc'; else $(CYGPATH_W) '$(srcdir)/@srclib@/global_fixture_default.cc'; fi`
+
+@srclib@/skeleton_test_all-generic_object_map_test.o: @srclib@/generic_object_map_test.cc
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(skeleton_test_all_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT @srclib@/skeleton_test_all-generic_object_map_test.o -MD -MP -MF @srclib@/$(DEPDIR)/skeleton_test_all-generic_object_map_test.Tpo -c -o @srclib@/skeleton_test_all-generic_object_map_test.o `test -f '@srclib@/generic_object_map_test.cc' || echo '$(srcdir)/'`@srclib@/generic_object_map_test.cc
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) @srclib@/$(DEPDIR)/skeleton_test_all-generic_object_map_test.Tpo @srclib@/$(DEPDIR)/skeleton_test_all-generic_object_map_test.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='@srclib@/generic_object_map_test.cc' object='@srclib@/skeleton_test_all-generic_object_map_test.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(skeleton_test_all_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o @srclib@/skeleton_test_all-generic_object_map_test.o `test -f '@srclib@/generic_object_map_test.cc' || echo '$(srcdir)/'`@srclib@/generic_object_map_test.cc
+
+@srclib@/skeleton_test_all-generic_object_map_test.obj: @srclib@/generic_object_map_test.cc
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(skeleton_test_all_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT @srclib@/skeleton_test_all-generic_object_map_test.obj -MD -MP -MF @srclib@/$(DEPDIR)/skeleton_test_all-generic_object_map_test.Tpo -c -o @srclib@/skeleton_test_all-generic_object_map_test.obj `if test -f '@srclib@/generic_object_map_test.cc'; then $(CYGPATH_W) '@srclib@/generic_object_map_test.cc'; else $(CYGPATH_W) '$(srcdir)/@srclib@/generic_object_map_test.cc'; fi`
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) @srclib@/$(DEPDIR)/skeleton_test_all-generic_object_map_test.Tpo @srclib@/$(DEPDIR)/skeleton_test_all-generic_object_map_test.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='@srclib@/generic_object_map_test.cc' object='@srclib@/skeleton_test_all-generic_object_map_test.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(skeleton_test_all_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o @srclib@/skeleton_test_all-generic_object_map_test.obj `if test -f '@srclib@/generic_object_map_test.cc'; then $(CYGPATH_W) '@srclib@/generic_object_map_test.cc'; else $(CYGPATH_W) '$(srcdir)/@srclib@/generic_object_map_test.cc'; fi`
 
 @srclib@/skeleton_test_all-printable_test.o: @srclib@/printable_test.cc
 @am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(skeleton_test_all_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT @srclib@/skeleton_test_all-printable_test.o -MD -MP -MF @srclib@/$(DEPDIR)/skeleton_test_all-printable_test.Tpo -c -o @srclib@/skeleton_test_all-printable_test.o `test -f '@srclib@/printable_test.cc' || echo '$(srcdir)/'`@srclib@/printable_test.cc
@@ -2181,14 +2243,18 @@ distclean: distclean-am
 	-rm -f $(am__CONFIG_DISTCLEAN_FILES)
 		-rm -f @srclib@/$(DEPDIR)/libskeleton_la-blitz_array_serialize_support.Plo
 	-rm -f @srclib@/$(DEPDIR)/libskeleton_la-generic_object.Plo
+	-rm -f @srclib@/$(DEPDIR)/libskeleton_la-generic_object_map.Plo
+	-rm -f @srclib@/$(DEPDIR)/libskeleton_la-generic_object_sample.Plo
 	-rm -f @srclib@/$(DEPDIR)/libskeleton_la-iostream_swig.Plo
 	-rm -f @srclib@/$(DEPDIR)/skeleton_test_all-blitz_array_serialize_support_test.Po
+	-rm -f @srclib@/$(DEPDIR)/skeleton_test_all-generic_object_map_test.Po
 	-rm -f @srclib@/$(DEPDIR)/skeleton_test_all-global_fixture.Po
 	-rm -f @srclib@/$(DEPDIR)/skeleton_test_all-global_fixture_default.Po
 	-rm -f @srclib@/$(DEPDIR)/skeleton_test_all-printable_test.Po
 	-rm -f @srclib@/$(DEPDIR)/skeleton_test_all-test_all.Po
 	-rm -f @swigrules@/lib/$(DEPDIR)/libskeleton_la-serialize_function.Plo
 	-rm -f @swigrules@/lib/$(DEPDIR)/libskeleton_la-swig_type_mapper_base.Plo
+	-rm -f @swigsrc@/$(DEPDIR)/_swig_wrap_la-generic_object_map_wrap.Plo
 	-rm -f @swigsrc@/$(DEPDIR)/_swig_wrap_la-generic_object_wrap.Plo
 	-rm -f @swigsrc@/$(DEPDIR)/_swig_wrap_la-iostream_swig_wrap.Plo
 	-rm -f @swigsrc@/$(DEPDIR)/_swig_wrap_la-numpy_sample_wrap.Plo
@@ -2254,14 +2320,18 @@ maintainer-clean: maintainer-clean-am
 	-rm -rf $(top_srcdir)/autom4te.cache
 		-rm -f @srclib@/$(DEPDIR)/libskeleton_la-blitz_array_serialize_support.Plo
 	-rm -f @srclib@/$(DEPDIR)/libskeleton_la-generic_object.Plo
+	-rm -f @srclib@/$(DEPDIR)/libskeleton_la-generic_object_map.Plo
+	-rm -f @srclib@/$(DEPDIR)/libskeleton_la-generic_object_sample.Plo
 	-rm -f @srclib@/$(DEPDIR)/libskeleton_la-iostream_swig.Plo
 	-rm -f @srclib@/$(DEPDIR)/skeleton_test_all-blitz_array_serialize_support_test.Po
+	-rm -f @srclib@/$(DEPDIR)/skeleton_test_all-generic_object_map_test.Po
 	-rm -f @srclib@/$(DEPDIR)/skeleton_test_all-global_fixture.Po
 	-rm -f @srclib@/$(DEPDIR)/skeleton_test_all-global_fixture_default.Po
 	-rm -f @srclib@/$(DEPDIR)/skeleton_test_all-printable_test.Po
 	-rm -f @srclib@/$(DEPDIR)/skeleton_test_all-test_all.Po
 	-rm -f @swigrules@/lib/$(DEPDIR)/libskeleton_la-serialize_function.Plo
 	-rm -f @swigrules@/lib/$(DEPDIR)/libskeleton_la-swig_type_mapper_base.Plo
+	-rm -f @swigsrc@/$(DEPDIR)/_swig_wrap_la-generic_object_map_wrap.Plo
 	-rm -f @swigsrc@/$(DEPDIR)/_swig_wrap_la-generic_object_wrap.Plo
 	-rm -f @swigsrc@/$(DEPDIR)/_swig_wrap_la-iostream_swig_wrap.Plo
 	-rm -f @swigsrc@/$(DEPDIR)/_swig_wrap_la-numpy_sample_wrap.Plo

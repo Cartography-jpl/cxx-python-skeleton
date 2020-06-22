@@ -1,0 +1,40 @@
+#ifndef GENERIC_OBJECT_SAMPLE_H
+#define GENERIC_OBJECT_SAMPLE_H
+#include "printable.h"
+#include <boost/shared_ptr.hpp>
+
+namespace Skeleton {
+/****************************************************************//**
+  Simple set of classes for testing serialization support in python
+*******************************************************************/
+class GenericObjectA : public Printable<GenericObjectA> {
+public:
+  GenericObjectA(int V) : v_(V) {}
+  void print(std::ostream& Os) const {Os << "A";}
+  int v() const { return v_;}
+  void v(int V) { v_ = V;}
+private:
+  int v_;
+  GenericObjectA() {}
+  friend class boost::serialization::access;
+  template<class Archive>
+  void serialize(Archive & ar, const unsigned int version);
+};
+
+class GenericObjectB : public Printable<GenericObjectB> {
+public:
+  GenericObjectB(const boost::shared_ptr<GenericObjectA>& V) : a_(V) {}
+  void print(std::ostream& Os) const {Os << "B";}
+  const boost::shared_ptr<GenericObjectA>& a() const { return a_;}
+  void a(const boost::shared_ptr<GenericObjectA>& V) { a_ = V;}
+private:
+  boost::shared_ptr<GenericObjectA> a_;
+  GenericObjectB() {}
+  friend class boost::serialization::access;
+  template<class Archive>
+  void serialize(Archive & ar, const unsigned int version);
+};
+}
+SKELETON_EXPORT_KEY(GenericObjectA);
+SKELETON_EXPORT_KEY(GenericObjectB);
+#endif
