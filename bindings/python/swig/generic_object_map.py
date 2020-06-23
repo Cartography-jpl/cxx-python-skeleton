@@ -216,6 +216,24 @@ class GenericObjectMap(skeleton_swig.generic_object.GenericObject):
         """
         _generic_object_map.GenericObjectMap_swiginit(self, _generic_object_map.new_GenericObjectMap())
 
+    def keys(self):
+        """
+
+        std::vector<std::string> Skeleton::GenericObjectMap::keys() const
+        List of keys, for python. 
+        """
+        return _generic_object_map.GenericObjectMap_keys(self)
+
+
+    def set_generic(self, Key, V):
+        """
+
+        void Skeleton::GenericObjectMap::set_generic(const std::string &Key, const boost::shared_ptr< GenericObject > &V)
+        Save object - this is something more easy to call from python. 
+        """
+        return _generic_object_map.GenericObjectMap_set_generic(self, Key, V)
+
+
     def get_generic(self, Key):
         """
 
@@ -229,7 +247,25 @@ class GenericObjectMap(skeleton_swig.generic_object.GenericObject):
     def __reduce__(self):
       return _new_from_serialization, (skeleton_swig.serialize_write_binary(self),)
 
+
+    def __contains__(self, key):
+      return key in self.keys()
+
+    def __getitem__(self, key):
+      return self.get_generic(key)
+
+    def __setitem__(self, key, v):
+      return self.set_generic(key, v)
+
+    def __getattr__(self, key):
+      v = self.get_generic(key)
+      if(v is None):
+        raise AttributeError()
+      return v
+
     __swig_destroy__ = _generic_object_map.delete_GenericObjectMap
+GenericObjectMap.keys = new_instancemethod(_generic_object_map.GenericObjectMap_keys, None, GenericObjectMap)
+GenericObjectMap.set_generic = new_instancemethod(_generic_object_map.GenericObjectMap_set_generic, None, GenericObjectMap)
 GenericObjectMap.get_generic = new_instancemethod(_generic_object_map.GenericObjectMap_get_generic, None, GenericObjectMap)
 GenericObjectMap.__str__ = new_instancemethod(_generic_object_map.GenericObjectMap___str__, None, GenericObjectMap)
 GenericObjectMap_swigregister = _generic_object_map.GenericObjectMap_swigregister

@@ -4227,7 +4227,7 @@ inline PyObject* cpickle_module()
 {
   static PyObject* mod = 0;
   if(!mod)
-    mod = PyImport_ImportModule("cPickle");
+    mod = PyImport_ImportModule("pickle");
   return mod;
 }
 
@@ -7782,6 +7782,9 @@ SWIG_init(void) {
   SWIG_InstallConstants(d,swig_const_table);
   
   SWIG_Python_SetConstant(d, "SHARED_PTR_DISOWN",SWIG_From_int(static_cast< int >(0)));
+  
+  Skeleton::SwigTypeMapperBase::add(typeid(Skeleton::GenericObject), boost::make_shared<Skeleton::SwigTypeMapper< Skeleton::GenericObject > > ("boost::shared_ptr< Skeleton::GenericObject > *"));
+  
 #if PY_VERSION_HEX >= 0x03000000
   return m;
 #else

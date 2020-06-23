@@ -6,7 +6,7 @@
 #include "generic_object.h"
 %}
 
-%shared_ptr(Skeleton::GenericObject)
+%skeleton_shared_ptr(Skeleton::GenericObject)
 namespace Skeleton {
 class GenericObject {
 public:

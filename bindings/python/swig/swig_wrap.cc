@@ -8,6 +8,7 @@ extern "C" {
   INIT_TYPE INIT_FUNC(_swig_std)(void);
   INIT_TYPE INIT_FUNC(_skeleton_exception)(void);
   INIT_TYPE INIT_FUNC(_generic_object)(void);
+  INIT_TYPE INIT_FUNC(_generic_object_sample)(void);
   INIT_TYPE INIT_FUNC(_generic_object_map)(void);
   INIT_TYPE INIT_FUNC(_iostream_swig)(void);
   INIT_TYPE INIT_FUNC(_serialize_function)(void);
@@ -21,6 +22,7 @@ static void module_init(PyObject* module)
   INIT_MODULE(module, "_swig_std", INIT_FUNC(_swig_std));
   INIT_MODULE(module, "_skeleton_exception", INIT_FUNC(_skeleton_exception));
   INIT_MODULE(module, "_generic_object", INIT_FUNC(_generic_object));
+  INIT_MODULE(module, "_generic_object_sample", INIT_FUNC(_generic_object_sample));
   INIT_MODULE(module, "_generic_object_map", INIT_FUNC(_generic_object_map));
   INIT_MODULE(module, "_iostream_swig", INIT_FUNC(_iostream_swig));
   INIT_MODULE(module, "_serialize_function", INIT_FUNC(_serialize_function));
