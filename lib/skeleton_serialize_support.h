@@ -3,6 +3,7 @@
 // This contains various support routines for *implementing* the boost
 // serialization (as opposed to *using*  the serialization
 #include "skeleton_config.h"
+#include "weak_ptr_serialize_support.h"
 #ifdef SKELETON_HAVE_BOOST_SERIALIZATION
 #include <boost/serialization/access.hpp>
 #include <boost/serialization/nvp.hpp>

@@ -2,6 +2,7 @@
 #define GENERIC_OBJECT_SAMPLE_H
 #include "printable.h"
 #include <boost/shared_ptr.hpp>
+#include <boost/weak_ptr.hpp>
 
 namespace Skeleton {
 /****************************************************************//**
@@ -34,7 +35,23 @@ private:
   template<class Archive>
   void serialize(Archive & ar, const unsigned int version);
 };
+
+class GenericObjectC : public Printable<GenericObjectC> {
+public:
+  GenericObjectC(const boost::shared_ptr<GenericObjectA>& V) : a_(V) {}
+  void print(std::ostream& Os) const {Os << "C";}
+  boost::shared_ptr<GenericObjectA> a() const { return a_.lock();}
+  void a(const boost::shared_ptr<GenericObjectA>& V) { a_ = V;}
+private:
+  boost::weak_ptr<GenericObjectA> a_;
+  GenericObjectC() {}
+  friend class boost::serialization::access;
+  template<class Archive>
+  void serialize(Archive & ar, const unsigned int version);
+};
+  
 }
 SKELETON_EXPORT_KEY(GenericObjectA);
 SKELETON_EXPORT_KEY(GenericObjectB);
+SKELETON_EXPORT_KEY(GenericObjectC);
 #endif

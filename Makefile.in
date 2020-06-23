@@ -258,6 +258,7 @@ libskeleton_la_LIBADD =
 am_libskeleton_la_OBJECTS =  \
 	@swigrules@/lib/libskeleton_la-swig_type_mapper_base.lo \
 	@swigrules@/lib/libskeleton_la-serialize_function.lo \
+	@swigrules@/lib/libskeleton_la-weak_ptr_serialize_support.lo \
 	@srclib@/libskeleton_la-generic_object.lo \
 	@srclib@/libskeleton_la-generic_object_sample.lo \
 	@srclib@/libskeleton_la-generic_object_map.lo \
@@ -310,6 +311,7 @@ am__depfiles_remade = @srclib@/$(DEPDIR)/libskeleton_la-blitz_array_serialize_su
 	@srclib@/$(DEPDIR)/skeleton_test_all-test_all.Po \
 	@swigrules@/lib/$(DEPDIR)/libskeleton_la-serialize_function.Plo \
 	@swigrules@/lib/$(DEPDIR)/libskeleton_la-swig_type_mapper_base.Plo \
+	@swigrules@/lib/$(DEPDIR)/libskeleton_la-weak_ptr_serialize_support.Plo \
 	@swigsrc@/$(DEPDIR)/_swig_wrap_la-generic_object_map_wrap.Plo \
 	@swigsrc@/$(DEPDIR)/_swig_wrap_la-generic_object_sample_wrap.Plo \
 	@swigsrc@/$(DEPDIR)/_swig_wrap_la-generic_object_wrap.Plo \
@@ -852,6 +854,7 @@ check_DATA =
 # Build these up as we go
 libskeleton_la_SOURCES = @swigrules@/lib/swig_type_mapper_base.cc \
 	@swigrules@/lib/serialize_function.cc \
+	@swigrules@/lib/weak_ptr_serialize_support.cc \
 	@srclib@/generic_object.cc @srclib@/generic_object_sample.cc \
 	@srclib@/generic_object_map.cc @srclib@/iostream_swig.cc \
 	@srclib@/blitz_array_serialize_support.cc
@@ -877,6 +880,7 @@ skeletoninc_HEADERS = @swigrules@/lib/swig_type_mapper_base.h \
 	@swigrules@/lib/swig_type_mapper.h \
 	@swigrules@/lib/swig_to_python.h \
 	@swigrules@/lib/serialize_function.h \
+	@swigrules@/lib/weak_ptr_serialize_support.h \
 	@srclib@/skeleton_serialize_support.h \
 	@srclib@/generic_object.h @srclib@/generic_object_sample.h \
 	@srclib@/generic_object_map.h @srclib@/printable.h \
@@ -1196,6 +1200,9 @@ _swig_wrap.la: $(_swig_wrap_la_OBJECTS) $(_swig_wrap_la_DEPENDENCIES) $(EXTRA__s
 @swigrules@/lib/libskeleton_la-serialize_function.lo:  \
 	@swigrules@/lib/$(am__dirstamp) \
 	@swigrules@/lib/$(DEPDIR)/$(am__dirstamp)
+@swigrules@/lib/libskeleton_la-weak_ptr_serialize_support.lo:  \
+	@swigrules@/lib/$(am__dirstamp) \
+	@swigrules@/lib/$(DEPDIR)/$(am__dirstamp)
 @srclib@/$(am__dirstamp):
 	@$(MKDIR_P) @srclib@
 	@: > @srclib@/$(am__dirstamp)
@@ -1327,6 +1334,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@@srclib@/$(DEPDIR)/skeleton_test_all-test_all.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@@swigrules@/lib/$(DEPDIR)/libskeleton_la-serialize_function.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@@swigrules@/lib/$(DEPDIR)/libskeleton_la-swig_type_mapper_base.Plo@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@@swigrules@/lib/$(DEPDIR)/libskeleton_la-weak_ptr_serialize_support.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@@swigsrc@/$(DEPDIR)/_swig_wrap_la-generic_object_map_wrap.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@@swigsrc@/$(DEPDIR)/_swig_wrap_la-generic_object_sample_wrap.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@@swigsrc@/$(DEPDIR)/_swig_wrap_la-generic_object_wrap.Plo@am__quote@ # am--include-marker
@@ -1459,6 +1467,13 @@ am--depfiles: $(am__depfiles_remade)
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='@swigrules@/lib/serialize_function.cc' object='@swigrules@/lib/libskeleton_la-serialize_function.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libskeleton_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o @swigrules@/lib/libskeleton_la-serialize_function.lo `test -f '@swigrules@/lib/serialize_function.cc' || echo '$(srcdir)/'`@swigrules@/lib/serialize_function.cc
+
+@swigrules@/lib/libskeleton_la-weak_ptr_serialize_support.lo: @swigrules@/lib/weak_ptr_serialize_support.cc
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libskeleton_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT @swigrules@/lib/libskeleton_la-weak_ptr_serialize_support.lo -MD -MP -MF @swigrules@/lib/$(DEPDIR)/libskeleton_la-weak_ptr_serialize_support.Tpo -c -o @swigrules@/lib/libskeleton_la-weak_ptr_serialize_support.lo `test -f '@swigrules@/lib/weak_ptr_serialize_support.cc' || echo '$(srcdir)/'`@swigrules@/lib/weak_ptr_serialize_support.cc
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) @swigrules@/lib/$(DEPDIR)/libskeleton_la-weak_ptr_serialize_support.Tpo @swigrules@/lib/$(DEPDIR)/libskeleton_la-weak_ptr_serialize_support.Plo
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='@swigrules@/lib/weak_ptr_serialize_support.cc' object='@swigrules@/lib/libskeleton_la-weak_ptr_serialize_support.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libskeleton_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o @swigrules@/lib/libskeleton_la-weak_ptr_serialize_support.lo `test -f '@swigrules@/lib/weak_ptr_serialize_support.cc' || echo '$(srcdir)/'`@swigrules@/lib/weak_ptr_serialize_support.cc
 
 @srclib@/libskeleton_la-generic_object.lo: @srclib@/generic_object.cc
 @am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libskeleton_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT @srclib@/libskeleton_la-generic_object.lo -MD -MP -MF @srclib@/$(DEPDIR)/libskeleton_la-generic_object.Tpo -c -o @srclib@/libskeleton_la-generic_object.lo `test -f '@srclib@/generic_object.cc' || echo '$(srcdir)/'`@srclib@/generic_object.cc
@@ -2267,6 +2282,7 @@ distclean: distclean-am
 	-rm -f @srclib@/$(DEPDIR)/skeleton_test_all-test_all.Po
 	-rm -f @swigrules@/lib/$(DEPDIR)/libskeleton_la-serialize_function.Plo
 	-rm -f @swigrules@/lib/$(DEPDIR)/libskeleton_la-swig_type_mapper_base.Plo
+	-rm -f @swigrules@/lib/$(DEPDIR)/libskeleton_la-weak_ptr_serialize_support.Plo
 	-rm -f @swigsrc@/$(DEPDIR)/_swig_wrap_la-generic_object_map_wrap.Plo
 	-rm -f @swigsrc@/$(DEPDIR)/_swig_wrap_la-generic_object_sample_wrap.Plo
 	-rm -f @swigsrc@/$(DEPDIR)/_swig_wrap_la-generic_object_wrap.Plo
@@ -2345,6 +2361,7 @@ maintainer-clean: maintainer-clean-am
 	-rm -f @srclib@/$(DEPDIR)/skeleton_test_all-test_all.Po
 	-rm -f @swigrules@/lib/$(DEPDIR)/libskeleton_la-serialize_function.Plo
 	-rm -f @swigrules@/lib/$(DEPDIR)/libskeleton_la-swig_type_mapper_base.Plo
+	-rm -f @swigrules@/lib/$(DEPDIR)/libskeleton_la-weak_ptr_serialize_support.Plo
 	-rm -f @swigsrc@/$(DEPDIR)/_swig_wrap_la-generic_object_map_wrap.Plo
 	-rm -f @swigsrc@/$(DEPDIR)/_swig_wrap_la-generic_object_sample_wrap.Plo
 	-rm -f @swigsrc@/$(DEPDIR)/_swig_wrap_la-generic_object_wrap.Plo

@@ -27,6 +27,25 @@ BOOST_AUTO_TEST_CASE(serialization1)
   BOOST_CHECK(br->a().get() != ar.get());
 }
 
+BOOST_AUTO_TEST_CASE(serialization1_weakptr)
+{
+  // Serialize GenericObjectA and GenericObjectC separately,
+  // GenericObjectC has a weak ptr to A, which shouldn't get serialized
+  boost::shared_ptr<GenericObjectA> a = boost::make_shared<GenericObjectA>(1);
+  boost::shared_ptr<GenericObjectC> c = boost::make_shared<GenericObjectC>(a);
+  std::string d1 = serialize_write_string(a);
+  std::string d2 = serialize_write_string(c);
+  if(false)
+    std::cerr << d1
+	      << d2;
+  boost::shared_ptr<GenericObjectA> ar =
+    serialize_read_string<GenericObjectA>(d1);
+  boost::shared_ptr<GenericObjectC> cr =
+    serialize_read_string<GenericObjectC>(d2);
+  BOOST_CHECK_EQUAL(ar->v(), 1);
+  BOOST_CHECK(!cr->a());
+}
+
 BOOST_AUTO_TEST_CASE(serialization2)
 {
   // Serialize GenericObjectA and GenericObjectB together, should
@@ -45,6 +64,28 @@ BOOST_AUTO_TEST_CASE(serialization2)
   BOOST_CHECK_EQUAL(ar->v(), 1);
   BOOST_CHECK_EQUAL(br->a()->v(), 1);
   BOOST_CHECK(br->a().get() == ar.get());
+}
+
+BOOST_AUTO_TEST_CASE(serialization2_weak)
+{
+  // Serialize GenericObjectA and GenericObjectC together, should
+  // end up with one copy GenericObjectA, and C should keep the
+  // weak_ptr to a
+  boost::shared_ptr<GenericObjectMap> m =
+    boost::make_shared<GenericObjectMap>();
+  (*m)["a"] = boost::make_shared<GenericObjectA>(1);
+  (*m)["c"] = boost::make_shared<GenericObjectC>(m->get<GenericObjectA>("a"));
+  std::string d = serialize_write_string(m);
+  if(false)
+    std::cerr << d;
+  boost::shared_ptr<GenericObjectMap> mr =
+    serialize_read_string<GenericObjectMap>(d);
+  boost::shared_ptr<GenericObjectA> ar = mr->get<GenericObjectA>("a");
+  boost::shared_ptr<GenericObjectC> cr = mr->get<GenericObjectC>("c");
+  BOOST_CHECK_EQUAL(ar->v(), 1);
+  BOOST_CHECK(cr->a());
+  BOOST_CHECK_EQUAL(cr->a()->v(), 1);
+  BOOST_CHECK(cr->a().get() == ar.get());
 }
 
 BOOST_AUTO_TEST_SUITE_END()

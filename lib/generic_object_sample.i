@@ -9,6 +9,7 @@
 %base_import(generic_object)
 %skeleton_shared_ptr(Skeleton::GenericObjectA);
 %skeleton_shared_ptr(Skeleton::GenericObjectB);
+%skeleton_shared_ptr(Skeleton::GenericObjectC);
 namespace Skeleton {
 class GenericObjectA : public GenericObject {
 public:
@@ -25,8 +26,16 @@ public:
   %python_attribute_with_set(a, boost::shared_ptr<GenericObjectA>);
   %pickle_serialization();
 };
+
+class GenericObjectC : public GenericObject {
+public:
+  GenericObjectC(const boost::shared_ptr<GenericObjectA>& V) : a_(V) {}
+  std::string print_to_string() const;
+  %python_attribute_with_set(a, boost::shared_ptr<GenericObjectA>);
+  %pickle_serialization();
+};
 }
 // List of things "import *" will include
-%python_export("GenericObjectA", "GenericObjectB");
+%python_export("GenericObjectA", "GenericObjectB", "GenericObjectC");
 
   

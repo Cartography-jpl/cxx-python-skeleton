@@ -272,8 +272,53 @@ GenericObjectB._v_a = new_instancemethod(_generic_object_sample.GenericObjectB__
 GenericObjectB_swigregister = _generic_object_sample.GenericObjectB_swigregister
 GenericObjectB_swigregister(GenericObjectB)
 
+class GenericObjectC(skeleton_swig.generic_object.GenericObject):
+    """
 
-__all__ = ["GenericObjectA","GenericObjectB"]
+    C++ includes: generic_object_sample.h
+
+    """
+
+    thisown = _swig_property(lambda x: x.this.own(), lambda x, v: x.this.own(v), doc='The membership flag')
+    __repr__ = _swig_repr
+
+    def __init__(self, V):
+        """
+
+        Skeleton::GenericObjectC::GenericObjectC(const boost::shared_ptr< GenericObjectA > &V)
+
+        """
+        _generic_object_sample.GenericObjectC_swiginit(self, _generic_object_sample.new_GenericObjectC(V))
+
+    def _v_a(self, *args):
+        """
+
+        void Skeleton::GenericObjectC::a(const boost::shared_ptr< GenericObjectA > &V)
+
+        """
+        return _generic_object_sample.GenericObjectC__v_a(self, *args)
+
+
+    @property
+    def a(self):
+        return self._v_a()
+
+    @a.setter
+    def a(self, value):
+      self._v_a(value)
+
+
+    def __reduce__(self):
+      return _new_from_serialization, (skeleton_swig.serialize_write_binary(self),)
+
+    __swig_destroy__ = _generic_object_sample.delete_GenericObjectC
+GenericObjectC.__str__ = new_instancemethod(_generic_object_sample.GenericObjectC___str__, None, GenericObjectC)
+GenericObjectC._v_a = new_instancemethod(_generic_object_sample.GenericObjectC__v_a, None, GenericObjectC)
+GenericObjectC_swigregister = _generic_object_sample.GenericObjectC_swigregister
+GenericObjectC_swigregister(GenericObjectC)
+
+
+__all__ = ["GenericObjectA","GenericObjectB","GenericObjectC"]
 
 
 
