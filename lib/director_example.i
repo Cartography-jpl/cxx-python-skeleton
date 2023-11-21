@@ -16,8 +16,9 @@ class DirectorExample : public GenericObject {
 public:
   DirectorExample(int V);
   std::string print_to_string() const;
+  virtual std::string desc() const;
   virtual int func(int v) const;
-  %python_attribute(value_to_add);
+  int value_to_add() const;
   %pickle_serialization();
 };
 

@@ -9,6 +9,12 @@ class DirectorPythonExample(DirectorExample):
 
     def func(self, v):
         return super().func(v) + 2 * self.v2
+
+    def desc(self):
+        '''Description to print for this object.'''
+        return f'''DirectorPythonExample:
+   value_to_add:        { self.value_to_add() }
+   value_to_double_add: {self.v2}'''
     
 def test_director_example():
     e = DirectorExample(5)
@@ -18,5 +24,7 @@ def test_director_example():
     euser = DirectorExampleUser()
     euser.set_value(e2)
     assert euser.apply_func(10) == 5+10+2*6
+    print(euser.value())
+    
     
     

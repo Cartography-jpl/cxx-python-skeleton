@@ -214,9 +214,13 @@ class DirectorExample(skeleton_swig.generic_object.GenericObject):
         return _director_example.DirectorExample_func(self, v)
 
 
-    @property
     def value_to_add(self):
-        return self._v_value_to_add()
+        """
+
+        int Skeleton::DirectorExample::value_to_add() const
+
+        """
+        return _director_example.DirectorExample_value_to_add(self)
 
 
     def __reduce__(self):
@@ -228,7 +232,9 @@ class DirectorExample(skeleton_swig.generic_object.GenericObject):
         _director_example.disown_DirectorExample(self)
         return weakref_proxy(self)
 DirectorExample.__str__ = new_instancemethod(_director_example.DirectorExample___str__, None, DirectorExample)
+DirectorExample.desc = new_instancemethod(_director_example.DirectorExample_desc, None, DirectorExample)
 DirectorExample.func = new_instancemethod(_director_example.DirectorExample_func, None, DirectorExample)
+DirectorExample.value_to_add = new_instancemethod(_director_example.DirectorExample_value_to_add, None, DirectorExample)
 DirectorExample_swigregister = _director_example.DirectorExample_swigregister
 DirectorExample_swigregister(DirectorExample)
 

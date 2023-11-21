@@ -28,7 +28,7 @@ skip = pytest.mark.skip
 require_python3 = pytest.mark.skipif(not sys.version_info > (3,),
        reason = "require python 3 to run")                                     
 
-@pytest.yield_fixture(scope="function")
+@pytest.fixture(scope="function")
 def isolated_dir(tmpdir):
     '''This is a fixture that creates a temporary directory, and uses this
     while running a unit tests. Useful for tests that write out a test file

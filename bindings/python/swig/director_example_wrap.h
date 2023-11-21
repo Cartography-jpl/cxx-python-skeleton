@@ -19,8 +19,8 @@ class SwigDirector_DirectorExample : public Skeleton::DirectorExample, public Sw
 
 public:
     SwigDirector_DirectorExample(PyObject *self, int V);
-    SwigDirector_DirectorExample(PyObject *self);
     virtual ~SwigDirector_DirectorExample();
+    virtual std::string desc() const;
     virtual int func(int v) const;
 
 /* Internal director utilities */
@@ -52,7 +52,7 @@ private:
       return method;
     }
 private:
-    mutable swig::SwigVar_PyObject vtable[1];
+    mutable swig::SwigVar_PyObject vtable[2];
 #endif
 
 };
