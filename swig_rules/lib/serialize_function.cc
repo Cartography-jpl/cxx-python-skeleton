@@ -1,6 +1,8 @@
 #include "serialize_function.h"
 #include "weak_ptr_serialize_support.h"
 #include <boost/serialization/shared_ptr.hpp>
+#include <boost/regex.hpp>
+#include <boost/iostreams/filter/gzip.hpp>
 #include <stdexcept>
 #include <fstream>
 #include <sstream>
@@ -17,6 +19,60 @@
 #include <boost/archive/polymorphic_binary_oarchive.hpp>
 #endif
 using namespace SWIG_MAPPER_NAMESPACE;
+
+/****************************************************************//**
+/// This opens a file for writing, possibly with automatic
+/// compression. We look at the File name, and if ends if ".gz" then
+/// we automatically gzip the file.
+*******************************************************************/
+
+class OstreamCompress : public FilteringOstream {
+public:
+//-----------------------------------------------------------------------
+/// This opens a file for writing, possibly with automatic
+/// compression. We look at the File name, and if ends if ".gz" then
+/// we automatically gzip the file.
+//-----------------------------------------------------------------------
+  OstreamCompress(const std::string& Fname)
+    : FilteringOstream(Fname)
+  {
+    if(boost::regex_search(Fname, boost::regex("\\.gz$")))
+      sb.push(boost::iostreams::gzip_compressor());
+    sb.push(f);
+  }    
+  virtual ~OstreamCompress() {}
+};
+
+/****************************************************************//**
+/// This opens a file for reading, possibly with automatic
+/// decompression. We look at the File name, and if ends if ".gz" then
+/// we automatically gunzip the file.
+///
+/// See all also IfstreamCs which both handles decompression and
+/// stripping out comments.
+*******************************************************************/
+
+class IstreamCompress : public FilteringIstream {
+public:
+//-----------------------------------------------------------------------
+/// This opens a file for reading, possibly with automatic
+/// decompression. We look at the File name, and if ends if ".gz" then
+/// we automatically gunzip the file.
+///
+/// See all also IfstreamCs which both handles decompression and
+/// stripping out comments.
+//-----------------------------------------------------------------------
+  IstreamCompress(const std::string& Fname)
+    : FilteringIstream(Fname)
+  {
+    if(boost::regex_search(Fname, boost::regex("\\.gz$")))
+      sb.push(boost::iostreams::gzip_decompressor());
+    sb.push(f);
+  }
+  virtual ~IstreamCompress() {}
+};
+
+
 
 //-----------------------------------------------------------------------
 /// Utility class. This changes to a new directory, and on destruction
@@ -99,6 +155,7 @@ void SWIG_MAPPER_NAMESPACE::skip_weak_ptr_handling(bool Skip)
 
 static void mark_pointer(const boost::shared_ptr<GenericObject>& Obj)
 {
+#ifdef SWIG_HAVE_BOOST_SERIALIZATION
   if(skip_weak_ptr_handling())
     return;
   clear_ptr_serialized_reference();
@@ -106,6 +163,9 @@ static void mark_pointer(const boost::shared_ptr<GenericObject>& Obj)
   boost::archive::polymorphic_binary_oarchive oa(os_first_pass);
   oa << boost::serialization::make_nvp("geocal_object", Obj);
   // Don't actually want output, just side effect of marking pointers
+#else
+  throw std::runtime_error("SWIG_MAPPER_NAMESPACE was not built with boost::serialization support");
+#endif
 }
 
 //-----------------------------------------------------------------------
@@ -124,7 +184,7 @@ void SWIG_MAPPER_NAMESPACE::serialize_write(const std::string& Fname,
 {
 #ifdef SWIG_HAVE_BOOST_SERIALIZATION
   mark_pointer(Obj);
-  std::ofstream os(Fname.c_str());
+  OstreamCompress os(Fname.c_str());
   boost::archive::polymorphic_xml_oarchive oa(os);
   oa << boost::serialization::make_nvp("geocal_object", Obj);
 #else
@@ -137,7 +197,7 @@ void SWIG_MAPPER_NAMESPACE::serialize_write_binary(const std::string& Fname,
 {
 #ifdef SWIG_HAVE_BOOST_SERIALIZATION
   mark_pointer(Obj);
-  std::ofstream os(Fname.c_str());
+  OstreamCompress os(Fname.c_str());
   boost::archive::polymorphic_binary_oarchive oa(os);
   oa << boost::serialization::make_nvp("geocal_object", Obj);
 #else
@@ -227,7 +287,9 @@ boost::shared_ptr<GenericObject>
 SWIG_MAPPER_NAMESPACE::serialize_read_generic(const std::string& Fname)
 {
 #ifdef SWIG_HAVE_BOOST_SERIALIZATION
-  std::ifstream is(Fname.c_str());
+  IstreamCompress is(Fname.c_str());
+  if(!is)
+    throw std::runtime_error("Trouble opening file " + Fname);
   boost::archive::polymorphic_xml_iarchive ia(is);
   boost::filesystem::path p(Fname);
   std::string dir = p.parent_path().string();
@@ -246,7 +308,9 @@ boost::shared_ptr<GenericObject>
 SWIG_MAPPER_NAMESPACE::serialize_read_binary_generic(const std::string& Fname)
 {
 #ifdef SWIG_HAVE_BOOST_SERIALIZATION
-  std::ifstream is(Fname.c_str());
+  IstreamCompress is(Fname.c_str());
+  if(!is)
+    throw std::runtime_error("Trouble opening file " + Fname);
   boost::archive::polymorphic_binary_iarchive ia(is);
   boost::filesystem::path p(Fname);
   std::string dir = p.parent_path().string();
