@@ -1,11 +1,11 @@
-We have the vicar_rtl stored in a separate repository, and can pull from
+We have the swig_rules stored in a separate repository, and can pull from
 it using git subtree (note this only matters for a developer, a user doesn't
 need to know about subtree).
 
 Note that git subtree isn't installed by default with git, however it is a
 simple install from the git source tree, found in the contrib directory.
 
-If the git repository is added as the remote pynitf-repo, then we pull
+If the git repository is added as the remote swig-rules-repo, then we pull
 in the latest changes by:
 
 git subtree pull --prefix swig_rules swig-rules-repo master
@@ -19,7 +19,7 @@ git subtree push --prefix swig_rules swig-rules-repo master
 We can look at differences with upstream:
 
 git fetch swig-rules-repo
-git diff HEAD:python/pynitf pynitf-repo/master
+git diff HEAD:swig_rules swig-rules-repo/master
 
 Note if you need to add in a new subtree, the initial creation is by:
 git subtree add --prefix swig_rules swig-rules-repo master

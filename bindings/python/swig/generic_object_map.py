@@ -149,13 +149,13 @@ def _new_from_init(cls, version, *args):
     return inst
 
 def _new_from_serialization(data):
-    return skeleton_swig.serialize_read_binary(data)
+    return skeleton_swig.serialize_function.serialize_read_binary(data)
 
 def _new_from_serialization_dir(dir, data):
     curdir = os.getcwd()
     try:
       os.chdir(dir)
-      return skeleton_swig.serialize_read_binary(data)
+      return skeleton_swig.serialize_function.serialize_read_binary(data)
     finally:
       os.chdir(curdir)
 
@@ -245,7 +245,7 @@ class GenericObjectMap(skeleton_swig.generic_object.GenericObject):
 
 
     def __reduce__(self):
-      return _new_from_serialization, (skeleton_swig.serialize_write_binary(self),)
+      return _new_from_serialization, (skeleton_swig.serialize_function.serialize_write_binary(self),)
 
 
     def __contains__(self, key):

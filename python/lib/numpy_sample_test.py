@@ -1,5 +1,5 @@
 from test_support import *
-from skeleton_swig import NumpySample
+from skeleton_swig.all import NumpySample
 import numpy as np
 
 # Note that these tests should be run with valgrind, otherwise we don't know

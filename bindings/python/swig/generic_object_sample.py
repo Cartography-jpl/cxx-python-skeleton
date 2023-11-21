@@ -149,13 +149,13 @@ def _new_from_init(cls, version, *args):
     return inst
 
 def _new_from_serialization(data):
-    return skeleton_swig.serialize_read_binary(data)
+    return skeleton_swig.serialize_function.serialize_read_binary(data)
 
 def _new_from_serialization_dir(dir, data):
     curdir = os.getcwd()
     try:
       os.chdir(dir)
-      return skeleton_swig.serialize_read_binary(data)
+      return skeleton_swig.serialize_function.serialize_read_binary(data)
     finally:
       os.chdir(curdir)
 
@@ -219,7 +219,7 @@ class GenericObjectA(skeleton_swig.generic_object.GenericObject):
 
 
     def __reduce__(self):
-      return _new_from_serialization, (skeleton_swig.serialize_write_binary(self),)
+      return _new_from_serialization, (skeleton_swig.serialize_function.serialize_write_binary(self),)
 
     __swig_destroy__ = _generic_object_sample.delete_GenericObjectA
 GenericObjectA.__str__ = new_instancemethod(_generic_object_sample.GenericObjectA___str__, None, GenericObjectA)
@@ -264,7 +264,7 @@ class GenericObjectB(skeleton_swig.generic_object.GenericObject):
 
 
     def __reduce__(self):
-      return _new_from_serialization, (skeleton_swig.serialize_write_binary(self),)
+      return _new_from_serialization, (skeleton_swig.serialize_function.serialize_write_binary(self),)
 
     __swig_destroy__ = _generic_object_sample.delete_GenericObjectB
 GenericObjectB.__str__ = new_instancemethod(_generic_object_sample.GenericObjectB___str__, None, GenericObjectB)
@@ -309,7 +309,7 @@ class GenericObjectC(skeleton_swig.generic_object.GenericObject):
 
 
     def __reduce__(self):
-      return _new_from_serialization, (skeleton_swig.serialize_write_binary(self),)
+      return _new_from_serialization, (skeleton_swig.serialize_function.serialize_write_binary(self),)
 
     __swig_destroy__ = _generic_object_sample.delete_GenericObjectC
 GenericObjectC.__str__ = new_instancemethod(_generic_object_sample.GenericObjectC___str__, None, GenericObjectC)

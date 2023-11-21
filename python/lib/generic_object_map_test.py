@@ -1,4 +1,4 @@
-from skeleton_swig import *
+from skeleton_swig.all import *
 from test_support import *
 import pickle
 
