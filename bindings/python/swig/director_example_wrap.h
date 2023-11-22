@@ -18,7 +18,7 @@
 class SwigDirector_DirectorExample : public Skeleton::DirectorExample, public Swig::Director {
 
 public:
-    SwigDirector_DirectorExample(PyObject *self, int V);
+    SwigDirector_DirectorExample(PyObject *self, int V, std::string const &Name);
     virtual ~SwigDirector_DirectorExample();
     virtual std::string desc() const;
     virtual int func(int v) const;
