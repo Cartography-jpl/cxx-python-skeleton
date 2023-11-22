@@ -4193,8 +4193,23 @@ SWIG_AsVal_ptrdiff_t (PyObject * obj, ptrdiff_t *val)
 // so we don't actually delete the pointer p
   class PythonRefPtrCleanup {
   public:
-    PythonRefPtrCleanup(PyObject* Obj) : obj(Obj) {}
-    void operator()(void* p) { Py_DECREF(obj);}
+    PythonRefPtrCleanup(PyObject* Obj) : obj(Obj)
+      { Py_INCREF(obj); 
+	std::cerr << "In PythonRefPtrCleanup constructor " << obj << " has count "
+		  << Py_REFCNT(obj) << "\n";
+      }
+    PythonRefPtrCleanup(const PythonRefPtrCleanup& V)
+      : obj(V.obj)
+      {
+	//Py_INCREF(obj);
+	std::cerr << "In PythonRefPtrCleanup copy " << obj << " has count "
+		  << Py_REFCNT(obj) << "\n";
+      }
+    void operator()(void* p) {
+      std::cerr << "Start PythonRefPtrCleanup operator() " << obj << " has count "
+		<< Py_REFCNT(obj) << "\n";
+      Py_DECREF(obj);
+    }
   private:
     PyObject* obj;
   };
@@ -7083,7 +7098,6 @@ SWIGINTERN PyObject *_wrap_GenericObjectMap_set_generic(PyObject *SWIGUNUSEDPARM
     // object. 
     Swig::Director* dp = dynamic_cast<Swig::Director*>(arg3->get());
     if(dp) {
-      Py_INCREF(dp->swig_get_self());
       temp2shared3.reset(arg3->get(), PythonRefPtrCleanup(dp->swig_get_self()));
       arg3 = &temp2shared3;
     }

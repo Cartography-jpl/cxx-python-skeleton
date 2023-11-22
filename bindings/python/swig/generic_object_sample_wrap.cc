@@ -4197,8 +4197,23 @@ SWIG_AsVal_ptrdiff_t (PyObject * obj, ptrdiff_t *val)
 // so we don't actually delete the pointer p
   class PythonRefPtrCleanup {
   public:
-    PythonRefPtrCleanup(PyObject* Obj) : obj(Obj) {}
-    void operator()(void* p) { Py_DECREF(obj);}
+    PythonRefPtrCleanup(PyObject* Obj) : obj(Obj)
+      { Py_INCREF(obj); 
+	std::cerr << "In PythonRefPtrCleanup constructor " << obj << " has count "
+		  << Py_REFCNT(obj) << "\n";
+      }
+    PythonRefPtrCleanup(const PythonRefPtrCleanup& V)
+      : obj(V.obj)
+      {
+	//Py_INCREF(obj);
+	std::cerr << "In PythonRefPtrCleanup copy " << obj << " has count "
+		  << Py_REFCNT(obj) << "\n";
+      }
+    void operator()(void* p) {
+      std::cerr << "Start PythonRefPtrCleanup operator() " << obj << " has count "
+		<< Py_REFCNT(obj) << "\n";
+      Py_DECREF(obj);
+    }
   private:
     PyObject* obj;
   };
@@ -6954,7 +6969,6 @@ SWIGINTERN PyObject *_wrap_new_GenericObjectB(PyObject *SWIGUNUSEDPARM(self), Py
     // object. 
     Swig::Director* dp = dynamic_cast<Swig::Director*>(arg1->get());
     if(dp) {
-      Py_INCREF(dp->swig_get_self());
       temp2shared1.reset(arg1->get(), PythonRefPtrCleanup(dp->swig_get_self()));
       arg1 = &temp2shared1;
     }
@@ -7114,7 +7128,6 @@ SWIGINTERN PyObject *_wrap_GenericObjectB__v_a__SWIG_1(PyObject *SWIGUNUSEDPARM(
     // object. 
     Swig::Director* dp = dynamic_cast<Swig::Director*>(arg2->get());
     if(dp) {
-      Py_INCREF(dp->swig_get_self());
       temp2shared2.reset(arg2->get(), PythonRefPtrCleanup(dp->swig_get_self()));
       arg2 = &temp2shared2;
     }
@@ -7245,7 +7258,6 @@ SWIGINTERN PyObject *_wrap_new_GenericObjectC(PyObject *SWIGUNUSEDPARM(self), Py
     // object. 
     Swig::Director* dp = dynamic_cast<Swig::Director*>(arg1->get());
     if(dp) {
-      Py_INCREF(dp->swig_get_self());
       temp2shared1.reset(arg1->get(), PythonRefPtrCleanup(dp->swig_get_self()));
       arg1 = &temp2shared1;
     }
@@ -7405,7 +7417,6 @@ SWIGINTERN PyObject *_wrap_GenericObjectC__v_a__SWIG_1(PyObject *SWIGUNUSEDPARM(
     // object. 
     Swig::Director* dp = dynamic_cast<Swig::Director*>(arg2->get());
     if(dp) {
-      Py_INCREF(dp->swig_get_self());
       temp2shared2.reset(arg2->get(), PythonRefPtrCleanup(dp->swig_get_self()));
       arg2 = &temp2shared2;
     }

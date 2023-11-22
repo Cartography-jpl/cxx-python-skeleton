@@ -1,6 +1,7 @@
 from skeleton_swig.all import *
 from test_support import *
 import pickle
+import sys
 
 class DirectorPythonExample(DirectorExample):
     def __init__(self, v1, v2, name):
@@ -10,14 +11,21 @@ class DirectorPythonExample(DirectorExample):
 
     def __del__(self):
         print(f"Destroying Python {self.name()}", flush=True)
+
+    def print_ref_count(self):
+        # We have an extra 2 counts because this got passed as an
+        # arg to getrefcount, and we got this as a arg.
+        print(f"Ref count {self.name()} {sys.getrefcount(self)-2}")
         
     def func(self, v):
+        self.print_ref_count()
         return super().func(v) + 2 * self.v2
 
     def desc(self):
         '''Description to print for this object.'''
         return f'''DirectorPythonExample:
    name:                { self.name() }
+   ref_count:           { sys.getrefcount(self)-2 }
    value_to_add:        { self.value_to_add() }
    value_to_double_add: {self.v2}'''
     
@@ -32,15 +40,24 @@ def test_director_example():
     e2 = None
     assert euser.apply_func(10) == 5+10+2*6
     print(euser.value())
-    euser.set_vec([DirectorExample(5, "v1"),
-                   DirectorExample(6, "v2"),
-                   DirectorPythonExample(5,6, "vp3"),
-                   DirectorPythonExample(10,7, "vp3")])
+    if False:
+        euser.set_vec([DirectorExample(5, "v1"),
+                       DirectorExample(6, "v2"),
+                       DirectorPythonExample(5,6, "vp3"),
+                       DirectorPythonExample(10,7, "vp4")])
+    else:
+        v = Vector_DirectorExample()
+        v.push_back(DirectorExample(5, "v1"))
+        v.push_back(DirectorExample(6, "v2"))
+        v.push_back(DirectorPythonExample(5,6, "vp3"))
+        v.push_back(DirectorPythonExample(10,7, "vp4"))
+        euser.set_vec(v)
+        v = None
+        
     assert euser.apply_func(10, 0) == 5+10
     assert euser.apply_func(10, 1) == 6+10
-    # Currently failing
-    #assert euser.apply_func(10, 2) == 5+10+2*6
-    #assert euser.apply_func(10, 3) == 10+10+2*7
+    assert euser.apply_func(10, 2) == 5+10+2*6
+    assert euser.apply_func(10, 3) == 10+10+2*7
     if True:
         print(euser.value_vec()[0])
         print(euser.value_vec()[1])

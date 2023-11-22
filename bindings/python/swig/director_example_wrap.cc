@@ -4200,8 +4200,23 @@ SWIG_AsVal_ptrdiff_t (PyObject * obj, ptrdiff_t *val)
 // so we don't actually delete the pointer p
   class PythonRefPtrCleanup {
   public:
-    PythonRefPtrCleanup(PyObject* Obj) : obj(Obj) {}
-    void operator()(void* p) { Py_DECREF(obj);}
+    PythonRefPtrCleanup(PyObject* Obj) : obj(Obj)
+      { Py_INCREF(obj); 
+	std::cerr << "In PythonRefPtrCleanup constructor " << obj << " has count "
+		  << Py_REFCNT(obj) << "\n";
+      }
+    PythonRefPtrCleanup(const PythonRefPtrCleanup& V)
+      : obj(V.obj)
+      {
+	//Py_INCREF(obj);
+	std::cerr << "In PythonRefPtrCleanup copy " << obj << " has count "
+		  << Py_REFCNT(obj) << "\n";
+      }
+    void operator()(void* p) {
+      std::cerr << "Start PythonRefPtrCleanup operator() " << obj << " has count "
+		<< Py_REFCNT(obj) << "\n";
+      Py_DECREF(obj);
+    }
   private:
     PyObject* obj;
   };
@@ -5813,61 +5828,6 @@ namespace swig {
 
 
 #include "director_example.h"
-
-
-namespace swig {
-  template <>
-  struct traits_asptr<std::vector<boost::shared_ptr<Skeleton::DirectorExample> > >  {
-    static int asptr(PyObject *obj, 
-		     std::vector<boost::shared_ptr<Skeleton::DirectorExample> > **vec) {
-      // Long name, so shorten
-      typedef std::vector<boost::shared_ptr<Skeleton::DirectorExample> > vtype;
-      if (obj == Py_None || SWIG_Python_GetSwigThis(obj)) {
-	vtype *p;
-	if (::SWIG_ConvertPtr(obj,(void**)&p,
-			      swig::type_info<vtype>(),0) == SWIG_OK) {
-	  if (vec) *vec = p;
-	  return SWIG_OLDOBJ;
-	}
-      } else if (PySequence_Check(obj)) {
-	try {
-	  if (vec) {
-	    vtype *pseq = new vtype();
-	    PyObject *iterator = PyObject_GetIter(obj);
-	    PyObject *item;
-	    while((item = PyIter_Next(iterator))) {
-	      boost::shared_ptr<Skeleton::DirectorExample> *itemp;
-	      int newmem = 0;
-	      int res = SWIG_ConvertPtrAndOwn(item, (void**) &itemp, 
-			swig::type_info<boost::shared_ptr<Skeleton::DirectorExample> >(),  0, &newmem);
-	      if(!SWIG_IsOK(res)) {
-		Py_DECREF(item);
-		Py_DECREF(iterator);
-		return SWIG_ERROR;
-	      }
-	      pseq->push_back(*itemp);
-	      Py_DECREF(item);
-	    }
-	    Py_DECREF(iterator);
-	    *vec = pseq;
-	    return SWIG_NEWOBJ;
-	  } else {
-	    SwigPySequence_Cont<boost::shared_ptr<Skeleton::DirectorExample> > swigpyseq(obj);
-	    return swigpyseq.check() ? SWIG_OK : SWIG_ERROR;
-	  }
-	} catch (std::exception& e) {
-	  if (vec) {
-	    if (!PyErr_Occurred()) {
-	      PyErr_SetString(PyExc_TypeError, e.what());
-	    }
-	  }
-	  return SWIG_ERROR;
-	}
-      }
-      return SWIG_ERROR;
-    }
-  };
-}
 
 
   namespace swig {
@@ -8098,7 +8058,6 @@ SWIGINTERN PyObject *_wrap_Vector_DirectorExample___setitem____SWIG_2(PyObject *
     // object. 
     Swig::Director* dp = dynamic_cast<Swig::Director*>(arg3->get());
     if(dp) {
-      Py_INCREF(dp->swig_get_self());
       temp2shared3.reset(arg3->get(), PythonRefPtrCleanup(dp->swig_get_self()));
       arg3 = &temp2shared3;
     }
@@ -8245,7 +8204,6 @@ SWIGINTERN PyObject *_wrap_Vector_DirectorExample_append(PyObject *SWIGUNUSEDPAR
     // object. 
     Swig::Director* dp = dynamic_cast<Swig::Director*>(arg2->get());
     if(dp) {
-      Py_INCREF(dp->swig_get_self());
       temp2shared2.reset(arg2->get(), PythonRefPtrCleanup(dp->swig_get_self()));
       arg2 = &temp2shared2;
     }
@@ -8874,7 +8832,6 @@ SWIGINTERN PyObject *_wrap_new_Vector_DirectorExample__SWIG_3(PyObject *SWIGUNUS
     // object. 
     Swig::Director* dp = dynamic_cast<Swig::Director*>(arg2->get());
     if(dp) {
-      Py_INCREF(dp->swig_get_self());
       temp2shared2.reset(arg2->get(), PythonRefPtrCleanup(dp->swig_get_self()));
       arg2 = &temp2shared2;
     }
@@ -8976,7 +8933,6 @@ SWIGINTERN PyObject *_wrap_Vector_DirectorExample_push_back(PyObject *SWIGUNUSED
     // object. 
     Swig::Director* dp = dynamic_cast<Swig::Director*>(arg2->get());
     if(dp) {
-      Py_INCREF(dp->swig_get_self());
       temp2shared2.reset(arg2->get(), PythonRefPtrCleanup(dp->swig_get_self()));
       arg2 = &temp2shared2;
     }
@@ -9110,7 +9066,6 @@ SWIGINTERN PyObject *_wrap_Vector_DirectorExample_assign(PyObject *SWIGUNUSEDPAR
     // object. 
     Swig::Director* dp = dynamic_cast<Swig::Director*>(arg3->get());
     if(dp) {
-      Py_INCREF(dp->swig_get_self());
       temp2shared3.reset(arg3->get(), PythonRefPtrCleanup(dp->swig_get_self()));
       arg3 = &temp2shared3;
     }
@@ -9177,7 +9132,6 @@ SWIGINTERN PyObject *_wrap_Vector_DirectorExample_resize__SWIG_1(PyObject *SWIGU
     // object. 
     Swig::Director* dp = dynamic_cast<Swig::Director*>(arg3->get());
     if(dp) {
-      Py_INCREF(dp->swig_get_self());
       temp2shared3.reset(arg3->get(), PythonRefPtrCleanup(dp->swig_get_self()));
       arg3 = &temp2shared3;
     }
@@ -9275,7 +9229,6 @@ SWIGINTERN PyObject *_wrap_Vector_DirectorExample_insert__SWIG_0(PyObject *SWIGU
     // object. 
     Swig::Director* dp = dynamic_cast<Swig::Director*>(arg3->get());
     if(dp) {
-      Py_INCREF(dp->swig_get_self());
       temp2shared3.reset(arg3->get(), PythonRefPtrCleanup(dp->swig_get_self()));
       arg3 = &temp2shared3;
     }
@@ -9357,7 +9310,6 @@ SWIGINTERN PyObject *_wrap_Vector_DirectorExample_insert__SWIG_1(PyObject *SWIGU
     // object. 
     Swig::Director* dp = dynamic_cast<Swig::Director*>(arg4->get());
     if(dp) {
-      Py_INCREF(dp->swig_get_self());
       temp2shared4.reset(arg4->get(), PythonRefPtrCleanup(dp->swig_get_self()));
       arg4 = &temp2shared4;
     }
@@ -10265,7 +10217,6 @@ SWIGINTERN PyObject *_wrap_DirectorExampleUser_set_value(PyObject *SWIGUNUSEDPAR
     // object. 
     Swig::Director* dp = dynamic_cast<Swig::Director*>(arg2->get());
     if(dp) {
-      Py_INCREF(dp->swig_get_self());
       temp2shared2.reset(arg2->get(), PythonRefPtrCleanup(dp->swig_get_self()));
       arg2 = &temp2shared2;
     }
