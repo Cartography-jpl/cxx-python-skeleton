@@ -42,5 +42,5 @@
 %import "swig_boost_optional.i"
 %include "swig_iostream_inc.i"
 %import "swig_iostream.i"
-%include "swig_vector_shared_ptr.i"
+//%include "swig_vector_shared_ptr.i"
 %import "swig_rational.i"

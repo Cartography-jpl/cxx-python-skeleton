@@ -2,8 +2,6 @@
 // (Not really c++, but closest emacs mode)
 
 %include "skeleton_common.i"
-%include <std_vector.i>
-%include "swig_vector_shared_ptr.i"
 %{
 #include "director_example.h"
 %}
