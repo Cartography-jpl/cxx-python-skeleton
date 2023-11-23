@@ -30,6 +30,9 @@ class DirectorPythonExample(DirectorExample):
    value_to_double_add: {self.v2}'''
     
 def test_director_example():
+    print("May want to valgrind this, to make sure we have lifetime etc. ok with memory usage.")
+    print("Do this with PYTHONMALLOC=malloc valgrind $(which python) $(which pytest) -s lib/director_example_test.py")
+    print("(Note PYTHONMALLOC is important, otherwise you get a ton of spurious errors)")
     e1 = DirectorExample(5, "e1")
     assert e1.func(10) == 5+10
     e1 = None
