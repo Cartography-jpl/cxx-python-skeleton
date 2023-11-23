@@ -40,20 +40,24 @@ def test_director_example():
     e2 = None
     assert euser.apply_func(10) == 5+10+2*6
     print(euser.value())
-    if False:
-        euser.set_vec([DirectorExample(5, "v1"),
-                       DirectorExample(6, "v2"),
-                       DirectorPythonExample(5,6, "vp3"),
-                       DirectorPythonExample(10,7, "vp4")])
+    if True:
+        v = [DirectorExample(5, "v1"),
+             DirectorExample(6, "v2"),
+             DirectorPythonExample(5,6, "vp3"),
+             DirectorPythonExample(10,7, "vp4")]
     else:
         v = Vector_DirectorExample()
         v.push_back(DirectorExample(5, "v1"))
         v.push_back(DirectorExample(6, "v2"))
         v.push_back(DirectorPythonExample(5,6, "vp3"))
         v.push_back(DirectorPythonExample(10,7, "vp4"))
-        euser.set_vec(v)
-        v = None
-        
+    print(v)
+    print(v[0])
+    print(v[1])
+    print(v[2])
+    print(v[3])
+    euser.set_vec(v)
+    v = None
     assert euser.apply_func(10, 0) == 5+10
     assert euser.apply_func(10, 1) == 6+10
     assert euser.apply_func(10, 2) == 5+10+2*6
