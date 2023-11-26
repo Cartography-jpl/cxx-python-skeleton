@@ -1,4 +1,5 @@
 from skeleton_swig.all import *
+from .swig_shelve import read_shelve, write_shelve
 from test_support import *
 import pickle
 import sys
@@ -43,36 +44,73 @@ def test_director_example():
     e2 = None
     assert euser.apply_func(10) == 5+10+2*6
     print(euser.value())
+    # Test a simple std::vector
+    euser.set_vec_int([1,2,3])
+    print(euser.value_vec_int())
     if True:
+        # Test a std::vector of boost::shared_ptr
         v = [DirectorExample(5, "v1"),
              DirectorExample(6, "v2"),
              DirectorPythonExample(5,6, "vp3"),
              DirectorPythonExample(10,7, "vp4")]
     else:
+        # Directly use std::vector. Shouldn't be needed any longer, passing
+        # in a list works now. But leave this around in case we run into a
+        # future issue we need to diagnose
         v = Vector_DirectorExample()
         v.push_back(DirectorExample(5, "v1"))
         v.push_back(DirectorExample(6, "v2"))
         v.push_back(DirectorPythonExample(5,6, "vp3"))
         v.push_back(DirectorPythonExample(10,7, "vp4"))
-    print(v)
-    print(v[0])
-    print(v[1])
-    print(v[2])
-    print(v[3])
     euser.set_vec(v)
     v = None
     assert euser.apply_func(10, 0) == 5+10
     assert euser.apply_func(10, 1) == 6+10
     assert euser.apply_func(10, 2) == 5+10+2*6
     assert euser.apply_func(10, 3) == 10+10+2*7
-    if True:
-        print(euser.value_vec()[0])
-        print(euser.value_vec()[1])
-        print(euser.value_vec()[2])
-        print(euser.value_vec()[3])
-    euser.set_vec_int([1,2,3])
-    print(euser.value_vec_int())
+    print(euser.value_vec()[0])
+    print(euser.value_vec()[1])
+    print(euser.value_vec()[2])
+    print(euser.value_vec()[3])
+    print("Should see e2 and v1 through vp4 deleted", flush=True)
     euser = None
     print("All Done", flush=True)
+
+def test_director_pickle_shelve(isolated_dir):
+    print("May want to valgrind this, to make sure we have lifetime etc. ok with memory usage.")
+    print("Do this with PYTHONMALLOC=malloc valgrind $(which python) $(which pytest) -s lib/director_example_test.py")
+    print("(Note PYTHONMALLOC is important, otherwise you get a ton of spurious errors)")
+    e1 = DirectorExample(5, "e1")
+    assert e1.func(10) == 5+10
+    # This is tiny, but go ahead and compress just to test the interface
+    write_shelve("e1.xml.gz", e1)
+    e1_s = read_shelve("e1.xml.gz")
+    pickle.dump(e1, open("e1.pkl", "wb"))
+    e1_p = pickle.load(open("e1.pkl", "rb"))
+    e1 = None
+    assert e1_s.func(10) == 5+10
+    assert e1_p.func(10) == 5+10
+    print(e1_s)
+    print(e1_p)
+    e1_s = None
+    e1_p = None
+    e2 = DirectorPythonExample(5,6, "e2")
+    assert e2.func(10) == 5+10+2*6
+    write_shelve("e2.xml", e2)
+    e2_s = read_shelve("e2.xml")
+    pickle.dump(e2, open("e2.pkl", "wb"))
+    e2_p = pickle.load(open("e2.pkl", "rb"))
+    e2 = None
+    assert e2_s.func(10) == 5+10+2*6
+    assert e2_p.func(10) == 5+10+2*6
+    print(e2_s)
+    print(e2_p)
+    e2_s = None
+    e2_p = None
+    
+    
+    
+    
+    
     
     
