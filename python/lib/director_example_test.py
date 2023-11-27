@@ -94,6 +94,18 @@ def test_director_pickle_shelve(isolated_dir):
     print(e1_p)
     e1_s = None
     e1_p = None
+    euser = DirectorExampleUser()
+    v = [DirectorExample(5, "v1"),
+         DirectorExample(6, "v2"),
+         DirectorPythonExample(5,6, "vp3"),
+         DirectorPythonExample(10,7, "vp4")]
+    euser.set_vec(v)
+    print(euser.value_vec()[0])
+    print(euser.value_vec()[1])
+    print(euser.value_vec()[2])
+    print(euser.value_vec()[3], flush=True)
+    write_shelve("euser.xml", euser)
+    euser_s = read_shelve("euser.xml")
     e2 = DirectorPythonExample(5,6, "e2")
     assert e2.func(10) == 5+10+2*6
     t = e2.this
@@ -106,11 +118,14 @@ def test_director_pickle_shelve(isolated_dir):
     #pickle.dump(e2, open("e2.pkl", "wb"))
     #e2_p = pickle.load(open("e2.pkl", "rb"))
     e2 = None
-    #assert e2_s.func(10) == 5+10+2*6
+    print("hi 1")
+    assert e2_s.func(10) == 5+10+2*6
+    print("hi 2")
     #assert e2_p.func(10) == 5+10+2*6
-    #print(e2_s)
+    print(e2_s)
+    print("hi 3")
     #print(e2_p)
-    #e2_s = None
+    e2_s = None
     e2_p = None
     
     

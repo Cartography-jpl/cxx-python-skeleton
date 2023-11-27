@@ -20,6 +20,7 @@ skeletoninc_HEADERS+= @swigrules@/lib/python_lib_init.h
 skeletoninc_HEADERS+= @swigrules@/lib/swig_type_mapper.h
 skeletoninc_HEADERS+= @swigrules@/lib/swig_to_python.h
 skeletoninc_HEADERS+= @swigrules@/lib/serialize_function.h
+skeletoninc_HEADERS+= @swigrules@/lib/serialize_shared_ptr.h
 skeletoninc_HEADERS+= @swigrules@/lib/weak_ptr_serialize_support.h
 libskeleton_la_SOURCES+= @swigrules@/lib/swig_type_mapper_base.cc
 libskeleton_la_SOURCES+= @swigrules@/lib/serialize_function.cc

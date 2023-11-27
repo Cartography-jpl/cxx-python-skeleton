@@ -47,7 +47,6 @@ public:
   // Have a virtual member function, which forces RTTI information to
   // be available.
   virtual ~GenericObject() {}
-  
 private:
   friend class boost::serialization::access;
   template<class Archive>
