@@ -219,6 +219,10 @@ class GenericObjectA(skeleton_swig.generic_object.GenericObject):
 
 
     def __reduce__(self):
+    #Special handling for when we are doing boost serialization, we set
+    #"this" to None
+      if(self.this is None):
+        return super().__reduce__()
       return _new_from_serialization, (skeleton_swig.serialize_function.serialize_write_binary(self),)
 
     __swig_destroy__ = _generic_object_sample.delete_GenericObjectA
@@ -264,6 +268,10 @@ class GenericObjectB(skeleton_swig.generic_object.GenericObject):
 
 
     def __reduce__(self):
+    #Special handling for when we are doing boost serialization, we set
+    #"this" to None
+      if(self.this is None):
+        return super().__reduce__()
       return _new_from_serialization, (skeleton_swig.serialize_function.serialize_write_binary(self),)
 
     __swig_destroy__ = _generic_object_sample.delete_GenericObjectB
@@ -309,6 +317,10 @@ class GenericObjectC(skeleton_swig.generic_object.GenericObject):
 
 
     def __reduce__(self):
+    #Special handling for when we are doing boost serialization, we set
+    #"this" to None
+      if(self.this is None):
+        return super().__reduce__()
       return _new_from_serialization, (skeleton_swig.serialize_function.serialize_write_binary(self),)
 
     __swig_destroy__ = _generic_object_sample.delete_GenericObjectC

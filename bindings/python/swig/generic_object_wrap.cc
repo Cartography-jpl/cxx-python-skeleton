@@ -4262,14 +4262,17 @@ inline std::string cpickle_dumps(PyObject* obj)
   if(PyErr_Occurred()) {
     throw std::runtime_error("Python error occurred:\n" + parse_python_exception());
   }
-  return std::string(PyString_AsString(res));
+  char *buf;
+  Py_ssize_t len;
+  PyBytes_AsStringAndSize(res, &buf, &len);
+  return std::string(buf, len);
 }
 
 inline PyObject* cpickle_loads(const std::string& S)
 {
   PyObject* res = PyObject_CallMethodObjArgs(cpickle_module(),
 					     PyString_FromString("loads"),
-					     PyString_FromString(S.c_str()), 
+					     PyBytes_FromStringAndSize(S.c_str(), S.size()), 
 					     NULL);
   if(PyErr_Occurred()) {
     throw std::runtime_error("Python error occurred:\n" + parse_python_exception());

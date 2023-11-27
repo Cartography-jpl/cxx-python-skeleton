@@ -801,6 +801,7 @@ EXTRA_DIST = README.md bootstrap config/m4_local/README config/m4 \
 	@srcpythonlib@/__init__.py @srcpythonlib@/dummy_test.py \
 	@srcpythonlib@/iostream_swig_test.py \
 	@srcpythonlib@/numpy_sample_test.py \
+	@srcpythonlib@/director_example_test.py \
 	@testsupportsrc@/__init__.py @testsupportsrc@/test_support.py \
 	@testsupportsrc@/README @swigrules@/doxy2swig.py \
 	@swigrules@/create_python_init.py \
@@ -916,7 +917,7 @@ libskeleton_la_CPPFLAGS = $(AM_CPPFLAGS) $(BOOST_CPPFLAGS) \
 	-DSWIG_HAVE_BOOST_SERIALIZATION=@SKELETON_HAVE_BOOST_SERIALIZATION@
 installskeleton_DATA = @srcscript@/setup_skeleton.csh @srcscript@/setup_skeleton.sh
 skeletonpkgpython_PYTHON = @srcpython@/init/__init__.py \
-	@srcpythonlib@/dummy.py
+	@srcpythonlib@/dummy.py @srcpythonlib@/swig_shelve.py
 
 # Number of jobs to run at once. Default is to automatically determine this,
 # but you can specify a different number.

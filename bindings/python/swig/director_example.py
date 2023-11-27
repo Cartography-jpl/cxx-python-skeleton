@@ -224,6 +224,49 @@ Vector_DirectorExample.capacity = new_instancemethod(_director_example.Vector_Di
 Vector_DirectorExample_swigregister = _director_example.Vector_DirectorExample_swigregister
 Vector_DirectorExample_swigregister(Vector_DirectorExample)
 
+class Vector_int(object):
+    thisown = _swig_property(lambda x: x.this.own(), lambda x, v: x.this.own(v), doc='The membership flag')
+    __repr__ = _swig_repr
+    def __iter__(self):
+        return self.iterator()
+
+    def __init__(self, *args):
+        _director_example.Vector_int_swiginit(self, _director_example.new_Vector_int(*args))
+    __swig_destroy__ = _director_example.delete_Vector_int
+Vector_int.iterator = new_instancemethod(_director_example.Vector_int_iterator, None, Vector_int)
+Vector_int.__nonzero__ = new_instancemethod(_director_example.Vector_int___nonzero__, None, Vector_int)
+Vector_int.__bool__ = new_instancemethod(_director_example.Vector_int___bool__, None, Vector_int)
+Vector_int.__len__ = new_instancemethod(_director_example.Vector_int___len__, None, Vector_int)
+Vector_int.__getslice__ = new_instancemethod(_director_example.Vector_int___getslice__, None, Vector_int)
+Vector_int.__setslice__ = new_instancemethod(_director_example.Vector_int___setslice__, None, Vector_int)
+Vector_int.__delslice__ = new_instancemethod(_director_example.Vector_int___delslice__, None, Vector_int)
+Vector_int.__delitem__ = new_instancemethod(_director_example.Vector_int___delitem__, None, Vector_int)
+Vector_int.__getitem__ = new_instancemethod(_director_example.Vector_int___getitem__, None, Vector_int)
+Vector_int.__setitem__ = new_instancemethod(_director_example.Vector_int___setitem__, None, Vector_int)
+Vector_int.pop = new_instancemethod(_director_example.Vector_int_pop, None, Vector_int)
+Vector_int.append = new_instancemethod(_director_example.Vector_int_append, None, Vector_int)
+Vector_int.empty = new_instancemethod(_director_example.Vector_int_empty, None, Vector_int)
+Vector_int.size = new_instancemethod(_director_example.Vector_int_size, None, Vector_int)
+Vector_int.swap = new_instancemethod(_director_example.Vector_int_swap, None, Vector_int)
+Vector_int.begin = new_instancemethod(_director_example.Vector_int_begin, None, Vector_int)
+Vector_int.end = new_instancemethod(_director_example.Vector_int_end, None, Vector_int)
+Vector_int.rbegin = new_instancemethod(_director_example.Vector_int_rbegin, None, Vector_int)
+Vector_int.rend = new_instancemethod(_director_example.Vector_int_rend, None, Vector_int)
+Vector_int.clear = new_instancemethod(_director_example.Vector_int_clear, None, Vector_int)
+Vector_int.get_allocator = new_instancemethod(_director_example.Vector_int_get_allocator, None, Vector_int)
+Vector_int.pop_back = new_instancemethod(_director_example.Vector_int_pop_back, None, Vector_int)
+Vector_int.erase = new_instancemethod(_director_example.Vector_int_erase, None, Vector_int)
+Vector_int.push_back = new_instancemethod(_director_example.Vector_int_push_back, None, Vector_int)
+Vector_int.front = new_instancemethod(_director_example.Vector_int_front, None, Vector_int)
+Vector_int.back = new_instancemethod(_director_example.Vector_int_back, None, Vector_int)
+Vector_int.assign = new_instancemethod(_director_example.Vector_int_assign, None, Vector_int)
+Vector_int.resize = new_instancemethod(_director_example.Vector_int_resize, None, Vector_int)
+Vector_int.insert = new_instancemethod(_director_example.Vector_int_insert, None, Vector_int)
+Vector_int.reserve = new_instancemethod(_director_example.Vector_int_reserve, None, Vector_int)
+Vector_int.capacity = new_instancemethod(_director_example.Vector_int_capacity, None, Vector_int)
+Vector_int_swigregister = _director_example.Vector_int_swigregister
+Vector_int_swigregister(Vector_int)
+
 class DirectorExample(skeleton_swig.generic_object.GenericObject):
     """
 
@@ -235,18 +278,6 @@ class DirectorExample(skeleton_swig.generic_object.GenericObject):
 
     thisown = _swig_property(lambda x: x.this.own(), lambda x, v: x.this.own(v), doc='The membership flag')
     __repr__ = _swig_repr
-
-    def __init__(self, V, Name):
-        """
-
-        Skeleton::DirectorExample::DirectorExample(int value_to_add, const std::string &name)
-        Constructor. 
-        """
-        if self.__class__ == DirectorExample:
-            _self = None
-        else:
-            _self = self
-        _director_example.DirectorExample_swiginit(self, _director_example.new_DirectorExample(_self, V, Name))
 
     def func(self, v):
         """
@@ -276,8 +307,24 @@ class DirectorExample(skeleton_swig.generic_object.GenericObject):
 
 
     def __reduce__(self):
+    #Special handling for when we are doing boost serialization, we set
+    #"this" to None
+      if(self.this is None):
+        return super().__reduce__()
       return _new_from_serialization, (skeleton_swig.serialize_function.serialize_write_binary(self),)
 
+
+    def __init__(self, *args):
+        """
+
+        Skeleton::DirectorExample::DirectorExample(int value_to_add, const std::string &name)
+        Constructor. 
+        """
+        if self.__class__ == DirectorExample:
+            _self = None
+        else:
+            _self = self
+        _director_example.DirectorExample_swiginit(self, _director_example.new_DirectorExample(_self, *args))
     __swig_destroy__ = _director_example.delete_DirectorExample
     def __disown__(self):
         self.this.disown()
@@ -375,6 +422,10 @@ class DirectorExampleUser(skeleton_swig.generic_object.GenericObject):
 
 
     def __reduce__(self):
+    #Special handling for when we are doing boost serialization, we set
+    #"this" to None
+      if(self.this is None):
+        return super().__reduce__()
       return _new_from_serialization, (skeleton_swig.serialize_function.serialize_write_binary(self),)
 
     __swig_destroy__ = _director_example.delete_DirectorExampleUser
@@ -388,49 +439,6 @@ DirectorExampleUser.set_value = new_instancemethod(_director_example.DirectorExa
 DirectorExampleUser.apply_func = new_instancemethod(_director_example.DirectorExampleUser_apply_func, None, DirectorExampleUser)
 DirectorExampleUser_swigregister = _director_example.DirectorExampleUser_swigregister
 DirectorExampleUser_swigregister(DirectorExampleUser)
-
-class Vector_int(object):
-    thisown = _swig_property(lambda x: x.this.own(), lambda x, v: x.this.own(v), doc='The membership flag')
-    __repr__ = _swig_repr
-    def __iter__(self):
-        return self.iterator()
-
-    def __init__(self, *args):
-        _director_example.Vector_int_swiginit(self, _director_example.new_Vector_int(*args))
-    __swig_destroy__ = _director_example.delete_Vector_int
-Vector_int.iterator = new_instancemethod(_director_example.Vector_int_iterator, None, Vector_int)
-Vector_int.__nonzero__ = new_instancemethod(_director_example.Vector_int___nonzero__, None, Vector_int)
-Vector_int.__bool__ = new_instancemethod(_director_example.Vector_int___bool__, None, Vector_int)
-Vector_int.__len__ = new_instancemethod(_director_example.Vector_int___len__, None, Vector_int)
-Vector_int.__getslice__ = new_instancemethod(_director_example.Vector_int___getslice__, None, Vector_int)
-Vector_int.__setslice__ = new_instancemethod(_director_example.Vector_int___setslice__, None, Vector_int)
-Vector_int.__delslice__ = new_instancemethod(_director_example.Vector_int___delslice__, None, Vector_int)
-Vector_int.__delitem__ = new_instancemethod(_director_example.Vector_int___delitem__, None, Vector_int)
-Vector_int.__getitem__ = new_instancemethod(_director_example.Vector_int___getitem__, None, Vector_int)
-Vector_int.__setitem__ = new_instancemethod(_director_example.Vector_int___setitem__, None, Vector_int)
-Vector_int.pop = new_instancemethod(_director_example.Vector_int_pop, None, Vector_int)
-Vector_int.append = new_instancemethod(_director_example.Vector_int_append, None, Vector_int)
-Vector_int.empty = new_instancemethod(_director_example.Vector_int_empty, None, Vector_int)
-Vector_int.size = new_instancemethod(_director_example.Vector_int_size, None, Vector_int)
-Vector_int.swap = new_instancemethod(_director_example.Vector_int_swap, None, Vector_int)
-Vector_int.begin = new_instancemethod(_director_example.Vector_int_begin, None, Vector_int)
-Vector_int.end = new_instancemethod(_director_example.Vector_int_end, None, Vector_int)
-Vector_int.rbegin = new_instancemethod(_director_example.Vector_int_rbegin, None, Vector_int)
-Vector_int.rend = new_instancemethod(_director_example.Vector_int_rend, None, Vector_int)
-Vector_int.clear = new_instancemethod(_director_example.Vector_int_clear, None, Vector_int)
-Vector_int.get_allocator = new_instancemethod(_director_example.Vector_int_get_allocator, None, Vector_int)
-Vector_int.pop_back = new_instancemethod(_director_example.Vector_int_pop_back, None, Vector_int)
-Vector_int.erase = new_instancemethod(_director_example.Vector_int_erase, None, Vector_int)
-Vector_int.push_back = new_instancemethod(_director_example.Vector_int_push_back, None, Vector_int)
-Vector_int.front = new_instancemethod(_director_example.Vector_int_front, None, Vector_int)
-Vector_int.back = new_instancemethod(_director_example.Vector_int_back, None, Vector_int)
-Vector_int.assign = new_instancemethod(_director_example.Vector_int_assign, None, Vector_int)
-Vector_int.resize = new_instancemethod(_director_example.Vector_int_resize, None, Vector_int)
-Vector_int.insert = new_instancemethod(_director_example.Vector_int_insert, None, Vector_int)
-Vector_int.reserve = new_instancemethod(_director_example.Vector_int_reserve, None, Vector_int)
-Vector_int.capacity = new_instancemethod(_director_example.Vector_int_capacity, None, Vector_int)
-Vector_int_swigregister = _director_example.Vector_int_swigregister
-Vector_int_swigregister(Vector_int)
 
 
 __all__ = ["DirectorExample","DirectorExampleUser","Vector_DirectorExample","Vector_int"]
