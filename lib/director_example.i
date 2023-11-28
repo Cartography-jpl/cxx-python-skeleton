@@ -54,7 +54,10 @@ public:
 }
 
 // TODO Make this into a macro, when we have everything ironed out
-%skeleton_shared_ptr(SwigDirector_DirectorExample);
+%shared_ptr(SwigDirector_DirectorExample)
+%init {
+  Skeleton::SwigTypeMapperBase::add(typeid(SwigDirector_DirectorExample), boost::make_shared<Skeleton::SwigTypeMapper< SwigDirector_DirectorExample > > ("boost::shared_ptr< SwigDirector_DirectorExample > *", typeid(Skeleton::DirectorExample)));
+}
 
  %{
  #include "skeleton_serialize_support.h"
@@ -66,27 +69,27 @@ public:
        ar & boost::serialization::make_nvp(BOOST_PP_STRINGIZE(DirectorExample),
  					  boost::serialization::base_object<Skeleton::DirectorExample>(D));
      }
-     // template<class Archive> 
-     // void save_construct_data(Archive & ar,
-     // 			     const SwigDirector_DirectorExample* d, 
-     // 			     const unsigned int version)
-     // {
-//       PyObject* pobj = d->swig_get_self();
-//       PyObject* this_save = PyObject_GetAttr(pobj, PyString_FromString("this"));
-//       PyObject_SetAttr(pobj, PyString_FromString("this"), Py_None);
-//       std::string python_object = cpickle_dumps(pobj);
-//       ar & SKELETON_NVP(python_object);
-//       PyObject_SetAttr(pobj, PyString_FromString("this"), this_save);
-//     }
+     template<class Archive> 
+     void save_construct_data(Archive & ar,
+			      const SwigDirector_DirectorExample* d, 
+			      const unsigned int version)
+     {
+       PyObject* pobj = d->swig_get_self();
+       PyObject* this_save = PyObject_GetAttr(pobj, PyString_FromString("this"));
+       PyObject_SetAttr(pobj, PyString_FromString("this"), Py_None);
+       std::string python_object = cpickle_dumps(pobj);
+       ar & SKELETON_NVP(python_object);
+       PyObject_SetAttr(pobj, PyString_FromString("this"), this_save);
+     }
      template<class Archive>
      void load_construct_data(Archive & ar, SwigDirector_DirectorExample* d,
  			     const unsigned int version)
      {
-//       std::string python_object;
-//       ar & SKELETON_NVP(python_object);
-//       PyObject* pobj = cpickle_loads(python_object);
-       ::new(d)SwigDirector_DirectorExample(0);
-//       // We handle setting up pobj.this later
+       std::string python_object;
+       ar & SKELETON_NVP(python_object);
+       PyObject* pobj = cpickle_loads(python_object);
+       ::new(d)SwigDirector_DirectorExample(pobj);
+       // We handle setting up pobj.this later
      }
    }
 }
@@ -96,6 +99,8 @@ template void boost::serialization::serialize(boost::archive::polymorphic_oarchi
 template void boost::serialization::serialize(boost::archive::polymorphic_iarchive& ar, SwigDirector_DirectorExample& D, const unsigned int version);
 template void boost::serialization::load_construct_data
   (polymorphic_iarchive & ar, SwigDirector_DirectorExample* d, const unsigned int version);
+template void boost::serialization::save_construct_data
+  (polymorphic_oarchive & ar, const SwigDirector_DirectorExample* d, const unsigned int version);
 %}
   
 // List of things "import *" will include
