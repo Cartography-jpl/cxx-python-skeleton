@@ -80,6 +80,7 @@ public:
        std::string python_object = cpickle_dumps(pobj);
        ar & SKELETON_NVP(python_object);
        PyObject_SetAttr(pobj, PyString_FromString("this"), this_save);
+       Py_DECREF(this_save);
      }
      template<class Archive>
      void load_construct_data(Archive & ar, SwigDirector_DirectorExample* d,
@@ -89,7 +90,9 @@ public:
        ar & SKELETON_NVP(python_object);
        PyObject* pobj = cpickle_loads(python_object);
        ::new(d)SwigDirector_DirectorExample(pobj);
-       // We handle setting up pobj.this later
+       // We handle setting up pobj.this later in
+       // serialize_shared_ptr.h - we need the shared_ptr not just the
+       // object d so we need to wait until we are higher in the call tree
      }
    }
 }

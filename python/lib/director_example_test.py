@@ -3,15 +3,20 @@ from .swig_shelve import read_shelve, write_shelve
 from test_support import *
 import pickle
 import sys
+import gc
+import ctypes
+
+# For testing, this calls the low level python c API for decreasing the reference
+# count. Can use to try to sort out issues with lifetime
+_decref = ctypes.pythonapi.Py_DecRef
+_decref.argtypes = [ctypes.py_object]
+_decref.restype = None
 
 class DirectorPythonExample(DirectorExample):
     def __init__(self, v1, v2, name):
         super().__init__(v1, name)
         self.v2 = v2
         print(f"Creating Python {self.name()}", flush=True)
-
-    def __del__(self):
-        print(f"Destroying Python {self.name()}", flush=True)
 
     def print_ref_count(self):
         # We have an extra 2 counts because this got passed as an
@@ -101,9 +106,8 @@ def test_director_pickle_shelve(isolated_dir):
     e2.this = t
     write_shelve("e2.xml", e2)
     e2_s = read_shelve("e2.xml")
-    #pickle.dump(e2, open("e2.pkl", "wb"))
-    #e2_p = pickle.load(open("e2.pkl", "rb"))
-    e2_p = e2_s
+    pickle.dump(e2, open("e2.pkl", "wb"))
+    e2_p = pickle.load(open("e2.pkl", "rb"))
     e2 = None
     assert e2_s.func(10) == 5+10+2*6
     assert e2_p.func(10) == 5+10+2*6
@@ -143,7 +147,65 @@ def test_director_pickle_shelve(isolated_dir):
     euser_s = None
     euser_p = None
     print("All done", flush=True)
-    
+
+# Not 100% certain about the lifetime. Some of the shelved python objects never
+# call DirectorPythonExample.__del__, but the C++ seems to get cleaned up. Python
+# doesn't guarantee that del will ever be called - so it might be that simple.
+# I *think* things are ok, however
+# it is possible we have a memory leak and have python objects around that never
+# get cleaned up. We definitely don't have the other problem, of objects being
+# deleted while still in use. We run this with valgrind, and everything seems to
+# be ok.
+#
+# A memory leak isn't the end of the world. We can come back to this if it turns out
+# to be an issue.
+#@skip    
+def test_director_lifetime_shelve(isolated_dir):
+    print("Should see creation message", flush=True)
+    e1 = DirectorPythonExample(5,6, "e1")
+    write_shelve("e1.xml", e1)
+    print(e1)
+    print(e1.thisown)
+    print(gc.get_referents(e1))
+    print(gc.get_referents(e1.this))
+    print("Should see deletion message", flush=True)
+    e1 = None
+    gc.collect()
+    print("All done with e1", flush=True)
+    e1_s = read_shelve("e1.xml")
+    print(e1_s)
+    print(e1_s.thisown)
+    print(gc.get_referents(e1_s))
+    print(gc.get_referents(e1_s.this))
+    print("Should see deletion message", flush=True)
+    e1_s = None
+    gc.collect()
+    # Note, when running we don't see the "Destroying Python e1" message.
+    # We also don't see the "Destroying C++ e1" message until right
+    # *after* the All done with e1_s - which doesn't actually make a lot of sense
+    # unless we are getting std::cerr and python print streams intermingled.
+    print("All done with e1_s", flush=True)
+    print("Should see creation message", flush=True)
+    euser = DirectorExampleUser()
+    euser.set_vec([DirectorPythonExample(5,6, "e2"),])
+    write_shelve("euser.xml", euser)
+    print("Should see deletion message", flush=True)
+    euser = None
+    gc.collect()
+    print("All done with euser")
+    euser_s = read_shelve("euser.xml")
+    print(euser_s.value_vec()[0])
+    print("Should see deletion message", flush=True)
+    euser_s = None
+    gc.collect()
+    # Similar issue as e1_s
+    # We don't see the "Destroying Python e2" message.
+    # We also don't see the "Destroying C++ e2" message until right
+    # *after* the All done with e1_s - which doesn't actually make a lot of sense
+    # unless we are getting std::cerr and python print streams intermingled.
+    print("All done with euser_s")
+
+
     
     
     
