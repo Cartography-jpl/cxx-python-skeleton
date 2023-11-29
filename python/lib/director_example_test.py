@@ -148,6 +148,17 @@ def test_director_pickle_shelve(isolated_dir):
     euser_p = None
     print("All done", flush=True)
 
+def print_obj():
+    '''Print a list of active DirectorPythonExample, and the first one if it
+    exists'''
+    olist = [obj for obj in gc.get_objects() if isinstance(obj, DirectorPythonExample)]
+    print(f"Found in active objects: {olist}")
+    if(len(olist) > 0):
+        print("First object in active objects:")
+        print(olist[0])
+        print("Stuff referring to this:")
+        print(gc.get_referents(olist[0]))
+    
 # Not 100% certain about the lifetime. Some of the shelved python objects never
 # call DirectorPythonExample.__del__, but the C++ seems to get cleaned up. Python
 # doesn't guarantee that del will ever be called - so it might be that simple.
@@ -164,19 +175,14 @@ def test_director_lifetime_shelve(isolated_dir):
     print("Should see creation message", flush=True)
     e1 = DirectorPythonExample(5,6, "e1")
     write_shelve("e1.xml", e1)
-    print(e1)
-    print(e1.thisown)
-    print(gc.get_referents(e1))
-    print(gc.get_referents(e1.this))
+    print_obj()
     print("Should see deletion message", flush=True)
     e1 = None
     gc.collect()
     print("All done with e1", flush=True)
+    print_obj()
     e1_s = read_shelve("e1.xml")
-    print(e1_s)
-    print(e1_s.thisown)
-    print(gc.get_referents(e1_s))
-    print(gc.get_referents(e1_s.this))
+    print_obj()
     print("Should see deletion message", flush=True)
     e1_s = None
     gc.collect()
@@ -184,17 +190,25 @@ def test_director_lifetime_shelve(isolated_dir):
     # We also don't see the "Destroying C++ e1" message until right
     # *after* the All done with e1_s - which doesn't actually make a lot of sense
     # unless we are getting std::cerr and python print streams intermingled.
+    #
+    # With print_obj, see that this is still around
     print("All done with e1_s", flush=True)
+    print_obj()
+    # We should sort out the above issue before moving on to euser.
+    return
     print("Should see creation message", flush=True)
     euser = DirectorExampleUser()
     euser.set_vec([DirectorPythonExample(5,6, "e2"),])
     write_shelve("euser.xml", euser)
+    print_obj()
     print("Should see deletion message", flush=True)
     euser = None
     gc.collect()
     print("All done with euser")
+    print_obj()
     euser_s = read_shelve("euser.xml")
     print(euser_s.value_vec()[0])
+    print_obj()
     print("Should see deletion message", flush=True)
     euser_s = None
     gc.collect()
@@ -204,6 +218,7 @@ def test_director_lifetime_shelve(isolated_dir):
     # *after* the All done with e1_s - which doesn't actually make a lot of sense
     # unless we are getting std::cerr and python print streams intermingled.
     print("All done with euser_s")
+    print_obj()
 
 
     
