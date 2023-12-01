@@ -4194,42 +4194,8 @@ SWIG_AsVal_ptrdiff_t (PyObject * obj, ptrdiff_t *val)
 #define SWIG_MAPPER_NAMESPACE Skeleton
 
 
-//#define PTR_DEBUG 1
-  
-// If the object passed in actually a python director, we don't own
-// it. Instead, when the reference count goes to 0 we just decrement
-// our reference to it.
-//
-// The original RefPtr had null deleter if this is a director object,
-// so we don't actually delete the pointer p
-  class PythonRefPtrCleanup {
-  public:
-    PythonRefPtrCleanup(PyObject* Obj) : obj(Obj)
-      { Py_INCREF(obj);
-#ifdef 	PTR_DEBUG
-	std::cerr << "In PythonRefPtrCleanup constructor " << obj << " has count "
-		  << Py_REFCNT(obj) << "\n";
-#endif	
-      }
-    PythonRefPtrCleanup(const PythonRefPtrCleanup& V)
-      : obj(V.obj)
-      {
-	// Place for debug message, don't otherwise need anything here
-#ifdef 	PTR_DEBUG
-	std::cerr << "In PythonRefPtrCleanup copy " << obj << " has count "
-		  << Py_REFCNT(obj) << "\n";
-#endif	
-      }
-    void operator()(void* p) {
-#ifdef 	PTR_DEBUG
-      std::cerr << "Start PythonRefPtrCleanup operator() " << obj << " has count "
-		<< Py_REFCNT(obj) << "\n";
-#endif    
-      Py_DECREF(obj);
-    }
-  private:
-    PyObject* obj;
-  };
+// See DirectorNotes.md for discussion of this.
+#include "python_ref_ptr_cleanup.h"
 
 
 SWIGINTERNINLINE PyObject*
@@ -6475,9 +6441,14 @@ SWIG_From_std_string  (const std::string& s)
        ar & SKELETON_NVP(python_object);
        PyObject* pobj = cpickle_loads(python_object);
        ::new(d)SwigDirector_DirectorExample(pobj);
-       // We handle setting up pobj.this later in
-       // serialize_shared_ptr.h - we need the shared_ptr not just the
-       // object d so we need to wait until we are higher in the call tree
+       boost::shared_ptr<Skeleton::DirectorExample> *smartresult = d ? new boost::shared_ptr<Skeleton::DirectorExample>(d) : 0;
+       PyObject* thisobj = SWIG_NewPointerObj(SWIG_as_voidptr(smartresult), SWIGTYPE_p_boost__shared_ptrT_Skeleton__DirectorExample_t, SWIG_POINTER_NEW | SWIG_POINTER_OWN);
+       // Transfer ownership of SwigDirector_DirectorExample to pobj.
+       SWIG_Python_SetSwigThis(pobj, thisobj);
+       Py_DECREF(thisobj);
+       std::cerr << "In load_construct_data\n";
+       std::cerr << "pobj refcnt: " << pobj->ob_refcnt << " address " << pobj->ob_type << "\n";
+       std::cerr << "thisobj refcnt: " << thisobj->ob_refcnt << " address " << thisobj->ob_type << "\n";
      }
    }
 }
@@ -8129,11 +8100,8 @@ SWIGINTERN PyObject *_wrap_Vector_DirectorExample___setitem____SWIG_2(PyObject *
       arg3 = (argp3) ? reinterpret_cast< std::vector< boost::shared_ptr< Skeleton::DirectorExample > >::value_type * >(argp3) : &tempshared3;
     }
     // Added mms
-    // Special handling if this is a director class. In that case, we
-    // don't own the underlying python object. Instead,
-    // we tell python we have a reference to the underlying object, and
-    // when this gets destroyed we decrement the reference to the python
-    // object. 
+    // Special handling if this is a director class.
+    // See DirectorNotes.md for discussion of this.
     Swig::Director* dp = dynamic_cast<Swig::Director*>(arg3->get());
     if(dp) {
       temp2shared3.reset(arg3->get(), PythonRefPtrCleanup(dp->swig_get_self()));
@@ -8275,11 +8243,8 @@ SWIGINTERN PyObject *_wrap_Vector_DirectorExample_append(PyObject *SWIGUNUSEDPAR
       arg2 = (argp2) ? reinterpret_cast< std::vector< boost::shared_ptr< Skeleton::DirectorExample > >::value_type * >(argp2) : &tempshared2;
     }
     // Added mms
-    // Special handling if this is a director class. In that case, we
-    // don't own the underlying python object. Instead,
-    // we tell python we have a reference to the underlying object, and
-    // when this gets destroyed we decrement the reference to the python
-    // object. 
+    // Special handling if this is a director class.
+    // See DirectorNotes.md for discussion of this.
     Swig::Director* dp = dynamic_cast<Swig::Director*>(arg2->get());
     if(dp) {
       temp2shared2.reset(arg2->get(), PythonRefPtrCleanup(dp->swig_get_self()));
@@ -8903,11 +8868,8 @@ SWIGINTERN PyObject *_wrap_new_Vector_DirectorExample__SWIG_3(PyObject *SWIGUNUS
       arg2 = (argp2) ? reinterpret_cast< std::vector< boost::shared_ptr< Skeleton::DirectorExample > >::value_type * >(argp2) : &tempshared2;
     }
     // Added mms
-    // Special handling if this is a director class. In that case, we
-    // don't own the underlying python object. Instead,
-    // we tell python we have a reference to the underlying object, and
-    // when this gets destroyed we decrement the reference to the python
-    // object. 
+    // Special handling if this is a director class.
+    // See DirectorNotes.md for discussion of this.
     Swig::Director* dp = dynamic_cast<Swig::Director*>(arg2->get());
     if(dp) {
       temp2shared2.reset(arg2->get(), PythonRefPtrCleanup(dp->swig_get_self()));
@@ -9004,11 +8966,8 @@ SWIGINTERN PyObject *_wrap_Vector_DirectorExample_push_back(PyObject *SWIGUNUSED
       arg2 = (argp2) ? reinterpret_cast< std::vector< boost::shared_ptr< Skeleton::DirectorExample > >::value_type * >(argp2) : &tempshared2;
     }
     // Added mms
-    // Special handling if this is a director class. In that case, we
-    // don't own the underlying python object. Instead,
-    // we tell python we have a reference to the underlying object, and
-    // when this gets destroyed we decrement the reference to the python
-    // object. 
+    // Special handling if this is a director class.
+    // See DirectorNotes.md for discussion of this.
     Swig::Director* dp = dynamic_cast<Swig::Director*>(arg2->get());
     if(dp) {
       temp2shared2.reset(arg2->get(), PythonRefPtrCleanup(dp->swig_get_self()));
@@ -9137,11 +9096,8 @@ SWIGINTERN PyObject *_wrap_Vector_DirectorExample_assign(PyObject *SWIGUNUSEDPAR
       arg3 = (argp3) ? reinterpret_cast< std::vector< boost::shared_ptr< Skeleton::DirectorExample > >::value_type * >(argp3) : &tempshared3;
     }
     // Added mms
-    // Special handling if this is a director class. In that case, we
-    // don't own the underlying python object. Instead,
-    // we tell python we have a reference to the underlying object, and
-    // when this gets destroyed we decrement the reference to the python
-    // object. 
+    // Special handling if this is a director class.
+    // See DirectorNotes.md for discussion of this.
     Swig::Director* dp = dynamic_cast<Swig::Director*>(arg3->get());
     if(dp) {
       temp2shared3.reset(arg3->get(), PythonRefPtrCleanup(dp->swig_get_self()));
@@ -9203,11 +9159,8 @@ SWIGINTERN PyObject *_wrap_Vector_DirectorExample_resize__SWIG_1(PyObject *SWIGU
       arg3 = (argp3) ? reinterpret_cast< std::vector< boost::shared_ptr< Skeleton::DirectorExample > >::value_type * >(argp3) : &tempshared3;
     }
     // Added mms
-    // Special handling if this is a director class. In that case, we
-    // don't own the underlying python object. Instead,
-    // we tell python we have a reference to the underlying object, and
-    // when this gets destroyed we decrement the reference to the python
-    // object. 
+    // Special handling if this is a director class.
+    // See DirectorNotes.md for discussion of this.
     Swig::Director* dp = dynamic_cast<Swig::Director*>(arg3->get());
     if(dp) {
       temp2shared3.reset(arg3->get(), PythonRefPtrCleanup(dp->swig_get_self()));
@@ -9300,11 +9253,8 @@ SWIGINTERN PyObject *_wrap_Vector_DirectorExample_insert__SWIG_0(PyObject *SWIGU
       arg3 = (argp3) ? reinterpret_cast< std::vector< boost::shared_ptr< Skeleton::DirectorExample > >::value_type * >(argp3) : &tempshared3;
     }
     // Added mms
-    // Special handling if this is a director class. In that case, we
-    // don't own the underlying python object. Instead,
-    // we tell python we have a reference to the underlying object, and
-    // when this gets destroyed we decrement the reference to the python
-    // object. 
+    // Special handling if this is a director class.
+    // See DirectorNotes.md for discussion of this.
     Swig::Director* dp = dynamic_cast<Swig::Director*>(arg3->get());
     if(dp) {
       temp2shared3.reset(arg3->get(), PythonRefPtrCleanup(dp->swig_get_self()));
@@ -9381,11 +9331,8 @@ SWIGINTERN PyObject *_wrap_Vector_DirectorExample_insert__SWIG_1(PyObject *SWIGU
       arg4 = (argp4) ? reinterpret_cast< std::vector< boost::shared_ptr< Skeleton::DirectorExample > >::value_type * >(argp4) : &tempshared4;
     }
     // Added mms
-    // Special handling if this is a director class. In that case, we
-    // don't own the underlying python object. Instead,
-    // we tell python we have a reference to the underlying object, and
-    // when this gets destroyed we decrement the reference to the python
-    // object. 
+    // Special handling if this is a director class.
+    // See DirectorNotes.md for discussion of this.
     Swig::Director* dp = dynamic_cast<Swig::Director*>(arg4->get());
     if(dp) {
       temp2shared4.reset(arg4->get(), PythonRefPtrCleanup(dp->swig_get_self()));
@@ -12355,11 +12302,8 @@ SWIGINTERN PyObject *_wrap_DirectorExampleUser_set_value(PyObject *SWIGUNUSEDPAR
       arg2 = (argp2) ? reinterpret_cast< boost::shared_ptr< Skeleton::DirectorExample > * >(argp2) : &tempshared2;
     }
     // Added mms
-    // Special handling if this is a director class. In that case, we
-    // don't own the underlying python object. Instead,
-    // we tell python we have a reference to the underlying object, and
-    // when this gets destroyed we decrement the reference to the python
-    // object. 
+    // Special handling if this is a director class.
+    // See DirectorNotes.md for discussion of this.
     Swig::Director* dp = dynamic_cast<Swig::Director*>(arg2->get());
     if(dp) {
       temp2shared2.reset(arg2->get(), PythonRefPtrCleanup(dp->swig_get_self()));
@@ -13904,7 +13848,7 @@ SWIG_init(void) {
   Skeleton::SwigTypeMapperBase::add(typeid(Skeleton::DirectorExampleUser), boost::make_shared<Skeleton::SwigTypeMapper< Skeleton::DirectorExampleUser > > ("boost::shared_ptr< Skeleton::DirectorExampleUser > *"));
   
   
-  Skeleton::SwigTypeMapperBase::add(typeid(SwigDirector_DirectorExample), boost::make_shared<Skeleton::SwigTypeMapper< SwigDirector_DirectorExample > > ("boost::shared_ptr< SwigDirector_DirectorExample > *", typeid(Skeleton::DirectorExample)));
+  Skeleton::SwigTypeMapperBase::add(typeid(SwigDirector_DirectorExample), boost::make_shared<Skeleton::SwigTypeMapper< SwigDirector_DirectorExample > > ("boost::shared_ptr< SwigDirector_DirectorExample > *"));
   
 #if PY_VERSION_HEX >= 0x03000000
   return m;

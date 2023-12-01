@@ -815,6 +815,7 @@ EXTRA_DIST = README.md bootstrap config/m4_local/README config/m4 \
 	@swigrules@/lib/generic_object_map.i.sample \
 	@swigrules@/lib/common.i.sample \
 	@swigrules@/lib/printable.h.sample \
+	@swigrules@/lib/DirectorNotes.md \
 	@swigrules@/lib/serialize_support.h.sample \
 	@swigrules@/lib/blitz_array_serialize_support.h.sample \
 	@swigrules@/lib/blitz_array_serialize_support.cc.sample \
@@ -884,6 +885,7 @@ skeletonincdir = @includedir@/skeleton
 # List of source files
 skeletoninc_HEADERS = @swigrules@/lib/swig_type_mapper_base.h \
 	@swigrules@/lib/python_lib_init.h \
+	@swigrules@/lib/python_ref_ptr_cleanup.h \
 	@swigrules@/lib/swig_type_mapper.h \
 	@swigrules@/lib/swig_to_python.h \
 	@swigrules@/lib/serialize_function.h \

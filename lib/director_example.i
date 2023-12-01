@@ -56,10 +56,10 @@ public:
 // TODO Make this into a macro, when we have everything ironed out
 %shared_ptr(SwigDirector_DirectorExample)
 %init {
-  Skeleton::SwigTypeMapperBase::add(typeid(SwigDirector_DirectorExample), boost::make_shared<Skeleton::SwigTypeMapper< SwigDirector_DirectorExample > > ("boost::shared_ptr< SwigDirector_DirectorExample > *", typeid(Skeleton::DirectorExample)));
+  Skeleton::SwigTypeMapperBase::add(typeid(SwigDirector_DirectorExample), boost::make_shared<Skeleton::SwigTypeMapper< SwigDirector_DirectorExample > > ("boost::shared_ptr< SwigDirector_DirectorExample > *"));
 }
 
- %{
+%{
  #include "skeleton_serialize_support.h"
  #include "director_example_wrap.h"
  namespace boost {
@@ -90,9 +90,14 @@ public:
        ar & SKELETON_NVP(python_object);
        PyObject* pobj = cpickle_loads(python_object);
        ::new(d)SwigDirector_DirectorExample(pobj);
-       // We handle setting up pobj.this later in
-       // serialize_shared_ptr.h - we need the shared_ptr not just the
-       // object d so we need to wait until we are higher in the call tree
+       boost::shared_ptr<Skeleton::DirectorExample> *smartresult = d ? new boost::shared_ptr<Skeleton::DirectorExample>(d) : 0;
+       PyObject* thisobj = SWIG_NewPointerObj(SWIG_as_voidptr(smartresult), SWIGTYPE_p_boost__shared_ptrT_Skeleton__DirectorExample_t, SWIG_POINTER_NEW | SWIG_POINTER_OWN);
+       // Transfer ownership of SwigDirector_DirectorExample to pobj.
+       SWIG_Python_SetSwigThis(pobj, thisobj);
+       Py_DECREF(thisobj);
+       std::cerr << "In load_construct_data\n";
+       std::cerr << "pobj refcnt: " << pobj->ob_refcnt << " address " << pobj->ob_type << "\n";
+       std::cerr << "thisobj refcnt: " << thisobj->ob_refcnt << " address " << thisobj->ob_type << "\n";
      }
    }
 }

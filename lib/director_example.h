@@ -48,8 +48,14 @@ private:
 *******************************************************************/
 class DirectorExampleUser : public Printable<DirectorExampleUser> {
 public:
-  DirectorExampleUser() {}
-  virtual ~DirectorExampleUser() {}
+  DirectorExampleUser()
+  {
+    std::cerr << "Creating DirectorExampleUser\n";
+  }
+  virtual ~DirectorExampleUser()
+  {
+    std::cerr << "Destroying DirectorExampleUser\n";
+  }
   virtual void print(std::ostream& Os) const { Os << "DirectorExampleUser"; }
   const std::vector<boost::shared_ptr<DirectorExample> >&
   value_vec() const { return value_vec_; }
