@@ -4165,34 +4165,8 @@ SWIG_AsVal_ptrdiff_t (PyObject * obj, ptrdiff_t *val)
 #define SWIG_MAPPER_NAMESPACE Skeleton
 
 
-// If the object passed in actually a python director, we don't own
-// it. Instead, when the reference count goes to 0 we just decrement
-// our reference to it.
-//
-// The original RefPtr had null deleter if this is a director object,
-// so we don't actually delete the pointer p
-  class PythonRefPtrCleanup {
-  public:
-    PythonRefPtrCleanup(PyObject* Obj) : obj(Obj)
-      { Py_INCREF(obj); 
-	std::cerr << "In PythonRefPtrCleanup constructor " << obj << " has count "
-		  << Py_REFCNT(obj) << "\n";
-      }
-    PythonRefPtrCleanup(const PythonRefPtrCleanup& V)
-      : obj(V.obj)
-      {
-	//Py_INCREF(obj);
-	std::cerr << "In PythonRefPtrCleanup copy " << obj << " has count "
-		  << Py_REFCNT(obj) << "\n";
-      }
-    void operator()(void* p) {
-      std::cerr << "Start PythonRefPtrCleanup operator() " << obj << " has count "
-		<< Py_REFCNT(obj) << "\n";
-      Py_DECREF(obj);
-    }
-  private:
-    PyObject* obj;
-  };
+// See DirectorNotes.md for discussion of this.
+#include "python_ref_ptr_cleanup.h"
 
 
 SWIGINTERNINLINE PyObject*
@@ -4236,14 +4210,17 @@ inline std::string cpickle_dumps(PyObject* obj)
   if(PyErr_Occurred()) {
     throw std::runtime_error("Python error occurred:\n" + parse_python_exception());
   }
-  return std::string(PyString_AsString(res));
+  char *buf;
+  Py_ssize_t len;
+  PyBytes_AsStringAndSize(res, &buf, &len);
+  return std::string(buf, len);
 }
 
 inline PyObject* cpickle_loads(const std::string& S)
 {
   PyObject* res = PyObject_CallMethodObjArgs(cpickle_module(),
 					     PyString_FromString("loads"),
-					     PyString_FromString(S.c_str()), 
+					     PyBytes_FromStringAndSize(S.c_str(), S.size()), 
 					     NULL);
   if(PyErr_Occurred()) {
     throw std::runtime_error("Python error occurred:\n" + parse_python_exception());
@@ -7042,11 +7019,8 @@ SWIGINTERN PyObject *_wrap_GenericObjectMap_set_generic(PyObject *self, PyObject
       arg3 = (argp3) ? reinterpret_cast< boost::shared_ptr< Skeleton::GenericObject > * >(argp3) : &tempshared3;
     }
     // Added mms
-    // Special handling if this is a director class. In that case, we
-    // don't own the underlying python object. Instead,
-    // we tell python we have a reference to the underlying object, and
-    // when this gets destroyed we decrement the reference to the python
-    // object. 
+    // Special handling if this is a director class.
+    // See DirectorNotes.md for discussion of this.
     Swig::Director* dp = dynamic_cast<Swig::Director*>(arg3->get());
     if(dp) {
       temp2shared3.reset(arg3->get(), PythonRefPtrCleanup(dp->swig_get_self()));

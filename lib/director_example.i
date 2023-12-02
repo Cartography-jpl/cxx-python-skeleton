@@ -13,6 +13,7 @@
 // Note we need the template before its first use, so we have all
 // the typemaps in place.
 %template(Vector_DirectorExample) std::vector<boost::shared_ptr<Skeleton::DirectorExample> >;
+%template(Vector_int) std::vector<int>;
 
 namespace Skeleton {
 %feature("director") DirectorExample;
@@ -26,6 +27,9 @@ public:
   int value_to_add() const;
   const std::string& name() const;
   %pickle_serialization();
+protected:  
+  // Only meant for swig serialization
+  DirectorExample();
 };
 
 class DirectorExampleUser : public GenericObject {
@@ -47,8 +51,64 @@ public:
 
 }
 
-%template(Vector_int) std::vector<int>;
+// TODO Make this into a macro, when we have everything ironed out
+%shared_ptr(SwigDirector_DirectorExample)
+%init {
+  Skeleton::SwigTypeMapperBase::add(typeid(SwigDirector_DirectorExample), boost::make_shared<Skeleton::SwigTypeMapper< SwigDirector_DirectorExample > > ("boost::shared_ptr< SwigDirector_DirectorExample > *"));
+}
 
+%{
+ #include "skeleton_serialize_support.h"
+ #include "director_example_wrap.h"
+ namespace boost {
+   namespace serialization {
+     template<class Archive>
+     void serialize(Archive& ar, SwigDirector_DirectorExample& D, const unsigned int version) {
+       ar & boost::serialization::make_nvp(BOOST_PP_STRINGIZE(DirectorExample),
+ 					  boost::serialization::base_object<Skeleton::DirectorExample>(D));
+     }
+     template<class Archive> 
+     void save_construct_data(Archive & ar,
+			      const SwigDirector_DirectorExample* d, 
+			      const unsigned int version)
+     {
+       PyObject* pobj = d->swig_get_self();
+       PyObject* this_save = PyObject_GetAttr(pobj, PyString_FromString("this"));
+       PyObject_SetAttr(pobj, PyString_FromString("this"), Py_None);
+       std::string python_object = cpickle_dumps(pobj);
+       ar & SKELETON_NVP(python_object);
+       PyObject_SetAttr(pobj, PyString_FromString("this"), this_save);
+       Py_DECREF(this_save);
+     }
+     template<class Archive>
+     void load_construct_data(Archive & ar, SwigDirector_DirectorExample* d,
+ 			     const unsigned int version)
+     {
+       std::string python_object;
+       ar & SKELETON_NVP(python_object);
+       PyObject* pobj = cpickle_loads(python_object);
+       ::new(d)SwigDirector_DirectorExample(pobj);
+       boost::shared_ptr<Skeleton::DirectorExample> *smartresult = d ? new boost::shared_ptr<Skeleton::DirectorExample>(d) : 0;
+       PyObject* thisobj = SWIG_NewPointerObj(SWIG_as_voidptr(smartresult), SWIGTYPE_p_boost__shared_ptrT_Skeleton__DirectorExample_t, SWIG_POINTER_NEW | SWIG_POINTER_OWN);
+       // Transfer ownership of SwigDirector_DirectorExample to pobj.
+       SWIG_Python_SetSwigThis(pobj, thisobj);
+       Py_DECREF(thisobj);
+       std::cerr << "In load_construct_data\n";
+       std::cerr << "pobj refcnt: " << pobj->ob_refcnt << " address " << pobj->ob_type << "\n";
+       std::cerr << "thisobj refcnt: " << thisobj->ob_refcnt << " address " << thisobj->ob_type << "\n";
+     }
+   }
+}
+BOOST_CLASS_EXPORT_KEY(SwigDirector_DirectorExample);
+BOOST_CLASS_EXPORT_IMPLEMENT(SwigDirector_DirectorExample);
+template void boost::serialization::serialize(boost::archive::polymorphic_oarchive& ar, SwigDirector_DirectorExample& D, const unsigned int version);
+template void boost::serialization::serialize(boost::archive::polymorphic_iarchive& ar, SwigDirector_DirectorExample& D, const unsigned int version);
+template void boost::serialization::load_construct_data
+  (polymorphic_iarchive & ar, SwigDirector_DirectorExample* d, const unsigned int version);
+template void boost::serialization::save_construct_data
+  (polymorphic_oarchive & ar, const SwigDirector_DirectorExample* d, const unsigned int version);
+%}
+  
 // List of things "import *" will include
 %python_export("DirectorExample", "DirectorExampleUser", "Vector_DirectorExample",
 	       "Vector_int");

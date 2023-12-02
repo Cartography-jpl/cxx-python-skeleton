@@ -801,6 +801,7 @@ EXTRA_DIST = README.md bootstrap config/m4_local/README config/m4 \
 	@srcpythonlib@/__init__.py @srcpythonlib@/dummy_test.py \
 	@srcpythonlib@/iostream_swig_test.py \
 	@srcpythonlib@/numpy_sample_test.py \
+	@srcpythonlib@/director_example_test.py \
 	@testsupportsrc@/__init__.py @testsupportsrc@/test_support.py \
 	@testsupportsrc@/README @swigrules@/doxy2swig.py \
 	@swigrules@/create_python_init.py \
@@ -814,6 +815,7 @@ EXTRA_DIST = README.md bootstrap config/m4_local/README config/m4 \
 	@swigrules@/lib/generic_object_map.i.sample \
 	@swigrules@/lib/common.i.sample \
 	@swigrules@/lib/printable.h.sample \
+	@swigrules@/lib/DirectorNotes.md \
 	@swigrules@/lib/serialize_support.h.sample \
 	@swigrules@/lib/blitz_array_serialize_support.h.sample \
 	@swigrules@/lib/blitz_array_serialize_support.cc.sample \
@@ -883,9 +885,11 @@ skeletonincdir = @includedir@/skeleton
 # List of source files
 skeletoninc_HEADERS = @swigrules@/lib/swig_type_mapper_base.h \
 	@swigrules@/lib/python_lib_init.h \
+	@swigrules@/lib/python_ref_ptr_cleanup.h \
 	@swigrules@/lib/swig_type_mapper.h \
 	@swigrules@/lib/swig_to_python.h \
 	@swigrules@/lib/serialize_function.h \
+	@swigrules@/lib/serialize_shared_ptr.h \
 	@swigrules@/lib/weak_ptr_serialize_support.h \
 	@srclib@/skeleton_serialize_support.h \
 	@srclib@/generic_object.h @srclib@/generic_object_sample.h \
@@ -916,7 +920,7 @@ libskeleton_la_CPPFLAGS = $(AM_CPPFLAGS) $(BOOST_CPPFLAGS) \
 	-DSWIG_HAVE_BOOST_SERIALIZATION=@SKELETON_HAVE_BOOST_SERIALIZATION@
 installskeleton_DATA = @srcscript@/setup_skeleton.csh @srcscript@/setup_skeleton.sh
 skeletonpkgpython_PYTHON = @srcpython@/init/__init__.py \
-	@srcpythonlib@/dummy.py
+	@srcpythonlib@/dummy.py @srcpythonlib@/swig_shelve.py
 
 # Number of jobs to run at once. Default is to automatically determine this,
 # but you can specify a different number.

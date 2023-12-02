@@ -17,12 +17,14 @@ install-python: all
 
 skeletoninc_HEADERS+= @swigrules@/lib/swig_type_mapper_base.h
 skeletoninc_HEADERS+= @swigrules@/lib/python_lib_init.h
+skeletoninc_HEADERS+= @swigrules@/lib/python_ref_ptr_cleanup.h
 skeletoninc_HEADERS+= @swigrules@/lib/swig_type_mapper.h
+libskeleton_la_SOURCES+= @swigrules@/lib/swig_type_mapper_base.cc
 skeletoninc_HEADERS+= @swigrules@/lib/swig_to_python.h
 skeletoninc_HEADERS+= @swigrules@/lib/serialize_function.h
-skeletoninc_HEADERS+= @swigrules@/lib/weak_ptr_serialize_support.h
-libskeleton_la_SOURCES+= @swigrules@/lib/swig_type_mapper_base.cc
 libskeleton_la_SOURCES+= @swigrules@/lib/serialize_function.cc
+skeletoninc_HEADERS+= @swigrules@/lib/serialize_shared_ptr.h
+skeletoninc_HEADERS+= @swigrules@/lib/weak_ptr_serialize_support.h
 libskeleton_la_SOURCES+= @swigrules@/lib/weak_ptr_serialize_support.cc
 libskeleton_la_CPPFLAGS+= -DSWIG_MAPPER_NAMESPACE=Skeleton
 libskeleton_la_CPPFLAGS+= -DSWIG_HAVE_BOOST_SERIALIZATION=@SKELETON_HAVE_BOOST_SERIALIZATION@

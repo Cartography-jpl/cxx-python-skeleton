@@ -177,6 +177,10 @@ class GenericObjectMap(skeleton_swig.generic_object.GenericObject):
     __str__ = _swig_new_instance_method(_generic_object_map.GenericObjectMap___str__)
 
     def __reduce__(self):
+    #Special handling for when we are doing boost serialization, we set
+    #"this" to None
+      if(self.this is None):
+        return super().__reduce__()
       return _new_from_serialization, (skeleton_swig.serialize_function.serialize_write_binary(self),)
 
 

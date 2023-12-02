@@ -180,81 +180,6 @@ class Vector_DirectorExample(object):
 
 # Register Vector_DirectorExample in _director_example:
 _director_example.Vector_DirectorExample_swigregister(Vector_DirectorExample)
-class DirectorExample(skeleton_swig.generic_object.GenericObject):
-    r"""
-
-    This is a simple class that we can use to test having a derived class
-    in python to override the director functions.
-
-    C++ includes: director_example.h 
-    """
-
-    thisown = property(lambda x: x.this.own(), lambda x, v: x.this.own(v), doc="The membership flag")
-    __repr__ = _swig_repr
-
-    def __init__(self, V, Name):
-        r"""
-
-        Skeleton::DirectorExample::DirectorExample(int value_to_add, const std::string &name)
-        Constructor. 
-        """
-        if self.__class__ == DirectorExample:
-            _self = None
-        else:
-            _self = self
-        _director_example.DirectorExample_swiginit(self, _director_example.new_DirectorExample(_self, V, Name))
-    __str__ = _swig_new_instance_method(_director_example.DirectorExample___str__)
-    desc = _swig_new_instance_method(_director_example.DirectorExample_desc)
-    func = _swig_new_instance_method(_director_example.DirectorExample_func)
-    value_to_add = _swig_new_instance_method(_director_example.DirectorExample_value_to_add)
-    name = _swig_new_instance_method(_director_example.DirectorExample_name)
-
-    def __reduce__(self):
-      return _new_from_serialization, (skeleton_swig.serialize_function.serialize_write_binary(self),)
-
-    __swig_destroy__ = _director_example.delete_DirectorExample
-    def __disown__(self):
-        self.this.disown()
-        _director_example.disown_DirectorExample(self)
-        return weakref.proxy(self)
-
-# Register DirectorExample in _director_example:
-_director_example.DirectorExample_swigregister(DirectorExample)
-class DirectorExampleUser(skeleton_swig.generic_object.GenericObject):
-    r"""
-
-    Sample class to use DirectorExample, can use to make sure python can
-    be passed correctly.
-
-    C++ includes: director_example.h 
-    """
-
-    thisown = property(lambda x: x.this.own(), lambda x, v: x.this.own(v), doc="The membership flag")
-    __repr__ = _swig_repr
-
-    def __init__(self):
-        r"""
-
-        Skeleton::DirectorExampleUser::DirectorExampleUser()
-
-        """
-        _director_example.DirectorExampleUser_swiginit(self, _director_example.new_DirectorExampleUser())
-    __str__ = _swig_new_instance_method(_director_example.DirectorExampleUser___str__)
-    value_vec = _swig_new_instance_method(_director_example.DirectorExampleUser_value_vec)
-    set_vec = _swig_new_instance_method(_director_example.DirectorExampleUser_set_vec)
-    value = _swig_new_instance_method(_director_example.DirectorExampleUser_value)
-    value_vec_int = _swig_new_instance_method(_director_example.DirectorExampleUser_value_vec_int)
-    set_vec_int = _swig_new_instance_method(_director_example.DirectorExampleUser_set_vec_int)
-    set_value = _swig_new_instance_method(_director_example.DirectorExampleUser_set_value)
-    apply_func = _swig_new_instance_method(_director_example.DirectorExampleUser_apply_func)
-
-    def __reduce__(self):
-      return _new_from_serialization, (skeleton_swig.serialize_function.serialize_write_binary(self),)
-
-    __swig_destroy__ = _director_example.delete_DirectorExampleUser
-
-# Register DirectorExampleUser in _director_example:
-_director_example.DirectorExampleUser_swigregister(DirectorExampleUser)
 class Vector_int(object):
     thisown = property(lambda x: x.this.own(), lambda x, v: x.this.own(v), doc="The membership flag")
     __repr__ = _swig_repr
@@ -298,6 +223,89 @@ class Vector_int(object):
 
 # Register Vector_int in _director_example:
 _director_example.Vector_int_swigregister(Vector_int)
+class DirectorExample(skeleton_swig.generic_object.GenericObject):
+    r"""
+
+    This is a simple class that we can use to test having a derived class
+    in python to override the director functions.
+
+    C++ includes: director_example.h 
+    """
+
+    thisown = property(lambda x: x.this.own(), lambda x, v: x.this.own(v), doc="The membership flag")
+    __repr__ = _swig_repr
+    __str__ = _swig_new_instance_method(_director_example.DirectorExample___str__)
+    desc = _swig_new_instance_method(_director_example.DirectorExample_desc)
+    func = _swig_new_instance_method(_director_example.DirectorExample_func)
+    value_to_add = _swig_new_instance_method(_director_example.DirectorExample_value_to_add)
+    name = _swig_new_instance_method(_director_example.DirectorExample_name)
+
+    def __reduce__(self):
+    #Special handling for when we are doing boost serialization, we set
+    #"this" to None
+      if(self.this is None):
+        return super().__reduce__()
+      return _new_from_serialization, (skeleton_swig.serialize_function.serialize_write_binary(self),)
+
+
+    def __init__(self, *args):
+        r"""
+
+        Skeleton::DirectorExample::DirectorExample(int value_to_add, const std::string &name)
+        Constructor. 
+        """
+        if self.__class__ == DirectorExample:
+            _self = None
+        else:
+            _self = self
+        _director_example.DirectorExample_swiginit(self, _director_example.new_DirectorExample(_self, *args))
+    __swig_destroy__ = _director_example.delete_DirectorExample
+    def __disown__(self):
+        self.this.disown()
+        _director_example.disown_DirectorExample(self)
+        return weakref.proxy(self)
+
+# Register DirectorExample in _director_example:
+_director_example.DirectorExample_swigregister(DirectorExample)
+class DirectorExampleUser(skeleton_swig.generic_object.GenericObject):
+    r"""
+
+    Sample class to use DirectorExample, can use to make sure python can
+    be passed correctly.
+
+    C++ includes: director_example.h 
+    """
+
+    thisown = property(lambda x: x.this.own(), lambda x, v: x.this.own(v), doc="The membership flag")
+    __repr__ = _swig_repr
+
+    def __init__(self):
+        r"""
+
+        Skeleton::DirectorExampleUser::DirectorExampleUser()
+
+        """
+        _director_example.DirectorExampleUser_swiginit(self, _director_example.new_DirectorExampleUser())
+    __str__ = _swig_new_instance_method(_director_example.DirectorExampleUser___str__)
+    value_vec = _swig_new_instance_method(_director_example.DirectorExampleUser_value_vec)
+    set_vec = _swig_new_instance_method(_director_example.DirectorExampleUser_set_vec)
+    value = _swig_new_instance_method(_director_example.DirectorExampleUser_value)
+    value_vec_int = _swig_new_instance_method(_director_example.DirectorExampleUser_value_vec_int)
+    set_vec_int = _swig_new_instance_method(_director_example.DirectorExampleUser_set_vec_int)
+    set_value = _swig_new_instance_method(_director_example.DirectorExampleUser_set_value)
+    apply_func = _swig_new_instance_method(_director_example.DirectorExampleUser_apply_func)
+
+    def __reduce__(self):
+    #Special handling for when we are doing boost serialization, we set
+    #"this" to None
+      if(self.this is None):
+        return super().__reduce__()
+      return _new_from_serialization, (skeleton_swig.serialize_function.serialize_write_binary(self),)
+
+    __swig_destroy__ = _director_example.delete_DirectorExampleUser
+
+# Register DirectorExampleUser in _director_example:
+_director_example.DirectorExampleUser_swigregister(DirectorExampleUser)
 
 __all__ = ["DirectorExample","DirectorExampleUser","Vector_DirectorExample","Vector_int"]
 
