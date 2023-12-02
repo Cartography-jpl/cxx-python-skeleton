@@ -88,6 +88,7 @@ if test "x$want_boost" = "xyes"; then
                BOOST_DATETIME_LIB="-lboost_date_time"
                BOOST_IOSTREAMS_LIB="-lboost_iostreams"
                BOOST_SERIALIZATION_LIB="-lboost_serialization"
+               AC_DEFINE(HAVE_BOOST_SERIALIZATION_BOOST_ARRAY_HPP,,[Defined if we have boost/serialization/boost_array.hpp])
                boost_done=yes
             fi
             for ac_boost_lib_base in "$ac_boost_path/lib" "$ac_boost_path/lib64"; do

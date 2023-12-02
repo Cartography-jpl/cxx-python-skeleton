@@ -35,8 +35,8 @@ if test "x$want_python" = "xyes"; then
    if test "$build_python" == "yes"; then
      AM_PATH_PYTHON(,, [:])
      # Will need to update this if we change the version we are building
-     python_inc_path=python3.7m
-     python_lib_path=python3.7
+     python_inc_path=python3.9m
+     python_lib_path=python3.9
      PYTHON=`pwd`"/external/python_wrap.sh" 
      PYTHON_CPPFLAGS="-I\${prefix}/include/${python_inc_path}"
      PYTHON_NUMPY_CPPFLAGS="-I\${prefix}/lib/${python_lib_path}/site-packages/numpy/core/include"
@@ -112,8 +112,8 @@ if test "$succeeded" != "yes" -a "x$build_needed_python" == "xyes" ; then
      ac_python_path="\${prefix}"
      AM_PATH_PYTHON(,, [:])
      # Will need to update this if we change the version we are building
-     python_inc_path=python3.7m
-     python_lib_path=python3.7
+     python_inc_path=python3.9m
+     python_lib_path=python3.9
      PYTHON=`pwd`"/external/python_wrap.sh" 
      PYTHON_CPPFLAGS="-I\${prefix}/include/${python_inc_path}"
      PYTHON_NUMPY_CPPFLAGS="-I\${prefix}/lib/${python_lib_path}/site-packages/numpy/core/include"
