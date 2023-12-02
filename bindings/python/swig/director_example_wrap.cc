@@ -3659,6 +3659,13 @@ namespace swig {
 }
 
 
+SWIGINTERNINLINE PyObject*
+  SWIG_From_int  (int value)
+{
+  return PyInt_FromLong((long) value);
+}
+
+
 #include <boost/shared_ptr.hpp>
 #include <boost/rational.hpp>
 
@@ -4176,13 +4183,6 @@ SWIG_AsVal_ptrdiff_t (PyObject * obj, ptrdiff_t *val)
 
 // See DirectorNotes.md for discussion of this.
 #include "python_ref_ptr_cleanup.h"
-
-
-SWIGINTERNINLINE PyObject*
-  SWIG_From_int  (int value)
-{
-  return PyInt_FromLong((long) value);
-}
 
 
 #include "swig_type_mapper.h"
@@ -13841,6 +13841,7 @@ SWIG_init(void) {
   
   SWIG_InstallConstants(d,swig_const_table);
   
+  SWIG_Python_SetConstant(d, "SWIG_MODULE_ALREADY_DONE",SWIG_From_int(static_cast< int >(1)));
   SWIG_Python_SetConstant(d, "SHARED_PTR_DISOWN",SWIG_From_int(static_cast< int >(0)));
   
   Skeleton::SwigTypeMapperBase::add(typeid(Skeleton::DirectorExample), boost::make_shared<Skeleton::SwigTypeMapper< Skeleton::DirectorExample > > ("boost::shared_ptr< Skeleton::DirectorExample > *"));

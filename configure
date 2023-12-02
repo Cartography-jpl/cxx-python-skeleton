@@ -19489,9 +19489,9 @@ swigsrc=bindings/python/swig
 
 installskeletondir=\${prefix}
 
-skeletonswigincdir=\${prefix}/share/geocal/swig
+skeletonswigincdir=\${prefix}/share/skeleton/swig
 
-swigincdir=\${prefix}/share/geocal/swig
+swigincdir=\${prefix}/share/skeleton/swig
 
 skeletonpkgpythondir=\${prefix}/${pythondir}/skeleton
 

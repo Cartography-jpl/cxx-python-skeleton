@@ -10,7 +10,9 @@
 // when we build. But we still need to supply this to get the
 // directors=1 and allprotected=1 set.
 
-%module(directors="1", allprotected="1") geocal
+//%module(directors="1", allprotected="1") foo
+%module(moduleimport="from ._swig_wrap import $module", directors="1", allprotected="1") foo
+#define SWIG_MODULE_ALREADY_DONE 1
 #define SWIG_MODULE skeleton_swig
 
 %{

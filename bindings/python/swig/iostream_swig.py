@@ -5,11 +5,7 @@
 # the SWIG interface file instead.
 
 from sys import version_info as _swig_python_version_info
-# Import the low-level C/C++ module
-if __package__ or "." in __name__:
-    from . import _iostream_swig
-else:
-    import _iostream_swig
+from ._swig_wrap import _iostream_swig
 
 try:
     import builtins as __builtin__
@@ -63,6 +59,7 @@ class _SwigNonDynamicMeta(type):
 
 import weakref
 
+SWIG_MODULE_ALREADY_DONE = _iostream_swig.SWIG_MODULE_ALREADY_DONE
 class SwigPyIterator(object):
     thisown = property(lambda x: x.this.own(), lambda x, v: x.this.own(v), doc="The membership flag")
 

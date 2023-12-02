@@ -3650,6 +3650,13 @@ namespace swig {
 }
 
 
+SWIGINTERNINLINE PyObject*
+  SWIG_From_int  (int value)
+{
+  return PyInt_FromLong((long) value);
+}
+
+
 #include <boost/shared_ptr.hpp>
 #include <boost/rational.hpp>
 
@@ -4167,13 +4174,6 @@ SWIG_AsVal_ptrdiff_t (PyObject * obj, ptrdiff_t *val)
 
 // See DirectorNotes.md for discussion of this.
 #include "python_ref_ptr_cleanup.h"
-
-
-SWIGINTERNINLINE PyObject*
-  SWIG_From_int  (int value)
-{
-  return PyInt_FromLong((long) value);
-}
 
 
 #include "swig_type_mapper.h"
@@ -5607,7 +5607,7 @@ SWIGINTERN PyObject *_wrap_NumpySample__v_data(PyObject *self, PyObject *args) {
   }
   {
     // Treat as pointer for the purposes of the macro
-    /*@SWIG:../../swig-rules-skeleton/swig_rules/include/swig_array.i,188,%blitz_to_numpy@*/
+    /*@SWIG:../../swig-rules-skeleton/swig_rules/include/swig_array.i,192,%blitz_to_numpy@*/
     // Copy out dimensions and stride from blitz array
     npy_intp dims[2], stride[2];
     for(int i = 0; i < 2; ++i) {
@@ -6722,6 +6722,7 @@ SWIG_init(void) {
   
   SWIG_InstallConstants(d,swig_const_table);
   
+  SWIG_Python_SetConstant(d, "SWIG_MODULE_ALREADY_DONE",SWIG_From_int(static_cast< int >(1)));
   SWIG_Python_SetConstant(d, "SHARED_PTR_DISOWN",SWIG_From_int(static_cast< int >(0)));
   
   Skeleton::SwigTypeMapperBase::add(typeid(Skeleton::NumpySample), boost::make_shared<Skeleton::SwigTypeMapper< Skeleton::NumpySample > > ("boost::shared_ptr< Skeleton::NumpySample > *"));

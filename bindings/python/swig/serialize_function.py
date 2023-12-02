@@ -5,11 +5,7 @@
 # the SWIG interface file instead.
 
 from sys import version_info as _swig_python_version_info
-# Import the low-level C/C++ module
-if __package__ or "." in __name__:
-    from . import _serialize_function
-else:
-    import _serialize_function
+from ._swig_wrap import _serialize_function
 
 try:
     import builtins as __builtin__
@@ -63,6 +59,7 @@ class _SwigNonDynamicMeta(type):
 
 import weakref
 
+SWIG_MODULE_ALREADY_DONE = _serialize_function.SWIG_MODULE_ALREADY_DONE
 class SwigPyIterator(object):
     thisown = property(lambda x: x.this.own(), lambda x, v: x.this.own(v), doc="The membership flag")
 

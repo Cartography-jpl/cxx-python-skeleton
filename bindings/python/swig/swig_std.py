@@ -5,11 +5,7 @@
 # the SWIG interface file instead.
 
 from sys import version_info as _swig_python_version_info
-# Import the low-level C/C++ module
-if __package__ or "." in __name__:
-    from . import _swig_std
-else:
-    import _swig_std
+from ._swig_wrap import _swig_std
 
 try:
     import builtins as __builtin__
@@ -60,6 +56,8 @@ class _SwigNonDynamicMeta(type):
     """Meta class to enforce nondynamic attributes (no new attributes) for a class"""
     __setattr__ = _swig_setattr_nondynamic_class_variable(type.__setattr__)
 
+
+import weakref
 
 class SwigPyIterator(object):
     thisown = property(lambda x: x.this.own(), lambda x, v: x.this.own(v), doc="The membership flag")
