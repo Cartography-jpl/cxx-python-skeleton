@@ -15,7 +15,8 @@ template<class Archive>
 void DirectorExampleUser::serialize(Archive & ar, const unsigned int )
 {
   SKELETON_GENERIC_BASE(DirectorExampleUser);
-  ar & SKELETON_NVP_(value_vec) & SKELETON_NVP_(value);
+  ar & SKELETON_NVP_(value_vec) & SKELETON_NVP_(value_vec2)
+    & SKELETON_NVP_(value) & SKELETON_NVP_(t) & SKELETON_NVP_(t2);
 }
 
 SKELETON_IMPLEMENT(DirectorExample);

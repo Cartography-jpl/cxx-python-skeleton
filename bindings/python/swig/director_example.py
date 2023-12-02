@@ -177,6 +177,49 @@ class Vector_DirectorExample(object):
 
 # Register Vector_DirectorExample in _director_example:
 _director_example.Vector_DirectorExample_swigregister(Vector_DirectorExample)
+class Vector_Vector_DirectorExample(object):
+    thisown = property(lambda x: x.this.own(), lambda x, v: x.this.own(v), doc="The membership flag")
+    __repr__ = _swig_repr
+    iterator = _swig_new_instance_method(_director_example.Vector_Vector_DirectorExample_iterator)
+    def __iter__(self):
+        return self.iterator()
+    __nonzero__ = _swig_new_instance_method(_director_example.Vector_Vector_DirectorExample___nonzero__)
+    __bool__ = _swig_new_instance_method(_director_example.Vector_Vector_DirectorExample___bool__)
+    __len__ = _swig_new_instance_method(_director_example.Vector_Vector_DirectorExample___len__)
+    __getslice__ = _swig_new_instance_method(_director_example.Vector_Vector_DirectorExample___getslice__)
+    __setslice__ = _swig_new_instance_method(_director_example.Vector_Vector_DirectorExample___setslice__)
+    __delslice__ = _swig_new_instance_method(_director_example.Vector_Vector_DirectorExample___delslice__)
+    __delitem__ = _swig_new_instance_method(_director_example.Vector_Vector_DirectorExample___delitem__)
+    __getitem__ = _swig_new_instance_method(_director_example.Vector_Vector_DirectorExample___getitem__)
+    __setitem__ = _swig_new_instance_method(_director_example.Vector_Vector_DirectorExample___setitem__)
+    pop = _swig_new_instance_method(_director_example.Vector_Vector_DirectorExample_pop)
+    append = _swig_new_instance_method(_director_example.Vector_Vector_DirectorExample_append)
+    empty = _swig_new_instance_method(_director_example.Vector_Vector_DirectorExample_empty)
+    size = _swig_new_instance_method(_director_example.Vector_Vector_DirectorExample_size)
+    swap = _swig_new_instance_method(_director_example.Vector_Vector_DirectorExample_swap)
+    begin = _swig_new_instance_method(_director_example.Vector_Vector_DirectorExample_begin)
+    end = _swig_new_instance_method(_director_example.Vector_Vector_DirectorExample_end)
+    rbegin = _swig_new_instance_method(_director_example.Vector_Vector_DirectorExample_rbegin)
+    rend = _swig_new_instance_method(_director_example.Vector_Vector_DirectorExample_rend)
+    clear = _swig_new_instance_method(_director_example.Vector_Vector_DirectorExample_clear)
+    get_allocator = _swig_new_instance_method(_director_example.Vector_Vector_DirectorExample_get_allocator)
+    pop_back = _swig_new_instance_method(_director_example.Vector_Vector_DirectorExample_pop_back)
+    erase = _swig_new_instance_method(_director_example.Vector_Vector_DirectorExample_erase)
+
+    def __init__(self, *args):
+        _director_example.Vector_Vector_DirectorExample_swiginit(self, _director_example.new_Vector_Vector_DirectorExample(*args))
+    push_back = _swig_new_instance_method(_director_example.Vector_Vector_DirectorExample_push_back)
+    front = _swig_new_instance_method(_director_example.Vector_Vector_DirectorExample_front)
+    back = _swig_new_instance_method(_director_example.Vector_Vector_DirectorExample_back)
+    assign = _swig_new_instance_method(_director_example.Vector_Vector_DirectorExample_assign)
+    resize = _swig_new_instance_method(_director_example.Vector_Vector_DirectorExample_resize)
+    insert = _swig_new_instance_method(_director_example.Vector_Vector_DirectorExample_insert)
+    reserve = _swig_new_instance_method(_director_example.Vector_Vector_DirectorExample_reserve)
+    capacity = _swig_new_instance_method(_director_example.Vector_Vector_DirectorExample_capacity)
+    __swig_destroy__ = _director_example.delete_Vector_Vector_DirectorExample
+
+# Register Vector_Vector_DirectorExample in _director_example:
+_director_example.Vector_Vector_DirectorExample_swigregister(Vector_Vector_DirectorExample)
 class Vector_int(object):
     thisown = property(lambda x: x.this.own(), lambda x, v: x.this.own(v), doc="The membership flag")
     __repr__ = _swig_repr
@@ -220,6 +263,49 @@ class Vector_int(object):
 
 # Register Vector_int in _director_example:
 _director_example.Vector_int_swigregister(Vector_int)
+class Vector_Vector_int(object):
+    thisown = property(lambda x: x.this.own(), lambda x, v: x.this.own(v), doc="The membership flag")
+    __repr__ = _swig_repr
+    iterator = _swig_new_instance_method(_director_example.Vector_Vector_int_iterator)
+    def __iter__(self):
+        return self.iterator()
+    __nonzero__ = _swig_new_instance_method(_director_example.Vector_Vector_int___nonzero__)
+    __bool__ = _swig_new_instance_method(_director_example.Vector_Vector_int___bool__)
+    __len__ = _swig_new_instance_method(_director_example.Vector_Vector_int___len__)
+    __getslice__ = _swig_new_instance_method(_director_example.Vector_Vector_int___getslice__)
+    __setslice__ = _swig_new_instance_method(_director_example.Vector_Vector_int___setslice__)
+    __delslice__ = _swig_new_instance_method(_director_example.Vector_Vector_int___delslice__)
+    __delitem__ = _swig_new_instance_method(_director_example.Vector_Vector_int___delitem__)
+    __getitem__ = _swig_new_instance_method(_director_example.Vector_Vector_int___getitem__)
+    __setitem__ = _swig_new_instance_method(_director_example.Vector_Vector_int___setitem__)
+    pop = _swig_new_instance_method(_director_example.Vector_Vector_int_pop)
+    append = _swig_new_instance_method(_director_example.Vector_Vector_int_append)
+    empty = _swig_new_instance_method(_director_example.Vector_Vector_int_empty)
+    size = _swig_new_instance_method(_director_example.Vector_Vector_int_size)
+    swap = _swig_new_instance_method(_director_example.Vector_Vector_int_swap)
+    begin = _swig_new_instance_method(_director_example.Vector_Vector_int_begin)
+    end = _swig_new_instance_method(_director_example.Vector_Vector_int_end)
+    rbegin = _swig_new_instance_method(_director_example.Vector_Vector_int_rbegin)
+    rend = _swig_new_instance_method(_director_example.Vector_Vector_int_rend)
+    clear = _swig_new_instance_method(_director_example.Vector_Vector_int_clear)
+    get_allocator = _swig_new_instance_method(_director_example.Vector_Vector_int_get_allocator)
+    pop_back = _swig_new_instance_method(_director_example.Vector_Vector_int_pop_back)
+    erase = _swig_new_instance_method(_director_example.Vector_Vector_int_erase)
+
+    def __init__(self, *args):
+        _director_example.Vector_Vector_int_swiginit(self, _director_example.new_Vector_Vector_int(*args))
+    push_back = _swig_new_instance_method(_director_example.Vector_Vector_int_push_back)
+    front = _swig_new_instance_method(_director_example.Vector_Vector_int_front)
+    back = _swig_new_instance_method(_director_example.Vector_Vector_int_back)
+    assign = _swig_new_instance_method(_director_example.Vector_Vector_int_assign)
+    resize = _swig_new_instance_method(_director_example.Vector_Vector_int_resize)
+    insert = _swig_new_instance_method(_director_example.Vector_Vector_int_insert)
+    reserve = _swig_new_instance_method(_director_example.Vector_Vector_int_reserve)
+    capacity = _swig_new_instance_method(_director_example.Vector_Vector_int_capacity)
+    __swig_destroy__ = _director_example.delete_Vector_Vector_int
+
+# Register Vector_Vector_int in _director_example:
+_director_example.Vector_Vector_int_swigregister(Vector_Vector_int)
 class DirectorExample(skeleton_swig.generic_object.GenericObject):
     r"""
 
@@ -286,9 +372,13 @@ class DirectorExampleUser(skeleton_swig.generic_object.GenericObject):
     __str__ = _swig_new_instance_method(_director_example.DirectorExampleUser___str__)
     value_vec = _swig_new_instance_method(_director_example.DirectorExampleUser_value_vec)
     set_vec = _swig_new_instance_method(_director_example.DirectorExampleUser_set_vec)
+    value_vec_vec = _swig_new_instance_method(_director_example.DirectorExampleUser_value_vec_vec)
+    set_vec_vec = _swig_new_instance_method(_director_example.DirectorExampleUser_set_vec_vec)
     value = _swig_new_instance_method(_director_example.DirectorExampleUser_value)
     value_vec_int = _swig_new_instance_method(_director_example.DirectorExampleUser_value_vec_int)
     set_vec_int = _swig_new_instance_method(_director_example.DirectorExampleUser_set_vec_int)
+    value_vec_vec_int = _swig_new_instance_method(_director_example.DirectorExampleUser_value_vec_vec_int)
+    set_vec_vec_int = _swig_new_instance_method(_director_example.DirectorExampleUser_set_vec_vec_int)
     set_value = _swig_new_instance_method(_director_example.DirectorExampleUser_set_value)
     apply_func = _swig_new_instance_method(_director_example.DirectorExampleUser_apply_func)
 

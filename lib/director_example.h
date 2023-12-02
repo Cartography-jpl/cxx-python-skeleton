@@ -61,20 +61,31 @@ public:
   value_vec() const { return value_vec_; }
   void set_vec(const std::vector<boost::shared_ptr<DirectorExample> >& V)
   {value_vec_ = V; }
+  const std::vector<std::vector<boost::shared_ptr<DirectorExample> > >&
+  value_vec_vec() const { return value_vec2_; }
+  void set_vec_vec(const std::vector<std::vector<boost::shared_ptr<DirectorExample> > >& V)
+  {value_vec2_ = V; }
   const std::vector<int>&
   value_vec_int() const { return t_; }
   void set_vec_int(const std::vector<int>& V)
   {t_ = V; }
+  const std::vector<std::vector<int> >&
+  value_vec_vec_int() const { return t2_; }
+  void set_vec_vec_int(const std::vector<std::vector<int> >& V)
+  {t2_ = V; }
   const boost::shared_ptr<DirectorExample>&
   value() const { return value_; }
   void set_value(const boost::shared_ptr<DirectorExample>& V)
   {value_ = V; }
   int apply_func(int v) const { return value_->func(v);}
   int apply_func(int v, int ind) const { return value_vec_[ind]->func(v);}
+  int apply_func(int v, int ind, int ind2) const { return value_vec2_[ind][ind2]->func(v);}
 private:
   std::vector<boost::shared_ptr<DirectorExample> >  value_vec_;
+  std::vector<std::vector<boost::shared_ptr<DirectorExample> > > value_vec2_;
   boost::shared_ptr<DirectorExample> value_;
   std::vector<int> t_;
+  std::vector<std::vector<int> > t2_;
   friend class boost::serialization::access;
   template<class Archive>
   void serialize(Archive & ar, const unsigned int version);

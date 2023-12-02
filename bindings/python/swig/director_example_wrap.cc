@@ -3500,18 +3500,22 @@ namespace Swig {
 #define SWIGTYPE_p_state_type swig_types[95]
 #define SWIGTYPE_p_std__allocatorT_boost__shared_ptrT_Skeleton__DirectorExample_t_t swig_types[96]
 #define SWIGTYPE_p_std__allocatorT_int_t swig_types[97]
-#define SWIGTYPE_p_std__basic_iosT_char_std__char_traitsT_char_t_t swig_types[98]
-#define SWIGTYPE_p_std__basic_iostreamT_char_std__char_traitsT_char_t_t swig_types[99]
-#define SWIGTYPE_p_std__basic_istreamT_char_std__char_traitsT_char_t_t swig_types[100]
-#define SWIGTYPE_p_std__basic_ostreamT_char_std__char_traitsT_char_t_t swig_types[101]
-#define SWIGTYPE_p_std__invalid_argument swig_types[102]
-#define SWIGTYPE_p_std__vectorT_boost__shared_ptrT_Skeleton__DirectorExample_t_std__allocatorT_boost__shared_ptrT_Skeleton__DirectorExample_t_t_t swig_types[103]
-#define SWIGTYPE_p_std__vectorT_int_std__allocatorT_int_t_t swig_types[104]
-#define SWIGTYPE_p_swig__SwigPyIterator swig_types[105]
-#define SWIGTYPE_p_traits_type swig_types[106]
-#define SWIGTYPE_p_value_type swig_types[107]
-static swig_type_info *swig_types[109];
-static swig_module_info swig_module = {swig_types, 108, 0, 0, 0, 0};
+#define SWIGTYPE_p_std__allocatorT_std__vectorT_boost__shared_ptrT_Skeleton__DirectorExample_t_std__allocatorT_boost__shared_ptrT_Skeleton__DirectorExample_t_t_t_t swig_types[98]
+#define SWIGTYPE_p_std__allocatorT_std__vectorT_int_std__allocatorT_int_t_t_t swig_types[99]
+#define SWIGTYPE_p_std__basic_iosT_char_std__char_traitsT_char_t_t swig_types[100]
+#define SWIGTYPE_p_std__basic_iostreamT_char_std__char_traitsT_char_t_t swig_types[101]
+#define SWIGTYPE_p_std__basic_istreamT_char_std__char_traitsT_char_t_t swig_types[102]
+#define SWIGTYPE_p_std__basic_ostreamT_char_std__char_traitsT_char_t_t swig_types[103]
+#define SWIGTYPE_p_std__invalid_argument swig_types[104]
+#define SWIGTYPE_p_std__vectorT_boost__shared_ptrT_Skeleton__DirectorExample_t_std__allocatorT_boost__shared_ptrT_Skeleton__DirectorExample_t_t_t swig_types[105]
+#define SWIGTYPE_p_std__vectorT_int_std__allocatorT_int_t_t swig_types[106]
+#define SWIGTYPE_p_std__vectorT_std__vectorT_boost__shared_ptrT_Skeleton__DirectorExample_t_std__allocatorT_boost__shared_ptrT_Skeleton__DirectorExample_t_t_t_std__allocatorT_std__vectorT_boost__shared_ptrT_Skeleton__DirectorExample_t_std__allocatorT_boost__shared_ptrT_Skeleton__DirectorExample_t_t_t_t_t swig_types[107]
+#define SWIGTYPE_p_std__vectorT_std__vectorT_int_std__allocatorT_int_t_t_std__allocatorT_std__vectorT_int_std__allocatorT_int_t_t_t_t swig_types[108]
+#define SWIGTYPE_p_swig__SwigPyIterator swig_types[109]
+#define SWIGTYPE_p_traits_type swig_types[110]
+#define SWIGTYPE_p_value_type swig_types[111]
+static swig_type_info *swig_types[113];
+static swig_module_info swig_module = {swig_types, 112, 0, 0, 0, 0};
 #define SWIG_TypeQuery(name) SWIG_TypeQueryModule(&swig_module, &swig_module, name)
 #define SWIG_MangledTypeQuery(name) SWIG_MangledTypeQueryModule(&swig_module, &swig_module, name)
 
@@ -4688,6 +4692,104 @@ public:
   return python_fh_device(Fh, Fis);
 }
  
+
+
+
+//--------------------------------------------------------------
+/// The default conversion of a python sequence to a std::vector<T>
+/// doesn't work correctly for boost::shared_ptr types. This
+/// expression here does this correctly.
+//--------------------------------------------------------------
+
+// Code changed a little between SWIG 3 and SWIG 4, so have different
+// versions depending on swig version.  
+#if SWIG_VERSION < 0x040000  
+namespace swig {
+  template <class T>
+  struct traits_asptr<std::vector<boost::shared_ptr<T> > >  {
+    static int asptr(PyObject *obj, 
+		     std::vector<boost::shared_ptr<T> > **vec) {
+      // Long name, so shorten
+      typedef std::vector<boost::shared_ptr<T> > vtype;
+      if (obj == Py_None || SWIG_Python_GetSwigThis(obj)) {
+	vtype *p;
+	if (::SWIG_ConvertPtr(obj,(void**)&p,
+			      swig::type_info<vtype>(),0) == SWIG_OK) {
+	  if (vec) *vec = p;
+	  return SWIG_OLDOBJ;
+	}
+      } else if (PySequence_Check(obj)) {
+	try {
+	  if (vec) {
+	    vtype *pseq = new vtype();
+	    PyObject *iterator = PyObject_GetIter(obj);
+	    PyObject *item;
+	    typename std::vector< boost::shared_ptr<T > >::value_type temp2shared2;
+	    while((item = PyIter_Next(iterator))) {
+	      boost::shared_ptr<T> *itemp;
+	      int newmem = 0;
+	      int res = SWIG_ConvertPtrAndOwn(item, (void**) &itemp, 
+			swig::type_info<boost::shared_ptr<T> >(),  0, &newmem);
+	      if(!SWIG_IsOK(res)) {
+		Py_DECREF(item);
+		Py_DECREF(iterator);
+		return SWIG_ERROR;
+	      }
+	      // Added mms
+	      // Special handling if this is a director class. In that case, we
+	      // don't own the underlying python object. Instead,
+	      // we tell python we have a reference to the underlying object, and
+	      // when this gets destroyed we decrement the reference to the python
+	      // object. 
+	      Swig::Director* dp = dynamic_cast<Swig::Director*>(itemp->get());
+	      if(dp) {
+		temp2shared2.reset(itemp->get(), PythonRefPtrCleanup(dp->swig_get_self()));
+		itemp = &temp2shared2;
+	      }
+	      pseq->push_back(*itemp);
+	      Py_DECREF(item);
+	    }
+	    Py_DECREF(iterator);
+	    *vec = pseq;
+	    return SWIG_NEWOBJ;
+	  } else {
+	    SwigPySequence_Cont<boost::shared_ptr<T> > swigpyseq(obj);
+	    return swigpyseq.check() ? SWIG_OK : SWIG_ERROR;
+	  }
+	} catch (std::exception& e) {
+	  if (vec) {
+	    if (!PyErr_Occurred()) {
+	      PyErr_SetString(PyExc_TypeError, e.what());
+	    }
+	  }
+	  return SWIG_ERROR;
+	}
+      }
+      return SWIG_ERROR;
+    }
+  };
+}
+#else
+namespace swig {
+  template <class SwigPySeq, class T>
+  inline void
+  assign(const SwigPySeq& swigpyseq, std::vector<boost::shared_ptr<T> >* seq) {
+    // seq->assign(swigpyseq.begin(), swigpyseq.end()); // not used as not always implemented
+    typedef typename SwigPySeq::value_type value_type;
+    typename SwigPySeq::const_iterator it = swigpyseq.begin();
+    for (;it != swigpyseq.end(); ++it) {
+      value_type itemp = (value_type)(*it);
+      Swig::Director* dp = dynamic_cast<Swig::Director*>(itemp.get());
+      if(dp) {
+	// Diagnostic to make sure we end up here
+	//std::cerr << "Setting up PythonRefPtrCleanup\n";
+      	itemp.reset(itemp.get(), PythonRefPtrCleanup(dp->swig_get_self()));
+      }
+      seq->insert(seq->end(),itemp);
+    }
+  }
+}
+#endif  
 
 
 #include "director_example.h"
@@ -6060,6 +6162,107 @@ SWIGINTERN std::vector< boost::shared_ptr< Skeleton::DirectorExample > >::iterat
 SWIGINTERN std::vector< boost::shared_ptr< Skeleton::DirectorExample > >::iterator std_vector_Sl_boost_shared_ptr_Sl_Skeleton_DirectorExample_Sg__Sg__insert__SWIG_0(std::vector< boost::shared_ptr< Skeleton::DirectorExample > > *self,std::vector< boost::shared_ptr< Skeleton::DirectorExample > >::iterator pos,std::vector< boost::shared_ptr< Skeleton::DirectorExample > >::value_type const &x){ return self->insert(pos, x); }
 SWIGINTERN void std_vector_Sl_boost_shared_ptr_Sl_Skeleton_DirectorExample_Sg__Sg__insert__SWIG_1(std::vector< boost::shared_ptr< Skeleton::DirectorExample > > *self,std::vector< boost::shared_ptr< Skeleton::DirectorExample > >::iterator pos,std::vector< boost::shared_ptr< Skeleton::DirectorExample > >::size_type n,std::vector< boost::shared_ptr< Skeleton::DirectorExample > >::value_type const &x){ self->insert(pos, n, x); }
 
+      namespace swig {
+	template <>  struct traits<std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample >,std::allocator< boost::shared_ptr< Skeleton::DirectorExample > > >, std::allocator< std::vector< boost::shared_ptr< Skeleton::DirectorExample >,std::allocator< boost::shared_ptr< Skeleton::DirectorExample > > > > > > {
+	  typedef pointer_category category;
+	  static const char* type_name() {
+	    return "std::vector<" "std::vector< boost::shared_ptr< Skeleton::DirectorExample >,std::allocator< boost::shared_ptr< Skeleton::DirectorExample > > >" "," "std::allocator< std::vector< boost::shared_ptr< Skeleton::DirectorExample >,std::allocator< boost::shared_ptr< Skeleton::DirectorExample > > > >" " >";
+	  }
+	};
+      }
+    
+SWIGINTERN swig::SwigPyIterator *std_vector_Sl_std_vector_Sl_boost_shared_ptr_Sl_Skeleton_DirectorExample_Sg__Sg__Sg__iterator(std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > > *self,PyObject **PYTHON_SELF){
+      return swig::make_output_iterator(self->begin(), self->begin(), self->end(), *PYTHON_SELF);
+    }
+SWIGINTERN bool std_vector_Sl_std_vector_Sl_boost_shared_ptr_Sl_Skeleton_DirectorExample_Sg__Sg__Sg____nonzero__(std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > > const *self){
+      return !(self->empty());
+    }
+SWIGINTERN bool std_vector_Sl_std_vector_Sl_boost_shared_ptr_Sl_Skeleton_DirectorExample_Sg__Sg__Sg____bool__(std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > > const *self){
+      return !(self->empty());
+    }
+SWIGINTERN std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > >::size_type std_vector_Sl_std_vector_Sl_boost_shared_ptr_Sl_Skeleton_DirectorExample_Sg__Sg__Sg____len__(std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > > const *self){
+      return self->size();
+    }
+SWIGINTERN std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample >,std::allocator< boost::shared_ptr< Skeleton::DirectorExample > > >,std::allocator< std::vector< boost::shared_ptr< Skeleton::DirectorExample >,std::allocator< boost::shared_ptr< Skeleton::DirectorExample > > > > > *std_vector_Sl_std_vector_Sl_boost_shared_ptr_Sl_Skeleton_DirectorExample_Sg__Sg__Sg____getslice__(std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > > *self,std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > >::difference_type i,std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > >::difference_type j){
+      return swig::getslice(self, i, j, 1);
+    }
+SWIGINTERN void std_vector_Sl_std_vector_Sl_boost_shared_ptr_Sl_Skeleton_DirectorExample_Sg__Sg__Sg____setslice____SWIG_0(std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > > *self,std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > >::difference_type i,std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > >::difference_type j){
+      swig::setslice(self, i, j, 1, std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample >,std::allocator< boost::shared_ptr< Skeleton::DirectorExample > > >,std::allocator< std::vector< boost::shared_ptr< Skeleton::DirectorExample >,std::allocator< boost::shared_ptr< Skeleton::DirectorExample > > > > >());
+    }
+SWIGINTERN void std_vector_Sl_std_vector_Sl_boost_shared_ptr_Sl_Skeleton_DirectorExample_Sg__Sg__Sg____setslice____SWIG_1(std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > > *self,std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > >::difference_type i,std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > >::difference_type j,std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample >,std::allocator< boost::shared_ptr< Skeleton::DirectorExample > > >,std::allocator< std::vector< boost::shared_ptr< Skeleton::DirectorExample >,std::allocator< boost::shared_ptr< Skeleton::DirectorExample > > > > > const &v){
+      swig::setslice(self, i, j, 1, v);
+    }
+SWIGINTERN void std_vector_Sl_std_vector_Sl_boost_shared_ptr_Sl_Skeleton_DirectorExample_Sg__Sg__Sg____delslice__(std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > > *self,std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > >::difference_type i,std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > >::difference_type j){
+      swig::delslice(self, i, j, 1);
+    }
+SWIGINTERN void std_vector_Sl_std_vector_Sl_boost_shared_ptr_Sl_Skeleton_DirectorExample_Sg__Sg__Sg____delitem____SWIG_0(std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > > *self,std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > >::difference_type i){
+      swig::erase(self, swig::getpos(self, i));
+    }
+SWIGINTERN std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample >,std::allocator< boost::shared_ptr< Skeleton::DirectorExample > > >,std::allocator< std::vector< boost::shared_ptr< Skeleton::DirectorExample >,std::allocator< boost::shared_ptr< Skeleton::DirectorExample > > > > > *std_vector_Sl_std_vector_Sl_boost_shared_ptr_Sl_Skeleton_DirectorExample_Sg__Sg__Sg____getitem____SWIG_0(std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > > *self,SWIGPY_SLICEOBJECT *slice){
+      Py_ssize_t i, j, step;
+      if( !PySlice_Check(slice) ) {
+        SWIG_Error(SWIG_TypeError, "Slice object expected.");
+        return NULL;
+      }
+      PySlice_GetIndices(slice, (Py_ssize_t)self->size(), &i, &j, &step);
+      std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample >,std::allocator< boost::shared_ptr< Skeleton::DirectorExample > > >,std::allocator< std::vector< boost::shared_ptr< Skeleton::DirectorExample >,std::allocator< boost::shared_ptr< Skeleton::DirectorExample > > > > >::difference_type id = i;
+      std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample >,std::allocator< boost::shared_ptr< Skeleton::DirectorExample > > >,std::allocator< std::vector< boost::shared_ptr< Skeleton::DirectorExample >,std::allocator< boost::shared_ptr< Skeleton::DirectorExample > > > > >::difference_type jd = j;
+      return swig::getslice(self, id, jd, step);
+    }
+SWIGINTERN void std_vector_Sl_std_vector_Sl_boost_shared_ptr_Sl_Skeleton_DirectorExample_Sg__Sg__Sg____setitem____SWIG_0(std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > > *self,SWIGPY_SLICEOBJECT *slice,std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample >,std::allocator< boost::shared_ptr< Skeleton::DirectorExample > > >,std::allocator< std::vector< boost::shared_ptr< Skeleton::DirectorExample >,std::allocator< boost::shared_ptr< Skeleton::DirectorExample > > > > > const &v){
+      Py_ssize_t i, j, step;
+      if( !PySlice_Check(slice) ) {
+        SWIG_Error(SWIG_TypeError, "Slice object expected.");
+        return;
+      }
+      PySlice_GetIndices(slice, (Py_ssize_t)self->size(), &i, &j, &step);
+      std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample >,std::allocator< boost::shared_ptr< Skeleton::DirectorExample > > >,std::allocator< std::vector< boost::shared_ptr< Skeleton::DirectorExample >,std::allocator< boost::shared_ptr< Skeleton::DirectorExample > > > > >::difference_type id = i;
+      std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample >,std::allocator< boost::shared_ptr< Skeleton::DirectorExample > > >,std::allocator< std::vector< boost::shared_ptr< Skeleton::DirectorExample >,std::allocator< boost::shared_ptr< Skeleton::DirectorExample > > > > >::difference_type jd = j;
+      swig::setslice(self, id, jd, step, v);
+    }
+SWIGINTERN void std_vector_Sl_std_vector_Sl_boost_shared_ptr_Sl_Skeleton_DirectorExample_Sg__Sg__Sg____setitem____SWIG_1(std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > > *self,SWIGPY_SLICEOBJECT *slice){
+      Py_ssize_t i, j, step;
+      if( !PySlice_Check(slice) ) {
+        SWIG_Error(SWIG_TypeError, "Slice object expected.");
+        return;
+      }
+      PySlice_GetIndices(slice, (Py_ssize_t)self->size(), &i, &j, &step);
+      std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample >,std::allocator< boost::shared_ptr< Skeleton::DirectorExample > > >,std::allocator< std::vector< boost::shared_ptr< Skeleton::DirectorExample >,std::allocator< boost::shared_ptr< Skeleton::DirectorExample > > > > >::difference_type id = i;
+      std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample >,std::allocator< boost::shared_ptr< Skeleton::DirectorExample > > >,std::allocator< std::vector< boost::shared_ptr< Skeleton::DirectorExample >,std::allocator< boost::shared_ptr< Skeleton::DirectorExample > > > > >::difference_type jd = j;
+      swig::delslice(self, id, jd, step);
+    }
+SWIGINTERN void std_vector_Sl_std_vector_Sl_boost_shared_ptr_Sl_Skeleton_DirectorExample_Sg__Sg__Sg____delitem____SWIG_1(std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > > *self,SWIGPY_SLICEOBJECT *slice){
+      Py_ssize_t i, j, step;
+      if( !PySlice_Check(slice) ) {
+        SWIG_Error(SWIG_TypeError, "Slice object expected.");
+        return;
+      }
+      PySlice_GetIndices(slice, (Py_ssize_t)self->size(), &i, &j, &step);
+      std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample >,std::allocator< boost::shared_ptr< Skeleton::DirectorExample > > >,std::allocator< std::vector< boost::shared_ptr< Skeleton::DirectorExample >,std::allocator< boost::shared_ptr< Skeleton::DirectorExample > > > > >::difference_type id = i;
+      std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample >,std::allocator< boost::shared_ptr< Skeleton::DirectorExample > > >,std::allocator< std::vector< boost::shared_ptr< Skeleton::DirectorExample >,std::allocator< boost::shared_ptr< Skeleton::DirectorExample > > > > >::difference_type jd = j;
+      swig::delslice(self, id, jd, step);
+    }
+SWIGINTERN std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > >::value_type const &std_vector_Sl_std_vector_Sl_boost_shared_ptr_Sl_Skeleton_DirectorExample_Sg__Sg__Sg____getitem____SWIG_1(std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > > const *self,std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > >::difference_type i){
+      return *(swig::cgetpos(self, i));
+    }
+SWIGINTERN void std_vector_Sl_std_vector_Sl_boost_shared_ptr_Sl_Skeleton_DirectorExample_Sg__Sg__Sg____setitem____SWIG_2(std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > > *self,std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > >::difference_type i,std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > >::value_type const &x){
+      *(swig::getpos(self,i)) = x;
+    }
+SWIGINTERN std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > >::value_type std_vector_Sl_std_vector_Sl_boost_shared_ptr_Sl_Skeleton_DirectorExample_Sg__Sg__Sg__pop(std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > > *self){
+      if (self->size() == 0)
+	throw std::out_of_range("pop from empty container");
+      std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample >,std::allocator< boost::shared_ptr< Skeleton::DirectorExample > > >,std::allocator< std::vector< boost::shared_ptr< Skeleton::DirectorExample >,std::allocator< boost::shared_ptr< Skeleton::DirectorExample > > > > >::value_type x = self->back();
+      self->pop_back();
+      return x;
+    }
+SWIGINTERN void std_vector_Sl_std_vector_Sl_boost_shared_ptr_Sl_Skeleton_DirectorExample_Sg__Sg__Sg__append(std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > > *self,std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > >::value_type const &x){
+      self->push_back(x);
+    }
+SWIGINTERN std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > >::iterator std_vector_Sl_std_vector_Sl_boost_shared_ptr_Sl_Skeleton_DirectorExample_Sg__Sg__Sg__erase__SWIG_0(std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > > *self,std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > >::iterator pos){ return self->erase(pos); }
+SWIGINTERN std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > >::iterator std_vector_Sl_std_vector_Sl_boost_shared_ptr_Sl_Skeleton_DirectorExample_Sg__Sg__Sg__erase__SWIG_1(std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > > *self,std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > >::iterator first,std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > >::iterator last){ return self->erase(first, last); }
+SWIGINTERN std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > >::iterator std_vector_Sl_std_vector_Sl_boost_shared_ptr_Sl_Skeleton_DirectorExample_Sg__Sg__Sg__insert__SWIG_0(std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > > *self,std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > >::iterator pos,std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > >::value_type const &x){ return self->insert(pos, x); }
+SWIGINTERN void std_vector_Sl_std_vector_Sl_boost_shared_ptr_Sl_Skeleton_DirectorExample_Sg__Sg__Sg__insert__SWIG_1(std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > > *self,std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > >::iterator pos,std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > >::size_type n,std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > >::value_type const &x){ self->insert(pos, n, x); }
+
 SWIGINTERN int
 SWIG_AsVal_int (PyObject * obj, int *val)
 {
@@ -6196,6 +6399,107 @@ SWIGINTERN std::vector< int >::iterator std_vector_Sl_int_Sg__erase__SWIG_0(std:
 SWIGINTERN std::vector< int >::iterator std_vector_Sl_int_Sg__erase__SWIG_1(std::vector< int > *self,std::vector< int >::iterator first,std::vector< int >::iterator last){ return self->erase(first, last); }
 SWIGINTERN std::vector< int >::iterator std_vector_Sl_int_Sg__insert__SWIG_0(std::vector< int > *self,std::vector< int >::iterator pos,std::vector< int >::value_type const &x){ return self->insert(pos, x); }
 SWIGINTERN void std_vector_Sl_int_Sg__insert__SWIG_1(std::vector< int > *self,std::vector< int >::iterator pos,std::vector< int >::size_type n,std::vector< int >::value_type const &x){ self->insert(pos, n, x); }
+
+      namespace swig {
+	template <>  struct traits<std::vector< std::vector< int,std::allocator< int > >, std::allocator< std::vector< int,std::allocator< int > > > > > {
+	  typedef pointer_category category;
+	  static const char* type_name() {
+	    return "std::vector<" "std::vector< int,std::allocator< int > >" "," "std::allocator< std::vector< int,std::allocator< int > > >" " >";
+	  }
+	};
+      }
+    
+SWIGINTERN swig::SwigPyIterator *std_vector_Sl_std_vector_Sl_int_Sg__Sg__iterator(std::vector< std::vector< int > > *self,PyObject **PYTHON_SELF){
+      return swig::make_output_iterator(self->begin(), self->begin(), self->end(), *PYTHON_SELF);
+    }
+SWIGINTERN bool std_vector_Sl_std_vector_Sl_int_Sg__Sg____nonzero__(std::vector< std::vector< int > > const *self){
+      return !(self->empty());
+    }
+SWIGINTERN bool std_vector_Sl_std_vector_Sl_int_Sg__Sg____bool__(std::vector< std::vector< int > > const *self){
+      return !(self->empty());
+    }
+SWIGINTERN std::vector< std::vector< int > >::size_type std_vector_Sl_std_vector_Sl_int_Sg__Sg____len__(std::vector< std::vector< int > > const *self){
+      return self->size();
+    }
+SWIGINTERN std::vector< std::vector< int,std::allocator< int > >,std::allocator< std::vector< int,std::allocator< int > > > > *std_vector_Sl_std_vector_Sl_int_Sg__Sg____getslice__(std::vector< std::vector< int > > *self,std::vector< std::vector< int > >::difference_type i,std::vector< std::vector< int > >::difference_type j){
+      return swig::getslice(self, i, j, 1);
+    }
+SWIGINTERN void std_vector_Sl_std_vector_Sl_int_Sg__Sg____setslice____SWIG_0(std::vector< std::vector< int > > *self,std::vector< std::vector< int > >::difference_type i,std::vector< std::vector< int > >::difference_type j){
+      swig::setslice(self, i, j, 1, std::vector< std::vector< int,std::allocator< int > >,std::allocator< std::vector< int,std::allocator< int > > > >());
+    }
+SWIGINTERN void std_vector_Sl_std_vector_Sl_int_Sg__Sg____setslice____SWIG_1(std::vector< std::vector< int > > *self,std::vector< std::vector< int > >::difference_type i,std::vector< std::vector< int > >::difference_type j,std::vector< std::vector< int,std::allocator< int > >,std::allocator< std::vector< int,std::allocator< int > > > > const &v){
+      swig::setslice(self, i, j, 1, v);
+    }
+SWIGINTERN void std_vector_Sl_std_vector_Sl_int_Sg__Sg____delslice__(std::vector< std::vector< int > > *self,std::vector< std::vector< int > >::difference_type i,std::vector< std::vector< int > >::difference_type j){
+      swig::delslice(self, i, j, 1);
+    }
+SWIGINTERN void std_vector_Sl_std_vector_Sl_int_Sg__Sg____delitem____SWIG_0(std::vector< std::vector< int > > *self,std::vector< std::vector< int > >::difference_type i){
+      swig::erase(self, swig::getpos(self, i));
+    }
+SWIGINTERN std::vector< std::vector< int,std::allocator< int > >,std::allocator< std::vector< int,std::allocator< int > > > > *std_vector_Sl_std_vector_Sl_int_Sg__Sg____getitem____SWIG_0(std::vector< std::vector< int > > *self,SWIGPY_SLICEOBJECT *slice){
+      Py_ssize_t i, j, step;
+      if( !PySlice_Check(slice) ) {
+        SWIG_Error(SWIG_TypeError, "Slice object expected.");
+        return NULL;
+      }
+      PySlice_GetIndices(slice, (Py_ssize_t)self->size(), &i, &j, &step);
+      std::vector< std::vector< int,std::allocator< int > >,std::allocator< std::vector< int,std::allocator< int > > > >::difference_type id = i;
+      std::vector< std::vector< int,std::allocator< int > >,std::allocator< std::vector< int,std::allocator< int > > > >::difference_type jd = j;
+      return swig::getslice(self, id, jd, step);
+    }
+SWIGINTERN void std_vector_Sl_std_vector_Sl_int_Sg__Sg____setitem____SWIG_0(std::vector< std::vector< int > > *self,SWIGPY_SLICEOBJECT *slice,std::vector< std::vector< int,std::allocator< int > >,std::allocator< std::vector< int,std::allocator< int > > > > const &v){
+      Py_ssize_t i, j, step;
+      if( !PySlice_Check(slice) ) {
+        SWIG_Error(SWIG_TypeError, "Slice object expected.");
+        return;
+      }
+      PySlice_GetIndices(slice, (Py_ssize_t)self->size(), &i, &j, &step);
+      std::vector< std::vector< int,std::allocator< int > >,std::allocator< std::vector< int,std::allocator< int > > > >::difference_type id = i;
+      std::vector< std::vector< int,std::allocator< int > >,std::allocator< std::vector< int,std::allocator< int > > > >::difference_type jd = j;
+      swig::setslice(self, id, jd, step, v);
+    }
+SWIGINTERN void std_vector_Sl_std_vector_Sl_int_Sg__Sg____setitem____SWIG_1(std::vector< std::vector< int > > *self,SWIGPY_SLICEOBJECT *slice){
+      Py_ssize_t i, j, step;
+      if( !PySlice_Check(slice) ) {
+        SWIG_Error(SWIG_TypeError, "Slice object expected.");
+        return;
+      }
+      PySlice_GetIndices(slice, (Py_ssize_t)self->size(), &i, &j, &step);
+      std::vector< std::vector< int,std::allocator< int > >,std::allocator< std::vector< int,std::allocator< int > > > >::difference_type id = i;
+      std::vector< std::vector< int,std::allocator< int > >,std::allocator< std::vector< int,std::allocator< int > > > >::difference_type jd = j;
+      swig::delslice(self, id, jd, step);
+    }
+SWIGINTERN void std_vector_Sl_std_vector_Sl_int_Sg__Sg____delitem____SWIG_1(std::vector< std::vector< int > > *self,SWIGPY_SLICEOBJECT *slice){
+      Py_ssize_t i, j, step;
+      if( !PySlice_Check(slice) ) {
+        SWIG_Error(SWIG_TypeError, "Slice object expected.");
+        return;
+      }
+      PySlice_GetIndices(slice, (Py_ssize_t)self->size(), &i, &j, &step);
+      std::vector< std::vector< int,std::allocator< int > >,std::allocator< std::vector< int,std::allocator< int > > > >::difference_type id = i;
+      std::vector< std::vector< int,std::allocator< int > >,std::allocator< std::vector< int,std::allocator< int > > > >::difference_type jd = j;
+      swig::delslice(self, id, jd, step);
+    }
+SWIGINTERN std::vector< std::vector< int > >::value_type const &std_vector_Sl_std_vector_Sl_int_Sg__Sg____getitem____SWIG_1(std::vector< std::vector< int > > const *self,std::vector< std::vector< int > >::difference_type i){
+      return *(swig::cgetpos(self, i));
+    }
+SWIGINTERN void std_vector_Sl_std_vector_Sl_int_Sg__Sg____setitem____SWIG_2(std::vector< std::vector< int > > *self,std::vector< std::vector< int > >::difference_type i,std::vector< std::vector< int > >::value_type const &x){
+      *(swig::getpos(self,i)) = x;
+    }
+SWIGINTERN std::vector< std::vector< int > >::value_type std_vector_Sl_std_vector_Sl_int_Sg__Sg__pop(std::vector< std::vector< int > > *self){
+      if (self->size() == 0)
+	throw std::out_of_range("pop from empty container");
+      std::vector< std::vector< int,std::allocator< int > >,std::allocator< std::vector< int,std::allocator< int > > > >::value_type x = self->back();
+      self->pop_back();
+      return x;
+    }
+SWIGINTERN void std_vector_Sl_std_vector_Sl_int_Sg__Sg__append(std::vector< std::vector< int > > *self,std::vector< std::vector< int > >::value_type const &x){
+      self->push_back(x);
+    }
+SWIGINTERN std::vector< std::vector< int > >::iterator std_vector_Sl_std_vector_Sl_int_Sg__Sg__erase__SWIG_0(std::vector< std::vector< int > > *self,std::vector< std::vector< int > >::iterator pos){ return self->erase(pos); }
+SWIGINTERN std::vector< std::vector< int > >::iterator std_vector_Sl_std_vector_Sl_int_Sg__Sg__erase__SWIG_1(std::vector< std::vector< int > > *self,std::vector< std::vector< int > >::iterator first,std::vector< std::vector< int > >::iterator last){ return self->erase(first, last); }
+SWIGINTERN std::vector< std::vector< int > >::iterator std_vector_Sl_std_vector_Sl_int_Sg__Sg__insert__SWIG_0(std::vector< std::vector< int > > *self,std::vector< std::vector< int > >::iterator pos,std::vector< std::vector< int > >::value_type const &x){ return self->insert(pos, x); }
+SWIGINTERN void std_vector_Sl_std_vector_Sl_int_Sg__Sg__insert__SWIG_1(std::vector< std::vector< int > > *self,std::vector< std::vector< int > >::iterator pos,std::vector< std::vector< int > >::size_type n,std::vector< std::vector< int > >::value_type const &x){ self->insert(pos, n, x); }
 
 SWIGINTERN swig_type_info*
 SWIG_pchar_descriptor(void)
@@ -6430,9 +6734,6 @@ SWIG_From_std_string  (const std::string& s)
        // Transfer ownership of SwigDirector_DirectorExample to pobj.
        SWIG_Python_SetSwigThis(pobj, thisobj);
        Py_DECREF(thisobj);
-       std::cerr << "In load_construct_data\n";
-       std::cerr << "pobj refcnt: " << pobj->ob_refcnt << " address " << pobj->ob_type << "\n";
-       std::cerr << "thisobj refcnt: " << thisobj->ob_refcnt << " address " << thisobj->ob_type << "\n";
      }
    }
 }
@@ -9463,6 +9764,2057 @@ SWIGINTERN PyObject *Vector_DirectorExample_swiginit(PyObject *SWIGUNUSEDPARM(se
   return SWIG_Python_InitShadowInstance(args);
 }
 
+SWIGINTERN PyObject *_wrap_Vector_Vector_DirectorExample_iterator(PyObject *self, PyObject *args) {
+  PyObject *resultobj = 0;
+  std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > > *arg1 = (std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > > *) 0 ;
+  PyObject **arg2 = (PyObject **) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  PyObject *swig_obj[1] ;
+  swig::SwigPyIterator *result = 0 ;
+  
+  arg2 = &swig_obj[0];
+  if (!args) SWIG_fail;
+  swig_obj[0] = args;
+  res1 = SWIG_ConvertPtr(swig_obj[0], &argp1,SWIGTYPE_p_std__vectorT_std__vectorT_boost__shared_ptrT_Skeleton__DirectorExample_t_std__allocatorT_boost__shared_ptrT_Skeleton__DirectorExample_t_t_t_std__allocatorT_std__vectorT_boost__shared_ptrT_Skeleton__DirectorExample_t_std__allocatorT_boost__shared_ptrT_Skeleton__DirectorExample_t_t_t_t_t, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "Vector_Vector_DirectorExample_iterator" "', argument " "1"" of type '" "std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > > *""'"); 
+  }
+  arg1 = reinterpret_cast< std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > > * >(argp1);
+  {
+    try {
+      result = (swig::SwigPyIterator *)std_vector_Sl_std_vector_Sl_boost_shared_ptr_Sl_Skeleton_DirectorExample_Sg__Sg__Sg__iterator(arg1,arg2);
+    } catch (Swig::DirectorException &e) {
+      SWIG_fail; 
+    } catch (const std::exception& e) {
+      SWIG_exception(SWIG_RuntimeError, e.what());
+    }
+  }
+  resultobj = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIGTYPE_p_swig__SwigPyIterator, SWIG_POINTER_OWN |  0 );
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_Vector_Vector_DirectorExample___nonzero__(PyObject *self, PyObject *args) {
+  PyObject *resultobj = 0;
+  std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > > *arg1 = (std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > > *) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  PyObject *swig_obj[1] ;
+  bool result;
+  
+  if (!args) SWIG_fail;
+  swig_obj[0] = args;
+  res1 = SWIG_ConvertPtr(swig_obj[0], &argp1,SWIGTYPE_p_std__vectorT_std__vectorT_boost__shared_ptrT_Skeleton__DirectorExample_t_std__allocatorT_boost__shared_ptrT_Skeleton__DirectorExample_t_t_t_std__allocatorT_std__vectorT_boost__shared_ptrT_Skeleton__DirectorExample_t_std__allocatorT_boost__shared_ptrT_Skeleton__DirectorExample_t_t_t_t_t, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "Vector_Vector_DirectorExample___nonzero__" "', argument " "1"" of type '" "std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > > const *""'"); 
+  }
+  arg1 = reinterpret_cast< std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > > * >(argp1);
+  {
+    try {
+      result = (bool)std_vector_Sl_std_vector_Sl_boost_shared_ptr_Sl_Skeleton_DirectorExample_Sg__Sg__Sg____nonzero__((std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > > const *)arg1);
+    } catch (Swig::DirectorException &e) {
+      SWIG_fail; 
+    } catch (const std::exception& e) {
+      SWIG_exception(SWIG_RuntimeError, e.what());
+    }
+  }
+  resultobj = SWIG_From_bool(static_cast< bool >(result));
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_Vector_Vector_DirectorExample___bool__(PyObject *self, PyObject *args) {
+  PyObject *resultobj = 0;
+  std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > > *arg1 = (std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > > *) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  PyObject *swig_obj[1] ;
+  bool result;
+  
+  if (!args) SWIG_fail;
+  swig_obj[0] = args;
+  res1 = SWIG_ConvertPtr(swig_obj[0], &argp1,SWIGTYPE_p_std__vectorT_std__vectorT_boost__shared_ptrT_Skeleton__DirectorExample_t_std__allocatorT_boost__shared_ptrT_Skeleton__DirectorExample_t_t_t_std__allocatorT_std__vectorT_boost__shared_ptrT_Skeleton__DirectorExample_t_std__allocatorT_boost__shared_ptrT_Skeleton__DirectorExample_t_t_t_t_t, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "Vector_Vector_DirectorExample___bool__" "', argument " "1"" of type '" "std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > > const *""'"); 
+  }
+  arg1 = reinterpret_cast< std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > > * >(argp1);
+  {
+    try {
+      result = (bool)std_vector_Sl_std_vector_Sl_boost_shared_ptr_Sl_Skeleton_DirectorExample_Sg__Sg__Sg____bool__((std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > > const *)arg1);
+    } catch (Swig::DirectorException &e) {
+      SWIG_fail; 
+    } catch (const std::exception& e) {
+      SWIG_exception(SWIG_RuntimeError, e.what());
+    }
+  }
+  resultobj = SWIG_From_bool(static_cast< bool >(result));
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_Vector_Vector_DirectorExample___len__(PyObject *self, PyObject *args) {
+  PyObject *resultobj = 0;
+  std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > > *arg1 = (std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > > *) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  PyObject *swig_obj[1] ;
+  std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > >::size_type result;
+  
+  if (!args) SWIG_fail;
+  swig_obj[0] = args;
+  res1 = SWIG_ConvertPtr(swig_obj[0], &argp1,SWIGTYPE_p_std__vectorT_std__vectorT_boost__shared_ptrT_Skeleton__DirectorExample_t_std__allocatorT_boost__shared_ptrT_Skeleton__DirectorExample_t_t_t_std__allocatorT_std__vectorT_boost__shared_ptrT_Skeleton__DirectorExample_t_std__allocatorT_boost__shared_ptrT_Skeleton__DirectorExample_t_t_t_t_t, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "Vector_Vector_DirectorExample___len__" "', argument " "1"" of type '" "std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > > const *""'"); 
+  }
+  arg1 = reinterpret_cast< std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > > * >(argp1);
+  {
+    try {
+      result = std_vector_Sl_std_vector_Sl_boost_shared_ptr_Sl_Skeleton_DirectorExample_Sg__Sg__Sg____len__((std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > > const *)arg1);
+    } catch (Swig::DirectorException &e) {
+      SWIG_fail; 
+    } catch (const std::exception& e) {
+      SWIG_exception(SWIG_RuntimeError, e.what());
+    }
+  }
+  resultobj = SWIG_From_size_t(static_cast< size_t >(result));
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_Vector_Vector_DirectorExample___getslice__(PyObject *self, PyObject *args) {
+  PyObject *resultobj = 0;
+  std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > > *arg1 = (std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > > *) 0 ;
+  std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > >::difference_type arg2 ;
+  std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > >::difference_type arg3 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  ptrdiff_t val2 ;
+  int ecode2 = 0 ;
+  ptrdiff_t val3 ;
+  int ecode3 = 0 ;
+  PyObject *swig_obj[3] ;
+  std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample >,std::allocator< boost::shared_ptr< Skeleton::DirectorExample > > >,std::allocator< std::vector< boost::shared_ptr< Skeleton::DirectorExample >,std::allocator< boost::shared_ptr< Skeleton::DirectorExample > > > > > *result = 0 ;
+  
+  if (!SWIG_Python_UnpackTuple(args, "Vector_Vector_DirectorExample___getslice__", 3, 3, swig_obj)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(swig_obj[0], &argp1,SWIGTYPE_p_std__vectorT_std__vectorT_boost__shared_ptrT_Skeleton__DirectorExample_t_std__allocatorT_boost__shared_ptrT_Skeleton__DirectorExample_t_t_t_std__allocatorT_std__vectorT_boost__shared_ptrT_Skeleton__DirectorExample_t_std__allocatorT_boost__shared_ptrT_Skeleton__DirectorExample_t_t_t_t_t, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "Vector_Vector_DirectorExample___getslice__" "', argument " "1"" of type '" "std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > > *""'"); 
+  }
+  arg1 = reinterpret_cast< std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > > * >(argp1);
+  ecode2 = SWIG_AsVal_ptrdiff_t(swig_obj[1], &val2);
+  if (!SWIG_IsOK(ecode2)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode2), "in method '" "Vector_Vector_DirectorExample___getslice__" "', argument " "2"" of type '" "std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > >::difference_type""'");
+  } 
+  arg2 = static_cast< std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > >::difference_type >(val2);
+  ecode3 = SWIG_AsVal_ptrdiff_t(swig_obj[2], &val3);
+  if (!SWIG_IsOK(ecode3)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode3), "in method '" "Vector_Vector_DirectorExample___getslice__" "', argument " "3"" of type '" "std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > >::difference_type""'");
+  } 
+  arg3 = static_cast< std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > >::difference_type >(val3);
+  {
+    try {
+      try {
+        result = (std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample >,std::allocator< boost::shared_ptr< Skeleton::DirectorExample > > >,std::allocator< std::vector< boost::shared_ptr< Skeleton::DirectorExample >,std::allocator< boost::shared_ptr< Skeleton::DirectorExample > > > > > *)std_vector_Sl_std_vector_Sl_boost_shared_ptr_Sl_Skeleton_DirectorExample_Sg__Sg__Sg____getslice__(arg1,SWIG_STD_MOVE(arg2),SWIG_STD_MOVE(arg3));
+      } catch(std::out_of_range &_e) {
+        SWIG_exception_fail(SWIG_IndexError, (&_e)->what());
+      } catch(std::invalid_argument &_e) {
+        SWIG_exception_fail(SWIG_ValueError, (&_e)->what());
+      }
+    } catch (Swig::DirectorException &e) {
+      SWIG_fail; 
+    } catch (const std::exception& e) {
+      SWIG_exception(SWIG_RuntimeError, e.what());
+    }
+  }
+  resultobj = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIGTYPE_p_std__vectorT_std__vectorT_boost__shared_ptrT_Skeleton__DirectorExample_t_std__allocatorT_boost__shared_ptrT_Skeleton__DirectorExample_t_t_t_std__allocatorT_std__vectorT_boost__shared_ptrT_Skeleton__DirectorExample_t_std__allocatorT_boost__shared_ptrT_Skeleton__DirectorExample_t_t_t_t_t, SWIG_POINTER_OWN |  0 );
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_Vector_Vector_DirectorExample___setslice____SWIG_0(PyObject *self, Py_ssize_t nobjs, PyObject **swig_obj) {
+  PyObject *resultobj = 0;
+  std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > > *arg1 = (std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > > *) 0 ;
+  std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > >::difference_type arg2 ;
+  std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > >::difference_type arg3 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  ptrdiff_t val2 ;
+  int ecode2 = 0 ;
+  ptrdiff_t val3 ;
+  int ecode3 = 0 ;
+  
+  if ((nobjs < 3) || (nobjs > 3)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(swig_obj[0], &argp1,SWIGTYPE_p_std__vectorT_std__vectorT_boost__shared_ptrT_Skeleton__DirectorExample_t_std__allocatorT_boost__shared_ptrT_Skeleton__DirectorExample_t_t_t_std__allocatorT_std__vectorT_boost__shared_ptrT_Skeleton__DirectorExample_t_std__allocatorT_boost__shared_ptrT_Skeleton__DirectorExample_t_t_t_t_t, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "Vector_Vector_DirectorExample___setslice__" "', argument " "1"" of type '" "std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > > *""'"); 
+  }
+  arg1 = reinterpret_cast< std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > > * >(argp1);
+  ecode2 = SWIG_AsVal_ptrdiff_t(swig_obj[1], &val2);
+  if (!SWIG_IsOK(ecode2)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode2), "in method '" "Vector_Vector_DirectorExample___setslice__" "', argument " "2"" of type '" "std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > >::difference_type""'");
+  } 
+  arg2 = static_cast< std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > >::difference_type >(val2);
+  ecode3 = SWIG_AsVal_ptrdiff_t(swig_obj[2], &val3);
+  if (!SWIG_IsOK(ecode3)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode3), "in method '" "Vector_Vector_DirectorExample___setslice__" "', argument " "3"" of type '" "std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > >::difference_type""'");
+  } 
+  arg3 = static_cast< std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > >::difference_type >(val3);
+  {
+    try {
+      try {
+        std_vector_Sl_std_vector_Sl_boost_shared_ptr_Sl_Skeleton_DirectorExample_Sg__Sg__Sg____setslice____SWIG_0(arg1,SWIG_STD_MOVE(arg2),SWIG_STD_MOVE(arg3));
+      } catch(std::out_of_range &_e) {
+        SWIG_exception_fail(SWIG_IndexError, (&_e)->what());
+      } catch(std::invalid_argument &_e) {
+        SWIG_exception_fail(SWIG_ValueError, (&_e)->what());
+      }
+    } catch (Swig::DirectorException &e) {
+      SWIG_fail; 
+    } catch (const std::exception& e) {
+      SWIG_exception(SWIG_RuntimeError, e.what());
+    }
+  }
+  resultobj = SWIG_Py_Void();
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_Vector_Vector_DirectorExample___setslice____SWIG_1(PyObject *self, Py_ssize_t nobjs, PyObject **swig_obj) {
+  PyObject *resultobj = 0;
+  std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > > *arg1 = (std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > > *) 0 ;
+  std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > >::difference_type arg2 ;
+  std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > >::difference_type arg3 ;
+  std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample >,std::allocator< boost::shared_ptr< Skeleton::DirectorExample > > >,std::allocator< std::vector< boost::shared_ptr< Skeleton::DirectorExample >,std::allocator< boost::shared_ptr< Skeleton::DirectorExample > > > > > *arg4 = 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  ptrdiff_t val2 ;
+  int ecode2 = 0 ;
+  ptrdiff_t val3 ;
+  int ecode3 = 0 ;
+  int res4 = SWIG_OLDOBJ ;
+  
+  if ((nobjs < 4) || (nobjs > 4)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(swig_obj[0], &argp1,SWIGTYPE_p_std__vectorT_std__vectorT_boost__shared_ptrT_Skeleton__DirectorExample_t_std__allocatorT_boost__shared_ptrT_Skeleton__DirectorExample_t_t_t_std__allocatorT_std__vectorT_boost__shared_ptrT_Skeleton__DirectorExample_t_std__allocatorT_boost__shared_ptrT_Skeleton__DirectorExample_t_t_t_t_t, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "Vector_Vector_DirectorExample___setslice__" "', argument " "1"" of type '" "std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > > *""'"); 
+  }
+  arg1 = reinterpret_cast< std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > > * >(argp1);
+  ecode2 = SWIG_AsVal_ptrdiff_t(swig_obj[1], &val2);
+  if (!SWIG_IsOK(ecode2)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode2), "in method '" "Vector_Vector_DirectorExample___setslice__" "', argument " "2"" of type '" "std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > >::difference_type""'");
+  } 
+  arg2 = static_cast< std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > >::difference_type >(val2);
+  ecode3 = SWIG_AsVal_ptrdiff_t(swig_obj[2], &val3);
+  if (!SWIG_IsOK(ecode3)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode3), "in method '" "Vector_Vector_DirectorExample___setslice__" "', argument " "3"" of type '" "std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > >::difference_type""'");
+  } 
+  arg3 = static_cast< std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > >::difference_type >(val3);
+  {
+    std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample >,std::allocator< boost::shared_ptr< Skeleton::DirectorExample > > >,std::allocator< std::vector< boost::shared_ptr< Skeleton::DirectorExample >,std::allocator< boost::shared_ptr< Skeleton::DirectorExample > > > > > *ptr = (std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample >,std::allocator< boost::shared_ptr< Skeleton::DirectorExample > > >,std::allocator< std::vector< boost::shared_ptr< Skeleton::DirectorExample >,std::allocator< boost::shared_ptr< Skeleton::DirectorExample > > > > > *)0;
+    res4 = swig::asptr(swig_obj[3], &ptr);
+    if (!SWIG_IsOK(res4)) {
+      SWIG_exception_fail(SWIG_ArgError(res4), "in method '" "Vector_Vector_DirectorExample___setslice__" "', argument " "4"" of type '" "std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample >,std::allocator< boost::shared_ptr< Skeleton::DirectorExample > > >,std::allocator< std::vector< boost::shared_ptr< Skeleton::DirectorExample >,std::allocator< boost::shared_ptr< Skeleton::DirectorExample > > > > > const &""'"); 
+    }
+    if (!ptr) {
+      SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "Vector_Vector_DirectorExample___setslice__" "', argument " "4"" of type '" "std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample >,std::allocator< boost::shared_ptr< Skeleton::DirectorExample > > >,std::allocator< std::vector< boost::shared_ptr< Skeleton::DirectorExample >,std::allocator< boost::shared_ptr< Skeleton::DirectorExample > > > > > const &""'"); 
+    }
+    arg4 = ptr;
+  }
+  {
+    try {
+      try {
+        std_vector_Sl_std_vector_Sl_boost_shared_ptr_Sl_Skeleton_DirectorExample_Sg__Sg__Sg____setslice____SWIG_1(arg1,SWIG_STD_MOVE(arg2),SWIG_STD_MOVE(arg3),(std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample >,std::allocator< boost::shared_ptr< Skeleton::DirectorExample > > >,std::allocator< std::vector< boost::shared_ptr< Skeleton::DirectorExample >,std::allocator< boost::shared_ptr< Skeleton::DirectorExample > > > > > const &)*arg4);
+      } catch(std::out_of_range &_e) {
+        SWIG_exception_fail(SWIG_IndexError, (&_e)->what());
+      } catch(std::invalid_argument &_e) {
+        SWIG_exception_fail(SWIG_ValueError, (&_e)->what());
+      }
+    } catch (Swig::DirectorException &e) {
+      SWIG_fail; 
+    } catch (const std::exception& e) {
+      SWIG_exception(SWIG_RuntimeError, e.what());
+    }
+  }
+  resultobj = SWIG_Py_Void();
+  if (SWIG_IsNewObj(res4)) delete arg4;
+  return resultobj;
+fail:
+  if (SWIG_IsNewObj(res4)) delete arg4;
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_Vector_Vector_DirectorExample___setslice__(PyObject *self, PyObject *args) {
+  Py_ssize_t argc;
+  PyObject *argv[5] = {
+    0
+  };
+  
+  if (!(argc = SWIG_Python_UnpackTuple(args, "Vector_Vector_DirectorExample___setslice__", 0, 4, argv))) SWIG_fail;
+  --argc;
+  if (argc == 3) {
+    PyObject *retobj = _wrap_Vector_Vector_DirectorExample___setslice____SWIG_0(self, argc, argv);
+    if (!SWIG_Python_TypeErrorOccurred(retobj)) return retobj;
+    SWIG_fail;
+  }
+  if (argc == 4) {
+    PyObject *retobj = _wrap_Vector_Vector_DirectorExample___setslice____SWIG_1(self, argc, argv);
+    if (!SWIG_Python_TypeErrorOccurred(retobj)) return retobj;
+    SWIG_fail;
+  }
+  
+fail:
+  SWIG_Python_RaiseOrModifyTypeError("Wrong number or type of arguments for overloaded function 'Vector_Vector_DirectorExample___setslice__'.\n"
+    "  Possible C/C++ prototypes are:\n"
+    "    std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > >::__setslice__(std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > >::difference_type,std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > >::difference_type)\n"
+    "    std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > >::__setslice__(std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > >::difference_type,std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > >::difference_type,std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample >,std::allocator< boost::shared_ptr< Skeleton::DirectorExample > > >,std::allocator< std::vector< boost::shared_ptr< Skeleton::DirectorExample >,std::allocator< boost::shared_ptr< Skeleton::DirectorExample > > > > > const &)\n");
+  return 0;
+}
+
+
+SWIGINTERN PyObject *_wrap_Vector_Vector_DirectorExample___delslice__(PyObject *self, PyObject *args) {
+  PyObject *resultobj = 0;
+  std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > > *arg1 = (std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > > *) 0 ;
+  std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > >::difference_type arg2 ;
+  std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > >::difference_type arg3 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  ptrdiff_t val2 ;
+  int ecode2 = 0 ;
+  ptrdiff_t val3 ;
+  int ecode3 = 0 ;
+  PyObject *swig_obj[3] ;
+  
+  if (!SWIG_Python_UnpackTuple(args, "Vector_Vector_DirectorExample___delslice__", 3, 3, swig_obj)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(swig_obj[0], &argp1,SWIGTYPE_p_std__vectorT_std__vectorT_boost__shared_ptrT_Skeleton__DirectorExample_t_std__allocatorT_boost__shared_ptrT_Skeleton__DirectorExample_t_t_t_std__allocatorT_std__vectorT_boost__shared_ptrT_Skeleton__DirectorExample_t_std__allocatorT_boost__shared_ptrT_Skeleton__DirectorExample_t_t_t_t_t, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "Vector_Vector_DirectorExample___delslice__" "', argument " "1"" of type '" "std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > > *""'"); 
+  }
+  arg1 = reinterpret_cast< std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > > * >(argp1);
+  ecode2 = SWIG_AsVal_ptrdiff_t(swig_obj[1], &val2);
+  if (!SWIG_IsOK(ecode2)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode2), "in method '" "Vector_Vector_DirectorExample___delslice__" "', argument " "2"" of type '" "std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > >::difference_type""'");
+  } 
+  arg2 = static_cast< std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > >::difference_type >(val2);
+  ecode3 = SWIG_AsVal_ptrdiff_t(swig_obj[2], &val3);
+  if (!SWIG_IsOK(ecode3)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode3), "in method '" "Vector_Vector_DirectorExample___delslice__" "', argument " "3"" of type '" "std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > >::difference_type""'");
+  } 
+  arg3 = static_cast< std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > >::difference_type >(val3);
+  {
+    try {
+      try {
+        std_vector_Sl_std_vector_Sl_boost_shared_ptr_Sl_Skeleton_DirectorExample_Sg__Sg__Sg____delslice__(arg1,SWIG_STD_MOVE(arg2),SWIG_STD_MOVE(arg3));
+      } catch(std::out_of_range &_e) {
+        SWIG_exception_fail(SWIG_IndexError, (&_e)->what());
+      } catch(std::invalid_argument &_e) {
+        SWIG_exception_fail(SWIG_ValueError, (&_e)->what());
+      }
+    } catch (Swig::DirectorException &e) {
+      SWIG_fail; 
+    } catch (const std::exception& e) {
+      SWIG_exception(SWIG_RuntimeError, e.what());
+    }
+  }
+  resultobj = SWIG_Py_Void();
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_Vector_Vector_DirectorExample___delitem____SWIG_0(PyObject *self, Py_ssize_t nobjs, PyObject **swig_obj) {
+  PyObject *resultobj = 0;
+  std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > > *arg1 = (std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > > *) 0 ;
+  std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > >::difference_type arg2 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  ptrdiff_t val2 ;
+  int ecode2 = 0 ;
+  
+  if ((nobjs < 2) || (nobjs > 2)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(swig_obj[0], &argp1,SWIGTYPE_p_std__vectorT_std__vectorT_boost__shared_ptrT_Skeleton__DirectorExample_t_std__allocatorT_boost__shared_ptrT_Skeleton__DirectorExample_t_t_t_std__allocatorT_std__vectorT_boost__shared_ptrT_Skeleton__DirectorExample_t_std__allocatorT_boost__shared_ptrT_Skeleton__DirectorExample_t_t_t_t_t, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "Vector_Vector_DirectorExample___delitem__" "', argument " "1"" of type '" "std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > > *""'"); 
+  }
+  arg1 = reinterpret_cast< std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > > * >(argp1);
+  ecode2 = SWIG_AsVal_ptrdiff_t(swig_obj[1], &val2);
+  if (!SWIG_IsOK(ecode2)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode2), "in method '" "Vector_Vector_DirectorExample___delitem__" "', argument " "2"" of type '" "std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > >::difference_type""'");
+  } 
+  arg2 = static_cast< std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > >::difference_type >(val2);
+  {
+    try {
+      try {
+        std_vector_Sl_std_vector_Sl_boost_shared_ptr_Sl_Skeleton_DirectorExample_Sg__Sg__Sg____delitem____SWIG_0(arg1,SWIG_STD_MOVE(arg2));
+      } catch(std::out_of_range &_e) {
+        SWIG_exception_fail(SWIG_IndexError, (&_e)->what());
+      } catch(std::invalid_argument &_e) {
+        SWIG_exception_fail(SWIG_ValueError, (&_e)->what());
+      }
+    } catch (Swig::DirectorException &e) {
+      SWIG_fail; 
+    } catch (const std::exception& e) {
+      SWIG_exception(SWIG_RuntimeError, e.what());
+    }
+  }
+  resultobj = SWIG_Py_Void();
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_Vector_Vector_DirectorExample___getitem____SWIG_0(PyObject *self, Py_ssize_t nobjs, PyObject **swig_obj) {
+  PyObject *resultobj = 0;
+  std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > > *arg1 = (std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > > *) 0 ;
+  SWIGPY_SLICEOBJECT *arg2 = (SWIGPY_SLICEOBJECT *) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample >,std::allocator< boost::shared_ptr< Skeleton::DirectorExample > > >,std::allocator< std::vector< boost::shared_ptr< Skeleton::DirectorExample >,std::allocator< boost::shared_ptr< Skeleton::DirectorExample > > > > > *result = 0 ;
+  
+  if ((nobjs < 2) || (nobjs > 2)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(swig_obj[0], &argp1,SWIGTYPE_p_std__vectorT_std__vectorT_boost__shared_ptrT_Skeleton__DirectorExample_t_std__allocatorT_boost__shared_ptrT_Skeleton__DirectorExample_t_t_t_std__allocatorT_std__vectorT_boost__shared_ptrT_Skeleton__DirectorExample_t_std__allocatorT_boost__shared_ptrT_Skeleton__DirectorExample_t_t_t_t_t, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "Vector_Vector_DirectorExample___getitem__" "', argument " "1"" of type '" "std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > > *""'"); 
+  }
+  arg1 = reinterpret_cast< std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > > * >(argp1);
+  {
+    if (!PySlice_Check(swig_obj[1])) {
+      SWIG_exception_fail(SWIG_ArgError(SWIG_TypeError), "in method '" "Vector_Vector_DirectorExample___getitem__" "', argument " "2"" of type '" "SWIGPY_SLICEOBJECT *""'");
+    }
+    arg2 = (SWIGPY_SLICEOBJECT *) swig_obj[1];
+  }
+  {
+    try {
+      try {
+        result = (std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample >,std::allocator< boost::shared_ptr< Skeleton::DirectorExample > > >,std::allocator< std::vector< boost::shared_ptr< Skeleton::DirectorExample >,std::allocator< boost::shared_ptr< Skeleton::DirectorExample > > > > > *)std_vector_Sl_std_vector_Sl_boost_shared_ptr_Sl_Skeleton_DirectorExample_Sg__Sg__Sg____getitem____SWIG_0(arg1,arg2);
+      } catch(std::out_of_range &_e) {
+        SWIG_exception_fail(SWIG_IndexError, (&_e)->what());
+      } catch(std::invalid_argument &_e) {
+        SWIG_exception_fail(SWIG_ValueError, (&_e)->what());
+      }
+    } catch (Swig::DirectorException &e) {
+      SWIG_fail; 
+    } catch (const std::exception& e) {
+      SWIG_exception(SWIG_RuntimeError, e.what());
+    }
+  }
+  resultobj = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIGTYPE_p_std__vectorT_std__vectorT_boost__shared_ptrT_Skeleton__DirectorExample_t_std__allocatorT_boost__shared_ptrT_Skeleton__DirectorExample_t_t_t_std__allocatorT_std__vectorT_boost__shared_ptrT_Skeleton__DirectorExample_t_std__allocatorT_boost__shared_ptrT_Skeleton__DirectorExample_t_t_t_t_t, SWIG_POINTER_OWN |  0 );
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_Vector_Vector_DirectorExample___setitem____SWIG_0(PyObject *self, Py_ssize_t nobjs, PyObject **swig_obj) {
+  PyObject *resultobj = 0;
+  std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > > *arg1 = (std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > > *) 0 ;
+  SWIGPY_SLICEOBJECT *arg2 = (SWIGPY_SLICEOBJECT *) 0 ;
+  std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample >,std::allocator< boost::shared_ptr< Skeleton::DirectorExample > > >,std::allocator< std::vector< boost::shared_ptr< Skeleton::DirectorExample >,std::allocator< boost::shared_ptr< Skeleton::DirectorExample > > > > > *arg3 = 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  int res3 = SWIG_OLDOBJ ;
+  
+  if ((nobjs < 3) || (nobjs > 3)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(swig_obj[0], &argp1,SWIGTYPE_p_std__vectorT_std__vectorT_boost__shared_ptrT_Skeleton__DirectorExample_t_std__allocatorT_boost__shared_ptrT_Skeleton__DirectorExample_t_t_t_std__allocatorT_std__vectorT_boost__shared_ptrT_Skeleton__DirectorExample_t_std__allocatorT_boost__shared_ptrT_Skeleton__DirectorExample_t_t_t_t_t, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "Vector_Vector_DirectorExample___setitem__" "', argument " "1"" of type '" "std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > > *""'"); 
+  }
+  arg1 = reinterpret_cast< std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > > * >(argp1);
+  {
+    if (!PySlice_Check(swig_obj[1])) {
+      SWIG_exception_fail(SWIG_ArgError(SWIG_TypeError), "in method '" "Vector_Vector_DirectorExample___setitem__" "', argument " "2"" of type '" "SWIGPY_SLICEOBJECT *""'");
+    }
+    arg2 = (SWIGPY_SLICEOBJECT *) swig_obj[1];
+  }
+  {
+    std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample >,std::allocator< boost::shared_ptr< Skeleton::DirectorExample > > >,std::allocator< std::vector< boost::shared_ptr< Skeleton::DirectorExample >,std::allocator< boost::shared_ptr< Skeleton::DirectorExample > > > > > *ptr = (std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample >,std::allocator< boost::shared_ptr< Skeleton::DirectorExample > > >,std::allocator< std::vector< boost::shared_ptr< Skeleton::DirectorExample >,std::allocator< boost::shared_ptr< Skeleton::DirectorExample > > > > > *)0;
+    res3 = swig::asptr(swig_obj[2], &ptr);
+    if (!SWIG_IsOK(res3)) {
+      SWIG_exception_fail(SWIG_ArgError(res3), "in method '" "Vector_Vector_DirectorExample___setitem__" "', argument " "3"" of type '" "std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample >,std::allocator< boost::shared_ptr< Skeleton::DirectorExample > > >,std::allocator< std::vector< boost::shared_ptr< Skeleton::DirectorExample >,std::allocator< boost::shared_ptr< Skeleton::DirectorExample > > > > > const &""'"); 
+    }
+    if (!ptr) {
+      SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "Vector_Vector_DirectorExample___setitem__" "', argument " "3"" of type '" "std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample >,std::allocator< boost::shared_ptr< Skeleton::DirectorExample > > >,std::allocator< std::vector< boost::shared_ptr< Skeleton::DirectorExample >,std::allocator< boost::shared_ptr< Skeleton::DirectorExample > > > > > const &""'"); 
+    }
+    arg3 = ptr;
+  }
+  {
+    try {
+      try {
+        std_vector_Sl_std_vector_Sl_boost_shared_ptr_Sl_Skeleton_DirectorExample_Sg__Sg__Sg____setitem____SWIG_0(arg1,arg2,(std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample >,std::allocator< boost::shared_ptr< Skeleton::DirectorExample > > >,std::allocator< std::vector< boost::shared_ptr< Skeleton::DirectorExample >,std::allocator< boost::shared_ptr< Skeleton::DirectorExample > > > > > const &)*arg3);
+      } catch(std::out_of_range &_e) {
+        SWIG_exception_fail(SWIG_IndexError, (&_e)->what());
+      } catch(std::invalid_argument &_e) {
+        SWIG_exception_fail(SWIG_ValueError, (&_e)->what());
+      }
+    } catch (Swig::DirectorException &e) {
+      SWIG_fail; 
+    } catch (const std::exception& e) {
+      SWIG_exception(SWIG_RuntimeError, e.what());
+    }
+  }
+  resultobj = SWIG_Py_Void();
+  if (SWIG_IsNewObj(res3)) delete arg3;
+  return resultobj;
+fail:
+  if (SWIG_IsNewObj(res3)) delete arg3;
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_Vector_Vector_DirectorExample___setitem____SWIG_1(PyObject *self, Py_ssize_t nobjs, PyObject **swig_obj) {
+  PyObject *resultobj = 0;
+  std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > > *arg1 = (std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > > *) 0 ;
+  SWIGPY_SLICEOBJECT *arg2 = (SWIGPY_SLICEOBJECT *) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  
+  if ((nobjs < 2) || (nobjs > 2)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(swig_obj[0], &argp1,SWIGTYPE_p_std__vectorT_std__vectorT_boost__shared_ptrT_Skeleton__DirectorExample_t_std__allocatorT_boost__shared_ptrT_Skeleton__DirectorExample_t_t_t_std__allocatorT_std__vectorT_boost__shared_ptrT_Skeleton__DirectorExample_t_std__allocatorT_boost__shared_ptrT_Skeleton__DirectorExample_t_t_t_t_t, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "Vector_Vector_DirectorExample___setitem__" "', argument " "1"" of type '" "std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > > *""'"); 
+  }
+  arg1 = reinterpret_cast< std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > > * >(argp1);
+  {
+    if (!PySlice_Check(swig_obj[1])) {
+      SWIG_exception_fail(SWIG_ArgError(SWIG_TypeError), "in method '" "Vector_Vector_DirectorExample___setitem__" "', argument " "2"" of type '" "SWIGPY_SLICEOBJECT *""'");
+    }
+    arg2 = (SWIGPY_SLICEOBJECT *) swig_obj[1];
+  }
+  {
+    try {
+      try {
+        std_vector_Sl_std_vector_Sl_boost_shared_ptr_Sl_Skeleton_DirectorExample_Sg__Sg__Sg____setitem____SWIG_1(arg1,arg2);
+      } catch(std::out_of_range &_e) {
+        SWIG_exception_fail(SWIG_IndexError, (&_e)->what());
+      } catch(std::invalid_argument &_e) {
+        SWIG_exception_fail(SWIG_ValueError, (&_e)->what());
+      }
+    } catch (Swig::DirectorException &e) {
+      SWIG_fail; 
+    } catch (const std::exception& e) {
+      SWIG_exception(SWIG_RuntimeError, e.what());
+    }
+  }
+  resultobj = SWIG_Py_Void();
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_Vector_Vector_DirectorExample___delitem____SWIG_1(PyObject *self, Py_ssize_t nobjs, PyObject **swig_obj) {
+  PyObject *resultobj = 0;
+  std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > > *arg1 = (std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > > *) 0 ;
+  SWIGPY_SLICEOBJECT *arg2 = (SWIGPY_SLICEOBJECT *) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  
+  if ((nobjs < 2) || (nobjs > 2)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(swig_obj[0], &argp1,SWIGTYPE_p_std__vectorT_std__vectorT_boost__shared_ptrT_Skeleton__DirectorExample_t_std__allocatorT_boost__shared_ptrT_Skeleton__DirectorExample_t_t_t_std__allocatorT_std__vectorT_boost__shared_ptrT_Skeleton__DirectorExample_t_std__allocatorT_boost__shared_ptrT_Skeleton__DirectorExample_t_t_t_t_t, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "Vector_Vector_DirectorExample___delitem__" "', argument " "1"" of type '" "std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > > *""'"); 
+  }
+  arg1 = reinterpret_cast< std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > > * >(argp1);
+  {
+    if (!PySlice_Check(swig_obj[1])) {
+      SWIG_exception_fail(SWIG_ArgError(SWIG_TypeError), "in method '" "Vector_Vector_DirectorExample___delitem__" "', argument " "2"" of type '" "SWIGPY_SLICEOBJECT *""'");
+    }
+    arg2 = (SWIGPY_SLICEOBJECT *) swig_obj[1];
+  }
+  {
+    try {
+      try {
+        std_vector_Sl_std_vector_Sl_boost_shared_ptr_Sl_Skeleton_DirectorExample_Sg__Sg__Sg____delitem____SWIG_1(arg1,arg2);
+      } catch(std::out_of_range &_e) {
+        SWIG_exception_fail(SWIG_IndexError, (&_e)->what());
+      } catch(std::invalid_argument &_e) {
+        SWIG_exception_fail(SWIG_ValueError, (&_e)->what());
+      }
+    } catch (Swig::DirectorException &e) {
+      SWIG_fail; 
+    } catch (const std::exception& e) {
+      SWIG_exception(SWIG_RuntimeError, e.what());
+    }
+  }
+  resultobj = SWIG_Py_Void();
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_Vector_Vector_DirectorExample___delitem__(PyObject *self, PyObject *args) {
+  Py_ssize_t argc;
+  PyObject *argv[3] = {
+    0
+  };
+  
+  if (!(argc = SWIG_Python_UnpackTuple(args, "Vector_Vector_DirectorExample___delitem__", 0, 2, argv))) SWIG_fail;
+  --argc;
+  if (argc == 2) {
+    int _v = 0;
+    {
+      {
+        _v = PySlice_Check(argv[1]);
+      }
+    }
+    if (!_v) goto check_1;
+    return _wrap_Vector_Vector_DirectorExample___delitem____SWIG_1(self, argc, argv);
+  }
+check_1:
+  
+  if (argc == 2) {
+    PyObject *retobj = _wrap_Vector_Vector_DirectorExample___delitem____SWIG_0(self, argc, argv);
+    if (!SWIG_Python_TypeErrorOccurred(retobj)) return retobj;
+    SWIG_fail;
+  }
+  
+fail:
+  SWIG_Python_RaiseOrModifyTypeError("Wrong number or type of arguments for overloaded function 'Vector_Vector_DirectorExample___delitem__'.\n"
+    "  Possible C/C++ prototypes are:\n"
+    "    std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > >::__delitem__(std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > >::difference_type)\n"
+    "    std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > >::__delitem__(SWIGPY_SLICEOBJECT *)\n");
+  return 0;
+}
+
+
+SWIGINTERN PyObject *_wrap_Vector_Vector_DirectorExample___getitem____SWIG_1(PyObject *self, Py_ssize_t nobjs, PyObject **swig_obj) {
+  PyObject *resultobj = 0;
+  std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > > *arg1 = (std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > > *) 0 ;
+  std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > >::difference_type arg2 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  ptrdiff_t val2 ;
+  int ecode2 = 0 ;
+  std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > >::value_type *result = 0 ;
+  
+  if ((nobjs < 2) || (nobjs > 2)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(swig_obj[0], &argp1,SWIGTYPE_p_std__vectorT_std__vectorT_boost__shared_ptrT_Skeleton__DirectorExample_t_std__allocatorT_boost__shared_ptrT_Skeleton__DirectorExample_t_t_t_std__allocatorT_std__vectorT_boost__shared_ptrT_Skeleton__DirectorExample_t_std__allocatorT_boost__shared_ptrT_Skeleton__DirectorExample_t_t_t_t_t, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "Vector_Vector_DirectorExample___getitem__" "', argument " "1"" of type '" "std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > > const *""'"); 
+  }
+  arg1 = reinterpret_cast< std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > > * >(argp1);
+  ecode2 = SWIG_AsVal_ptrdiff_t(swig_obj[1], &val2);
+  if (!SWIG_IsOK(ecode2)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode2), "in method '" "Vector_Vector_DirectorExample___getitem__" "', argument " "2"" of type '" "std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > >::difference_type""'");
+  } 
+  arg2 = static_cast< std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > >::difference_type >(val2);
+  {
+    try {
+      try {
+        result = (std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > >::value_type *) &std_vector_Sl_std_vector_Sl_boost_shared_ptr_Sl_Skeleton_DirectorExample_Sg__Sg__Sg____getitem____SWIG_1((std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > > const *)arg1,SWIG_STD_MOVE(arg2));
+      } catch(std::out_of_range &_e) {
+        SWIG_exception_fail(SWIG_IndexError, (&_e)->what());
+      }
+    } catch (Swig::DirectorException &e) {
+      SWIG_fail; 
+    } catch (const std::exception& e) {
+      SWIG_exception(SWIG_RuntimeError, e.what());
+    }
+  }
+  resultobj = swig::from(static_cast< std::vector< boost::shared_ptr< Skeleton::DirectorExample >,std::allocator< boost::shared_ptr< Skeleton::DirectorExample > > > >(*result));
+  (void)swig::container_owner<swig::traits<std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > >::value_type>::category>::back_reference(resultobj, swig_obj[0]);
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_Vector_Vector_DirectorExample___getitem__(PyObject *self, PyObject *args) {
+  Py_ssize_t argc;
+  PyObject *argv[3] = {
+    0
+  };
+  
+  if (!(argc = SWIG_Python_UnpackTuple(args, "Vector_Vector_DirectorExample___getitem__", 0, 2, argv))) SWIG_fail;
+  --argc;
+  if (argc == 2) {
+    int _v = 0;
+    {
+      {
+        _v = PySlice_Check(argv[1]);
+      }
+    }
+    if (!_v) goto check_1;
+    return _wrap_Vector_Vector_DirectorExample___getitem____SWIG_0(self, argc, argv);
+  }
+check_1:
+  
+  if (argc == 2) {
+    PyObject *retobj = _wrap_Vector_Vector_DirectorExample___getitem____SWIG_1(self, argc, argv);
+    if (!SWIG_Python_TypeErrorOccurred(retobj)) return retobj;
+    SWIG_fail;
+  }
+  
+fail:
+  SWIG_Python_RaiseOrModifyTypeError("Wrong number or type of arguments for overloaded function 'Vector_Vector_DirectorExample___getitem__'.\n"
+    "  Possible C/C++ prototypes are:\n"
+    "    std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > >::__getitem__(SWIGPY_SLICEOBJECT *)\n"
+    "    std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > >::__getitem__(std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > >::difference_type) const\n");
+  return 0;
+}
+
+
+SWIGINTERN PyObject *_wrap_Vector_Vector_DirectorExample___setitem____SWIG_2(PyObject *self, Py_ssize_t nobjs, PyObject **swig_obj) {
+  PyObject *resultobj = 0;
+  std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > > *arg1 = (std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > > *) 0 ;
+  std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > >::difference_type arg2 ;
+  std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > >::value_type *arg3 = 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  ptrdiff_t val2 ;
+  int ecode2 = 0 ;
+  int res3 = SWIG_OLDOBJ ;
+  
+  if ((nobjs < 3) || (nobjs > 3)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(swig_obj[0], &argp1,SWIGTYPE_p_std__vectorT_std__vectorT_boost__shared_ptrT_Skeleton__DirectorExample_t_std__allocatorT_boost__shared_ptrT_Skeleton__DirectorExample_t_t_t_std__allocatorT_std__vectorT_boost__shared_ptrT_Skeleton__DirectorExample_t_std__allocatorT_boost__shared_ptrT_Skeleton__DirectorExample_t_t_t_t_t, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "Vector_Vector_DirectorExample___setitem__" "', argument " "1"" of type '" "std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > > *""'"); 
+  }
+  arg1 = reinterpret_cast< std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > > * >(argp1);
+  ecode2 = SWIG_AsVal_ptrdiff_t(swig_obj[1], &val2);
+  if (!SWIG_IsOK(ecode2)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode2), "in method '" "Vector_Vector_DirectorExample___setitem__" "', argument " "2"" of type '" "std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > >::difference_type""'");
+  } 
+  arg2 = static_cast< std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > >::difference_type >(val2);
+  {
+    std::vector< boost::shared_ptr< Skeleton::DirectorExample >,std::allocator< boost::shared_ptr< Skeleton::DirectorExample > > > *ptr = (std::vector< boost::shared_ptr< Skeleton::DirectorExample >,std::allocator< boost::shared_ptr< Skeleton::DirectorExample > > > *)0;
+    res3 = swig::asptr(swig_obj[2], &ptr);
+    if (!SWIG_IsOK(res3)) {
+      SWIG_exception_fail(SWIG_ArgError(res3), "in method '" "Vector_Vector_DirectorExample___setitem__" "', argument " "3"" of type '" "std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > >::value_type const &""'"); 
+    }
+    if (!ptr) {
+      SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "Vector_Vector_DirectorExample___setitem__" "', argument " "3"" of type '" "std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > >::value_type const &""'"); 
+    }
+    arg3 = ptr;
+  }
+  {
+    try {
+      try {
+        std_vector_Sl_std_vector_Sl_boost_shared_ptr_Sl_Skeleton_DirectorExample_Sg__Sg__Sg____setitem____SWIG_2(arg1,SWIG_STD_MOVE(arg2),(std::vector< boost::shared_ptr< Skeleton::DirectorExample >,std::allocator< boost::shared_ptr< Skeleton::DirectorExample > > > const &)*arg3);
+      } catch(std::out_of_range &_e) {
+        SWIG_exception_fail(SWIG_IndexError, (&_e)->what());
+      }
+    } catch (Swig::DirectorException &e) {
+      SWIG_fail; 
+    } catch (const std::exception& e) {
+      SWIG_exception(SWIG_RuntimeError, e.what());
+    }
+  }
+  resultobj = SWIG_Py_Void();
+  if (SWIG_IsNewObj(res3)) delete arg3;
+  return resultobj;
+fail:
+  if (SWIG_IsNewObj(res3)) delete arg3;
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_Vector_Vector_DirectorExample___setitem__(PyObject *self, PyObject *args) {
+  Py_ssize_t argc;
+  PyObject *argv[4] = {
+    0
+  };
+  
+  if (!(argc = SWIG_Python_UnpackTuple(args, "Vector_Vector_DirectorExample___setitem__", 0, 3, argv))) SWIG_fail;
+  --argc;
+  if (argc == 2) {
+    PyObject *retobj = _wrap_Vector_Vector_DirectorExample___setitem____SWIG_1(self, argc, argv);
+    if (!SWIG_Python_TypeErrorOccurred(retobj)) return retobj;
+    SWIG_fail;
+  }
+  if (argc == 3) {
+    int _v = 0;
+    {
+      {
+        _v = PySlice_Check(argv[1]);
+      }
+    }
+    if (!_v) goto check_2;
+    {
+      int res = swig::asptr(argv[2], (std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample >,std::allocator< boost::shared_ptr< Skeleton::DirectorExample > > >,std::allocator< std::vector< boost::shared_ptr< Skeleton::DirectorExample >,std::allocator< boost::shared_ptr< Skeleton::DirectorExample > > > > >**)(0));
+      _v = SWIG_CheckState(res);
+    }
+    if (!_v) goto check_2;
+    return _wrap_Vector_Vector_DirectorExample___setitem____SWIG_0(self, argc, argv);
+  }
+check_2:
+  
+  if (argc == 3) {
+    PyObject *retobj = _wrap_Vector_Vector_DirectorExample___setitem____SWIG_2(self, argc, argv);
+    if (!SWIG_Python_TypeErrorOccurred(retobj)) return retobj;
+    SWIG_fail;
+  }
+  
+fail:
+  SWIG_Python_RaiseOrModifyTypeError("Wrong number or type of arguments for overloaded function 'Vector_Vector_DirectorExample___setitem__'.\n"
+    "  Possible C/C++ prototypes are:\n"
+    "    std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > >::__setitem__(SWIGPY_SLICEOBJECT *,std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample >,std::allocator< boost::shared_ptr< Skeleton::DirectorExample > > >,std::allocator< std::vector< boost::shared_ptr< Skeleton::DirectorExample >,std::allocator< boost::shared_ptr< Skeleton::DirectorExample > > > > > const &)\n"
+    "    std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > >::__setitem__(SWIGPY_SLICEOBJECT *)\n"
+    "    std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > >::__setitem__(std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > >::difference_type,std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > >::value_type const &)\n");
+  return 0;
+}
+
+
+SWIGINTERN PyObject *_wrap_Vector_Vector_DirectorExample_pop(PyObject *self, PyObject *args) {
+  PyObject *resultobj = 0;
+  std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > > *arg1 = (std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > > *) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  PyObject *swig_obj[1] ;
+  std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > >::value_type result;
+  
+  if (!args) SWIG_fail;
+  swig_obj[0] = args;
+  res1 = SWIG_ConvertPtr(swig_obj[0], &argp1,SWIGTYPE_p_std__vectorT_std__vectorT_boost__shared_ptrT_Skeleton__DirectorExample_t_std__allocatorT_boost__shared_ptrT_Skeleton__DirectorExample_t_t_t_std__allocatorT_std__vectorT_boost__shared_ptrT_Skeleton__DirectorExample_t_std__allocatorT_boost__shared_ptrT_Skeleton__DirectorExample_t_t_t_t_t, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "Vector_Vector_DirectorExample_pop" "', argument " "1"" of type '" "std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > > *""'"); 
+  }
+  arg1 = reinterpret_cast< std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > > * >(argp1);
+  {
+    try {
+      try {
+        result = std_vector_Sl_std_vector_Sl_boost_shared_ptr_Sl_Skeleton_DirectorExample_Sg__Sg__Sg__pop(arg1);
+      } catch(std::out_of_range &_e) {
+        SWIG_exception_fail(SWIG_IndexError, (&_e)->what());
+      }
+    } catch (Swig::DirectorException &e) {
+      SWIG_fail; 
+    } catch (const std::exception& e) {
+      SWIG_exception(SWIG_RuntimeError, e.what());
+    }
+  }
+  resultobj = swig::from(static_cast< std::vector< boost::shared_ptr< Skeleton::DirectorExample >,std::allocator< boost::shared_ptr< Skeleton::DirectorExample > > > >(result));
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_Vector_Vector_DirectorExample_append(PyObject *self, PyObject *args) {
+  PyObject *resultobj = 0;
+  std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > > *arg1 = (std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > > *) 0 ;
+  std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > >::value_type *arg2 = 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  int res2 = SWIG_OLDOBJ ;
+  PyObject *swig_obj[2] ;
+  
+  if (!SWIG_Python_UnpackTuple(args, "Vector_Vector_DirectorExample_append", 2, 2, swig_obj)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(swig_obj[0], &argp1,SWIGTYPE_p_std__vectorT_std__vectorT_boost__shared_ptrT_Skeleton__DirectorExample_t_std__allocatorT_boost__shared_ptrT_Skeleton__DirectorExample_t_t_t_std__allocatorT_std__vectorT_boost__shared_ptrT_Skeleton__DirectorExample_t_std__allocatorT_boost__shared_ptrT_Skeleton__DirectorExample_t_t_t_t_t, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "Vector_Vector_DirectorExample_append" "', argument " "1"" of type '" "std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > > *""'"); 
+  }
+  arg1 = reinterpret_cast< std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > > * >(argp1);
+  {
+    std::vector< boost::shared_ptr< Skeleton::DirectorExample >,std::allocator< boost::shared_ptr< Skeleton::DirectorExample > > > *ptr = (std::vector< boost::shared_ptr< Skeleton::DirectorExample >,std::allocator< boost::shared_ptr< Skeleton::DirectorExample > > > *)0;
+    res2 = swig::asptr(swig_obj[1], &ptr);
+    if (!SWIG_IsOK(res2)) {
+      SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "Vector_Vector_DirectorExample_append" "', argument " "2"" of type '" "std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > >::value_type const &""'"); 
+    }
+    if (!ptr) {
+      SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "Vector_Vector_DirectorExample_append" "', argument " "2"" of type '" "std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > >::value_type const &""'"); 
+    }
+    arg2 = ptr;
+  }
+  {
+    try {
+      std_vector_Sl_std_vector_Sl_boost_shared_ptr_Sl_Skeleton_DirectorExample_Sg__Sg__Sg__append(arg1,(std::vector< boost::shared_ptr< Skeleton::DirectorExample >,std::allocator< boost::shared_ptr< Skeleton::DirectorExample > > > const &)*arg2);
+    } catch (Swig::DirectorException &e) {
+      SWIG_fail; 
+    } catch (const std::exception& e) {
+      SWIG_exception(SWIG_RuntimeError, e.what());
+    }
+  }
+  resultobj = SWIG_Py_Void();
+  if (SWIG_IsNewObj(res2)) delete arg2;
+  return resultobj;
+fail:
+  if (SWIG_IsNewObj(res2)) delete arg2;
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_new_Vector_Vector_DirectorExample__SWIG_0(PyObject *self, Py_ssize_t nobjs, PyObject **SWIGUNUSEDPARM(swig_obj)) {
+  PyObject *resultobj = 0;
+  std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > > *result = 0 ;
+  
+  if ((nobjs < 0) || (nobjs > 0)) SWIG_fail;
+  {
+    try {
+      result = (std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > > *)new std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > >();
+    } catch (Swig::DirectorException &e) {
+      SWIG_fail; 
+    } catch (const std::exception& e) {
+      SWIG_exception(SWIG_RuntimeError, e.what());
+    }
+  }
+  resultobj = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIGTYPE_p_std__vectorT_std__vectorT_boost__shared_ptrT_Skeleton__DirectorExample_t_std__allocatorT_boost__shared_ptrT_Skeleton__DirectorExample_t_t_t_std__allocatorT_std__vectorT_boost__shared_ptrT_Skeleton__DirectorExample_t_std__allocatorT_boost__shared_ptrT_Skeleton__DirectorExample_t_t_t_t_t, SWIG_POINTER_NEW |  0 );
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_new_Vector_Vector_DirectorExample__SWIG_1(PyObject *self, Py_ssize_t nobjs, PyObject **swig_obj) {
+  PyObject *resultobj = 0;
+  std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample >,std::allocator< boost::shared_ptr< Skeleton::DirectorExample > > > > *arg1 = 0 ;
+  int res1 = SWIG_OLDOBJ ;
+  std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > > *result = 0 ;
+  
+  if ((nobjs < 1) || (nobjs > 1)) SWIG_fail;
+  {
+    std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample >,std::allocator< boost::shared_ptr< Skeleton::DirectorExample > > >,std::allocator< std::vector< boost::shared_ptr< Skeleton::DirectorExample >,std::allocator< boost::shared_ptr< Skeleton::DirectorExample > > > > > *ptr = (std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample >,std::allocator< boost::shared_ptr< Skeleton::DirectorExample > > >,std::allocator< std::vector< boost::shared_ptr< Skeleton::DirectorExample >,std::allocator< boost::shared_ptr< Skeleton::DirectorExample > > > > > *)0;
+    res1 = swig::asptr(swig_obj[0], &ptr);
+    if (!SWIG_IsOK(res1)) {
+      SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "new_Vector_Vector_DirectorExample" "', argument " "1"" of type '" "std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample >,std::allocator< boost::shared_ptr< Skeleton::DirectorExample > > > > const &""'"); 
+    }
+    if (!ptr) {
+      SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "new_Vector_Vector_DirectorExample" "', argument " "1"" of type '" "std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample >,std::allocator< boost::shared_ptr< Skeleton::DirectorExample > > > > const &""'"); 
+    }
+    arg1 = ptr;
+  }
+  {
+    try {
+      result = (std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > > *)new std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > >((std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample >,std::allocator< boost::shared_ptr< Skeleton::DirectorExample > > > > const &)*arg1);
+    } catch (Swig::DirectorException &e) {
+      SWIG_fail; 
+    } catch (const std::exception& e) {
+      SWIG_exception(SWIG_RuntimeError, e.what());
+    }
+  }
+  resultobj = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIGTYPE_p_std__vectorT_std__vectorT_boost__shared_ptrT_Skeleton__DirectorExample_t_std__allocatorT_boost__shared_ptrT_Skeleton__DirectorExample_t_t_t_std__allocatorT_std__vectorT_boost__shared_ptrT_Skeleton__DirectorExample_t_std__allocatorT_boost__shared_ptrT_Skeleton__DirectorExample_t_t_t_t_t, SWIG_POINTER_NEW |  0 );
+  if (SWIG_IsNewObj(res1)) delete arg1;
+  return resultobj;
+fail:
+  if (SWIG_IsNewObj(res1)) delete arg1;
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_Vector_Vector_DirectorExample_empty(PyObject *self, PyObject *args) {
+  PyObject *resultobj = 0;
+  std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > > *arg1 = (std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > > *) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  PyObject *swig_obj[1] ;
+  bool result;
+  
+  if (!args) SWIG_fail;
+  swig_obj[0] = args;
+  res1 = SWIG_ConvertPtr(swig_obj[0], &argp1,SWIGTYPE_p_std__vectorT_std__vectorT_boost__shared_ptrT_Skeleton__DirectorExample_t_std__allocatorT_boost__shared_ptrT_Skeleton__DirectorExample_t_t_t_std__allocatorT_std__vectorT_boost__shared_ptrT_Skeleton__DirectorExample_t_std__allocatorT_boost__shared_ptrT_Skeleton__DirectorExample_t_t_t_t_t, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "Vector_Vector_DirectorExample_empty" "', argument " "1"" of type '" "std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > > const *""'"); 
+  }
+  arg1 = reinterpret_cast< std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > > * >(argp1);
+  {
+    try {
+      result = (bool)((std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > > const *)arg1)->empty();
+    } catch (Swig::DirectorException &e) {
+      SWIG_fail; 
+    } catch (const std::exception& e) {
+      SWIG_exception(SWIG_RuntimeError, e.what());
+    }
+  }
+  resultobj = SWIG_From_bool(static_cast< bool >(result));
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_Vector_Vector_DirectorExample_size(PyObject *self, PyObject *args) {
+  PyObject *resultobj = 0;
+  std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > > *arg1 = (std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > > *) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  PyObject *swig_obj[1] ;
+  std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > >::size_type result;
+  
+  if (!args) SWIG_fail;
+  swig_obj[0] = args;
+  res1 = SWIG_ConvertPtr(swig_obj[0], &argp1,SWIGTYPE_p_std__vectorT_std__vectorT_boost__shared_ptrT_Skeleton__DirectorExample_t_std__allocatorT_boost__shared_ptrT_Skeleton__DirectorExample_t_t_t_std__allocatorT_std__vectorT_boost__shared_ptrT_Skeleton__DirectorExample_t_std__allocatorT_boost__shared_ptrT_Skeleton__DirectorExample_t_t_t_t_t, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "Vector_Vector_DirectorExample_size" "', argument " "1"" of type '" "std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > > const *""'"); 
+  }
+  arg1 = reinterpret_cast< std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > > * >(argp1);
+  {
+    try {
+      result = ((std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > > const *)arg1)->size();
+    } catch (Swig::DirectorException &e) {
+      SWIG_fail; 
+    } catch (const std::exception& e) {
+      SWIG_exception(SWIG_RuntimeError, e.what());
+    }
+  }
+  resultobj = SWIG_From_size_t(static_cast< size_t >(result));
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_Vector_Vector_DirectorExample_swap(PyObject *self, PyObject *args) {
+  PyObject *resultobj = 0;
+  std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > > *arg1 = (std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > > *) 0 ;
+  std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample >,std::allocator< boost::shared_ptr< Skeleton::DirectorExample > > > > *arg2 = 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  void *argp2 = 0 ;
+  int res2 = 0 ;
+  PyObject *swig_obj[2] ;
+  
+  if (!SWIG_Python_UnpackTuple(args, "Vector_Vector_DirectorExample_swap", 2, 2, swig_obj)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(swig_obj[0], &argp1,SWIGTYPE_p_std__vectorT_std__vectorT_boost__shared_ptrT_Skeleton__DirectorExample_t_std__allocatorT_boost__shared_ptrT_Skeleton__DirectorExample_t_t_t_std__allocatorT_std__vectorT_boost__shared_ptrT_Skeleton__DirectorExample_t_std__allocatorT_boost__shared_ptrT_Skeleton__DirectorExample_t_t_t_t_t, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "Vector_Vector_DirectorExample_swap" "', argument " "1"" of type '" "std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > > *""'"); 
+  }
+  arg1 = reinterpret_cast< std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > > * >(argp1);
+  res2 = SWIG_ConvertPtr(swig_obj[1], &argp2, SWIGTYPE_p_std__vectorT_std__vectorT_boost__shared_ptrT_Skeleton__DirectorExample_t_std__allocatorT_boost__shared_ptrT_Skeleton__DirectorExample_t_t_t_std__allocatorT_std__vectorT_boost__shared_ptrT_Skeleton__DirectorExample_t_std__allocatorT_boost__shared_ptrT_Skeleton__DirectorExample_t_t_t_t_t,  0 );
+  if (!SWIG_IsOK(res2)) {
+    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "Vector_Vector_DirectorExample_swap" "', argument " "2"" of type '" "std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample >,std::allocator< boost::shared_ptr< Skeleton::DirectorExample > > > > &""'"); 
+  }
+  if (!argp2) {
+    SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "Vector_Vector_DirectorExample_swap" "', argument " "2"" of type '" "std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample >,std::allocator< boost::shared_ptr< Skeleton::DirectorExample > > > > &""'"); 
+  }
+  arg2 = reinterpret_cast< std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample >,std::allocator< boost::shared_ptr< Skeleton::DirectorExample > > > > * >(argp2);
+  {
+    try {
+      (arg1)->swap(*arg2);
+    } catch (Swig::DirectorException &e) {
+      SWIG_fail; 
+    } catch (const std::exception& e) {
+      SWIG_exception(SWIG_RuntimeError, e.what());
+    }
+  }
+  resultobj = SWIG_Py_Void();
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_Vector_Vector_DirectorExample_begin(PyObject *self, PyObject *args) {
+  PyObject *resultobj = 0;
+  std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > > *arg1 = (std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > > *) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  PyObject *swig_obj[1] ;
+  std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > >::iterator result;
+  
+  if (!args) SWIG_fail;
+  swig_obj[0] = args;
+  res1 = SWIG_ConvertPtr(swig_obj[0], &argp1,SWIGTYPE_p_std__vectorT_std__vectorT_boost__shared_ptrT_Skeleton__DirectorExample_t_std__allocatorT_boost__shared_ptrT_Skeleton__DirectorExample_t_t_t_std__allocatorT_std__vectorT_boost__shared_ptrT_Skeleton__DirectorExample_t_std__allocatorT_boost__shared_ptrT_Skeleton__DirectorExample_t_t_t_t_t, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "Vector_Vector_DirectorExample_begin" "', argument " "1"" of type '" "std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > > *""'"); 
+  }
+  arg1 = reinterpret_cast< std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > > * >(argp1);
+  {
+    try {
+      result = (arg1)->begin();
+    } catch (Swig::DirectorException &e) {
+      SWIG_fail; 
+    } catch (const std::exception& e) {
+      SWIG_exception(SWIG_RuntimeError, e.what());
+    }
+  }
+  resultobj = SWIG_NewPointerObj(swig::make_output_iterator(static_cast< const std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > >::iterator & >(result)),
+    swig::SwigPyIterator::descriptor(),SWIG_POINTER_OWN);
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_Vector_Vector_DirectorExample_end(PyObject *self, PyObject *args) {
+  PyObject *resultobj = 0;
+  std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > > *arg1 = (std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > > *) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  PyObject *swig_obj[1] ;
+  std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > >::iterator result;
+  
+  if (!args) SWIG_fail;
+  swig_obj[0] = args;
+  res1 = SWIG_ConvertPtr(swig_obj[0], &argp1,SWIGTYPE_p_std__vectorT_std__vectorT_boost__shared_ptrT_Skeleton__DirectorExample_t_std__allocatorT_boost__shared_ptrT_Skeleton__DirectorExample_t_t_t_std__allocatorT_std__vectorT_boost__shared_ptrT_Skeleton__DirectorExample_t_std__allocatorT_boost__shared_ptrT_Skeleton__DirectorExample_t_t_t_t_t, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "Vector_Vector_DirectorExample_end" "', argument " "1"" of type '" "std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > > *""'"); 
+  }
+  arg1 = reinterpret_cast< std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > > * >(argp1);
+  {
+    try {
+      result = (arg1)->end();
+    } catch (Swig::DirectorException &e) {
+      SWIG_fail; 
+    } catch (const std::exception& e) {
+      SWIG_exception(SWIG_RuntimeError, e.what());
+    }
+  }
+  resultobj = SWIG_NewPointerObj(swig::make_output_iterator(static_cast< const std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > >::iterator & >(result)),
+    swig::SwigPyIterator::descriptor(),SWIG_POINTER_OWN);
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_Vector_Vector_DirectorExample_rbegin(PyObject *self, PyObject *args) {
+  PyObject *resultobj = 0;
+  std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > > *arg1 = (std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > > *) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  PyObject *swig_obj[1] ;
+  std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > >::reverse_iterator result;
+  
+  if (!args) SWIG_fail;
+  swig_obj[0] = args;
+  res1 = SWIG_ConvertPtr(swig_obj[0], &argp1,SWIGTYPE_p_std__vectorT_std__vectorT_boost__shared_ptrT_Skeleton__DirectorExample_t_std__allocatorT_boost__shared_ptrT_Skeleton__DirectorExample_t_t_t_std__allocatorT_std__vectorT_boost__shared_ptrT_Skeleton__DirectorExample_t_std__allocatorT_boost__shared_ptrT_Skeleton__DirectorExample_t_t_t_t_t, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "Vector_Vector_DirectorExample_rbegin" "', argument " "1"" of type '" "std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > > *""'"); 
+  }
+  arg1 = reinterpret_cast< std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > > * >(argp1);
+  {
+    try {
+      result = (arg1)->rbegin();
+    } catch (Swig::DirectorException &e) {
+      SWIG_fail; 
+    } catch (const std::exception& e) {
+      SWIG_exception(SWIG_RuntimeError, e.what());
+    }
+  }
+  resultobj = SWIG_NewPointerObj(swig::make_output_iterator(static_cast< const std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > >::reverse_iterator & >(result)),
+    swig::SwigPyIterator::descriptor(),SWIG_POINTER_OWN);
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_Vector_Vector_DirectorExample_rend(PyObject *self, PyObject *args) {
+  PyObject *resultobj = 0;
+  std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > > *arg1 = (std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > > *) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  PyObject *swig_obj[1] ;
+  std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > >::reverse_iterator result;
+  
+  if (!args) SWIG_fail;
+  swig_obj[0] = args;
+  res1 = SWIG_ConvertPtr(swig_obj[0], &argp1,SWIGTYPE_p_std__vectorT_std__vectorT_boost__shared_ptrT_Skeleton__DirectorExample_t_std__allocatorT_boost__shared_ptrT_Skeleton__DirectorExample_t_t_t_std__allocatorT_std__vectorT_boost__shared_ptrT_Skeleton__DirectorExample_t_std__allocatorT_boost__shared_ptrT_Skeleton__DirectorExample_t_t_t_t_t, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "Vector_Vector_DirectorExample_rend" "', argument " "1"" of type '" "std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > > *""'"); 
+  }
+  arg1 = reinterpret_cast< std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > > * >(argp1);
+  {
+    try {
+      result = (arg1)->rend();
+    } catch (Swig::DirectorException &e) {
+      SWIG_fail; 
+    } catch (const std::exception& e) {
+      SWIG_exception(SWIG_RuntimeError, e.what());
+    }
+  }
+  resultobj = SWIG_NewPointerObj(swig::make_output_iterator(static_cast< const std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > >::reverse_iterator & >(result)),
+    swig::SwigPyIterator::descriptor(),SWIG_POINTER_OWN);
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_Vector_Vector_DirectorExample_clear(PyObject *self, PyObject *args) {
+  PyObject *resultobj = 0;
+  std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > > *arg1 = (std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > > *) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  PyObject *swig_obj[1] ;
+  
+  if (!args) SWIG_fail;
+  swig_obj[0] = args;
+  res1 = SWIG_ConvertPtr(swig_obj[0], &argp1,SWIGTYPE_p_std__vectorT_std__vectorT_boost__shared_ptrT_Skeleton__DirectorExample_t_std__allocatorT_boost__shared_ptrT_Skeleton__DirectorExample_t_t_t_std__allocatorT_std__vectorT_boost__shared_ptrT_Skeleton__DirectorExample_t_std__allocatorT_boost__shared_ptrT_Skeleton__DirectorExample_t_t_t_t_t, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "Vector_Vector_DirectorExample_clear" "', argument " "1"" of type '" "std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > > *""'"); 
+  }
+  arg1 = reinterpret_cast< std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > > * >(argp1);
+  {
+    try {
+      (arg1)->clear();
+    } catch (Swig::DirectorException &e) {
+      SWIG_fail; 
+    } catch (const std::exception& e) {
+      SWIG_exception(SWIG_RuntimeError, e.what());
+    }
+  }
+  resultobj = SWIG_Py_Void();
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_Vector_Vector_DirectorExample_get_allocator(PyObject *self, PyObject *args) {
+  PyObject *resultobj = 0;
+  std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > > *arg1 = (std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > > *) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  PyObject *swig_obj[1] ;
+  SwigValueWrapper< std::allocator< std::vector< boost::shared_ptr< Skeleton::DirectorExample >,std::allocator< boost::shared_ptr< Skeleton::DirectorExample > > > > > result;
+  
+  if (!args) SWIG_fail;
+  swig_obj[0] = args;
+  res1 = SWIG_ConvertPtr(swig_obj[0], &argp1,SWIGTYPE_p_std__vectorT_std__vectorT_boost__shared_ptrT_Skeleton__DirectorExample_t_std__allocatorT_boost__shared_ptrT_Skeleton__DirectorExample_t_t_t_std__allocatorT_std__vectorT_boost__shared_ptrT_Skeleton__DirectorExample_t_std__allocatorT_boost__shared_ptrT_Skeleton__DirectorExample_t_t_t_t_t, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "Vector_Vector_DirectorExample_get_allocator" "', argument " "1"" of type '" "std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > > const *""'"); 
+  }
+  arg1 = reinterpret_cast< std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > > * >(argp1);
+  {
+    try {
+      result = ((std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > > const *)arg1)->get_allocator();
+    } catch (Swig::DirectorException &e) {
+      SWIG_fail; 
+    } catch (const std::exception& e) {
+      SWIG_exception(SWIG_RuntimeError, e.what());
+    }
+  }
+  resultobj = SWIG_NewPointerObj((new std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > >::allocator_type(result)), SWIGTYPE_p_std__allocatorT_std__vectorT_boost__shared_ptrT_Skeleton__DirectorExample_t_std__allocatorT_boost__shared_ptrT_Skeleton__DirectorExample_t_t_t_t, SWIG_POINTER_OWN |  0 );
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_new_Vector_Vector_DirectorExample__SWIG_2(PyObject *self, Py_ssize_t nobjs, PyObject **swig_obj) {
+  PyObject *resultobj = 0;
+  std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > >::size_type arg1 ;
+  size_t val1 ;
+  int ecode1 = 0 ;
+  std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > > *result = 0 ;
+  
+  if ((nobjs < 1) || (nobjs > 1)) SWIG_fail;
+  ecode1 = SWIG_AsVal_size_t(swig_obj[0], &val1);
+  if (!SWIG_IsOK(ecode1)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode1), "in method '" "new_Vector_Vector_DirectorExample" "', argument " "1"" of type '" "std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > >::size_type""'");
+  } 
+  arg1 = static_cast< std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > >::size_type >(val1);
+  {
+    try {
+      result = (std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > > *)new std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > >(arg1);
+    } catch (Swig::DirectorException &e) {
+      SWIG_fail; 
+    } catch (const std::exception& e) {
+      SWIG_exception(SWIG_RuntimeError, e.what());
+    }
+  }
+  resultobj = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIGTYPE_p_std__vectorT_std__vectorT_boost__shared_ptrT_Skeleton__DirectorExample_t_std__allocatorT_boost__shared_ptrT_Skeleton__DirectorExample_t_t_t_std__allocatorT_std__vectorT_boost__shared_ptrT_Skeleton__DirectorExample_t_std__allocatorT_boost__shared_ptrT_Skeleton__DirectorExample_t_t_t_t_t, SWIG_POINTER_NEW |  0 );
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_Vector_Vector_DirectorExample_pop_back(PyObject *self, PyObject *args) {
+  PyObject *resultobj = 0;
+  std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > > *arg1 = (std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > > *) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  PyObject *swig_obj[1] ;
+  
+  if (!args) SWIG_fail;
+  swig_obj[0] = args;
+  res1 = SWIG_ConvertPtr(swig_obj[0], &argp1,SWIGTYPE_p_std__vectorT_std__vectorT_boost__shared_ptrT_Skeleton__DirectorExample_t_std__allocatorT_boost__shared_ptrT_Skeleton__DirectorExample_t_t_t_std__allocatorT_std__vectorT_boost__shared_ptrT_Skeleton__DirectorExample_t_std__allocatorT_boost__shared_ptrT_Skeleton__DirectorExample_t_t_t_t_t, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "Vector_Vector_DirectorExample_pop_back" "', argument " "1"" of type '" "std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > > *""'"); 
+  }
+  arg1 = reinterpret_cast< std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > > * >(argp1);
+  {
+    try {
+      (arg1)->pop_back();
+    } catch (Swig::DirectorException &e) {
+      SWIG_fail; 
+    } catch (const std::exception& e) {
+      SWIG_exception(SWIG_RuntimeError, e.what());
+    }
+  }
+  resultobj = SWIG_Py_Void();
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_Vector_Vector_DirectorExample_resize__SWIG_0(PyObject *self, Py_ssize_t nobjs, PyObject **swig_obj) {
+  PyObject *resultobj = 0;
+  std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > > *arg1 = (std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > > *) 0 ;
+  std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > >::size_type arg2 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  size_t val2 ;
+  int ecode2 = 0 ;
+  
+  if ((nobjs < 2) || (nobjs > 2)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(swig_obj[0], &argp1,SWIGTYPE_p_std__vectorT_std__vectorT_boost__shared_ptrT_Skeleton__DirectorExample_t_std__allocatorT_boost__shared_ptrT_Skeleton__DirectorExample_t_t_t_std__allocatorT_std__vectorT_boost__shared_ptrT_Skeleton__DirectorExample_t_std__allocatorT_boost__shared_ptrT_Skeleton__DirectorExample_t_t_t_t_t, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "Vector_Vector_DirectorExample_resize" "', argument " "1"" of type '" "std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > > *""'"); 
+  }
+  arg1 = reinterpret_cast< std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > > * >(argp1);
+  ecode2 = SWIG_AsVal_size_t(swig_obj[1], &val2);
+  if (!SWIG_IsOK(ecode2)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode2), "in method '" "Vector_Vector_DirectorExample_resize" "', argument " "2"" of type '" "std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > >::size_type""'");
+  } 
+  arg2 = static_cast< std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > >::size_type >(val2);
+  {
+    try {
+      (arg1)->resize(arg2);
+    } catch (Swig::DirectorException &e) {
+      SWIG_fail; 
+    } catch (const std::exception& e) {
+      SWIG_exception(SWIG_RuntimeError, e.what());
+    }
+  }
+  resultobj = SWIG_Py_Void();
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_Vector_Vector_DirectorExample_erase__SWIG_0(PyObject *self, Py_ssize_t nobjs, PyObject **swig_obj) {
+  PyObject *resultobj = 0;
+  std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > > *arg1 = (std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > > *) 0 ;
+  std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > >::iterator arg2 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  swig::SwigPyIterator *iter2 = 0 ;
+  int res2 ;
+  std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > >::iterator result;
+  
+  if ((nobjs < 2) || (nobjs > 2)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(swig_obj[0], &argp1,SWIGTYPE_p_std__vectorT_std__vectorT_boost__shared_ptrT_Skeleton__DirectorExample_t_std__allocatorT_boost__shared_ptrT_Skeleton__DirectorExample_t_t_t_std__allocatorT_std__vectorT_boost__shared_ptrT_Skeleton__DirectorExample_t_std__allocatorT_boost__shared_ptrT_Skeleton__DirectorExample_t_t_t_t_t, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "Vector_Vector_DirectorExample_erase" "', argument " "1"" of type '" "std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > > *""'"); 
+  }
+  arg1 = reinterpret_cast< std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > > * >(argp1);
+  res2 = SWIG_ConvertPtr(swig_obj[1], SWIG_as_voidptrptr(&iter2), swig::SwigPyIterator::descriptor(), 0);
+  if (!SWIG_IsOK(res2) || !iter2) {
+    SWIG_exception_fail(SWIG_ArgError(SWIG_TypeError), "in method '" "Vector_Vector_DirectorExample_erase" "', argument " "2"" of type '" "std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > >::iterator""'");
+  } else {
+    swig::SwigPyIterator_T<std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > >::iterator > *iter_t = dynamic_cast<swig::SwigPyIterator_T<std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > >::iterator > *>(iter2);
+    if (iter_t) {
+      arg2 = iter_t->get_current();
+    } else {
+      SWIG_exception_fail(SWIG_ArgError(SWIG_TypeError), "in method '" "Vector_Vector_DirectorExample_erase" "', argument " "2"" of type '" "std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > >::iterator""'");
+    }
+  }
+  {
+    try {
+      result = std_vector_Sl_std_vector_Sl_boost_shared_ptr_Sl_Skeleton_DirectorExample_Sg__Sg__Sg__erase__SWIG_0(arg1,SWIG_STD_MOVE(arg2));
+    } catch (Swig::DirectorException &e) {
+      SWIG_fail; 
+    } catch (const std::exception& e) {
+      SWIG_exception(SWIG_RuntimeError, e.what());
+    }
+  }
+  resultobj = SWIG_NewPointerObj(swig::make_output_iterator(static_cast< const std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > >::iterator & >(result)),
+    swig::SwigPyIterator::descriptor(),SWIG_POINTER_OWN);
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_Vector_Vector_DirectorExample_erase__SWIG_1(PyObject *self, Py_ssize_t nobjs, PyObject **swig_obj) {
+  PyObject *resultobj = 0;
+  std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > > *arg1 = (std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > > *) 0 ;
+  std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > >::iterator arg2 ;
+  std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > >::iterator arg3 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  swig::SwigPyIterator *iter2 = 0 ;
+  int res2 ;
+  swig::SwigPyIterator *iter3 = 0 ;
+  int res3 ;
+  std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > >::iterator result;
+  
+  if ((nobjs < 3) || (nobjs > 3)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(swig_obj[0], &argp1,SWIGTYPE_p_std__vectorT_std__vectorT_boost__shared_ptrT_Skeleton__DirectorExample_t_std__allocatorT_boost__shared_ptrT_Skeleton__DirectorExample_t_t_t_std__allocatorT_std__vectorT_boost__shared_ptrT_Skeleton__DirectorExample_t_std__allocatorT_boost__shared_ptrT_Skeleton__DirectorExample_t_t_t_t_t, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "Vector_Vector_DirectorExample_erase" "', argument " "1"" of type '" "std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > > *""'"); 
+  }
+  arg1 = reinterpret_cast< std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > > * >(argp1);
+  res2 = SWIG_ConvertPtr(swig_obj[1], SWIG_as_voidptrptr(&iter2), swig::SwigPyIterator::descriptor(), 0);
+  if (!SWIG_IsOK(res2) || !iter2) {
+    SWIG_exception_fail(SWIG_ArgError(SWIG_TypeError), "in method '" "Vector_Vector_DirectorExample_erase" "', argument " "2"" of type '" "std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > >::iterator""'");
+  } else {
+    swig::SwigPyIterator_T<std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > >::iterator > *iter_t = dynamic_cast<swig::SwigPyIterator_T<std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > >::iterator > *>(iter2);
+    if (iter_t) {
+      arg2 = iter_t->get_current();
+    } else {
+      SWIG_exception_fail(SWIG_ArgError(SWIG_TypeError), "in method '" "Vector_Vector_DirectorExample_erase" "', argument " "2"" of type '" "std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > >::iterator""'");
+    }
+  }
+  res3 = SWIG_ConvertPtr(swig_obj[2], SWIG_as_voidptrptr(&iter3), swig::SwigPyIterator::descriptor(), 0);
+  if (!SWIG_IsOK(res3) || !iter3) {
+    SWIG_exception_fail(SWIG_ArgError(SWIG_TypeError), "in method '" "Vector_Vector_DirectorExample_erase" "', argument " "3"" of type '" "std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > >::iterator""'");
+  } else {
+    swig::SwigPyIterator_T<std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > >::iterator > *iter_t = dynamic_cast<swig::SwigPyIterator_T<std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > >::iterator > *>(iter3);
+    if (iter_t) {
+      arg3 = iter_t->get_current();
+    } else {
+      SWIG_exception_fail(SWIG_ArgError(SWIG_TypeError), "in method '" "Vector_Vector_DirectorExample_erase" "', argument " "3"" of type '" "std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > >::iterator""'");
+    }
+  }
+  {
+    try {
+      result = std_vector_Sl_std_vector_Sl_boost_shared_ptr_Sl_Skeleton_DirectorExample_Sg__Sg__Sg__erase__SWIG_1(arg1,SWIG_STD_MOVE(arg2),SWIG_STD_MOVE(arg3));
+    } catch (Swig::DirectorException &e) {
+      SWIG_fail; 
+    } catch (const std::exception& e) {
+      SWIG_exception(SWIG_RuntimeError, e.what());
+    }
+  }
+  resultobj = SWIG_NewPointerObj(swig::make_output_iterator(static_cast< const std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > >::iterator & >(result)),
+    swig::SwigPyIterator::descriptor(),SWIG_POINTER_OWN);
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_Vector_Vector_DirectorExample_erase(PyObject *self, PyObject *args) {
+  Py_ssize_t argc;
+  PyObject *argv[4] = {
+    0
+  };
+  
+  if (!(argc = SWIG_Python_UnpackTuple(args, "Vector_Vector_DirectorExample_erase", 0, 3, argv))) SWIG_fail;
+  --argc;
+  if (argc == 2) {
+    PyObject *retobj = _wrap_Vector_Vector_DirectorExample_erase__SWIG_0(self, argc, argv);
+    if (!SWIG_Python_TypeErrorOccurred(retobj)) return retobj;
+    SWIG_fail;
+  }
+  if (argc == 3) {
+    PyObject *retobj = _wrap_Vector_Vector_DirectorExample_erase__SWIG_1(self, argc, argv);
+    if (!SWIG_Python_TypeErrorOccurred(retobj)) return retobj;
+    SWIG_fail;
+  }
+  
+fail:
+  SWIG_Python_RaiseOrModifyTypeError("Wrong number or type of arguments for overloaded function 'Vector_Vector_DirectorExample_erase'.\n"
+    "  Possible C/C++ prototypes are:\n"
+    "    std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > >::erase(std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > >::iterator)\n"
+    "    std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > >::erase(std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > >::iterator,std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > >::iterator)\n");
+  return 0;
+}
+
+
+SWIGINTERN PyObject *_wrap_new_Vector_Vector_DirectorExample__SWIG_3(PyObject *self, Py_ssize_t nobjs, PyObject **swig_obj) {
+  PyObject *resultobj = 0;
+  std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > >::size_type arg1 ;
+  std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > >::value_type *arg2 = 0 ;
+  size_t val1 ;
+  int ecode1 = 0 ;
+  int res2 = SWIG_OLDOBJ ;
+  std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > > *result = 0 ;
+  
+  if ((nobjs < 2) || (nobjs > 2)) SWIG_fail;
+  ecode1 = SWIG_AsVal_size_t(swig_obj[0], &val1);
+  if (!SWIG_IsOK(ecode1)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode1), "in method '" "new_Vector_Vector_DirectorExample" "', argument " "1"" of type '" "std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > >::size_type""'");
+  } 
+  arg1 = static_cast< std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > >::size_type >(val1);
+  {
+    std::vector< boost::shared_ptr< Skeleton::DirectorExample >,std::allocator< boost::shared_ptr< Skeleton::DirectorExample > > > *ptr = (std::vector< boost::shared_ptr< Skeleton::DirectorExample >,std::allocator< boost::shared_ptr< Skeleton::DirectorExample > > > *)0;
+    res2 = swig::asptr(swig_obj[1], &ptr);
+    if (!SWIG_IsOK(res2)) {
+      SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "new_Vector_Vector_DirectorExample" "', argument " "2"" of type '" "std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > >::value_type const &""'"); 
+    }
+    if (!ptr) {
+      SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "new_Vector_Vector_DirectorExample" "', argument " "2"" of type '" "std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > >::value_type const &""'"); 
+    }
+    arg2 = ptr;
+  }
+  {
+    try {
+      result = (std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > > *)new std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > >(arg1,(std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > >::value_type const &)*arg2);
+    } catch (Swig::DirectorException &e) {
+      SWIG_fail; 
+    } catch (const std::exception& e) {
+      SWIG_exception(SWIG_RuntimeError, e.what());
+    }
+  }
+  resultobj = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIGTYPE_p_std__vectorT_std__vectorT_boost__shared_ptrT_Skeleton__DirectorExample_t_std__allocatorT_boost__shared_ptrT_Skeleton__DirectorExample_t_t_t_std__allocatorT_std__vectorT_boost__shared_ptrT_Skeleton__DirectorExample_t_std__allocatorT_boost__shared_ptrT_Skeleton__DirectorExample_t_t_t_t_t, SWIG_POINTER_NEW |  0 );
+  if (SWIG_IsNewObj(res2)) delete arg2;
+  return resultobj;
+fail:
+  if (SWIG_IsNewObj(res2)) delete arg2;
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_new_Vector_Vector_DirectorExample(PyObject *self, PyObject *args) {
+  Py_ssize_t argc;
+  PyObject *argv[3] = {
+    0
+  };
+  
+  if (!(argc = SWIG_Python_UnpackTuple(args, "new_Vector_Vector_DirectorExample", 0, 2, argv))) SWIG_fail;
+  --argc;
+  if (argc == 0) {
+    PyObject *retobj = _wrap_new_Vector_Vector_DirectorExample__SWIG_0(self, argc, argv);
+    if (!SWIG_Python_TypeErrorOccurred(retobj)) return retobj;
+    SWIG_fail;
+  }
+  if (argc == 1) {
+    int _v = 0;
+    {
+      {
+        int res = SWIG_AsVal_size_t(argv[0], NULL);
+        _v = SWIG_CheckState(res);
+      }
+    }
+    if (!_v) goto check_2;
+    return _wrap_new_Vector_Vector_DirectorExample__SWIG_2(self, argc, argv);
+  }
+check_2:
+  
+  if (argc == 1) {
+    PyObject *retobj = _wrap_new_Vector_Vector_DirectorExample__SWIG_1(self, argc, argv);
+    if (!SWIG_Python_TypeErrorOccurred(retobj)) return retobj;
+    SWIG_fail;
+  }
+  if (argc == 2) {
+    PyObject *retobj = _wrap_new_Vector_Vector_DirectorExample__SWIG_3(self, argc, argv);
+    if (!SWIG_Python_TypeErrorOccurred(retobj)) return retobj;
+    SWIG_fail;
+  }
+  
+fail:
+  SWIG_Python_RaiseOrModifyTypeError("Wrong number or type of arguments for overloaded function 'new_Vector_Vector_DirectorExample'.\n"
+    "  Possible C/C++ prototypes are:\n"
+    "    std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > >::vector()\n"
+    "    std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > >::vector(std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample >,std::allocator< boost::shared_ptr< Skeleton::DirectorExample > > > > const &)\n"
+    "    std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > >::vector(std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > >::size_type)\n"
+    "    std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > >::vector(std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > >::size_type,std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > >::value_type const &)\n");
+  return 0;
+}
+
+
+SWIGINTERN PyObject *_wrap_Vector_Vector_DirectorExample_push_back(PyObject *self, PyObject *args) {
+  PyObject *resultobj = 0;
+  std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > > *arg1 = (std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > > *) 0 ;
+  std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > >::value_type *arg2 = 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  int res2 = SWIG_OLDOBJ ;
+  PyObject *swig_obj[2] ;
+  
+  if (!SWIG_Python_UnpackTuple(args, "Vector_Vector_DirectorExample_push_back", 2, 2, swig_obj)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(swig_obj[0], &argp1,SWIGTYPE_p_std__vectorT_std__vectorT_boost__shared_ptrT_Skeleton__DirectorExample_t_std__allocatorT_boost__shared_ptrT_Skeleton__DirectorExample_t_t_t_std__allocatorT_std__vectorT_boost__shared_ptrT_Skeleton__DirectorExample_t_std__allocatorT_boost__shared_ptrT_Skeleton__DirectorExample_t_t_t_t_t, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "Vector_Vector_DirectorExample_push_back" "', argument " "1"" of type '" "std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > > *""'"); 
+  }
+  arg1 = reinterpret_cast< std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > > * >(argp1);
+  {
+    std::vector< boost::shared_ptr< Skeleton::DirectorExample >,std::allocator< boost::shared_ptr< Skeleton::DirectorExample > > > *ptr = (std::vector< boost::shared_ptr< Skeleton::DirectorExample >,std::allocator< boost::shared_ptr< Skeleton::DirectorExample > > > *)0;
+    res2 = swig::asptr(swig_obj[1], &ptr);
+    if (!SWIG_IsOK(res2)) {
+      SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "Vector_Vector_DirectorExample_push_back" "', argument " "2"" of type '" "std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > >::value_type const &""'"); 
+    }
+    if (!ptr) {
+      SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "Vector_Vector_DirectorExample_push_back" "', argument " "2"" of type '" "std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > >::value_type const &""'"); 
+    }
+    arg2 = ptr;
+  }
+  {
+    try {
+      (arg1)->push_back((std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > >::value_type const &)*arg2);
+    } catch (Swig::DirectorException &e) {
+      SWIG_fail; 
+    } catch (const std::exception& e) {
+      SWIG_exception(SWIG_RuntimeError, e.what());
+    }
+  }
+  resultobj = SWIG_Py_Void();
+  if (SWIG_IsNewObj(res2)) delete arg2;
+  return resultobj;
+fail:
+  if (SWIG_IsNewObj(res2)) delete arg2;
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_Vector_Vector_DirectorExample_front(PyObject *self, PyObject *args) {
+  PyObject *resultobj = 0;
+  std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > > *arg1 = (std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > > *) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  PyObject *swig_obj[1] ;
+  std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > >::value_type *result = 0 ;
+  
+  if (!args) SWIG_fail;
+  swig_obj[0] = args;
+  res1 = SWIG_ConvertPtr(swig_obj[0], &argp1,SWIGTYPE_p_std__vectorT_std__vectorT_boost__shared_ptrT_Skeleton__DirectorExample_t_std__allocatorT_boost__shared_ptrT_Skeleton__DirectorExample_t_t_t_std__allocatorT_std__vectorT_boost__shared_ptrT_Skeleton__DirectorExample_t_std__allocatorT_boost__shared_ptrT_Skeleton__DirectorExample_t_t_t_t_t, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "Vector_Vector_DirectorExample_front" "', argument " "1"" of type '" "std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > > const *""'"); 
+  }
+  arg1 = reinterpret_cast< std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > > * >(argp1);
+  {
+    try {
+      result = (std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > >::value_type *) &((std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > > const *)arg1)->front();
+    } catch (Swig::DirectorException &e) {
+      SWIG_fail; 
+    } catch (const std::exception& e) {
+      SWIG_exception(SWIG_RuntimeError, e.what());
+    }
+  }
+  resultobj = swig::from(static_cast< std::vector< boost::shared_ptr< Skeleton::DirectorExample >,std::allocator< boost::shared_ptr< Skeleton::DirectorExample > > > >(*result));
+  (void)swig::container_owner<swig::traits<std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > >::value_type>::category>::back_reference(resultobj, swig_obj[0]);
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_Vector_Vector_DirectorExample_back(PyObject *self, PyObject *args) {
+  PyObject *resultobj = 0;
+  std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > > *arg1 = (std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > > *) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  PyObject *swig_obj[1] ;
+  std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > >::value_type *result = 0 ;
+  
+  if (!args) SWIG_fail;
+  swig_obj[0] = args;
+  res1 = SWIG_ConvertPtr(swig_obj[0], &argp1,SWIGTYPE_p_std__vectorT_std__vectorT_boost__shared_ptrT_Skeleton__DirectorExample_t_std__allocatorT_boost__shared_ptrT_Skeleton__DirectorExample_t_t_t_std__allocatorT_std__vectorT_boost__shared_ptrT_Skeleton__DirectorExample_t_std__allocatorT_boost__shared_ptrT_Skeleton__DirectorExample_t_t_t_t_t, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "Vector_Vector_DirectorExample_back" "', argument " "1"" of type '" "std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > > const *""'"); 
+  }
+  arg1 = reinterpret_cast< std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > > * >(argp1);
+  {
+    try {
+      result = (std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > >::value_type *) &((std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > > const *)arg1)->back();
+    } catch (Swig::DirectorException &e) {
+      SWIG_fail; 
+    } catch (const std::exception& e) {
+      SWIG_exception(SWIG_RuntimeError, e.what());
+    }
+  }
+  resultobj = swig::from(static_cast< std::vector< boost::shared_ptr< Skeleton::DirectorExample >,std::allocator< boost::shared_ptr< Skeleton::DirectorExample > > > >(*result));
+  (void)swig::container_owner<swig::traits<std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > >::value_type>::category>::back_reference(resultobj, swig_obj[0]);
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_Vector_Vector_DirectorExample_assign(PyObject *self, PyObject *args) {
+  PyObject *resultobj = 0;
+  std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > > *arg1 = (std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > > *) 0 ;
+  std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > >::size_type arg2 ;
+  std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > >::value_type *arg3 = 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  size_t val2 ;
+  int ecode2 = 0 ;
+  int res3 = SWIG_OLDOBJ ;
+  PyObject *swig_obj[3] ;
+  
+  if (!SWIG_Python_UnpackTuple(args, "Vector_Vector_DirectorExample_assign", 3, 3, swig_obj)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(swig_obj[0], &argp1,SWIGTYPE_p_std__vectorT_std__vectorT_boost__shared_ptrT_Skeleton__DirectorExample_t_std__allocatorT_boost__shared_ptrT_Skeleton__DirectorExample_t_t_t_std__allocatorT_std__vectorT_boost__shared_ptrT_Skeleton__DirectorExample_t_std__allocatorT_boost__shared_ptrT_Skeleton__DirectorExample_t_t_t_t_t, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "Vector_Vector_DirectorExample_assign" "', argument " "1"" of type '" "std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > > *""'"); 
+  }
+  arg1 = reinterpret_cast< std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > > * >(argp1);
+  ecode2 = SWIG_AsVal_size_t(swig_obj[1], &val2);
+  if (!SWIG_IsOK(ecode2)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode2), "in method '" "Vector_Vector_DirectorExample_assign" "', argument " "2"" of type '" "std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > >::size_type""'");
+  } 
+  arg2 = static_cast< std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > >::size_type >(val2);
+  {
+    std::vector< boost::shared_ptr< Skeleton::DirectorExample >,std::allocator< boost::shared_ptr< Skeleton::DirectorExample > > > *ptr = (std::vector< boost::shared_ptr< Skeleton::DirectorExample >,std::allocator< boost::shared_ptr< Skeleton::DirectorExample > > > *)0;
+    res3 = swig::asptr(swig_obj[2], &ptr);
+    if (!SWIG_IsOK(res3)) {
+      SWIG_exception_fail(SWIG_ArgError(res3), "in method '" "Vector_Vector_DirectorExample_assign" "', argument " "3"" of type '" "std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > >::value_type const &""'"); 
+    }
+    if (!ptr) {
+      SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "Vector_Vector_DirectorExample_assign" "', argument " "3"" of type '" "std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > >::value_type const &""'"); 
+    }
+    arg3 = ptr;
+  }
+  {
+    try {
+      (arg1)->assign(arg2,(std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > >::value_type const &)*arg3);
+    } catch (Swig::DirectorException &e) {
+      SWIG_fail; 
+    } catch (const std::exception& e) {
+      SWIG_exception(SWIG_RuntimeError, e.what());
+    }
+  }
+  resultobj = SWIG_Py_Void();
+  if (SWIG_IsNewObj(res3)) delete arg3;
+  return resultobj;
+fail:
+  if (SWIG_IsNewObj(res3)) delete arg3;
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_Vector_Vector_DirectorExample_resize__SWIG_1(PyObject *self, Py_ssize_t nobjs, PyObject **swig_obj) {
+  PyObject *resultobj = 0;
+  std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > > *arg1 = (std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > > *) 0 ;
+  std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > >::size_type arg2 ;
+  std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > >::value_type *arg3 = 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  size_t val2 ;
+  int ecode2 = 0 ;
+  int res3 = SWIG_OLDOBJ ;
+  
+  if ((nobjs < 3) || (nobjs > 3)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(swig_obj[0], &argp1,SWIGTYPE_p_std__vectorT_std__vectorT_boost__shared_ptrT_Skeleton__DirectorExample_t_std__allocatorT_boost__shared_ptrT_Skeleton__DirectorExample_t_t_t_std__allocatorT_std__vectorT_boost__shared_ptrT_Skeleton__DirectorExample_t_std__allocatorT_boost__shared_ptrT_Skeleton__DirectorExample_t_t_t_t_t, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "Vector_Vector_DirectorExample_resize" "', argument " "1"" of type '" "std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > > *""'"); 
+  }
+  arg1 = reinterpret_cast< std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > > * >(argp1);
+  ecode2 = SWIG_AsVal_size_t(swig_obj[1], &val2);
+  if (!SWIG_IsOK(ecode2)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode2), "in method '" "Vector_Vector_DirectorExample_resize" "', argument " "2"" of type '" "std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > >::size_type""'");
+  } 
+  arg2 = static_cast< std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > >::size_type >(val2);
+  {
+    std::vector< boost::shared_ptr< Skeleton::DirectorExample >,std::allocator< boost::shared_ptr< Skeleton::DirectorExample > > > *ptr = (std::vector< boost::shared_ptr< Skeleton::DirectorExample >,std::allocator< boost::shared_ptr< Skeleton::DirectorExample > > > *)0;
+    res3 = swig::asptr(swig_obj[2], &ptr);
+    if (!SWIG_IsOK(res3)) {
+      SWIG_exception_fail(SWIG_ArgError(res3), "in method '" "Vector_Vector_DirectorExample_resize" "', argument " "3"" of type '" "std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > >::value_type const &""'"); 
+    }
+    if (!ptr) {
+      SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "Vector_Vector_DirectorExample_resize" "', argument " "3"" of type '" "std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > >::value_type const &""'"); 
+    }
+    arg3 = ptr;
+  }
+  {
+    try {
+      (arg1)->resize(arg2,(std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > >::value_type const &)*arg3);
+    } catch (Swig::DirectorException &e) {
+      SWIG_fail; 
+    } catch (const std::exception& e) {
+      SWIG_exception(SWIG_RuntimeError, e.what());
+    }
+  }
+  resultobj = SWIG_Py_Void();
+  if (SWIG_IsNewObj(res3)) delete arg3;
+  return resultobj;
+fail:
+  if (SWIG_IsNewObj(res3)) delete arg3;
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_Vector_Vector_DirectorExample_resize(PyObject *self, PyObject *args) {
+  Py_ssize_t argc;
+  PyObject *argv[4] = {
+    0
+  };
+  
+  if (!(argc = SWIG_Python_UnpackTuple(args, "Vector_Vector_DirectorExample_resize", 0, 3, argv))) SWIG_fail;
+  --argc;
+  if (argc == 2) {
+    PyObject *retobj = _wrap_Vector_Vector_DirectorExample_resize__SWIG_0(self, argc, argv);
+    if (!SWIG_Python_TypeErrorOccurred(retobj)) return retobj;
+    SWIG_fail;
+  }
+  if (argc == 3) {
+    PyObject *retobj = _wrap_Vector_Vector_DirectorExample_resize__SWIG_1(self, argc, argv);
+    if (!SWIG_Python_TypeErrorOccurred(retobj)) return retobj;
+    SWIG_fail;
+  }
+  
+fail:
+  SWIG_Python_RaiseOrModifyTypeError("Wrong number or type of arguments for overloaded function 'Vector_Vector_DirectorExample_resize'.\n"
+    "  Possible C/C++ prototypes are:\n"
+    "    std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > >::resize(std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > >::size_type)\n"
+    "    std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > >::resize(std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > >::size_type,std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > >::value_type const &)\n");
+  return 0;
+}
+
+
+SWIGINTERN PyObject *_wrap_Vector_Vector_DirectorExample_insert__SWIG_0(PyObject *self, Py_ssize_t nobjs, PyObject **swig_obj) {
+  PyObject *resultobj = 0;
+  std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > > *arg1 = (std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > > *) 0 ;
+  std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > >::iterator arg2 ;
+  std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > >::value_type *arg3 = 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  swig::SwigPyIterator *iter2 = 0 ;
+  int res2 ;
+  int res3 = SWIG_OLDOBJ ;
+  std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > >::iterator result;
+  
+  if ((nobjs < 3) || (nobjs > 3)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(swig_obj[0], &argp1,SWIGTYPE_p_std__vectorT_std__vectorT_boost__shared_ptrT_Skeleton__DirectorExample_t_std__allocatorT_boost__shared_ptrT_Skeleton__DirectorExample_t_t_t_std__allocatorT_std__vectorT_boost__shared_ptrT_Skeleton__DirectorExample_t_std__allocatorT_boost__shared_ptrT_Skeleton__DirectorExample_t_t_t_t_t, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "Vector_Vector_DirectorExample_insert" "', argument " "1"" of type '" "std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > > *""'"); 
+  }
+  arg1 = reinterpret_cast< std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > > * >(argp1);
+  res2 = SWIG_ConvertPtr(swig_obj[1], SWIG_as_voidptrptr(&iter2), swig::SwigPyIterator::descriptor(), 0);
+  if (!SWIG_IsOK(res2) || !iter2) {
+    SWIG_exception_fail(SWIG_ArgError(SWIG_TypeError), "in method '" "Vector_Vector_DirectorExample_insert" "', argument " "2"" of type '" "std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > >::iterator""'");
+  } else {
+    swig::SwigPyIterator_T<std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > >::iterator > *iter_t = dynamic_cast<swig::SwigPyIterator_T<std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > >::iterator > *>(iter2);
+    if (iter_t) {
+      arg2 = iter_t->get_current();
+    } else {
+      SWIG_exception_fail(SWIG_ArgError(SWIG_TypeError), "in method '" "Vector_Vector_DirectorExample_insert" "', argument " "2"" of type '" "std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > >::iterator""'");
+    }
+  }
+  {
+    std::vector< boost::shared_ptr< Skeleton::DirectorExample >,std::allocator< boost::shared_ptr< Skeleton::DirectorExample > > > *ptr = (std::vector< boost::shared_ptr< Skeleton::DirectorExample >,std::allocator< boost::shared_ptr< Skeleton::DirectorExample > > > *)0;
+    res3 = swig::asptr(swig_obj[2], &ptr);
+    if (!SWIG_IsOK(res3)) {
+      SWIG_exception_fail(SWIG_ArgError(res3), "in method '" "Vector_Vector_DirectorExample_insert" "', argument " "3"" of type '" "std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > >::value_type const &""'"); 
+    }
+    if (!ptr) {
+      SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "Vector_Vector_DirectorExample_insert" "', argument " "3"" of type '" "std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > >::value_type const &""'"); 
+    }
+    arg3 = ptr;
+  }
+  {
+    try {
+      result = std_vector_Sl_std_vector_Sl_boost_shared_ptr_Sl_Skeleton_DirectorExample_Sg__Sg__Sg__insert__SWIG_0(arg1,SWIG_STD_MOVE(arg2),(std::vector< boost::shared_ptr< Skeleton::DirectorExample >,std::allocator< boost::shared_ptr< Skeleton::DirectorExample > > > const &)*arg3);
+    } catch (Swig::DirectorException &e) {
+      SWIG_fail; 
+    } catch (const std::exception& e) {
+      SWIG_exception(SWIG_RuntimeError, e.what());
+    }
+  }
+  resultobj = SWIG_NewPointerObj(swig::make_output_iterator(static_cast< const std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > >::iterator & >(result)),
+    swig::SwigPyIterator::descriptor(),SWIG_POINTER_OWN);
+  if (SWIG_IsNewObj(res3)) delete arg3;
+  return resultobj;
+fail:
+  if (SWIG_IsNewObj(res3)) delete arg3;
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_Vector_Vector_DirectorExample_insert__SWIG_1(PyObject *self, Py_ssize_t nobjs, PyObject **swig_obj) {
+  PyObject *resultobj = 0;
+  std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > > *arg1 = (std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > > *) 0 ;
+  std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > >::iterator arg2 ;
+  std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > >::size_type arg3 ;
+  std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > >::value_type *arg4 = 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  swig::SwigPyIterator *iter2 = 0 ;
+  int res2 ;
+  size_t val3 ;
+  int ecode3 = 0 ;
+  int res4 = SWIG_OLDOBJ ;
+  
+  if ((nobjs < 4) || (nobjs > 4)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(swig_obj[0], &argp1,SWIGTYPE_p_std__vectorT_std__vectorT_boost__shared_ptrT_Skeleton__DirectorExample_t_std__allocatorT_boost__shared_ptrT_Skeleton__DirectorExample_t_t_t_std__allocatorT_std__vectorT_boost__shared_ptrT_Skeleton__DirectorExample_t_std__allocatorT_boost__shared_ptrT_Skeleton__DirectorExample_t_t_t_t_t, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "Vector_Vector_DirectorExample_insert" "', argument " "1"" of type '" "std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > > *""'"); 
+  }
+  arg1 = reinterpret_cast< std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > > * >(argp1);
+  res2 = SWIG_ConvertPtr(swig_obj[1], SWIG_as_voidptrptr(&iter2), swig::SwigPyIterator::descriptor(), 0);
+  if (!SWIG_IsOK(res2) || !iter2) {
+    SWIG_exception_fail(SWIG_ArgError(SWIG_TypeError), "in method '" "Vector_Vector_DirectorExample_insert" "', argument " "2"" of type '" "std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > >::iterator""'");
+  } else {
+    swig::SwigPyIterator_T<std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > >::iterator > *iter_t = dynamic_cast<swig::SwigPyIterator_T<std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > >::iterator > *>(iter2);
+    if (iter_t) {
+      arg2 = iter_t->get_current();
+    } else {
+      SWIG_exception_fail(SWIG_ArgError(SWIG_TypeError), "in method '" "Vector_Vector_DirectorExample_insert" "', argument " "2"" of type '" "std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > >::iterator""'");
+    }
+  }
+  ecode3 = SWIG_AsVal_size_t(swig_obj[2], &val3);
+  if (!SWIG_IsOK(ecode3)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode3), "in method '" "Vector_Vector_DirectorExample_insert" "', argument " "3"" of type '" "std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > >::size_type""'");
+  } 
+  arg3 = static_cast< std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > >::size_type >(val3);
+  {
+    std::vector< boost::shared_ptr< Skeleton::DirectorExample >,std::allocator< boost::shared_ptr< Skeleton::DirectorExample > > > *ptr = (std::vector< boost::shared_ptr< Skeleton::DirectorExample >,std::allocator< boost::shared_ptr< Skeleton::DirectorExample > > > *)0;
+    res4 = swig::asptr(swig_obj[3], &ptr);
+    if (!SWIG_IsOK(res4)) {
+      SWIG_exception_fail(SWIG_ArgError(res4), "in method '" "Vector_Vector_DirectorExample_insert" "', argument " "4"" of type '" "std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > >::value_type const &""'"); 
+    }
+    if (!ptr) {
+      SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "Vector_Vector_DirectorExample_insert" "', argument " "4"" of type '" "std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > >::value_type const &""'"); 
+    }
+    arg4 = ptr;
+  }
+  {
+    try {
+      std_vector_Sl_std_vector_Sl_boost_shared_ptr_Sl_Skeleton_DirectorExample_Sg__Sg__Sg__insert__SWIG_1(arg1,SWIG_STD_MOVE(arg2),SWIG_STD_MOVE(arg3),(std::vector< boost::shared_ptr< Skeleton::DirectorExample >,std::allocator< boost::shared_ptr< Skeleton::DirectorExample > > > const &)*arg4);
+    } catch (Swig::DirectorException &e) {
+      SWIG_fail; 
+    } catch (const std::exception& e) {
+      SWIG_exception(SWIG_RuntimeError, e.what());
+    }
+  }
+  resultobj = SWIG_Py_Void();
+  if (SWIG_IsNewObj(res4)) delete arg4;
+  return resultobj;
+fail:
+  if (SWIG_IsNewObj(res4)) delete arg4;
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_Vector_Vector_DirectorExample_insert(PyObject *self, PyObject *args) {
+  Py_ssize_t argc;
+  PyObject *argv[5] = {
+    0
+  };
+  
+  if (!(argc = SWIG_Python_UnpackTuple(args, "Vector_Vector_DirectorExample_insert", 0, 4, argv))) SWIG_fail;
+  --argc;
+  if (argc == 3) {
+    PyObject *retobj = _wrap_Vector_Vector_DirectorExample_insert__SWIG_0(self, argc, argv);
+    if (!SWIG_Python_TypeErrorOccurred(retobj)) return retobj;
+    SWIG_fail;
+  }
+  if (argc == 4) {
+    PyObject *retobj = _wrap_Vector_Vector_DirectorExample_insert__SWIG_1(self, argc, argv);
+    if (!SWIG_Python_TypeErrorOccurred(retobj)) return retobj;
+    SWIG_fail;
+  }
+  
+fail:
+  SWIG_Python_RaiseOrModifyTypeError("Wrong number or type of arguments for overloaded function 'Vector_Vector_DirectorExample_insert'.\n"
+    "  Possible C/C++ prototypes are:\n"
+    "    std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > >::insert(std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > >::iterator,std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > >::value_type const &)\n"
+    "    std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > >::insert(std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > >::iterator,std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > >::size_type,std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > >::value_type const &)\n");
+  return 0;
+}
+
+
+SWIGINTERN PyObject *_wrap_Vector_Vector_DirectorExample_reserve(PyObject *self, PyObject *args) {
+  PyObject *resultobj = 0;
+  std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > > *arg1 = (std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > > *) 0 ;
+  std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > >::size_type arg2 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  size_t val2 ;
+  int ecode2 = 0 ;
+  PyObject *swig_obj[2] ;
+  
+  if (!SWIG_Python_UnpackTuple(args, "Vector_Vector_DirectorExample_reserve", 2, 2, swig_obj)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(swig_obj[0], &argp1,SWIGTYPE_p_std__vectorT_std__vectorT_boost__shared_ptrT_Skeleton__DirectorExample_t_std__allocatorT_boost__shared_ptrT_Skeleton__DirectorExample_t_t_t_std__allocatorT_std__vectorT_boost__shared_ptrT_Skeleton__DirectorExample_t_std__allocatorT_boost__shared_ptrT_Skeleton__DirectorExample_t_t_t_t_t, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "Vector_Vector_DirectorExample_reserve" "', argument " "1"" of type '" "std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > > *""'"); 
+  }
+  arg1 = reinterpret_cast< std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > > * >(argp1);
+  ecode2 = SWIG_AsVal_size_t(swig_obj[1], &val2);
+  if (!SWIG_IsOK(ecode2)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode2), "in method '" "Vector_Vector_DirectorExample_reserve" "', argument " "2"" of type '" "std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > >::size_type""'");
+  } 
+  arg2 = static_cast< std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > >::size_type >(val2);
+  {
+    try {
+      (arg1)->reserve(arg2);
+    } catch (Swig::DirectorException &e) {
+      SWIG_fail; 
+    } catch (const std::exception& e) {
+      SWIG_exception(SWIG_RuntimeError, e.what());
+    }
+  }
+  resultobj = SWIG_Py_Void();
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_Vector_Vector_DirectorExample_capacity(PyObject *self, PyObject *args) {
+  PyObject *resultobj = 0;
+  std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > > *arg1 = (std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > > *) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  PyObject *swig_obj[1] ;
+  std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > >::size_type result;
+  
+  if (!args) SWIG_fail;
+  swig_obj[0] = args;
+  res1 = SWIG_ConvertPtr(swig_obj[0], &argp1,SWIGTYPE_p_std__vectorT_std__vectorT_boost__shared_ptrT_Skeleton__DirectorExample_t_std__allocatorT_boost__shared_ptrT_Skeleton__DirectorExample_t_t_t_std__allocatorT_std__vectorT_boost__shared_ptrT_Skeleton__DirectorExample_t_std__allocatorT_boost__shared_ptrT_Skeleton__DirectorExample_t_t_t_t_t, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "Vector_Vector_DirectorExample_capacity" "', argument " "1"" of type '" "std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > > const *""'"); 
+  }
+  arg1 = reinterpret_cast< std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > > * >(argp1);
+  {
+    try {
+      result = ((std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > > const *)arg1)->capacity();
+    } catch (Swig::DirectorException &e) {
+      SWIG_fail; 
+    } catch (const std::exception& e) {
+      SWIG_exception(SWIG_RuntimeError, e.what());
+    }
+  }
+  resultobj = SWIG_From_size_t(static_cast< size_t >(result));
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_delete_Vector_Vector_DirectorExample(PyObject *self, PyObject *args) {
+  PyObject *resultobj = 0;
+  std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > > *arg1 = (std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > > *) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  PyObject *swig_obj[1] ;
+  
+  if (!args) SWIG_fail;
+  swig_obj[0] = args;
+  res1 = SWIG_ConvertPtr(swig_obj[0], &argp1,SWIGTYPE_p_std__vectorT_std__vectorT_boost__shared_ptrT_Skeleton__DirectorExample_t_std__allocatorT_boost__shared_ptrT_Skeleton__DirectorExample_t_t_t_std__allocatorT_std__vectorT_boost__shared_ptrT_Skeleton__DirectorExample_t_std__allocatorT_boost__shared_ptrT_Skeleton__DirectorExample_t_t_t_t_t, SWIG_POINTER_DISOWN |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "delete_Vector_Vector_DirectorExample" "', argument " "1"" of type '" "std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > > *""'"); 
+  }
+  arg1 = reinterpret_cast< std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > > * >(argp1);
+  {
+    try {
+      delete arg1;
+    } catch (Swig::DirectorException &e) {
+      SWIG_fail; 
+    } catch (const std::exception& e) {
+      SWIG_exception(SWIG_RuntimeError, e.what());
+    }
+  }
+  resultobj = SWIG_Py_Void();
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *Vector_Vector_DirectorExample_swigregister(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *obj;
+  if (!SWIG_Python_UnpackTuple(args, "swigregister", 1, 1, &obj)) return NULL;
+  SWIG_TypeNewClientData(SWIGTYPE_p_std__vectorT_std__vectorT_boost__shared_ptrT_Skeleton__DirectorExample_t_std__allocatorT_boost__shared_ptrT_Skeleton__DirectorExample_t_t_t_std__allocatorT_std__vectorT_boost__shared_ptrT_Skeleton__DirectorExample_t_std__allocatorT_boost__shared_ptrT_Skeleton__DirectorExample_t_t_t_t_t, SWIG_NewClientData(obj));
+  return SWIG_Py_Void();
+}
+
+SWIGINTERN PyObject *Vector_Vector_DirectorExample_swiginit(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  return SWIG_Python_InitShadowInstance(args);
+}
+
 SWIGINTERN PyObject *_wrap_Vector_int_iterator(PyObject *self, PyObject *args) {
   PyObject *resultobj = 0;
   std::vector< int > *arg1 = (std::vector< int > *) 0 ;
@@ -11474,6 +13826,2057 @@ SWIGINTERN PyObject *Vector_int_swiginit(PyObject *SWIGUNUSEDPARM(self), PyObjec
   return SWIG_Python_InitShadowInstance(args);
 }
 
+SWIGINTERN PyObject *_wrap_Vector_Vector_int_iterator(PyObject *self, PyObject *args) {
+  PyObject *resultobj = 0;
+  std::vector< std::vector< int > > *arg1 = (std::vector< std::vector< int > > *) 0 ;
+  PyObject **arg2 = (PyObject **) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  PyObject *swig_obj[1] ;
+  swig::SwigPyIterator *result = 0 ;
+  
+  arg2 = &swig_obj[0];
+  if (!args) SWIG_fail;
+  swig_obj[0] = args;
+  res1 = SWIG_ConvertPtr(swig_obj[0], &argp1,SWIGTYPE_p_std__vectorT_std__vectorT_int_std__allocatorT_int_t_t_std__allocatorT_std__vectorT_int_std__allocatorT_int_t_t_t_t, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "Vector_Vector_int_iterator" "', argument " "1"" of type '" "std::vector< std::vector< int > > *""'"); 
+  }
+  arg1 = reinterpret_cast< std::vector< std::vector< int > > * >(argp1);
+  {
+    try {
+      result = (swig::SwigPyIterator *)std_vector_Sl_std_vector_Sl_int_Sg__Sg__iterator(arg1,arg2);
+    } catch (Swig::DirectorException &e) {
+      SWIG_fail; 
+    } catch (const std::exception& e) {
+      SWIG_exception(SWIG_RuntimeError, e.what());
+    }
+  }
+  resultobj = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIGTYPE_p_swig__SwigPyIterator, SWIG_POINTER_OWN |  0 );
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_Vector_Vector_int___nonzero__(PyObject *self, PyObject *args) {
+  PyObject *resultobj = 0;
+  std::vector< std::vector< int > > *arg1 = (std::vector< std::vector< int > > *) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  PyObject *swig_obj[1] ;
+  bool result;
+  
+  if (!args) SWIG_fail;
+  swig_obj[0] = args;
+  res1 = SWIG_ConvertPtr(swig_obj[0], &argp1,SWIGTYPE_p_std__vectorT_std__vectorT_int_std__allocatorT_int_t_t_std__allocatorT_std__vectorT_int_std__allocatorT_int_t_t_t_t, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "Vector_Vector_int___nonzero__" "', argument " "1"" of type '" "std::vector< std::vector< int > > const *""'"); 
+  }
+  arg1 = reinterpret_cast< std::vector< std::vector< int > > * >(argp1);
+  {
+    try {
+      result = (bool)std_vector_Sl_std_vector_Sl_int_Sg__Sg____nonzero__((std::vector< std::vector< int > > const *)arg1);
+    } catch (Swig::DirectorException &e) {
+      SWIG_fail; 
+    } catch (const std::exception& e) {
+      SWIG_exception(SWIG_RuntimeError, e.what());
+    }
+  }
+  resultobj = SWIG_From_bool(static_cast< bool >(result));
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_Vector_Vector_int___bool__(PyObject *self, PyObject *args) {
+  PyObject *resultobj = 0;
+  std::vector< std::vector< int > > *arg1 = (std::vector< std::vector< int > > *) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  PyObject *swig_obj[1] ;
+  bool result;
+  
+  if (!args) SWIG_fail;
+  swig_obj[0] = args;
+  res1 = SWIG_ConvertPtr(swig_obj[0], &argp1,SWIGTYPE_p_std__vectorT_std__vectorT_int_std__allocatorT_int_t_t_std__allocatorT_std__vectorT_int_std__allocatorT_int_t_t_t_t, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "Vector_Vector_int___bool__" "', argument " "1"" of type '" "std::vector< std::vector< int > > const *""'"); 
+  }
+  arg1 = reinterpret_cast< std::vector< std::vector< int > > * >(argp1);
+  {
+    try {
+      result = (bool)std_vector_Sl_std_vector_Sl_int_Sg__Sg____bool__((std::vector< std::vector< int > > const *)arg1);
+    } catch (Swig::DirectorException &e) {
+      SWIG_fail; 
+    } catch (const std::exception& e) {
+      SWIG_exception(SWIG_RuntimeError, e.what());
+    }
+  }
+  resultobj = SWIG_From_bool(static_cast< bool >(result));
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_Vector_Vector_int___len__(PyObject *self, PyObject *args) {
+  PyObject *resultobj = 0;
+  std::vector< std::vector< int > > *arg1 = (std::vector< std::vector< int > > *) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  PyObject *swig_obj[1] ;
+  std::vector< std::vector< int > >::size_type result;
+  
+  if (!args) SWIG_fail;
+  swig_obj[0] = args;
+  res1 = SWIG_ConvertPtr(swig_obj[0], &argp1,SWIGTYPE_p_std__vectorT_std__vectorT_int_std__allocatorT_int_t_t_std__allocatorT_std__vectorT_int_std__allocatorT_int_t_t_t_t, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "Vector_Vector_int___len__" "', argument " "1"" of type '" "std::vector< std::vector< int > > const *""'"); 
+  }
+  arg1 = reinterpret_cast< std::vector< std::vector< int > > * >(argp1);
+  {
+    try {
+      result = std_vector_Sl_std_vector_Sl_int_Sg__Sg____len__((std::vector< std::vector< int > > const *)arg1);
+    } catch (Swig::DirectorException &e) {
+      SWIG_fail; 
+    } catch (const std::exception& e) {
+      SWIG_exception(SWIG_RuntimeError, e.what());
+    }
+  }
+  resultobj = SWIG_From_size_t(static_cast< size_t >(result));
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_Vector_Vector_int___getslice__(PyObject *self, PyObject *args) {
+  PyObject *resultobj = 0;
+  std::vector< std::vector< int > > *arg1 = (std::vector< std::vector< int > > *) 0 ;
+  std::vector< std::vector< int > >::difference_type arg2 ;
+  std::vector< std::vector< int > >::difference_type arg3 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  ptrdiff_t val2 ;
+  int ecode2 = 0 ;
+  ptrdiff_t val3 ;
+  int ecode3 = 0 ;
+  PyObject *swig_obj[3] ;
+  std::vector< std::vector< int,std::allocator< int > >,std::allocator< std::vector< int,std::allocator< int > > > > *result = 0 ;
+  
+  if (!SWIG_Python_UnpackTuple(args, "Vector_Vector_int___getslice__", 3, 3, swig_obj)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(swig_obj[0], &argp1,SWIGTYPE_p_std__vectorT_std__vectorT_int_std__allocatorT_int_t_t_std__allocatorT_std__vectorT_int_std__allocatorT_int_t_t_t_t, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "Vector_Vector_int___getslice__" "', argument " "1"" of type '" "std::vector< std::vector< int > > *""'"); 
+  }
+  arg1 = reinterpret_cast< std::vector< std::vector< int > > * >(argp1);
+  ecode2 = SWIG_AsVal_ptrdiff_t(swig_obj[1], &val2);
+  if (!SWIG_IsOK(ecode2)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode2), "in method '" "Vector_Vector_int___getslice__" "', argument " "2"" of type '" "std::vector< std::vector< int > >::difference_type""'");
+  } 
+  arg2 = static_cast< std::vector< std::vector< int > >::difference_type >(val2);
+  ecode3 = SWIG_AsVal_ptrdiff_t(swig_obj[2], &val3);
+  if (!SWIG_IsOK(ecode3)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode3), "in method '" "Vector_Vector_int___getslice__" "', argument " "3"" of type '" "std::vector< std::vector< int > >::difference_type""'");
+  } 
+  arg3 = static_cast< std::vector< std::vector< int > >::difference_type >(val3);
+  {
+    try {
+      try {
+        result = (std::vector< std::vector< int,std::allocator< int > >,std::allocator< std::vector< int,std::allocator< int > > > > *)std_vector_Sl_std_vector_Sl_int_Sg__Sg____getslice__(arg1,SWIG_STD_MOVE(arg2),SWIG_STD_MOVE(arg3));
+      } catch(std::out_of_range &_e) {
+        SWIG_exception_fail(SWIG_IndexError, (&_e)->what());
+      } catch(std::invalid_argument &_e) {
+        SWIG_exception_fail(SWIG_ValueError, (&_e)->what());
+      }
+    } catch (Swig::DirectorException &e) {
+      SWIG_fail; 
+    } catch (const std::exception& e) {
+      SWIG_exception(SWIG_RuntimeError, e.what());
+    }
+  }
+  resultobj = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIGTYPE_p_std__vectorT_std__vectorT_int_std__allocatorT_int_t_t_std__allocatorT_std__vectorT_int_std__allocatorT_int_t_t_t_t, SWIG_POINTER_OWN |  0 );
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_Vector_Vector_int___setslice____SWIG_0(PyObject *self, Py_ssize_t nobjs, PyObject **swig_obj) {
+  PyObject *resultobj = 0;
+  std::vector< std::vector< int > > *arg1 = (std::vector< std::vector< int > > *) 0 ;
+  std::vector< std::vector< int > >::difference_type arg2 ;
+  std::vector< std::vector< int > >::difference_type arg3 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  ptrdiff_t val2 ;
+  int ecode2 = 0 ;
+  ptrdiff_t val3 ;
+  int ecode3 = 0 ;
+  
+  if ((nobjs < 3) || (nobjs > 3)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(swig_obj[0], &argp1,SWIGTYPE_p_std__vectorT_std__vectorT_int_std__allocatorT_int_t_t_std__allocatorT_std__vectorT_int_std__allocatorT_int_t_t_t_t, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "Vector_Vector_int___setslice__" "', argument " "1"" of type '" "std::vector< std::vector< int > > *""'"); 
+  }
+  arg1 = reinterpret_cast< std::vector< std::vector< int > > * >(argp1);
+  ecode2 = SWIG_AsVal_ptrdiff_t(swig_obj[1], &val2);
+  if (!SWIG_IsOK(ecode2)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode2), "in method '" "Vector_Vector_int___setslice__" "', argument " "2"" of type '" "std::vector< std::vector< int > >::difference_type""'");
+  } 
+  arg2 = static_cast< std::vector< std::vector< int > >::difference_type >(val2);
+  ecode3 = SWIG_AsVal_ptrdiff_t(swig_obj[2], &val3);
+  if (!SWIG_IsOK(ecode3)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode3), "in method '" "Vector_Vector_int___setslice__" "', argument " "3"" of type '" "std::vector< std::vector< int > >::difference_type""'");
+  } 
+  arg3 = static_cast< std::vector< std::vector< int > >::difference_type >(val3);
+  {
+    try {
+      try {
+        std_vector_Sl_std_vector_Sl_int_Sg__Sg____setslice____SWIG_0(arg1,SWIG_STD_MOVE(arg2),SWIG_STD_MOVE(arg3));
+      } catch(std::out_of_range &_e) {
+        SWIG_exception_fail(SWIG_IndexError, (&_e)->what());
+      } catch(std::invalid_argument &_e) {
+        SWIG_exception_fail(SWIG_ValueError, (&_e)->what());
+      }
+    } catch (Swig::DirectorException &e) {
+      SWIG_fail; 
+    } catch (const std::exception& e) {
+      SWIG_exception(SWIG_RuntimeError, e.what());
+    }
+  }
+  resultobj = SWIG_Py_Void();
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_Vector_Vector_int___setslice____SWIG_1(PyObject *self, Py_ssize_t nobjs, PyObject **swig_obj) {
+  PyObject *resultobj = 0;
+  std::vector< std::vector< int > > *arg1 = (std::vector< std::vector< int > > *) 0 ;
+  std::vector< std::vector< int > >::difference_type arg2 ;
+  std::vector< std::vector< int > >::difference_type arg3 ;
+  std::vector< std::vector< int,std::allocator< int > >,std::allocator< std::vector< int,std::allocator< int > > > > *arg4 = 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  ptrdiff_t val2 ;
+  int ecode2 = 0 ;
+  ptrdiff_t val3 ;
+  int ecode3 = 0 ;
+  int res4 = SWIG_OLDOBJ ;
+  
+  if ((nobjs < 4) || (nobjs > 4)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(swig_obj[0], &argp1,SWIGTYPE_p_std__vectorT_std__vectorT_int_std__allocatorT_int_t_t_std__allocatorT_std__vectorT_int_std__allocatorT_int_t_t_t_t, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "Vector_Vector_int___setslice__" "', argument " "1"" of type '" "std::vector< std::vector< int > > *""'"); 
+  }
+  arg1 = reinterpret_cast< std::vector< std::vector< int > > * >(argp1);
+  ecode2 = SWIG_AsVal_ptrdiff_t(swig_obj[1], &val2);
+  if (!SWIG_IsOK(ecode2)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode2), "in method '" "Vector_Vector_int___setslice__" "', argument " "2"" of type '" "std::vector< std::vector< int > >::difference_type""'");
+  } 
+  arg2 = static_cast< std::vector< std::vector< int > >::difference_type >(val2);
+  ecode3 = SWIG_AsVal_ptrdiff_t(swig_obj[2], &val3);
+  if (!SWIG_IsOK(ecode3)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode3), "in method '" "Vector_Vector_int___setslice__" "', argument " "3"" of type '" "std::vector< std::vector< int > >::difference_type""'");
+  } 
+  arg3 = static_cast< std::vector< std::vector< int > >::difference_type >(val3);
+  {
+    std::vector< std::vector< int,std::allocator< int > >,std::allocator< std::vector< int,std::allocator< int > > > > *ptr = (std::vector< std::vector< int,std::allocator< int > >,std::allocator< std::vector< int,std::allocator< int > > > > *)0;
+    res4 = swig::asptr(swig_obj[3], &ptr);
+    if (!SWIG_IsOK(res4)) {
+      SWIG_exception_fail(SWIG_ArgError(res4), "in method '" "Vector_Vector_int___setslice__" "', argument " "4"" of type '" "std::vector< std::vector< int,std::allocator< int > >,std::allocator< std::vector< int,std::allocator< int > > > > const &""'"); 
+    }
+    if (!ptr) {
+      SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "Vector_Vector_int___setslice__" "', argument " "4"" of type '" "std::vector< std::vector< int,std::allocator< int > >,std::allocator< std::vector< int,std::allocator< int > > > > const &""'"); 
+    }
+    arg4 = ptr;
+  }
+  {
+    try {
+      try {
+        std_vector_Sl_std_vector_Sl_int_Sg__Sg____setslice____SWIG_1(arg1,SWIG_STD_MOVE(arg2),SWIG_STD_MOVE(arg3),(std::vector< std::vector< int,std::allocator< int > >,std::allocator< std::vector< int,std::allocator< int > > > > const &)*arg4);
+      } catch(std::out_of_range &_e) {
+        SWIG_exception_fail(SWIG_IndexError, (&_e)->what());
+      } catch(std::invalid_argument &_e) {
+        SWIG_exception_fail(SWIG_ValueError, (&_e)->what());
+      }
+    } catch (Swig::DirectorException &e) {
+      SWIG_fail; 
+    } catch (const std::exception& e) {
+      SWIG_exception(SWIG_RuntimeError, e.what());
+    }
+  }
+  resultobj = SWIG_Py_Void();
+  if (SWIG_IsNewObj(res4)) delete arg4;
+  return resultobj;
+fail:
+  if (SWIG_IsNewObj(res4)) delete arg4;
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_Vector_Vector_int___setslice__(PyObject *self, PyObject *args) {
+  Py_ssize_t argc;
+  PyObject *argv[5] = {
+    0
+  };
+  
+  if (!(argc = SWIG_Python_UnpackTuple(args, "Vector_Vector_int___setslice__", 0, 4, argv))) SWIG_fail;
+  --argc;
+  if (argc == 3) {
+    PyObject *retobj = _wrap_Vector_Vector_int___setslice____SWIG_0(self, argc, argv);
+    if (!SWIG_Python_TypeErrorOccurred(retobj)) return retobj;
+    SWIG_fail;
+  }
+  if (argc == 4) {
+    PyObject *retobj = _wrap_Vector_Vector_int___setslice____SWIG_1(self, argc, argv);
+    if (!SWIG_Python_TypeErrorOccurred(retobj)) return retobj;
+    SWIG_fail;
+  }
+  
+fail:
+  SWIG_Python_RaiseOrModifyTypeError("Wrong number or type of arguments for overloaded function 'Vector_Vector_int___setslice__'.\n"
+    "  Possible C/C++ prototypes are:\n"
+    "    std::vector< std::vector< int > >::__setslice__(std::vector< std::vector< int > >::difference_type,std::vector< std::vector< int > >::difference_type)\n"
+    "    std::vector< std::vector< int > >::__setslice__(std::vector< std::vector< int > >::difference_type,std::vector< std::vector< int > >::difference_type,std::vector< std::vector< int,std::allocator< int > >,std::allocator< std::vector< int,std::allocator< int > > > > const &)\n");
+  return 0;
+}
+
+
+SWIGINTERN PyObject *_wrap_Vector_Vector_int___delslice__(PyObject *self, PyObject *args) {
+  PyObject *resultobj = 0;
+  std::vector< std::vector< int > > *arg1 = (std::vector< std::vector< int > > *) 0 ;
+  std::vector< std::vector< int > >::difference_type arg2 ;
+  std::vector< std::vector< int > >::difference_type arg3 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  ptrdiff_t val2 ;
+  int ecode2 = 0 ;
+  ptrdiff_t val3 ;
+  int ecode3 = 0 ;
+  PyObject *swig_obj[3] ;
+  
+  if (!SWIG_Python_UnpackTuple(args, "Vector_Vector_int___delslice__", 3, 3, swig_obj)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(swig_obj[0], &argp1,SWIGTYPE_p_std__vectorT_std__vectorT_int_std__allocatorT_int_t_t_std__allocatorT_std__vectorT_int_std__allocatorT_int_t_t_t_t, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "Vector_Vector_int___delslice__" "', argument " "1"" of type '" "std::vector< std::vector< int > > *""'"); 
+  }
+  arg1 = reinterpret_cast< std::vector< std::vector< int > > * >(argp1);
+  ecode2 = SWIG_AsVal_ptrdiff_t(swig_obj[1], &val2);
+  if (!SWIG_IsOK(ecode2)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode2), "in method '" "Vector_Vector_int___delslice__" "', argument " "2"" of type '" "std::vector< std::vector< int > >::difference_type""'");
+  } 
+  arg2 = static_cast< std::vector< std::vector< int > >::difference_type >(val2);
+  ecode3 = SWIG_AsVal_ptrdiff_t(swig_obj[2], &val3);
+  if (!SWIG_IsOK(ecode3)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode3), "in method '" "Vector_Vector_int___delslice__" "', argument " "3"" of type '" "std::vector< std::vector< int > >::difference_type""'");
+  } 
+  arg3 = static_cast< std::vector< std::vector< int > >::difference_type >(val3);
+  {
+    try {
+      try {
+        std_vector_Sl_std_vector_Sl_int_Sg__Sg____delslice__(arg1,SWIG_STD_MOVE(arg2),SWIG_STD_MOVE(arg3));
+      } catch(std::out_of_range &_e) {
+        SWIG_exception_fail(SWIG_IndexError, (&_e)->what());
+      } catch(std::invalid_argument &_e) {
+        SWIG_exception_fail(SWIG_ValueError, (&_e)->what());
+      }
+    } catch (Swig::DirectorException &e) {
+      SWIG_fail; 
+    } catch (const std::exception& e) {
+      SWIG_exception(SWIG_RuntimeError, e.what());
+    }
+  }
+  resultobj = SWIG_Py_Void();
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_Vector_Vector_int___delitem____SWIG_0(PyObject *self, Py_ssize_t nobjs, PyObject **swig_obj) {
+  PyObject *resultobj = 0;
+  std::vector< std::vector< int > > *arg1 = (std::vector< std::vector< int > > *) 0 ;
+  std::vector< std::vector< int > >::difference_type arg2 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  ptrdiff_t val2 ;
+  int ecode2 = 0 ;
+  
+  if ((nobjs < 2) || (nobjs > 2)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(swig_obj[0], &argp1,SWIGTYPE_p_std__vectorT_std__vectorT_int_std__allocatorT_int_t_t_std__allocatorT_std__vectorT_int_std__allocatorT_int_t_t_t_t, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "Vector_Vector_int___delitem__" "', argument " "1"" of type '" "std::vector< std::vector< int > > *""'"); 
+  }
+  arg1 = reinterpret_cast< std::vector< std::vector< int > > * >(argp1);
+  ecode2 = SWIG_AsVal_ptrdiff_t(swig_obj[1], &val2);
+  if (!SWIG_IsOK(ecode2)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode2), "in method '" "Vector_Vector_int___delitem__" "', argument " "2"" of type '" "std::vector< std::vector< int > >::difference_type""'");
+  } 
+  arg2 = static_cast< std::vector< std::vector< int > >::difference_type >(val2);
+  {
+    try {
+      try {
+        std_vector_Sl_std_vector_Sl_int_Sg__Sg____delitem____SWIG_0(arg1,SWIG_STD_MOVE(arg2));
+      } catch(std::out_of_range &_e) {
+        SWIG_exception_fail(SWIG_IndexError, (&_e)->what());
+      } catch(std::invalid_argument &_e) {
+        SWIG_exception_fail(SWIG_ValueError, (&_e)->what());
+      }
+    } catch (Swig::DirectorException &e) {
+      SWIG_fail; 
+    } catch (const std::exception& e) {
+      SWIG_exception(SWIG_RuntimeError, e.what());
+    }
+  }
+  resultobj = SWIG_Py_Void();
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_Vector_Vector_int___getitem____SWIG_0(PyObject *self, Py_ssize_t nobjs, PyObject **swig_obj) {
+  PyObject *resultobj = 0;
+  std::vector< std::vector< int > > *arg1 = (std::vector< std::vector< int > > *) 0 ;
+  SWIGPY_SLICEOBJECT *arg2 = (SWIGPY_SLICEOBJECT *) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  std::vector< std::vector< int,std::allocator< int > >,std::allocator< std::vector< int,std::allocator< int > > > > *result = 0 ;
+  
+  if ((nobjs < 2) || (nobjs > 2)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(swig_obj[0], &argp1,SWIGTYPE_p_std__vectorT_std__vectorT_int_std__allocatorT_int_t_t_std__allocatorT_std__vectorT_int_std__allocatorT_int_t_t_t_t, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "Vector_Vector_int___getitem__" "', argument " "1"" of type '" "std::vector< std::vector< int > > *""'"); 
+  }
+  arg1 = reinterpret_cast< std::vector< std::vector< int > > * >(argp1);
+  {
+    if (!PySlice_Check(swig_obj[1])) {
+      SWIG_exception_fail(SWIG_ArgError(SWIG_TypeError), "in method '" "Vector_Vector_int___getitem__" "', argument " "2"" of type '" "SWIGPY_SLICEOBJECT *""'");
+    }
+    arg2 = (SWIGPY_SLICEOBJECT *) swig_obj[1];
+  }
+  {
+    try {
+      try {
+        result = (std::vector< std::vector< int,std::allocator< int > >,std::allocator< std::vector< int,std::allocator< int > > > > *)std_vector_Sl_std_vector_Sl_int_Sg__Sg____getitem____SWIG_0(arg1,arg2);
+      } catch(std::out_of_range &_e) {
+        SWIG_exception_fail(SWIG_IndexError, (&_e)->what());
+      } catch(std::invalid_argument &_e) {
+        SWIG_exception_fail(SWIG_ValueError, (&_e)->what());
+      }
+    } catch (Swig::DirectorException &e) {
+      SWIG_fail; 
+    } catch (const std::exception& e) {
+      SWIG_exception(SWIG_RuntimeError, e.what());
+    }
+  }
+  resultobj = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIGTYPE_p_std__vectorT_std__vectorT_int_std__allocatorT_int_t_t_std__allocatorT_std__vectorT_int_std__allocatorT_int_t_t_t_t, SWIG_POINTER_OWN |  0 );
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_Vector_Vector_int___setitem____SWIG_0(PyObject *self, Py_ssize_t nobjs, PyObject **swig_obj) {
+  PyObject *resultobj = 0;
+  std::vector< std::vector< int > > *arg1 = (std::vector< std::vector< int > > *) 0 ;
+  SWIGPY_SLICEOBJECT *arg2 = (SWIGPY_SLICEOBJECT *) 0 ;
+  std::vector< std::vector< int,std::allocator< int > >,std::allocator< std::vector< int,std::allocator< int > > > > *arg3 = 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  int res3 = SWIG_OLDOBJ ;
+  
+  if ((nobjs < 3) || (nobjs > 3)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(swig_obj[0], &argp1,SWIGTYPE_p_std__vectorT_std__vectorT_int_std__allocatorT_int_t_t_std__allocatorT_std__vectorT_int_std__allocatorT_int_t_t_t_t, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "Vector_Vector_int___setitem__" "', argument " "1"" of type '" "std::vector< std::vector< int > > *""'"); 
+  }
+  arg1 = reinterpret_cast< std::vector< std::vector< int > > * >(argp1);
+  {
+    if (!PySlice_Check(swig_obj[1])) {
+      SWIG_exception_fail(SWIG_ArgError(SWIG_TypeError), "in method '" "Vector_Vector_int___setitem__" "', argument " "2"" of type '" "SWIGPY_SLICEOBJECT *""'");
+    }
+    arg2 = (SWIGPY_SLICEOBJECT *) swig_obj[1];
+  }
+  {
+    std::vector< std::vector< int,std::allocator< int > >,std::allocator< std::vector< int,std::allocator< int > > > > *ptr = (std::vector< std::vector< int,std::allocator< int > >,std::allocator< std::vector< int,std::allocator< int > > > > *)0;
+    res3 = swig::asptr(swig_obj[2], &ptr);
+    if (!SWIG_IsOK(res3)) {
+      SWIG_exception_fail(SWIG_ArgError(res3), "in method '" "Vector_Vector_int___setitem__" "', argument " "3"" of type '" "std::vector< std::vector< int,std::allocator< int > >,std::allocator< std::vector< int,std::allocator< int > > > > const &""'"); 
+    }
+    if (!ptr) {
+      SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "Vector_Vector_int___setitem__" "', argument " "3"" of type '" "std::vector< std::vector< int,std::allocator< int > >,std::allocator< std::vector< int,std::allocator< int > > > > const &""'"); 
+    }
+    arg3 = ptr;
+  }
+  {
+    try {
+      try {
+        std_vector_Sl_std_vector_Sl_int_Sg__Sg____setitem____SWIG_0(arg1,arg2,(std::vector< std::vector< int,std::allocator< int > >,std::allocator< std::vector< int,std::allocator< int > > > > const &)*arg3);
+      } catch(std::out_of_range &_e) {
+        SWIG_exception_fail(SWIG_IndexError, (&_e)->what());
+      } catch(std::invalid_argument &_e) {
+        SWIG_exception_fail(SWIG_ValueError, (&_e)->what());
+      }
+    } catch (Swig::DirectorException &e) {
+      SWIG_fail; 
+    } catch (const std::exception& e) {
+      SWIG_exception(SWIG_RuntimeError, e.what());
+    }
+  }
+  resultobj = SWIG_Py_Void();
+  if (SWIG_IsNewObj(res3)) delete arg3;
+  return resultobj;
+fail:
+  if (SWIG_IsNewObj(res3)) delete arg3;
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_Vector_Vector_int___setitem____SWIG_1(PyObject *self, Py_ssize_t nobjs, PyObject **swig_obj) {
+  PyObject *resultobj = 0;
+  std::vector< std::vector< int > > *arg1 = (std::vector< std::vector< int > > *) 0 ;
+  SWIGPY_SLICEOBJECT *arg2 = (SWIGPY_SLICEOBJECT *) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  
+  if ((nobjs < 2) || (nobjs > 2)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(swig_obj[0], &argp1,SWIGTYPE_p_std__vectorT_std__vectorT_int_std__allocatorT_int_t_t_std__allocatorT_std__vectorT_int_std__allocatorT_int_t_t_t_t, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "Vector_Vector_int___setitem__" "', argument " "1"" of type '" "std::vector< std::vector< int > > *""'"); 
+  }
+  arg1 = reinterpret_cast< std::vector< std::vector< int > > * >(argp1);
+  {
+    if (!PySlice_Check(swig_obj[1])) {
+      SWIG_exception_fail(SWIG_ArgError(SWIG_TypeError), "in method '" "Vector_Vector_int___setitem__" "', argument " "2"" of type '" "SWIGPY_SLICEOBJECT *""'");
+    }
+    arg2 = (SWIGPY_SLICEOBJECT *) swig_obj[1];
+  }
+  {
+    try {
+      try {
+        std_vector_Sl_std_vector_Sl_int_Sg__Sg____setitem____SWIG_1(arg1,arg2);
+      } catch(std::out_of_range &_e) {
+        SWIG_exception_fail(SWIG_IndexError, (&_e)->what());
+      } catch(std::invalid_argument &_e) {
+        SWIG_exception_fail(SWIG_ValueError, (&_e)->what());
+      }
+    } catch (Swig::DirectorException &e) {
+      SWIG_fail; 
+    } catch (const std::exception& e) {
+      SWIG_exception(SWIG_RuntimeError, e.what());
+    }
+  }
+  resultobj = SWIG_Py_Void();
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_Vector_Vector_int___delitem____SWIG_1(PyObject *self, Py_ssize_t nobjs, PyObject **swig_obj) {
+  PyObject *resultobj = 0;
+  std::vector< std::vector< int > > *arg1 = (std::vector< std::vector< int > > *) 0 ;
+  SWIGPY_SLICEOBJECT *arg2 = (SWIGPY_SLICEOBJECT *) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  
+  if ((nobjs < 2) || (nobjs > 2)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(swig_obj[0], &argp1,SWIGTYPE_p_std__vectorT_std__vectorT_int_std__allocatorT_int_t_t_std__allocatorT_std__vectorT_int_std__allocatorT_int_t_t_t_t, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "Vector_Vector_int___delitem__" "', argument " "1"" of type '" "std::vector< std::vector< int > > *""'"); 
+  }
+  arg1 = reinterpret_cast< std::vector< std::vector< int > > * >(argp1);
+  {
+    if (!PySlice_Check(swig_obj[1])) {
+      SWIG_exception_fail(SWIG_ArgError(SWIG_TypeError), "in method '" "Vector_Vector_int___delitem__" "', argument " "2"" of type '" "SWIGPY_SLICEOBJECT *""'");
+    }
+    arg2 = (SWIGPY_SLICEOBJECT *) swig_obj[1];
+  }
+  {
+    try {
+      try {
+        std_vector_Sl_std_vector_Sl_int_Sg__Sg____delitem____SWIG_1(arg1,arg2);
+      } catch(std::out_of_range &_e) {
+        SWIG_exception_fail(SWIG_IndexError, (&_e)->what());
+      } catch(std::invalid_argument &_e) {
+        SWIG_exception_fail(SWIG_ValueError, (&_e)->what());
+      }
+    } catch (Swig::DirectorException &e) {
+      SWIG_fail; 
+    } catch (const std::exception& e) {
+      SWIG_exception(SWIG_RuntimeError, e.what());
+    }
+  }
+  resultobj = SWIG_Py_Void();
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_Vector_Vector_int___delitem__(PyObject *self, PyObject *args) {
+  Py_ssize_t argc;
+  PyObject *argv[3] = {
+    0
+  };
+  
+  if (!(argc = SWIG_Python_UnpackTuple(args, "Vector_Vector_int___delitem__", 0, 2, argv))) SWIG_fail;
+  --argc;
+  if (argc == 2) {
+    int _v = 0;
+    {
+      {
+        _v = PySlice_Check(argv[1]);
+      }
+    }
+    if (!_v) goto check_1;
+    return _wrap_Vector_Vector_int___delitem____SWIG_1(self, argc, argv);
+  }
+check_1:
+  
+  if (argc == 2) {
+    PyObject *retobj = _wrap_Vector_Vector_int___delitem____SWIG_0(self, argc, argv);
+    if (!SWIG_Python_TypeErrorOccurred(retobj)) return retobj;
+    SWIG_fail;
+  }
+  
+fail:
+  SWIG_Python_RaiseOrModifyTypeError("Wrong number or type of arguments for overloaded function 'Vector_Vector_int___delitem__'.\n"
+    "  Possible C/C++ prototypes are:\n"
+    "    std::vector< std::vector< int > >::__delitem__(std::vector< std::vector< int > >::difference_type)\n"
+    "    std::vector< std::vector< int > >::__delitem__(SWIGPY_SLICEOBJECT *)\n");
+  return 0;
+}
+
+
+SWIGINTERN PyObject *_wrap_Vector_Vector_int___getitem____SWIG_1(PyObject *self, Py_ssize_t nobjs, PyObject **swig_obj) {
+  PyObject *resultobj = 0;
+  std::vector< std::vector< int > > *arg1 = (std::vector< std::vector< int > > *) 0 ;
+  std::vector< std::vector< int > >::difference_type arg2 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  ptrdiff_t val2 ;
+  int ecode2 = 0 ;
+  std::vector< std::vector< int > >::value_type *result = 0 ;
+  
+  if ((nobjs < 2) || (nobjs > 2)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(swig_obj[0], &argp1,SWIGTYPE_p_std__vectorT_std__vectorT_int_std__allocatorT_int_t_t_std__allocatorT_std__vectorT_int_std__allocatorT_int_t_t_t_t, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "Vector_Vector_int___getitem__" "', argument " "1"" of type '" "std::vector< std::vector< int > > const *""'"); 
+  }
+  arg1 = reinterpret_cast< std::vector< std::vector< int > > * >(argp1);
+  ecode2 = SWIG_AsVal_ptrdiff_t(swig_obj[1], &val2);
+  if (!SWIG_IsOK(ecode2)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode2), "in method '" "Vector_Vector_int___getitem__" "', argument " "2"" of type '" "std::vector< std::vector< int > >::difference_type""'");
+  } 
+  arg2 = static_cast< std::vector< std::vector< int > >::difference_type >(val2);
+  {
+    try {
+      try {
+        result = (std::vector< std::vector< int > >::value_type *) &std_vector_Sl_std_vector_Sl_int_Sg__Sg____getitem____SWIG_1((std::vector< std::vector< int > > const *)arg1,SWIG_STD_MOVE(arg2));
+      } catch(std::out_of_range &_e) {
+        SWIG_exception_fail(SWIG_IndexError, (&_e)->what());
+      }
+    } catch (Swig::DirectorException &e) {
+      SWIG_fail; 
+    } catch (const std::exception& e) {
+      SWIG_exception(SWIG_RuntimeError, e.what());
+    }
+  }
+  resultobj = swig::from(static_cast< std::vector< int,std::allocator< int > > >(*result));
+  (void)swig::container_owner<swig::traits<std::vector< std::vector< int > >::value_type>::category>::back_reference(resultobj, swig_obj[0]);
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_Vector_Vector_int___getitem__(PyObject *self, PyObject *args) {
+  Py_ssize_t argc;
+  PyObject *argv[3] = {
+    0
+  };
+  
+  if (!(argc = SWIG_Python_UnpackTuple(args, "Vector_Vector_int___getitem__", 0, 2, argv))) SWIG_fail;
+  --argc;
+  if (argc == 2) {
+    int _v = 0;
+    {
+      {
+        _v = PySlice_Check(argv[1]);
+      }
+    }
+    if (!_v) goto check_1;
+    return _wrap_Vector_Vector_int___getitem____SWIG_0(self, argc, argv);
+  }
+check_1:
+  
+  if (argc == 2) {
+    PyObject *retobj = _wrap_Vector_Vector_int___getitem____SWIG_1(self, argc, argv);
+    if (!SWIG_Python_TypeErrorOccurred(retobj)) return retobj;
+    SWIG_fail;
+  }
+  
+fail:
+  SWIG_Python_RaiseOrModifyTypeError("Wrong number or type of arguments for overloaded function 'Vector_Vector_int___getitem__'.\n"
+    "  Possible C/C++ prototypes are:\n"
+    "    std::vector< std::vector< int > >::__getitem__(SWIGPY_SLICEOBJECT *)\n"
+    "    std::vector< std::vector< int > >::__getitem__(std::vector< std::vector< int > >::difference_type) const\n");
+  return 0;
+}
+
+
+SWIGINTERN PyObject *_wrap_Vector_Vector_int___setitem____SWIG_2(PyObject *self, Py_ssize_t nobjs, PyObject **swig_obj) {
+  PyObject *resultobj = 0;
+  std::vector< std::vector< int > > *arg1 = (std::vector< std::vector< int > > *) 0 ;
+  std::vector< std::vector< int > >::difference_type arg2 ;
+  std::vector< std::vector< int > >::value_type *arg3 = 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  ptrdiff_t val2 ;
+  int ecode2 = 0 ;
+  int res3 = SWIG_OLDOBJ ;
+  
+  if ((nobjs < 3) || (nobjs > 3)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(swig_obj[0], &argp1,SWIGTYPE_p_std__vectorT_std__vectorT_int_std__allocatorT_int_t_t_std__allocatorT_std__vectorT_int_std__allocatorT_int_t_t_t_t, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "Vector_Vector_int___setitem__" "', argument " "1"" of type '" "std::vector< std::vector< int > > *""'"); 
+  }
+  arg1 = reinterpret_cast< std::vector< std::vector< int > > * >(argp1);
+  ecode2 = SWIG_AsVal_ptrdiff_t(swig_obj[1], &val2);
+  if (!SWIG_IsOK(ecode2)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode2), "in method '" "Vector_Vector_int___setitem__" "', argument " "2"" of type '" "std::vector< std::vector< int > >::difference_type""'");
+  } 
+  arg2 = static_cast< std::vector< std::vector< int > >::difference_type >(val2);
+  {
+    std::vector< int,std::allocator< int > > *ptr = (std::vector< int,std::allocator< int > > *)0;
+    res3 = swig::asptr(swig_obj[2], &ptr);
+    if (!SWIG_IsOK(res3)) {
+      SWIG_exception_fail(SWIG_ArgError(res3), "in method '" "Vector_Vector_int___setitem__" "', argument " "3"" of type '" "std::vector< std::vector< int > >::value_type const &""'"); 
+    }
+    if (!ptr) {
+      SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "Vector_Vector_int___setitem__" "', argument " "3"" of type '" "std::vector< std::vector< int > >::value_type const &""'"); 
+    }
+    arg3 = ptr;
+  }
+  {
+    try {
+      try {
+        std_vector_Sl_std_vector_Sl_int_Sg__Sg____setitem____SWIG_2(arg1,SWIG_STD_MOVE(arg2),(std::vector< int,std::allocator< int > > const &)*arg3);
+      } catch(std::out_of_range &_e) {
+        SWIG_exception_fail(SWIG_IndexError, (&_e)->what());
+      }
+    } catch (Swig::DirectorException &e) {
+      SWIG_fail; 
+    } catch (const std::exception& e) {
+      SWIG_exception(SWIG_RuntimeError, e.what());
+    }
+  }
+  resultobj = SWIG_Py_Void();
+  if (SWIG_IsNewObj(res3)) delete arg3;
+  return resultobj;
+fail:
+  if (SWIG_IsNewObj(res3)) delete arg3;
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_Vector_Vector_int___setitem__(PyObject *self, PyObject *args) {
+  Py_ssize_t argc;
+  PyObject *argv[4] = {
+    0
+  };
+  
+  if (!(argc = SWIG_Python_UnpackTuple(args, "Vector_Vector_int___setitem__", 0, 3, argv))) SWIG_fail;
+  --argc;
+  if (argc == 2) {
+    PyObject *retobj = _wrap_Vector_Vector_int___setitem____SWIG_1(self, argc, argv);
+    if (!SWIG_Python_TypeErrorOccurred(retobj)) return retobj;
+    SWIG_fail;
+  }
+  if (argc == 3) {
+    int _v = 0;
+    {
+      {
+        _v = PySlice_Check(argv[1]);
+      }
+    }
+    if (!_v) goto check_2;
+    {
+      int res = swig::asptr(argv[2], (std::vector< std::vector< int,std::allocator< int > >,std::allocator< std::vector< int,std::allocator< int > > > >**)(0));
+      _v = SWIG_CheckState(res);
+    }
+    if (!_v) goto check_2;
+    return _wrap_Vector_Vector_int___setitem____SWIG_0(self, argc, argv);
+  }
+check_2:
+  
+  if (argc == 3) {
+    PyObject *retobj = _wrap_Vector_Vector_int___setitem____SWIG_2(self, argc, argv);
+    if (!SWIG_Python_TypeErrorOccurred(retobj)) return retobj;
+    SWIG_fail;
+  }
+  
+fail:
+  SWIG_Python_RaiseOrModifyTypeError("Wrong number or type of arguments for overloaded function 'Vector_Vector_int___setitem__'.\n"
+    "  Possible C/C++ prototypes are:\n"
+    "    std::vector< std::vector< int > >::__setitem__(SWIGPY_SLICEOBJECT *,std::vector< std::vector< int,std::allocator< int > >,std::allocator< std::vector< int,std::allocator< int > > > > const &)\n"
+    "    std::vector< std::vector< int > >::__setitem__(SWIGPY_SLICEOBJECT *)\n"
+    "    std::vector< std::vector< int > >::__setitem__(std::vector< std::vector< int > >::difference_type,std::vector< std::vector< int > >::value_type const &)\n");
+  return 0;
+}
+
+
+SWIGINTERN PyObject *_wrap_Vector_Vector_int_pop(PyObject *self, PyObject *args) {
+  PyObject *resultobj = 0;
+  std::vector< std::vector< int > > *arg1 = (std::vector< std::vector< int > > *) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  PyObject *swig_obj[1] ;
+  std::vector< std::vector< int > >::value_type result;
+  
+  if (!args) SWIG_fail;
+  swig_obj[0] = args;
+  res1 = SWIG_ConvertPtr(swig_obj[0], &argp1,SWIGTYPE_p_std__vectorT_std__vectorT_int_std__allocatorT_int_t_t_std__allocatorT_std__vectorT_int_std__allocatorT_int_t_t_t_t, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "Vector_Vector_int_pop" "', argument " "1"" of type '" "std::vector< std::vector< int > > *""'"); 
+  }
+  arg1 = reinterpret_cast< std::vector< std::vector< int > > * >(argp1);
+  {
+    try {
+      try {
+        result = std_vector_Sl_std_vector_Sl_int_Sg__Sg__pop(arg1);
+      } catch(std::out_of_range &_e) {
+        SWIG_exception_fail(SWIG_IndexError, (&_e)->what());
+      }
+    } catch (Swig::DirectorException &e) {
+      SWIG_fail; 
+    } catch (const std::exception& e) {
+      SWIG_exception(SWIG_RuntimeError, e.what());
+    }
+  }
+  resultobj = swig::from(static_cast< std::vector< int,std::allocator< int > > >(result));
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_Vector_Vector_int_append(PyObject *self, PyObject *args) {
+  PyObject *resultobj = 0;
+  std::vector< std::vector< int > > *arg1 = (std::vector< std::vector< int > > *) 0 ;
+  std::vector< std::vector< int > >::value_type *arg2 = 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  int res2 = SWIG_OLDOBJ ;
+  PyObject *swig_obj[2] ;
+  
+  if (!SWIG_Python_UnpackTuple(args, "Vector_Vector_int_append", 2, 2, swig_obj)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(swig_obj[0], &argp1,SWIGTYPE_p_std__vectorT_std__vectorT_int_std__allocatorT_int_t_t_std__allocatorT_std__vectorT_int_std__allocatorT_int_t_t_t_t, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "Vector_Vector_int_append" "', argument " "1"" of type '" "std::vector< std::vector< int > > *""'"); 
+  }
+  arg1 = reinterpret_cast< std::vector< std::vector< int > > * >(argp1);
+  {
+    std::vector< int,std::allocator< int > > *ptr = (std::vector< int,std::allocator< int > > *)0;
+    res2 = swig::asptr(swig_obj[1], &ptr);
+    if (!SWIG_IsOK(res2)) {
+      SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "Vector_Vector_int_append" "', argument " "2"" of type '" "std::vector< std::vector< int > >::value_type const &""'"); 
+    }
+    if (!ptr) {
+      SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "Vector_Vector_int_append" "', argument " "2"" of type '" "std::vector< std::vector< int > >::value_type const &""'"); 
+    }
+    arg2 = ptr;
+  }
+  {
+    try {
+      std_vector_Sl_std_vector_Sl_int_Sg__Sg__append(arg1,(std::vector< int,std::allocator< int > > const &)*arg2);
+    } catch (Swig::DirectorException &e) {
+      SWIG_fail; 
+    } catch (const std::exception& e) {
+      SWIG_exception(SWIG_RuntimeError, e.what());
+    }
+  }
+  resultobj = SWIG_Py_Void();
+  if (SWIG_IsNewObj(res2)) delete arg2;
+  return resultobj;
+fail:
+  if (SWIG_IsNewObj(res2)) delete arg2;
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_new_Vector_Vector_int__SWIG_0(PyObject *self, Py_ssize_t nobjs, PyObject **SWIGUNUSEDPARM(swig_obj)) {
+  PyObject *resultobj = 0;
+  std::vector< std::vector< int > > *result = 0 ;
+  
+  if ((nobjs < 0) || (nobjs > 0)) SWIG_fail;
+  {
+    try {
+      result = (std::vector< std::vector< int > > *)new std::vector< std::vector< int > >();
+    } catch (Swig::DirectorException &e) {
+      SWIG_fail; 
+    } catch (const std::exception& e) {
+      SWIG_exception(SWIG_RuntimeError, e.what());
+    }
+  }
+  resultobj = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIGTYPE_p_std__vectorT_std__vectorT_int_std__allocatorT_int_t_t_std__allocatorT_std__vectorT_int_std__allocatorT_int_t_t_t_t, SWIG_POINTER_NEW |  0 );
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_new_Vector_Vector_int__SWIG_1(PyObject *self, Py_ssize_t nobjs, PyObject **swig_obj) {
+  PyObject *resultobj = 0;
+  std::vector< std::vector< int,std::allocator< int > > > *arg1 = 0 ;
+  int res1 = SWIG_OLDOBJ ;
+  std::vector< std::vector< int > > *result = 0 ;
+  
+  if ((nobjs < 1) || (nobjs > 1)) SWIG_fail;
+  {
+    std::vector< std::vector< int,std::allocator< int > >,std::allocator< std::vector< int,std::allocator< int > > > > *ptr = (std::vector< std::vector< int,std::allocator< int > >,std::allocator< std::vector< int,std::allocator< int > > > > *)0;
+    res1 = swig::asptr(swig_obj[0], &ptr);
+    if (!SWIG_IsOK(res1)) {
+      SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "new_Vector_Vector_int" "', argument " "1"" of type '" "std::vector< std::vector< int,std::allocator< int > > > const &""'"); 
+    }
+    if (!ptr) {
+      SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "new_Vector_Vector_int" "', argument " "1"" of type '" "std::vector< std::vector< int,std::allocator< int > > > const &""'"); 
+    }
+    arg1 = ptr;
+  }
+  {
+    try {
+      result = (std::vector< std::vector< int > > *)new std::vector< std::vector< int > >((std::vector< std::vector< int,std::allocator< int > > > const &)*arg1);
+    } catch (Swig::DirectorException &e) {
+      SWIG_fail; 
+    } catch (const std::exception& e) {
+      SWIG_exception(SWIG_RuntimeError, e.what());
+    }
+  }
+  resultobj = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIGTYPE_p_std__vectorT_std__vectorT_int_std__allocatorT_int_t_t_std__allocatorT_std__vectorT_int_std__allocatorT_int_t_t_t_t, SWIG_POINTER_NEW |  0 );
+  if (SWIG_IsNewObj(res1)) delete arg1;
+  return resultobj;
+fail:
+  if (SWIG_IsNewObj(res1)) delete arg1;
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_Vector_Vector_int_empty(PyObject *self, PyObject *args) {
+  PyObject *resultobj = 0;
+  std::vector< std::vector< int > > *arg1 = (std::vector< std::vector< int > > *) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  PyObject *swig_obj[1] ;
+  bool result;
+  
+  if (!args) SWIG_fail;
+  swig_obj[0] = args;
+  res1 = SWIG_ConvertPtr(swig_obj[0], &argp1,SWIGTYPE_p_std__vectorT_std__vectorT_int_std__allocatorT_int_t_t_std__allocatorT_std__vectorT_int_std__allocatorT_int_t_t_t_t, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "Vector_Vector_int_empty" "', argument " "1"" of type '" "std::vector< std::vector< int > > const *""'"); 
+  }
+  arg1 = reinterpret_cast< std::vector< std::vector< int > > * >(argp1);
+  {
+    try {
+      result = (bool)((std::vector< std::vector< int > > const *)arg1)->empty();
+    } catch (Swig::DirectorException &e) {
+      SWIG_fail; 
+    } catch (const std::exception& e) {
+      SWIG_exception(SWIG_RuntimeError, e.what());
+    }
+  }
+  resultobj = SWIG_From_bool(static_cast< bool >(result));
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_Vector_Vector_int_size(PyObject *self, PyObject *args) {
+  PyObject *resultobj = 0;
+  std::vector< std::vector< int > > *arg1 = (std::vector< std::vector< int > > *) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  PyObject *swig_obj[1] ;
+  std::vector< std::vector< int > >::size_type result;
+  
+  if (!args) SWIG_fail;
+  swig_obj[0] = args;
+  res1 = SWIG_ConvertPtr(swig_obj[0], &argp1,SWIGTYPE_p_std__vectorT_std__vectorT_int_std__allocatorT_int_t_t_std__allocatorT_std__vectorT_int_std__allocatorT_int_t_t_t_t, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "Vector_Vector_int_size" "', argument " "1"" of type '" "std::vector< std::vector< int > > const *""'"); 
+  }
+  arg1 = reinterpret_cast< std::vector< std::vector< int > > * >(argp1);
+  {
+    try {
+      result = ((std::vector< std::vector< int > > const *)arg1)->size();
+    } catch (Swig::DirectorException &e) {
+      SWIG_fail; 
+    } catch (const std::exception& e) {
+      SWIG_exception(SWIG_RuntimeError, e.what());
+    }
+  }
+  resultobj = SWIG_From_size_t(static_cast< size_t >(result));
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_Vector_Vector_int_swap(PyObject *self, PyObject *args) {
+  PyObject *resultobj = 0;
+  std::vector< std::vector< int > > *arg1 = (std::vector< std::vector< int > > *) 0 ;
+  std::vector< std::vector< int,std::allocator< int > > > *arg2 = 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  void *argp2 = 0 ;
+  int res2 = 0 ;
+  PyObject *swig_obj[2] ;
+  
+  if (!SWIG_Python_UnpackTuple(args, "Vector_Vector_int_swap", 2, 2, swig_obj)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(swig_obj[0], &argp1,SWIGTYPE_p_std__vectorT_std__vectorT_int_std__allocatorT_int_t_t_std__allocatorT_std__vectorT_int_std__allocatorT_int_t_t_t_t, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "Vector_Vector_int_swap" "', argument " "1"" of type '" "std::vector< std::vector< int > > *""'"); 
+  }
+  arg1 = reinterpret_cast< std::vector< std::vector< int > > * >(argp1);
+  res2 = SWIG_ConvertPtr(swig_obj[1], &argp2, SWIGTYPE_p_std__vectorT_std__vectorT_int_std__allocatorT_int_t_t_std__allocatorT_std__vectorT_int_std__allocatorT_int_t_t_t_t,  0 );
+  if (!SWIG_IsOK(res2)) {
+    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "Vector_Vector_int_swap" "', argument " "2"" of type '" "std::vector< std::vector< int,std::allocator< int > > > &""'"); 
+  }
+  if (!argp2) {
+    SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "Vector_Vector_int_swap" "', argument " "2"" of type '" "std::vector< std::vector< int,std::allocator< int > > > &""'"); 
+  }
+  arg2 = reinterpret_cast< std::vector< std::vector< int,std::allocator< int > > > * >(argp2);
+  {
+    try {
+      (arg1)->swap(*arg2);
+    } catch (Swig::DirectorException &e) {
+      SWIG_fail; 
+    } catch (const std::exception& e) {
+      SWIG_exception(SWIG_RuntimeError, e.what());
+    }
+  }
+  resultobj = SWIG_Py_Void();
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_Vector_Vector_int_begin(PyObject *self, PyObject *args) {
+  PyObject *resultobj = 0;
+  std::vector< std::vector< int > > *arg1 = (std::vector< std::vector< int > > *) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  PyObject *swig_obj[1] ;
+  std::vector< std::vector< int > >::iterator result;
+  
+  if (!args) SWIG_fail;
+  swig_obj[0] = args;
+  res1 = SWIG_ConvertPtr(swig_obj[0], &argp1,SWIGTYPE_p_std__vectorT_std__vectorT_int_std__allocatorT_int_t_t_std__allocatorT_std__vectorT_int_std__allocatorT_int_t_t_t_t, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "Vector_Vector_int_begin" "', argument " "1"" of type '" "std::vector< std::vector< int > > *""'"); 
+  }
+  arg1 = reinterpret_cast< std::vector< std::vector< int > > * >(argp1);
+  {
+    try {
+      result = (arg1)->begin();
+    } catch (Swig::DirectorException &e) {
+      SWIG_fail; 
+    } catch (const std::exception& e) {
+      SWIG_exception(SWIG_RuntimeError, e.what());
+    }
+  }
+  resultobj = SWIG_NewPointerObj(swig::make_output_iterator(static_cast< const std::vector< std::vector< int > >::iterator & >(result)),
+    swig::SwigPyIterator::descriptor(),SWIG_POINTER_OWN);
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_Vector_Vector_int_end(PyObject *self, PyObject *args) {
+  PyObject *resultobj = 0;
+  std::vector< std::vector< int > > *arg1 = (std::vector< std::vector< int > > *) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  PyObject *swig_obj[1] ;
+  std::vector< std::vector< int > >::iterator result;
+  
+  if (!args) SWIG_fail;
+  swig_obj[0] = args;
+  res1 = SWIG_ConvertPtr(swig_obj[0], &argp1,SWIGTYPE_p_std__vectorT_std__vectorT_int_std__allocatorT_int_t_t_std__allocatorT_std__vectorT_int_std__allocatorT_int_t_t_t_t, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "Vector_Vector_int_end" "', argument " "1"" of type '" "std::vector< std::vector< int > > *""'"); 
+  }
+  arg1 = reinterpret_cast< std::vector< std::vector< int > > * >(argp1);
+  {
+    try {
+      result = (arg1)->end();
+    } catch (Swig::DirectorException &e) {
+      SWIG_fail; 
+    } catch (const std::exception& e) {
+      SWIG_exception(SWIG_RuntimeError, e.what());
+    }
+  }
+  resultobj = SWIG_NewPointerObj(swig::make_output_iterator(static_cast< const std::vector< std::vector< int > >::iterator & >(result)),
+    swig::SwigPyIterator::descriptor(),SWIG_POINTER_OWN);
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_Vector_Vector_int_rbegin(PyObject *self, PyObject *args) {
+  PyObject *resultobj = 0;
+  std::vector< std::vector< int > > *arg1 = (std::vector< std::vector< int > > *) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  PyObject *swig_obj[1] ;
+  std::vector< std::vector< int > >::reverse_iterator result;
+  
+  if (!args) SWIG_fail;
+  swig_obj[0] = args;
+  res1 = SWIG_ConvertPtr(swig_obj[0], &argp1,SWIGTYPE_p_std__vectorT_std__vectorT_int_std__allocatorT_int_t_t_std__allocatorT_std__vectorT_int_std__allocatorT_int_t_t_t_t, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "Vector_Vector_int_rbegin" "', argument " "1"" of type '" "std::vector< std::vector< int > > *""'"); 
+  }
+  arg1 = reinterpret_cast< std::vector< std::vector< int > > * >(argp1);
+  {
+    try {
+      result = (arg1)->rbegin();
+    } catch (Swig::DirectorException &e) {
+      SWIG_fail; 
+    } catch (const std::exception& e) {
+      SWIG_exception(SWIG_RuntimeError, e.what());
+    }
+  }
+  resultobj = SWIG_NewPointerObj(swig::make_output_iterator(static_cast< const std::vector< std::vector< int > >::reverse_iterator & >(result)),
+    swig::SwigPyIterator::descriptor(),SWIG_POINTER_OWN);
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_Vector_Vector_int_rend(PyObject *self, PyObject *args) {
+  PyObject *resultobj = 0;
+  std::vector< std::vector< int > > *arg1 = (std::vector< std::vector< int > > *) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  PyObject *swig_obj[1] ;
+  std::vector< std::vector< int > >::reverse_iterator result;
+  
+  if (!args) SWIG_fail;
+  swig_obj[0] = args;
+  res1 = SWIG_ConvertPtr(swig_obj[0], &argp1,SWIGTYPE_p_std__vectorT_std__vectorT_int_std__allocatorT_int_t_t_std__allocatorT_std__vectorT_int_std__allocatorT_int_t_t_t_t, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "Vector_Vector_int_rend" "', argument " "1"" of type '" "std::vector< std::vector< int > > *""'"); 
+  }
+  arg1 = reinterpret_cast< std::vector< std::vector< int > > * >(argp1);
+  {
+    try {
+      result = (arg1)->rend();
+    } catch (Swig::DirectorException &e) {
+      SWIG_fail; 
+    } catch (const std::exception& e) {
+      SWIG_exception(SWIG_RuntimeError, e.what());
+    }
+  }
+  resultobj = SWIG_NewPointerObj(swig::make_output_iterator(static_cast< const std::vector< std::vector< int > >::reverse_iterator & >(result)),
+    swig::SwigPyIterator::descriptor(),SWIG_POINTER_OWN);
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_Vector_Vector_int_clear(PyObject *self, PyObject *args) {
+  PyObject *resultobj = 0;
+  std::vector< std::vector< int > > *arg1 = (std::vector< std::vector< int > > *) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  PyObject *swig_obj[1] ;
+  
+  if (!args) SWIG_fail;
+  swig_obj[0] = args;
+  res1 = SWIG_ConvertPtr(swig_obj[0], &argp1,SWIGTYPE_p_std__vectorT_std__vectorT_int_std__allocatorT_int_t_t_std__allocatorT_std__vectorT_int_std__allocatorT_int_t_t_t_t, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "Vector_Vector_int_clear" "', argument " "1"" of type '" "std::vector< std::vector< int > > *""'"); 
+  }
+  arg1 = reinterpret_cast< std::vector< std::vector< int > > * >(argp1);
+  {
+    try {
+      (arg1)->clear();
+    } catch (Swig::DirectorException &e) {
+      SWIG_fail; 
+    } catch (const std::exception& e) {
+      SWIG_exception(SWIG_RuntimeError, e.what());
+    }
+  }
+  resultobj = SWIG_Py_Void();
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_Vector_Vector_int_get_allocator(PyObject *self, PyObject *args) {
+  PyObject *resultobj = 0;
+  std::vector< std::vector< int > > *arg1 = (std::vector< std::vector< int > > *) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  PyObject *swig_obj[1] ;
+  SwigValueWrapper< std::allocator< std::vector< int,std::allocator< int > > > > result;
+  
+  if (!args) SWIG_fail;
+  swig_obj[0] = args;
+  res1 = SWIG_ConvertPtr(swig_obj[0], &argp1,SWIGTYPE_p_std__vectorT_std__vectorT_int_std__allocatorT_int_t_t_std__allocatorT_std__vectorT_int_std__allocatorT_int_t_t_t_t, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "Vector_Vector_int_get_allocator" "', argument " "1"" of type '" "std::vector< std::vector< int > > const *""'"); 
+  }
+  arg1 = reinterpret_cast< std::vector< std::vector< int > > * >(argp1);
+  {
+    try {
+      result = ((std::vector< std::vector< int > > const *)arg1)->get_allocator();
+    } catch (Swig::DirectorException &e) {
+      SWIG_fail; 
+    } catch (const std::exception& e) {
+      SWIG_exception(SWIG_RuntimeError, e.what());
+    }
+  }
+  resultobj = SWIG_NewPointerObj((new std::vector< std::vector< int > >::allocator_type(result)), SWIGTYPE_p_std__allocatorT_std__vectorT_int_std__allocatorT_int_t_t_t, SWIG_POINTER_OWN |  0 );
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_new_Vector_Vector_int__SWIG_2(PyObject *self, Py_ssize_t nobjs, PyObject **swig_obj) {
+  PyObject *resultobj = 0;
+  std::vector< std::vector< int > >::size_type arg1 ;
+  size_t val1 ;
+  int ecode1 = 0 ;
+  std::vector< std::vector< int > > *result = 0 ;
+  
+  if ((nobjs < 1) || (nobjs > 1)) SWIG_fail;
+  ecode1 = SWIG_AsVal_size_t(swig_obj[0], &val1);
+  if (!SWIG_IsOK(ecode1)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode1), "in method '" "new_Vector_Vector_int" "', argument " "1"" of type '" "std::vector< std::vector< int > >::size_type""'");
+  } 
+  arg1 = static_cast< std::vector< std::vector< int > >::size_type >(val1);
+  {
+    try {
+      result = (std::vector< std::vector< int > > *)new std::vector< std::vector< int > >(arg1);
+    } catch (Swig::DirectorException &e) {
+      SWIG_fail; 
+    } catch (const std::exception& e) {
+      SWIG_exception(SWIG_RuntimeError, e.what());
+    }
+  }
+  resultobj = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIGTYPE_p_std__vectorT_std__vectorT_int_std__allocatorT_int_t_t_std__allocatorT_std__vectorT_int_std__allocatorT_int_t_t_t_t, SWIG_POINTER_NEW |  0 );
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_Vector_Vector_int_pop_back(PyObject *self, PyObject *args) {
+  PyObject *resultobj = 0;
+  std::vector< std::vector< int > > *arg1 = (std::vector< std::vector< int > > *) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  PyObject *swig_obj[1] ;
+  
+  if (!args) SWIG_fail;
+  swig_obj[0] = args;
+  res1 = SWIG_ConvertPtr(swig_obj[0], &argp1,SWIGTYPE_p_std__vectorT_std__vectorT_int_std__allocatorT_int_t_t_std__allocatorT_std__vectorT_int_std__allocatorT_int_t_t_t_t, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "Vector_Vector_int_pop_back" "', argument " "1"" of type '" "std::vector< std::vector< int > > *""'"); 
+  }
+  arg1 = reinterpret_cast< std::vector< std::vector< int > > * >(argp1);
+  {
+    try {
+      (arg1)->pop_back();
+    } catch (Swig::DirectorException &e) {
+      SWIG_fail; 
+    } catch (const std::exception& e) {
+      SWIG_exception(SWIG_RuntimeError, e.what());
+    }
+  }
+  resultobj = SWIG_Py_Void();
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_Vector_Vector_int_resize__SWIG_0(PyObject *self, Py_ssize_t nobjs, PyObject **swig_obj) {
+  PyObject *resultobj = 0;
+  std::vector< std::vector< int > > *arg1 = (std::vector< std::vector< int > > *) 0 ;
+  std::vector< std::vector< int > >::size_type arg2 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  size_t val2 ;
+  int ecode2 = 0 ;
+  
+  if ((nobjs < 2) || (nobjs > 2)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(swig_obj[0], &argp1,SWIGTYPE_p_std__vectorT_std__vectorT_int_std__allocatorT_int_t_t_std__allocatorT_std__vectorT_int_std__allocatorT_int_t_t_t_t, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "Vector_Vector_int_resize" "', argument " "1"" of type '" "std::vector< std::vector< int > > *""'"); 
+  }
+  arg1 = reinterpret_cast< std::vector< std::vector< int > > * >(argp1);
+  ecode2 = SWIG_AsVal_size_t(swig_obj[1], &val2);
+  if (!SWIG_IsOK(ecode2)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode2), "in method '" "Vector_Vector_int_resize" "', argument " "2"" of type '" "std::vector< std::vector< int > >::size_type""'");
+  } 
+  arg2 = static_cast< std::vector< std::vector< int > >::size_type >(val2);
+  {
+    try {
+      (arg1)->resize(arg2);
+    } catch (Swig::DirectorException &e) {
+      SWIG_fail; 
+    } catch (const std::exception& e) {
+      SWIG_exception(SWIG_RuntimeError, e.what());
+    }
+  }
+  resultobj = SWIG_Py_Void();
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_Vector_Vector_int_erase__SWIG_0(PyObject *self, Py_ssize_t nobjs, PyObject **swig_obj) {
+  PyObject *resultobj = 0;
+  std::vector< std::vector< int > > *arg1 = (std::vector< std::vector< int > > *) 0 ;
+  std::vector< std::vector< int > >::iterator arg2 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  swig::SwigPyIterator *iter2 = 0 ;
+  int res2 ;
+  std::vector< std::vector< int > >::iterator result;
+  
+  if ((nobjs < 2) || (nobjs > 2)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(swig_obj[0], &argp1,SWIGTYPE_p_std__vectorT_std__vectorT_int_std__allocatorT_int_t_t_std__allocatorT_std__vectorT_int_std__allocatorT_int_t_t_t_t, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "Vector_Vector_int_erase" "', argument " "1"" of type '" "std::vector< std::vector< int > > *""'"); 
+  }
+  arg1 = reinterpret_cast< std::vector< std::vector< int > > * >(argp1);
+  res2 = SWIG_ConvertPtr(swig_obj[1], SWIG_as_voidptrptr(&iter2), swig::SwigPyIterator::descriptor(), 0);
+  if (!SWIG_IsOK(res2) || !iter2) {
+    SWIG_exception_fail(SWIG_ArgError(SWIG_TypeError), "in method '" "Vector_Vector_int_erase" "', argument " "2"" of type '" "std::vector< std::vector< int > >::iterator""'");
+  } else {
+    swig::SwigPyIterator_T<std::vector< std::vector< int > >::iterator > *iter_t = dynamic_cast<swig::SwigPyIterator_T<std::vector< std::vector< int > >::iterator > *>(iter2);
+    if (iter_t) {
+      arg2 = iter_t->get_current();
+    } else {
+      SWIG_exception_fail(SWIG_ArgError(SWIG_TypeError), "in method '" "Vector_Vector_int_erase" "', argument " "2"" of type '" "std::vector< std::vector< int > >::iterator""'");
+    }
+  }
+  {
+    try {
+      result = std_vector_Sl_std_vector_Sl_int_Sg__Sg__erase__SWIG_0(arg1,SWIG_STD_MOVE(arg2));
+    } catch (Swig::DirectorException &e) {
+      SWIG_fail; 
+    } catch (const std::exception& e) {
+      SWIG_exception(SWIG_RuntimeError, e.what());
+    }
+  }
+  resultobj = SWIG_NewPointerObj(swig::make_output_iterator(static_cast< const std::vector< std::vector< int > >::iterator & >(result)),
+    swig::SwigPyIterator::descriptor(),SWIG_POINTER_OWN);
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_Vector_Vector_int_erase__SWIG_1(PyObject *self, Py_ssize_t nobjs, PyObject **swig_obj) {
+  PyObject *resultobj = 0;
+  std::vector< std::vector< int > > *arg1 = (std::vector< std::vector< int > > *) 0 ;
+  std::vector< std::vector< int > >::iterator arg2 ;
+  std::vector< std::vector< int > >::iterator arg3 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  swig::SwigPyIterator *iter2 = 0 ;
+  int res2 ;
+  swig::SwigPyIterator *iter3 = 0 ;
+  int res3 ;
+  std::vector< std::vector< int > >::iterator result;
+  
+  if ((nobjs < 3) || (nobjs > 3)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(swig_obj[0], &argp1,SWIGTYPE_p_std__vectorT_std__vectorT_int_std__allocatorT_int_t_t_std__allocatorT_std__vectorT_int_std__allocatorT_int_t_t_t_t, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "Vector_Vector_int_erase" "', argument " "1"" of type '" "std::vector< std::vector< int > > *""'"); 
+  }
+  arg1 = reinterpret_cast< std::vector< std::vector< int > > * >(argp1);
+  res2 = SWIG_ConvertPtr(swig_obj[1], SWIG_as_voidptrptr(&iter2), swig::SwigPyIterator::descriptor(), 0);
+  if (!SWIG_IsOK(res2) || !iter2) {
+    SWIG_exception_fail(SWIG_ArgError(SWIG_TypeError), "in method '" "Vector_Vector_int_erase" "', argument " "2"" of type '" "std::vector< std::vector< int > >::iterator""'");
+  } else {
+    swig::SwigPyIterator_T<std::vector< std::vector< int > >::iterator > *iter_t = dynamic_cast<swig::SwigPyIterator_T<std::vector< std::vector< int > >::iterator > *>(iter2);
+    if (iter_t) {
+      arg2 = iter_t->get_current();
+    } else {
+      SWIG_exception_fail(SWIG_ArgError(SWIG_TypeError), "in method '" "Vector_Vector_int_erase" "', argument " "2"" of type '" "std::vector< std::vector< int > >::iterator""'");
+    }
+  }
+  res3 = SWIG_ConvertPtr(swig_obj[2], SWIG_as_voidptrptr(&iter3), swig::SwigPyIterator::descriptor(), 0);
+  if (!SWIG_IsOK(res3) || !iter3) {
+    SWIG_exception_fail(SWIG_ArgError(SWIG_TypeError), "in method '" "Vector_Vector_int_erase" "', argument " "3"" of type '" "std::vector< std::vector< int > >::iterator""'");
+  } else {
+    swig::SwigPyIterator_T<std::vector< std::vector< int > >::iterator > *iter_t = dynamic_cast<swig::SwigPyIterator_T<std::vector< std::vector< int > >::iterator > *>(iter3);
+    if (iter_t) {
+      arg3 = iter_t->get_current();
+    } else {
+      SWIG_exception_fail(SWIG_ArgError(SWIG_TypeError), "in method '" "Vector_Vector_int_erase" "', argument " "3"" of type '" "std::vector< std::vector< int > >::iterator""'");
+    }
+  }
+  {
+    try {
+      result = std_vector_Sl_std_vector_Sl_int_Sg__Sg__erase__SWIG_1(arg1,SWIG_STD_MOVE(arg2),SWIG_STD_MOVE(arg3));
+    } catch (Swig::DirectorException &e) {
+      SWIG_fail; 
+    } catch (const std::exception& e) {
+      SWIG_exception(SWIG_RuntimeError, e.what());
+    }
+  }
+  resultobj = SWIG_NewPointerObj(swig::make_output_iterator(static_cast< const std::vector< std::vector< int > >::iterator & >(result)),
+    swig::SwigPyIterator::descriptor(),SWIG_POINTER_OWN);
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_Vector_Vector_int_erase(PyObject *self, PyObject *args) {
+  Py_ssize_t argc;
+  PyObject *argv[4] = {
+    0
+  };
+  
+  if (!(argc = SWIG_Python_UnpackTuple(args, "Vector_Vector_int_erase", 0, 3, argv))) SWIG_fail;
+  --argc;
+  if (argc == 2) {
+    PyObject *retobj = _wrap_Vector_Vector_int_erase__SWIG_0(self, argc, argv);
+    if (!SWIG_Python_TypeErrorOccurred(retobj)) return retobj;
+    SWIG_fail;
+  }
+  if (argc == 3) {
+    PyObject *retobj = _wrap_Vector_Vector_int_erase__SWIG_1(self, argc, argv);
+    if (!SWIG_Python_TypeErrorOccurred(retobj)) return retobj;
+    SWIG_fail;
+  }
+  
+fail:
+  SWIG_Python_RaiseOrModifyTypeError("Wrong number or type of arguments for overloaded function 'Vector_Vector_int_erase'.\n"
+    "  Possible C/C++ prototypes are:\n"
+    "    std::vector< std::vector< int > >::erase(std::vector< std::vector< int > >::iterator)\n"
+    "    std::vector< std::vector< int > >::erase(std::vector< std::vector< int > >::iterator,std::vector< std::vector< int > >::iterator)\n");
+  return 0;
+}
+
+
+SWIGINTERN PyObject *_wrap_new_Vector_Vector_int__SWIG_3(PyObject *self, Py_ssize_t nobjs, PyObject **swig_obj) {
+  PyObject *resultobj = 0;
+  std::vector< std::vector< int > >::size_type arg1 ;
+  std::vector< std::vector< int > >::value_type *arg2 = 0 ;
+  size_t val1 ;
+  int ecode1 = 0 ;
+  int res2 = SWIG_OLDOBJ ;
+  std::vector< std::vector< int > > *result = 0 ;
+  
+  if ((nobjs < 2) || (nobjs > 2)) SWIG_fail;
+  ecode1 = SWIG_AsVal_size_t(swig_obj[0], &val1);
+  if (!SWIG_IsOK(ecode1)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode1), "in method '" "new_Vector_Vector_int" "', argument " "1"" of type '" "std::vector< std::vector< int > >::size_type""'");
+  } 
+  arg1 = static_cast< std::vector< std::vector< int > >::size_type >(val1);
+  {
+    std::vector< int,std::allocator< int > > *ptr = (std::vector< int,std::allocator< int > > *)0;
+    res2 = swig::asptr(swig_obj[1], &ptr);
+    if (!SWIG_IsOK(res2)) {
+      SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "new_Vector_Vector_int" "', argument " "2"" of type '" "std::vector< std::vector< int > >::value_type const &""'"); 
+    }
+    if (!ptr) {
+      SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "new_Vector_Vector_int" "', argument " "2"" of type '" "std::vector< std::vector< int > >::value_type const &""'"); 
+    }
+    arg2 = ptr;
+  }
+  {
+    try {
+      result = (std::vector< std::vector< int > > *)new std::vector< std::vector< int > >(arg1,(std::vector< std::vector< int > >::value_type const &)*arg2);
+    } catch (Swig::DirectorException &e) {
+      SWIG_fail; 
+    } catch (const std::exception& e) {
+      SWIG_exception(SWIG_RuntimeError, e.what());
+    }
+  }
+  resultobj = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIGTYPE_p_std__vectorT_std__vectorT_int_std__allocatorT_int_t_t_std__allocatorT_std__vectorT_int_std__allocatorT_int_t_t_t_t, SWIG_POINTER_NEW |  0 );
+  if (SWIG_IsNewObj(res2)) delete arg2;
+  return resultobj;
+fail:
+  if (SWIG_IsNewObj(res2)) delete arg2;
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_new_Vector_Vector_int(PyObject *self, PyObject *args) {
+  Py_ssize_t argc;
+  PyObject *argv[3] = {
+    0
+  };
+  
+  if (!(argc = SWIG_Python_UnpackTuple(args, "new_Vector_Vector_int", 0, 2, argv))) SWIG_fail;
+  --argc;
+  if (argc == 0) {
+    PyObject *retobj = _wrap_new_Vector_Vector_int__SWIG_0(self, argc, argv);
+    if (!SWIG_Python_TypeErrorOccurred(retobj)) return retobj;
+    SWIG_fail;
+  }
+  if (argc == 1) {
+    int _v = 0;
+    {
+      {
+        int res = SWIG_AsVal_size_t(argv[0], NULL);
+        _v = SWIG_CheckState(res);
+      }
+    }
+    if (!_v) goto check_2;
+    return _wrap_new_Vector_Vector_int__SWIG_2(self, argc, argv);
+  }
+check_2:
+  
+  if (argc == 1) {
+    PyObject *retobj = _wrap_new_Vector_Vector_int__SWIG_1(self, argc, argv);
+    if (!SWIG_Python_TypeErrorOccurred(retobj)) return retobj;
+    SWIG_fail;
+  }
+  if (argc == 2) {
+    PyObject *retobj = _wrap_new_Vector_Vector_int__SWIG_3(self, argc, argv);
+    if (!SWIG_Python_TypeErrorOccurred(retobj)) return retobj;
+    SWIG_fail;
+  }
+  
+fail:
+  SWIG_Python_RaiseOrModifyTypeError("Wrong number or type of arguments for overloaded function 'new_Vector_Vector_int'.\n"
+    "  Possible C/C++ prototypes are:\n"
+    "    std::vector< std::vector< int > >::vector()\n"
+    "    std::vector< std::vector< int > >::vector(std::vector< std::vector< int,std::allocator< int > > > const &)\n"
+    "    std::vector< std::vector< int > >::vector(std::vector< std::vector< int > >::size_type)\n"
+    "    std::vector< std::vector< int > >::vector(std::vector< std::vector< int > >::size_type,std::vector< std::vector< int > >::value_type const &)\n");
+  return 0;
+}
+
+
+SWIGINTERN PyObject *_wrap_Vector_Vector_int_push_back(PyObject *self, PyObject *args) {
+  PyObject *resultobj = 0;
+  std::vector< std::vector< int > > *arg1 = (std::vector< std::vector< int > > *) 0 ;
+  std::vector< std::vector< int > >::value_type *arg2 = 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  int res2 = SWIG_OLDOBJ ;
+  PyObject *swig_obj[2] ;
+  
+  if (!SWIG_Python_UnpackTuple(args, "Vector_Vector_int_push_back", 2, 2, swig_obj)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(swig_obj[0], &argp1,SWIGTYPE_p_std__vectorT_std__vectorT_int_std__allocatorT_int_t_t_std__allocatorT_std__vectorT_int_std__allocatorT_int_t_t_t_t, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "Vector_Vector_int_push_back" "', argument " "1"" of type '" "std::vector< std::vector< int > > *""'"); 
+  }
+  arg1 = reinterpret_cast< std::vector< std::vector< int > > * >(argp1);
+  {
+    std::vector< int,std::allocator< int > > *ptr = (std::vector< int,std::allocator< int > > *)0;
+    res2 = swig::asptr(swig_obj[1], &ptr);
+    if (!SWIG_IsOK(res2)) {
+      SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "Vector_Vector_int_push_back" "', argument " "2"" of type '" "std::vector< std::vector< int > >::value_type const &""'"); 
+    }
+    if (!ptr) {
+      SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "Vector_Vector_int_push_back" "', argument " "2"" of type '" "std::vector< std::vector< int > >::value_type const &""'"); 
+    }
+    arg2 = ptr;
+  }
+  {
+    try {
+      (arg1)->push_back((std::vector< std::vector< int > >::value_type const &)*arg2);
+    } catch (Swig::DirectorException &e) {
+      SWIG_fail; 
+    } catch (const std::exception& e) {
+      SWIG_exception(SWIG_RuntimeError, e.what());
+    }
+  }
+  resultobj = SWIG_Py_Void();
+  if (SWIG_IsNewObj(res2)) delete arg2;
+  return resultobj;
+fail:
+  if (SWIG_IsNewObj(res2)) delete arg2;
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_Vector_Vector_int_front(PyObject *self, PyObject *args) {
+  PyObject *resultobj = 0;
+  std::vector< std::vector< int > > *arg1 = (std::vector< std::vector< int > > *) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  PyObject *swig_obj[1] ;
+  std::vector< std::vector< int > >::value_type *result = 0 ;
+  
+  if (!args) SWIG_fail;
+  swig_obj[0] = args;
+  res1 = SWIG_ConvertPtr(swig_obj[0], &argp1,SWIGTYPE_p_std__vectorT_std__vectorT_int_std__allocatorT_int_t_t_std__allocatorT_std__vectorT_int_std__allocatorT_int_t_t_t_t, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "Vector_Vector_int_front" "', argument " "1"" of type '" "std::vector< std::vector< int > > const *""'"); 
+  }
+  arg1 = reinterpret_cast< std::vector< std::vector< int > > * >(argp1);
+  {
+    try {
+      result = (std::vector< std::vector< int > >::value_type *) &((std::vector< std::vector< int > > const *)arg1)->front();
+    } catch (Swig::DirectorException &e) {
+      SWIG_fail; 
+    } catch (const std::exception& e) {
+      SWIG_exception(SWIG_RuntimeError, e.what());
+    }
+  }
+  resultobj = swig::from(static_cast< std::vector< int,std::allocator< int > > >(*result));
+  (void)swig::container_owner<swig::traits<std::vector< std::vector< int > >::value_type>::category>::back_reference(resultobj, swig_obj[0]);
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_Vector_Vector_int_back(PyObject *self, PyObject *args) {
+  PyObject *resultobj = 0;
+  std::vector< std::vector< int > > *arg1 = (std::vector< std::vector< int > > *) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  PyObject *swig_obj[1] ;
+  std::vector< std::vector< int > >::value_type *result = 0 ;
+  
+  if (!args) SWIG_fail;
+  swig_obj[0] = args;
+  res1 = SWIG_ConvertPtr(swig_obj[0], &argp1,SWIGTYPE_p_std__vectorT_std__vectorT_int_std__allocatorT_int_t_t_std__allocatorT_std__vectorT_int_std__allocatorT_int_t_t_t_t, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "Vector_Vector_int_back" "', argument " "1"" of type '" "std::vector< std::vector< int > > const *""'"); 
+  }
+  arg1 = reinterpret_cast< std::vector< std::vector< int > > * >(argp1);
+  {
+    try {
+      result = (std::vector< std::vector< int > >::value_type *) &((std::vector< std::vector< int > > const *)arg1)->back();
+    } catch (Swig::DirectorException &e) {
+      SWIG_fail; 
+    } catch (const std::exception& e) {
+      SWIG_exception(SWIG_RuntimeError, e.what());
+    }
+  }
+  resultobj = swig::from(static_cast< std::vector< int,std::allocator< int > > >(*result));
+  (void)swig::container_owner<swig::traits<std::vector< std::vector< int > >::value_type>::category>::back_reference(resultobj, swig_obj[0]);
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_Vector_Vector_int_assign(PyObject *self, PyObject *args) {
+  PyObject *resultobj = 0;
+  std::vector< std::vector< int > > *arg1 = (std::vector< std::vector< int > > *) 0 ;
+  std::vector< std::vector< int > >::size_type arg2 ;
+  std::vector< std::vector< int > >::value_type *arg3 = 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  size_t val2 ;
+  int ecode2 = 0 ;
+  int res3 = SWIG_OLDOBJ ;
+  PyObject *swig_obj[3] ;
+  
+  if (!SWIG_Python_UnpackTuple(args, "Vector_Vector_int_assign", 3, 3, swig_obj)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(swig_obj[0], &argp1,SWIGTYPE_p_std__vectorT_std__vectorT_int_std__allocatorT_int_t_t_std__allocatorT_std__vectorT_int_std__allocatorT_int_t_t_t_t, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "Vector_Vector_int_assign" "', argument " "1"" of type '" "std::vector< std::vector< int > > *""'"); 
+  }
+  arg1 = reinterpret_cast< std::vector< std::vector< int > > * >(argp1);
+  ecode2 = SWIG_AsVal_size_t(swig_obj[1], &val2);
+  if (!SWIG_IsOK(ecode2)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode2), "in method '" "Vector_Vector_int_assign" "', argument " "2"" of type '" "std::vector< std::vector< int > >::size_type""'");
+  } 
+  arg2 = static_cast< std::vector< std::vector< int > >::size_type >(val2);
+  {
+    std::vector< int,std::allocator< int > > *ptr = (std::vector< int,std::allocator< int > > *)0;
+    res3 = swig::asptr(swig_obj[2], &ptr);
+    if (!SWIG_IsOK(res3)) {
+      SWIG_exception_fail(SWIG_ArgError(res3), "in method '" "Vector_Vector_int_assign" "', argument " "3"" of type '" "std::vector< std::vector< int > >::value_type const &""'"); 
+    }
+    if (!ptr) {
+      SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "Vector_Vector_int_assign" "', argument " "3"" of type '" "std::vector< std::vector< int > >::value_type const &""'"); 
+    }
+    arg3 = ptr;
+  }
+  {
+    try {
+      (arg1)->assign(arg2,(std::vector< std::vector< int > >::value_type const &)*arg3);
+    } catch (Swig::DirectorException &e) {
+      SWIG_fail; 
+    } catch (const std::exception& e) {
+      SWIG_exception(SWIG_RuntimeError, e.what());
+    }
+  }
+  resultobj = SWIG_Py_Void();
+  if (SWIG_IsNewObj(res3)) delete arg3;
+  return resultobj;
+fail:
+  if (SWIG_IsNewObj(res3)) delete arg3;
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_Vector_Vector_int_resize__SWIG_1(PyObject *self, Py_ssize_t nobjs, PyObject **swig_obj) {
+  PyObject *resultobj = 0;
+  std::vector< std::vector< int > > *arg1 = (std::vector< std::vector< int > > *) 0 ;
+  std::vector< std::vector< int > >::size_type arg2 ;
+  std::vector< std::vector< int > >::value_type *arg3 = 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  size_t val2 ;
+  int ecode2 = 0 ;
+  int res3 = SWIG_OLDOBJ ;
+  
+  if ((nobjs < 3) || (nobjs > 3)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(swig_obj[0], &argp1,SWIGTYPE_p_std__vectorT_std__vectorT_int_std__allocatorT_int_t_t_std__allocatorT_std__vectorT_int_std__allocatorT_int_t_t_t_t, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "Vector_Vector_int_resize" "', argument " "1"" of type '" "std::vector< std::vector< int > > *""'"); 
+  }
+  arg1 = reinterpret_cast< std::vector< std::vector< int > > * >(argp1);
+  ecode2 = SWIG_AsVal_size_t(swig_obj[1], &val2);
+  if (!SWIG_IsOK(ecode2)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode2), "in method '" "Vector_Vector_int_resize" "', argument " "2"" of type '" "std::vector< std::vector< int > >::size_type""'");
+  } 
+  arg2 = static_cast< std::vector< std::vector< int > >::size_type >(val2);
+  {
+    std::vector< int,std::allocator< int > > *ptr = (std::vector< int,std::allocator< int > > *)0;
+    res3 = swig::asptr(swig_obj[2], &ptr);
+    if (!SWIG_IsOK(res3)) {
+      SWIG_exception_fail(SWIG_ArgError(res3), "in method '" "Vector_Vector_int_resize" "', argument " "3"" of type '" "std::vector< std::vector< int > >::value_type const &""'"); 
+    }
+    if (!ptr) {
+      SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "Vector_Vector_int_resize" "', argument " "3"" of type '" "std::vector< std::vector< int > >::value_type const &""'"); 
+    }
+    arg3 = ptr;
+  }
+  {
+    try {
+      (arg1)->resize(arg2,(std::vector< std::vector< int > >::value_type const &)*arg3);
+    } catch (Swig::DirectorException &e) {
+      SWIG_fail; 
+    } catch (const std::exception& e) {
+      SWIG_exception(SWIG_RuntimeError, e.what());
+    }
+  }
+  resultobj = SWIG_Py_Void();
+  if (SWIG_IsNewObj(res3)) delete arg3;
+  return resultobj;
+fail:
+  if (SWIG_IsNewObj(res3)) delete arg3;
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_Vector_Vector_int_resize(PyObject *self, PyObject *args) {
+  Py_ssize_t argc;
+  PyObject *argv[4] = {
+    0
+  };
+  
+  if (!(argc = SWIG_Python_UnpackTuple(args, "Vector_Vector_int_resize", 0, 3, argv))) SWIG_fail;
+  --argc;
+  if (argc == 2) {
+    PyObject *retobj = _wrap_Vector_Vector_int_resize__SWIG_0(self, argc, argv);
+    if (!SWIG_Python_TypeErrorOccurred(retobj)) return retobj;
+    SWIG_fail;
+  }
+  if (argc == 3) {
+    PyObject *retobj = _wrap_Vector_Vector_int_resize__SWIG_1(self, argc, argv);
+    if (!SWIG_Python_TypeErrorOccurred(retobj)) return retobj;
+    SWIG_fail;
+  }
+  
+fail:
+  SWIG_Python_RaiseOrModifyTypeError("Wrong number or type of arguments for overloaded function 'Vector_Vector_int_resize'.\n"
+    "  Possible C/C++ prototypes are:\n"
+    "    std::vector< std::vector< int > >::resize(std::vector< std::vector< int > >::size_type)\n"
+    "    std::vector< std::vector< int > >::resize(std::vector< std::vector< int > >::size_type,std::vector< std::vector< int > >::value_type const &)\n");
+  return 0;
+}
+
+
+SWIGINTERN PyObject *_wrap_Vector_Vector_int_insert__SWIG_0(PyObject *self, Py_ssize_t nobjs, PyObject **swig_obj) {
+  PyObject *resultobj = 0;
+  std::vector< std::vector< int > > *arg1 = (std::vector< std::vector< int > > *) 0 ;
+  std::vector< std::vector< int > >::iterator arg2 ;
+  std::vector< std::vector< int > >::value_type *arg3 = 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  swig::SwigPyIterator *iter2 = 0 ;
+  int res2 ;
+  int res3 = SWIG_OLDOBJ ;
+  std::vector< std::vector< int > >::iterator result;
+  
+  if ((nobjs < 3) || (nobjs > 3)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(swig_obj[0], &argp1,SWIGTYPE_p_std__vectorT_std__vectorT_int_std__allocatorT_int_t_t_std__allocatorT_std__vectorT_int_std__allocatorT_int_t_t_t_t, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "Vector_Vector_int_insert" "', argument " "1"" of type '" "std::vector< std::vector< int > > *""'"); 
+  }
+  arg1 = reinterpret_cast< std::vector< std::vector< int > > * >(argp1);
+  res2 = SWIG_ConvertPtr(swig_obj[1], SWIG_as_voidptrptr(&iter2), swig::SwigPyIterator::descriptor(), 0);
+  if (!SWIG_IsOK(res2) || !iter2) {
+    SWIG_exception_fail(SWIG_ArgError(SWIG_TypeError), "in method '" "Vector_Vector_int_insert" "', argument " "2"" of type '" "std::vector< std::vector< int > >::iterator""'");
+  } else {
+    swig::SwigPyIterator_T<std::vector< std::vector< int > >::iterator > *iter_t = dynamic_cast<swig::SwigPyIterator_T<std::vector< std::vector< int > >::iterator > *>(iter2);
+    if (iter_t) {
+      arg2 = iter_t->get_current();
+    } else {
+      SWIG_exception_fail(SWIG_ArgError(SWIG_TypeError), "in method '" "Vector_Vector_int_insert" "', argument " "2"" of type '" "std::vector< std::vector< int > >::iterator""'");
+    }
+  }
+  {
+    std::vector< int,std::allocator< int > > *ptr = (std::vector< int,std::allocator< int > > *)0;
+    res3 = swig::asptr(swig_obj[2], &ptr);
+    if (!SWIG_IsOK(res3)) {
+      SWIG_exception_fail(SWIG_ArgError(res3), "in method '" "Vector_Vector_int_insert" "', argument " "3"" of type '" "std::vector< std::vector< int > >::value_type const &""'"); 
+    }
+    if (!ptr) {
+      SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "Vector_Vector_int_insert" "', argument " "3"" of type '" "std::vector< std::vector< int > >::value_type const &""'"); 
+    }
+    arg3 = ptr;
+  }
+  {
+    try {
+      result = std_vector_Sl_std_vector_Sl_int_Sg__Sg__insert__SWIG_0(arg1,SWIG_STD_MOVE(arg2),(std::vector< int,std::allocator< int > > const &)*arg3);
+    } catch (Swig::DirectorException &e) {
+      SWIG_fail; 
+    } catch (const std::exception& e) {
+      SWIG_exception(SWIG_RuntimeError, e.what());
+    }
+  }
+  resultobj = SWIG_NewPointerObj(swig::make_output_iterator(static_cast< const std::vector< std::vector< int > >::iterator & >(result)),
+    swig::SwigPyIterator::descriptor(),SWIG_POINTER_OWN);
+  if (SWIG_IsNewObj(res3)) delete arg3;
+  return resultobj;
+fail:
+  if (SWIG_IsNewObj(res3)) delete arg3;
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_Vector_Vector_int_insert__SWIG_1(PyObject *self, Py_ssize_t nobjs, PyObject **swig_obj) {
+  PyObject *resultobj = 0;
+  std::vector< std::vector< int > > *arg1 = (std::vector< std::vector< int > > *) 0 ;
+  std::vector< std::vector< int > >::iterator arg2 ;
+  std::vector< std::vector< int > >::size_type arg3 ;
+  std::vector< std::vector< int > >::value_type *arg4 = 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  swig::SwigPyIterator *iter2 = 0 ;
+  int res2 ;
+  size_t val3 ;
+  int ecode3 = 0 ;
+  int res4 = SWIG_OLDOBJ ;
+  
+  if ((nobjs < 4) || (nobjs > 4)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(swig_obj[0], &argp1,SWIGTYPE_p_std__vectorT_std__vectorT_int_std__allocatorT_int_t_t_std__allocatorT_std__vectorT_int_std__allocatorT_int_t_t_t_t, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "Vector_Vector_int_insert" "', argument " "1"" of type '" "std::vector< std::vector< int > > *""'"); 
+  }
+  arg1 = reinterpret_cast< std::vector< std::vector< int > > * >(argp1);
+  res2 = SWIG_ConvertPtr(swig_obj[1], SWIG_as_voidptrptr(&iter2), swig::SwigPyIterator::descriptor(), 0);
+  if (!SWIG_IsOK(res2) || !iter2) {
+    SWIG_exception_fail(SWIG_ArgError(SWIG_TypeError), "in method '" "Vector_Vector_int_insert" "', argument " "2"" of type '" "std::vector< std::vector< int > >::iterator""'");
+  } else {
+    swig::SwigPyIterator_T<std::vector< std::vector< int > >::iterator > *iter_t = dynamic_cast<swig::SwigPyIterator_T<std::vector< std::vector< int > >::iterator > *>(iter2);
+    if (iter_t) {
+      arg2 = iter_t->get_current();
+    } else {
+      SWIG_exception_fail(SWIG_ArgError(SWIG_TypeError), "in method '" "Vector_Vector_int_insert" "', argument " "2"" of type '" "std::vector< std::vector< int > >::iterator""'");
+    }
+  }
+  ecode3 = SWIG_AsVal_size_t(swig_obj[2], &val3);
+  if (!SWIG_IsOK(ecode3)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode3), "in method '" "Vector_Vector_int_insert" "', argument " "3"" of type '" "std::vector< std::vector< int > >::size_type""'");
+  } 
+  arg3 = static_cast< std::vector< std::vector< int > >::size_type >(val3);
+  {
+    std::vector< int,std::allocator< int > > *ptr = (std::vector< int,std::allocator< int > > *)0;
+    res4 = swig::asptr(swig_obj[3], &ptr);
+    if (!SWIG_IsOK(res4)) {
+      SWIG_exception_fail(SWIG_ArgError(res4), "in method '" "Vector_Vector_int_insert" "', argument " "4"" of type '" "std::vector< std::vector< int > >::value_type const &""'"); 
+    }
+    if (!ptr) {
+      SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "Vector_Vector_int_insert" "', argument " "4"" of type '" "std::vector< std::vector< int > >::value_type const &""'"); 
+    }
+    arg4 = ptr;
+  }
+  {
+    try {
+      std_vector_Sl_std_vector_Sl_int_Sg__Sg__insert__SWIG_1(arg1,SWIG_STD_MOVE(arg2),SWIG_STD_MOVE(arg3),(std::vector< int,std::allocator< int > > const &)*arg4);
+    } catch (Swig::DirectorException &e) {
+      SWIG_fail; 
+    } catch (const std::exception& e) {
+      SWIG_exception(SWIG_RuntimeError, e.what());
+    }
+  }
+  resultobj = SWIG_Py_Void();
+  if (SWIG_IsNewObj(res4)) delete arg4;
+  return resultobj;
+fail:
+  if (SWIG_IsNewObj(res4)) delete arg4;
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_Vector_Vector_int_insert(PyObject *self, PyObject *args) {
+  Py_ssize_t argc;
+  PyObject *argv[5] = {
+    0
+  };
+  
+  if (!(argc = SWIG_Python_UnpackTuple(args, "Vector_Vector_int_insert", 0, 4, argv))) SWIG_fail;
+  --argc;
+  if (argc == 3) {
+    PyObject *retobj = _wrap_Vector_Vector_int_insert__SWIG_0(self, argc, argv);
+    if (!SWIG_Python_TypeErrorOccurred(retobj)) return retobj;
+    SWIG_fail;
+  }
+  if (argc == 4) {
+    PyObject *retobj = _wrap_Vector_Vector_int_insert__SWIG_1(self, argc, argv);
+    if (!SWIG_Python_TypeErrorOccurred(retobj)) return retobj;
+    SWIG_fail;
+  }
+  
+fail:
+  SWIG_Python_RaiseOrModifyTypeError("Wrong number or type of arguments for overloaded function 'Vector_Vector_int_insert'.\n"
+    "  Possible C/C++ prototypes are:\n"
+    "    std::vector< std::vector< int > >::insert(std::vector< std::vector< int > >::iterator,std::vector< std::vector< int > >::value_type const &)\n"
+    "    std::vector< std::vector< int > >::insert(std::vector< std::vector< int > >::iterator,std::vector< std::vector< int > >::size_type,std::vector< std::vector< int > >::value_type const &)\n");
+  return 0;
+}
+
+
+SWIGINTERN PyObject *_wrap_Vector_Vector_int_reserve(PyObject *self, PyObject *args) {
+  PyObject *resultobj = 0;
+  std::vector< std::vector< int > > *arg1 = (std::vector< std::vector< int > > *) 0 ;
+  std::vector< std::vector< int > >::size_type arg2 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  size_t val2 ;
+  int ecode2 = 0 ;
+  PyObject *swig_obj[2] ;
+  
+  if (!SWIG_Python_UnpackTuple(args, "Vector_Vector_int_reserve", 2, 2, swig_obj)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(swig_obj[0], &argp1,SWIGTYPE_p_std__vectorT_std__vectorT_int_std__allocatorT_int_t_t_std__allocatorT_std__vectorT_int_std__allocatorT_int_t_t_t_t, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "Vector_Vector_int_reserve" "', argument " "1"" of type '" "std::vector< std::vector< int > > *""'"); 
+  }
+  arg1 = reinterpret_cast< std::vector< std::vector< int > > * >(argp1);
+  ecode2 = SWIG_AsVal_size_t(swig_obj[1], &val2);
+  if (!SWIG_IsOK(ecode2)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode2), "in method '" "Vector_Vector_int_reserve" "', argument " "2"" of type '" "std::vector< std::vector< int > >::size_type""'");
+  } 
+  arg2 = static_cast< std::vector< std::vector< int > >::size_type >(val2);
+  {
+    try {
+      (arg1)->reserve(arg2);
+    } catch (Swig::DirectorException &e) {
+      SWIG_fail; 
+    } catch (const std::exception& e) {
+      SWIG_exception(SWIG_RuntimeError, e.what());
+    }
+  }
+  resultobj = SWIG_Py_Void();
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_Vector_Vector_int_capacity(PyObject *self, PyObject *args) {
+  PyObject *resultobj = 0;
+  std::vector< std::vector< int > > *arg1 = (std::vector< std::vector< int > > *) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  PyObject *swig_obj[1] ;
+  std::vector< std::vector< int > >::size_type result;
+  
+  if (!args) SWIG_fail;
+  swig_obj[0] = args;
+  res1 = SWIG_ConvertPtr(swig_obj[0], &argp1,SWIGTYPE_p_std__vectorT_std__vectorT_int_std__allocatorT_int_t_t_std__allocatorT_std__vectorT_int_std__allocatorT_int_t_t_t_t, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "Vector_Vector_int_capacity" "', argument " "1"" of type '" "std::vector< std::vector< int > > const *""'"); 
+  }
+  arg1 = reinterpret_cast< std::vector< std::vector< int > > * >(argp1);
+  {
+    try {
+      result = ((std::vector< std::vector< int > > const *)arg1)->capacity();
+    } catch (Swig::DirectorException &e) {
+      SWIG_fail; 
+    } catch (const std::exception& e) {
+      SWIG_exception(SWIG_RuntimeError, e.what());
+    }
+  }
+  resultobj = SWIG_From_size_t(static_cast< size_t >(result));
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_delete_Vector_Vector_int(PyObject *self, PyObject *args) {
+  PyObject *resultobj = 0;
+  std::vector< std::vector< int > > *arg1 = (std::vector< std::vector< int > > *) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  PyObject *swig_obj[1] ;
+  
+  if (!args) SWIG_fail;
+  swig_obj[0] = args;
+  res1 = SWIG_ConvertPtr(swig_obj[0], &argp1,SWIGTYPE_p_std__vectorT_std__vectorT_int_std__allocatorT_int_t_t_std__allocatorT_std__vectorT_int_std__allocatorT_int_t_t_t_t, SWIG_POINTER_DISOWN |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "delete_Vector_Vector_int" "', argument " "1"" of type '" "std::vector< std::vector< int > > *""'"); 
+  }
+  arg1 = reinterpret_cast< std::vector< std::vector< int > > * >(argp1);
+  {
+    try {
+      delete arg1;
+    } catch (Swig::DirectorException &e) {
+      SWIG_fail; 
+    } catch (const std::exception& e) {
+      SWIG_exception(SWIG_RuntimeError, e.what());
+    }
+  }
+  resultobj = SWIG_Py_Void();
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *Vector_Vector_int_swigregister(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *obj;
+  if (!SWIG_Python_UnpackTuple(args, "swigregister", 1, 1, &obj)) return NULL;
+  SWIG_TypeNewClientData(SWIGTYPE_p_std__vectorT_std__vectorT_int_std__allocatorT_int_t_t_std__allocatorT_std__vectorT_int_std__allocatorT_int_t_t_t_t, SWIG_NewClientData(obj));
+  return SWIG_Py_Void();
+}
+
+SWIGINTERN PyObject *Vector_Vector_int_swiginit(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  return SWIG_Python_InitShadowInstance(args);
+}
+
 SWIGINTERN PyObject *_wrap_new_DirectorExample__SWIG_0(PyObject *self, Py_ssize_t nobjs, PyObject **swig_obj) {
   PyObject *resultobj = 0;
   PyObject *arg1 = (PyObject *) 0 ;
@@ -12093,6 +16496,105 @@ fail:
 }
 
 
+SWIGINTERN PyObject *_wrap_DirectorExampleUser_value_vec_vec(PyObject *self, PyObject *args) {
+  PyObject *resultobj = 0;
+  Skeleton::DirectorExampleUser *arg1 = (Skeleton::DirectorExampleUser *) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  boost::shared_ptr< Skeleton::DirectorExampleUser const > tempshared1 ;
+  boost::shared_ptr< Skeleton::DirectorExampleUser const > *smartarg1 = 0 ;
+  PyObject *swig_obj[1] ;
+  std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample >,std::allocator< boost::shared_ptr< Skeleton::DirectorExample > > >,std::allocator< std::vector< boost::shared_ptr< Skeleton::DirectorExample >,std::allocator< boost::shared_ptr< Skeleton::DirectorExample > > > > > *result = 0 ;
+  
+  if (!args) SWIG_fail;
+  swig_obj[0] = args;
+  {
+    int newmem = 0;
+    res1 = SWIG_ConvertPtrAndOwn(swig_obj[0], &argp1, SWIGTYPE_p_boost__shared_ptrT_Skeleton__DirectorExampleUser_t, 0 |  0 , &newmem);
+    if (!SWIG_IsOK(res1)) {
+      SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "DirectorExampleUser_value_vec_vec" "', argument " "1"" of type '" "Skeleton::DirectorExampleUser const *""'");
+    }
+    if (newmem & SWIG_CAST_NEW_MEMORY) {
+      tempshared1 = *reinterpret_cast< boost::shared_ptr< const Skeleton::DirectorExampleUser > * >(argp1);
+      delete reinterpret_cast< boost::shared_ptr< const Skeleton::DirectorExampleUser > * >(argp1);
+      arg1 = const_cast< Skeleton::DirectorExampleUser * >(tempshared1.get());
+    } else {
+      smartarg1 = reinterpret_cast< boost::shared_ptr< const Skeleton::DirectorExampleUser > * >(argp1);
+      arg1 = const_cast< Skeleton::DirectorExampleUser * >((smartarg1 ? smartarg1->get() : 0));
+    }
+  }
+  {
+    try {
+      result = (std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample >,std::allocator< boost::shared_ptr< Skeleton::DirectorExample > > >,std::allocator< std::vector< boost::shared_ptr< Skeleton::DirectorExample >,std::allocator< boost::shared_ptr< Skeleton::DirectorExample > > > > > *) &((Skeleton::DirectorExampleUser const *)arg1)->value_vec_vec();
+    } catch (Swig::DirectorException &e) {
+      SWIG_fail; 
+    } catch (const std::exception& e) {
+      SWIG_exception(SWIG_RuntimeError, e.what());
+    }
+  }
+  resultobj = swig::from(static_cast< std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample >,std::allocator< boost::shared_ptr< Skeleton::DirectorExample > > >,std::allocator< std::vector< boost::shared_ptr< Skeleton::DirectorExample >,std::allocator< boost::shared_ptr< Skeleton::DirectorExample > > > > > >(*result));
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_DirectorExampleUser_set_vec_vec(PyObject *self, PyObject *args) {
+  PyObject *resultobj = 0;
+  Skeleton::DirectorExampleUser *arg1 = (Skeleton::DirectorExampleUser *) 0 ;
+  std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample >,std::allocator< boost::shared_ptr< Skeleton::DirectorExample > > >,std::allocator< std::vector< boost::shared_ptr< Skeleton::DirectorExample >,std::allocator< boost::shared_ptr< Skeleton::DirectorExample > > > > > *arg2 = 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  boost::shared_ptr< Skeleton::DirectorExampleUser > tempshared1 ;
+  boost::shared_ptr< Skeleton::DirectorExampleUser > *smartarg1 = 0 ;
+  int res2 = SWIG_OLDOBJ ;
+  PyObject *swig_obj[2] ;
+  
+  if (!SWIG_Python_UnpackTuple(args, "DirectorExampleUser_set_vec_vec", 2, 2, swig_obj)) SWIG_fail;
+  {
+    int newmem = 0;
+    res1 = SWIG_ConvertPtrAndOwn(swig_obj[0], &argp1, SWIGTYPE_p_boost__shared_ptrT_Skeleton__DirectorExampleUser_t, 0 |  0 , &newmem);
+    if (!SWIG_IsOK(res1)) {
+      SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "DirectorExampleUser_set_vec_vec" "', argument " "1"" of type '" "Skeleton::DirectorExampleUser *""'");
+    }
+    if (newmem & SWIG_CAST_NEW_MEMORY) {
+      tempshared1 = *reinterpret_cast< boost::shared_ptr<  Skeleton::DirectorExampleUser > * >(argp1);
+      delete reinterpret_cast< boost::shared_ptr<  Skeleton::DirectorExampleUser > * >(argp1);
+      arg1 = const_cast< Skeleton::DirectorExampleUser * >(tempshared1.get());
+    } else {
+      smartarg1 = reinterpret_cast< boost::shared_ptr<  Skeleton::DirectorExampleUser > * >(argp1);
+      arg1 = const_cast< Skeleton::DirectorExampleUser * >((smartarg1 ? smartarg1->get() : 0));
+    }
+  }
+  {
+    std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample >,std::allocator< boost::shared_ptr< Skeleton::DirectorExample > > >,std::allocator< std::vector< boost::shared_ptr< Skeleton::DirectorExample >,std::allocator< boost::shared_ptr< Skeleton::DirectorExample > > > > > *ptr = (std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample >,std::allocator< boost::shared_ptr< Skeleton::DirectorExample > > >,std::allocator< std::vector< boost::shared_ptr< Skeleton::DirectorExample >,std::allocator< boost::shared_ptr< Skeleton::DirectorExample > > > > > *)0;
+    res2 = swig::asptr(swig_obj[1], &ptr);
+    if (!SWIG_IsOK(res2)) {
+      SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "DirectorExampleUser_set_vec_vec" "', argument " "2"" of type '" "std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample >,std::allocator< boost::shared_ptr< Skeleton::DirectorExample > > >,std::allocator< std::vector< boost::shared_ptr< Skeleton::DirectorExample >,std::allocator< boost::shared_ptr< Skeleton::DirectorExample > > > > > const &""'"); 
+    }
+    if (!ptr) {
+      SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "DirectorExampleUser_set_vec_vec" "', argument " "2"" of type '" "std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample >,std::allocator< boost::shared_ptr< Skeleton::DirectorExample > > >,std::allocator< std::vector< boost::shared_ptr< Skeleton::DirectorExample >,std::allocator< boost::shared_ptr< Skeleton::DirectorExample > > > > > const &""'"); 
+    }
+    arg2 = ptr;
+  }
+  {
+    try {
+      (arg1)->set_vec_vec((std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample >,std::allocator< boost::shared_ptr< Skeleton::DirectorExample > > >,std::allocator< std::vector< boost::shared_ptr< Skeleton::DirectorExample >,std::allocator< boost::shared_ptr< Skeleton::DirectorExample > > > > > const &)*arg2);
+    } catch (Swig::DirectorException &e) {
+      SWIG_fail; 
+    } catch (const std::exception& e) {
+      SWIG_exception(SWIG_RuntimeError, e.what());
+    }
+  }
+  resultobj = SWIG_Py_Void();
+  if (SWIG_IsNewObj(res2)) delete arg2;
+  return resultobj;
+fail:
+  if (SWIG_IsNewObj(res2)) delete arg2;
+  return NULL;
+}
+
+
 SWIGINTERN PyObject *_wrap_DirectorExampleUser_value(PyObject *self, PyObject *args) {
   PyObject *resultobj = 0;
   Skeleton::DirectorExampleUser *arg1 = (Skeleton::DirectorExampleUser *) 0 ;
@@ -12222,6 +16724,105 @@ SWIGINTERN PyObject *_wrap_DirectorExampleUser_set_vec_int(PyObject *self, PyObj
   {
     try {
       (arg1)->set_vec_int((std::vector< int,std::allocator< int > > const &)*arg2);
+    } catch (Swig::DirectorException &e) {
+      SWIG_fail; 
+    } catch (const std::exception& e) {
+      SWIG_exception(SWIG_RuntimeError, e.what());
+    }
+  }
+  resultobj = SWIG_Py_Void();
+  if (SWIG_IsNewObj(res2)) delete arg2;
+  return resultobj;
+fail:
+  if (SWIG_IsNewObj(res2)) delete arg2;
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_DirectorExampleUser_value_vec_vec_int(PyObject *self, PyObject *args) {
+  PyObject *resultobj = 0;
+  Skeleton::DirectorExampleUser *arg1 = (Skeleton::DirectorExampleUser *) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  boost::shared_ptr< Skeleton::DirectorExampleUser const > tempshared1 ;
+  boost::shared_ptr< Skeleton::DirectorExampleUser const > *smartarg1 = 0 ;
+  PyObject *swig_obj[1] ;
+  std::vector< std::vector< int,std::allocator< int > >,std::allocator< std::vector< int,std::allocator< int > > > > *result = 0 ;
+  
+  if (!args) SWIG_fail;
+  swig_obj[0] = args;
+  {
+    int newmem = 0;
+    res1 = SWIG_ConvertPtrAndOwn(swig_obj[0], &argp1, SWIGTYPE_p_boost__shared_ptrT_Skeleton__DirectorExampleUser_t, 0 |  0 , &newmem);
+    if (!SWIG_IsOK(res1)) {
+      SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "DirectorExampleUser_value_vec_vec_int" "', argument " "1"" of type '" "Skeleton::DirectorExampleUser const *""'");
+    }
+    if (newmem & SWIG_CAST_NEW_MEMORY) {
+      tempshared1 = *reinterpret_cast< boost::shared_ptr< const Skeleton::DirectorExampleUser > * >(argp1);
+      delete reinterpret_cast< boost::shared_ptr< const Skeleton::DirectorExampleUser > * >(argp1);
+      arg1 = const_cast< Skeleton::DirectorExampleUser * >(tempshared1.get());
+    } else {
+      smartarg1 = reinterpret_cast< boost::shared_ptr< const Skeleton::DirectorExampleUser > * >(argp1);
+      arg1 = const_cast< Skeleton::DirectorExampleUser * >((smartarg1 ? smartarg1->get() : 0));
+    }
+  }
+  {
+    try {
+      result = (std::vector< std::vector< int,std::allocator< int > >,std::allocator< std::vector< int,std::allocator< int > > > > *) &((Skeleton::DirectorExampleUser const *)arg1)->value_vec_vec_int();
+    } catch (Swig::DirectorException &e) {
+      SWIG_fail; 
+    } catch (const std::exception& e) {
+      SWIG_exception(SWIG_RuntimeError, e.what());
+    }
+  }
+  resultobj = swig::from(static_cast< std::vector< std::vector< int,std::allocator< int > >,std::allocator< std::vector< int,std::allocator< int > > > > >(*result));
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_DirectorExampleUser_set_vec_vec_int(PyObject *self, PyObject *args) {
+  PyObject *resultobj = 0;
+  Skeleton::DirectorExampleUser *arg1 = (Skeleton::DirectorExampleUser *) 0 ;
+  std::vector< std::vector< int,std::allocator< int > >,std::allocator< std::vector< int,std::allocator< int > > > > *arg2 = 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  boost::shared_ptr< Skeleton::DirectorExampleUser > tempshared1 ;
+  boost::shared_ptr< Skeleton::DirectorExampleUser > *smartarg1 = 0 ;
+  int res2 = SWIG_OLDOBJ ;
+  PyObject *swig_obj[2] ;
+  
+  if (!SWIG_Python_UnpackTuple(args, "DirectorExampleUser_set_vec_vec_int", 2, 2, swig_obj)) SWIG_fail;
+  {
+    int newmem = 0;
+    res1 = SWIG_ConvertPtrAndOwn(swig_obj[0], &argp1, SWIGTYPE_p_boost__shared_ptrT_Skeleton__DirectorExampleUser_t, 0 |  0 , &newmem);
+    if (!SWIG_IsOK(res1)) {
+      SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "DirectorExampleUser_set_vec_vec_int" "', argument " "1"" of type '" "Skeleton::DirectorExampleUser *""'");
+    }
+    if (newmem & SWIG_CAST_NEW_MEMORY) {
+      tempshared1 = *reinterpret_cast< boost::shared_ptr<  Skeleton::DirectorExampleUser > * >(argp1);
+      delete reinterpret_cast< boost::shared_ptr<  Skeleton::DirectorExampleUser > * >(argp1);
+      arg1 = const_cast< Skeleton::DirectorExampleUser * >(tempshared1.get());
+    } else {
+      smartarg1 = reinterpret_cast< boost::shared_ptr<  Skeleton::DirectorExampleUser > * >(argp1);
+      arg1 = const_cast< Skeleton::DirectorExampleUser * >((smartarg1 ? smartarg1->get() : 0));
+    }
+  }
+  {
+    std::vector< std::vector< int,std::allocator< int > >,std::allocator< std::vector< int,std::allocator< int > > > > *ptr = (std::vector< std::vector< int,std::allocator< int > >,std::allocator< std::vector< int,std::allocator< int > > > > *)0;
+    res2 = swig::asptr(swig_obj[1], &ptr);
+    if (!SWIG_IsOK(res2)) {
+      SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "DirectorExampleUser_set_vec_vec_int" "', argument " "2"" of type '" "std::vector< std::vector< int,std::allocator< int > >,std::allocator< std::vector< int,std::allocator< int > > > > const &""'"); 
+    }
+    if (!ptr) {
+      SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "DirectorExampleUser_set_vec_vec_int" "', argument " "2"" of type '" "std::vector< std::vector< int,std::allocator< int > >,std::allocator< std::vector< int,std::allocator< int > > > > const &""'"); 
+    }
+    arg2 = ptr;
+  }
+  {
+    try {
+      (arg1)->set_vec_vec_int((std::vector< std::vector< int,std::allocator< int > >,std::allocator< std::vector< int,std::allocator< int > > > > const &)*arg2);
     } catch (Swig::DirectorException &e) {
       SWIG_fail; 
     } catch (const std::exception& e) {
@@ -12411,13 +17012,78 @@ fail:
 }
 
 
+SWIGINTERN PyObject *_wrap_DirectorExampleUser_apply_func__SWIG_2(PyObject *self, Py_ssize_t nobjs, PyObject **swig_obj) {
+  PyObject *resultobj = 0;
+  Skeleton::DirectorExampleUser *arg1 = (Skeleton::DirectorExampleUser *) 0 ;
+  int arg2 ;
+  int arg3 ;
+  int arg4 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  boost::shared_ptr< Skeleton::DirectorExampleUser const > tempshared1 ;
+  boost::shared_ptr< Skeleton::DirectorExampleUser const > *smartarg1 = 0 ;
+  int val2 ;
+  int ecode2 = 0 ;
+  int val3 ;
+  int ecode3 = 0 ;
+  int val4 ;
+  int ecode4 = 0 ;
+  int result;
+  
+  if ((nobjs < 4) || (nobjs > 4)) SWIG_fail;
+  {
+    int newmem = 0;
+    res1 = SWIG_ConvertPtrAndOwn(swig_obj[0], &argp1, SWIGTYPE_p_boost__shared_ptrT_Skeleton__DirectorExampleUser_t, 0 |  0 , &newmem);
+    if (!SWIG_IsOK(res1)) {
+      SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "DirectorExampleUser_apply_func" "', argument " "1"" of type '" "Skeleton::DirectorExampleUser const *""'");
+    }
+    if (newmem & SWIG_CAST_NEW_MEMORY) {
+      tempshared1 = *reinterpret_cast< boost::shared_ptr< const Skeleton::DirectorExampleUser > * >(argp1);
+      delete reinterpret_cast< boost::shared_ptr< const Skeleton::DirectorExampleUser > * >(argp1);
+      arg1 = const_cast< Skeleton::DirectorExampleUser * >(tempshared1.get());
+    } else {
+      smartarg1 = reinterpret_cast< boost::shared_ptr< const Skeleton::DirectorExampleUser > * >(argp1);
+      arg1 = const_cast< Skeleton::DirectorExampleUser * >((smartarg1 ? smartarg1->get() : 0));
+    }
+  }
+  ecode2 = SWIG_AsVal_int(swig_obj[1], &val2);
+  if (!SWIG_IsOK(ecode2)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode2), "in method '" "DirectorExampleUser_apply_func" "', argument " "2"" of type '" "int""'");
+  } 
+  arg2 = static_cast< int >(val2);
+  ecode3 = SWIG_AsVal_int(swig_obj[2], &val3);
+  if (!SWIG_IsOK(ecode3)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode3), "in method '" "DirectorExampleUser_apply_func" "', argument " "3"" of type '" "int""'");
+  } 
+  arg3 = static_cast< int >(val3);
+  ecode4 = SWIG_AsVal_int(swig_obj[3], &val4);
+  if (!SWIG_IsOK(ecode4)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode4), "in method '" "DirectorExampleUser_apply_func" "', argument " "4"" of type '" "int""'");
+  } 
+  arg4 = static_cast< int >(val4);
+  {
+    try {
+      result = (int)((Skeleton::DirectorExampleUser const *)arg1)->apply_func(arg2,arg3,arg4);
+    } catch (Swig::DirectorException &e) {
+      SWIG_fail; 
+    } catch (const std::exception& e) {
+      SWIG_exception(SWIG_RuntimeError, e.what());
+    }
+  }
+  resultobj = SWIG_From_int(static_cast< int >(result));
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
 SWIGINTERN PyObject *_wrap_DirectorExampleUser_apply_func(PyObject *self, PyObject *args) {
   Py_ssize_t argc;
-  PyObject *argv[4] = {
+  PyObject *argv[5] = {
     0
   };
   
-  if (!(argc = SWIG_Python_UnpackTuple(args, "DirectorExampleUser_apply_func", 0, 3, argv))) SWIG_fail;
+  if (!(argc = SWIG_Python_UnpackTuple(args, "DirectorExampleUser_apply_func", 0, 4, argv))) SWIG_fail;
   --argc;
   if (argc == 2) {
     PyObject *retobj = _wrap_DirectorExampleUser_apply_func__SWIG_0(self, argc, argv);
@@ -12429,12 +17095,18 @@ SWIGINTERN PyObject *_wrap_DirectorExampleUser_apply_func(PyObject *self, PyObje
     if (!SWIG_Python_TypeErrorOccurred(retobj)) return retobj;
     SWIG_fail;
   }
+  if (argc == 4) {
+    PyObject *retobj = _wrap_DirectorExampleUser_apply_func__SWIG_2(self, argc, argv);
+    if (!SWIG_Python_TypeErrorOccurred(retobj)) return retobj;
+    SWIG_fail;
+  }
   
 fail:
   SWIG_Python_RaiseOrModifyTypeError("Wrong number or type of arguments for overloaded function 'DirectorExampleUser_apply_func'.\n"
     "  Possible C/C++ prototypes are:\n"
     "    Skeleton::DirectorExampleUser::apply_func(int) const\n"
-    "    Skeleton::DirectorExampleUser::apply_func(int,int) const\n");
+    "    Skeleton::DirectorExampleUser::apply_func(int,int) const\n"
+    "    Skeleton::DirectorExampleUser::apply_func(int,int,int) const\n");
   return 0;
 }
 
@@ -12548,6 +17220,41 @@ static PyMethodDef SwigMethods[] = {
 	 { "delete_Vector_DirectorExample", _wrap_delete_Vector_DirectorExample, METH_O, NULL},
 	 { "Vector_DirectorExample_swigregister", Vector_DirectorExample_swigregister, METH_O, NULL},
 	 { "Vector_DirectorExample_swiginit", Vector_DirectorExample_swiginit, METH_VARARGS, NULL},
+	 { "Vector_Vector_DirectorExample_iterator", _wrap_Vector_Vector_DirectorExample_iterator, METH_O, NULL},
+	 { "Vector_Vector_DirectorExample___nonzero__", _wrap_Vector_Vector_DirectorExample___nonzero__, METH_O, NULL},
+	 { "Vector_Vector_DirectorExample___bool__", _wrap_Vector_Vector_DirectorExample___bool__, METH_O, NULL},
+	 { "Vector_Vector_DirectorExample___len__", _wrap_Vector_Vector_DirectorExample___len__, METH_O, NULL},
+	 { "Vector_Vector_DirectorExample___getslice__", _wrap_Vector_Vector_DirectorExample___getslice__, METH_VARARGS, NULL},
+	 { "Vector_Vector_DirectorExample___setslice__", _wrap_Vector_Vector_DirectorExample___setslice__, METH_VARARGS, NULL},
+	 { "Vector_Vector_DirectorExample___delslice__", _wrap_Vector_Vector_DirectorExample___delslice__, METH_VARARGS, NULL},
+	 { "Vector_Vector_DirectorExample___delitem__", _wrap_Vector_Vector_DirectorExample___delitem__, METH_VARARGS, NULL},
+	 { "Vector_Vector_DirectorExample___getitem__", _wrap_Vector_Vector_DirectorExample___getitem__, METH_VARARGS, NULL},
+	 { "Vector_Vector_DirectorExample___setitem__", _wrap_Vector_Vector_DirectorExample___setitem__, METH_VARARGS, NULL},
+	 { "Vector_Vector_DirectorExample_pop", _wrap_Vector_Vector_DirectorExample_pop, METH_O, NULL},
+	 { "Vector_Vector_DirectorExample_append", _wrap_Vector_Vector_DirectorExample_append, METH_VARARGS, NULL},
+	 { "Vector_Vector_DirectorExample_empty", _wrap_Vector_Vector_DirectorExample_empty, METH_O, NULL},
+	 { "Vector_Vector_DirectorExample_size", _wrap_Vector_Vector_DirectorExample_size, METH_O, NULL},
+	 { "Vector_Vector_DirectorExample_swap", _wrap_Vector_Vector_DirectorExample_swap, METH_VARARGS, NULL},
+	 { "Vector_Vector_DirectorExample_begin", _wrap_Vector_Vector_DirectorExample_begin, METH_O, NULL},
+	 { "Vector_Vector_DirectorExample_end", _wrap_Vector_Vector_DirectorExample_end, METH_O, NULL},
+	 { "Vector_Vector_DirectorExample_rbegin", _wrap_Vector_Vector_DirectorExample_rbegin, METH_O, NULL},
+	 { "Vector_Vector_DirectorExample_rend", _wrap_Vector_Vector_DirectorExample_rend, METH_O, NULL},
+	 { "Vector_Vector_DirectorExample_clear", _wrap_Vector_Vector_DirectorExample_clear, METH_O, NULL},
+	 { "Vector_Vector_DirectorExample_get_allocator", _wrap_Vector_Vector_DirectorExample_get_allocator, METH_O, NULL},
+	 { "Vector_Vector_DirectorExample_pop_back", _wrap_Vector_Vector_DirectorExample_pop_back, METH_O, NULL},
+	 { "Vector_Vector_DirectorExample_erase", _wrap_Vector_Vector_DirectorExample_erase, METH_VARARGS, NULL},
+	 { "new_Vector_Vector_DirectorExample", _wrap_new_Vector_Vector_DirectorExample, METH_VARARGS, NULL},
+	 { "Vector_Vector_DirectorExample_push_back", _wrap_Vector_Vector_DirectorExample_push_back, METH_VARARGS, NULL},
+	 { "Vector_Vector_DirectorExample_front", _wrap_Vector_Vector_DirectorExample_front, METH_O, NULL},
+	 { "Vector_Vector_DirectorExample_back", _wrap_Vector_Vector_DirectorExample_back, METH_O, NULL},
+	 { "Vector_Vector_DirectorExample_assign", _wrap_Vector_Vector_DirectorExample_assign, METH_VARARGS, NULL},
+	 { "Vector_Vector_DirectorExample_resize", _wrap_Vector_Vector_DirectorExample_resize, METH_VARARGS, NULL},
+	 { "Vector_Vector_DirectorExample_insert", _wrap_Vector_Vector_DirectorExample_insert, METH_VARARGS, NULL},
+	 { "Vector_Vector_DirectorExample_reserve", _wrap_Vector_Vector_DirectorExample_reserve, METH_VARARGS, NULL},
+	 { "Vector_Vector_DirectorExample_capacity", _wrap_Vector_Vector_DirectorExample_capacity, METH_O, NULL},
+	 { "delete_Vector_Vector_DirectorExample", _wrap_delete_Vector_Vector_DirectorExample, METH_O, NULL},
+	 { "Vector_Vector_DirectorExample_swigregister", Vector_Vector_DirectorExample_swigregister, METH_O, NULL},
+	 { "Vector_Vector_DirectorExample_swiginit", Vector_Vector_DirectorExample_swiginit, METH_VARARGS, NULL},
 	 { "Vector_int_iterator", _wrap_Vector_int_iterator, METH_O, NULL},
 	 { "Vector_int___nonzero__", _wrap_Vector_int___nonzero__, METH_O, NULL},
 	 { "Vector_int___bool__", _wrap_Vector_int___bool__, METH_O, NULL},
@@ -12583,6 +17290,41 @@ static PyMethodDef SwigMethods[] = {
 	 { "delete_Vector_int", _wrap_delete_Vector_int, METH_O, NULL},
 	 { "Vector_int_swigregister", Vector_int_swigregister, METH_O, NULL},
 	 { "Vector_int_swiginit", Vector_int_swiginit, METH_VARARGS, NULL},
+	 { "Vector_Vector_int_iterator", _wrap_Vector_Vector_int_iterator, METH_O, NULL},
+	 { "Vector_Vector_int___nonzero__", _wrap_Vector_Vector_int___nonzero__, METH_O, NULL},
+	 { "Vector_Vector_int___bool__", _wrap_Vector_Vector_int___bool__, METH_O, NULL},
+	 { "Vector_Vector_int___len__", _wrap_Vector_Vector_int___len__, METH_O, NULL},
+	 { "Vector_Vector_int___getslice__", _wrap_Vector_Vector_int___getslice__, METH_VARARGS, NULL},
+	 { "Vector_Vector_int___setslice__", _wrap_Vector_Vector_int___setslice__, METH_VARARGS, NULL},
+	 { "Vector_Vector_int___delslice__", _wrap_Vector_Vector_int___delslice__, METH_VARARGS, NULL},
+	 { "Vector_Vector_int___delitem__", _wrap_Vector_Vector_int___delitem__, METH_VARARGS, NULL},
+	 { "Vector_Vector_int___getitem__", _wrap_Vector_Vector_int___getitem__, METH_VARARGS, NULL},
+	 { "Vector_Vector_int___setitem__", _wrap_Vector_Vector_int___setitem__, METH_VARARGS, NULL},
+	 { "Vector_Vector_int_pop", _wrap_Vector_Vector_int_pop, METH_O, NULL},
+	 { "Vector_Vector_int_append", _wrap_Vector_Vector_int_append, METH_VARARGS, NULL},
+	 { "Vector_Vector_int_empty", _wrap_Vector_Vector_int_empty, METH_O, NULL},
+	 { "Vector_Vector_int_size", _wrap_Vector_Vector_int_size, METH_O, NULL},
+	 { "Vector_Vector_int_swap", _wrap_Vector_Vector_int_swap, METH_VARARGS, NULL},
+	 { "Vector_Vector_int_begin", _wrap_Vector_Vector_int_begin, METH_O, NULL},
+	 { "Vector_Vector_int_end", _wrap_Vector_Vector_int_end, METH_O, NULL},
+	 { "Vector_Vector_int_rbegin", _wrap_Vector_Vector_int_rbegin, METH_O, NULL},
+	 { "Vector_Vector_int_rend", _wrap_Vector_Vector_int_rend, METH_O, NULL},
+	 { "Vector_Vector_int_clear", _wrap_Vector_Vector_int_clear, METH_O, NULL},
+	 { "Vector_Vector_int_get_allocator", _wrap_Vector_Vector_int_get_allocator, METH_O, NULL},
+	 { "Vector_Vector_int_pop_back", _wrap_Vector_Vector_int_pop_back, METH_O, NULL},
+	 { "Vector_Vector_int_erase", _wrap_Vector_Vector_int_erase, METH_VARARGS, NULL},
+	 { "new_Vector_Vector_int", _wrap_new_Vector_Vector_int, METH_VARARGS, NULL},
+	 { "Vector_Vector_int_push_back", _wrap_Vector_Vector_int_push_back, METH_VARARGS, NULL},
+	 { "Vector_Vector_int_front", _wrap_Vector_Vector_int_front, METH_O, NULL},
+	 { "Vector_Vector_int_back", _wrap_Vector_Vector_int_back, METH_O, NULL},
+	 { "Vector_Vector_int_assign", _wrap_Vector_Vector_int_assign, METH_VARARGS, NULL},
+	 { "Vector_Vector_int_resize", _wrap_Vector_Vector_int_resize, METH_VARARGS, NULL},
+	 { "Vector_Vector_int_insert", _wrap_Vector_Vector_int_insert, METH_VARARGS, NULL},
+	 { "Vector_Vector_int_reserve", _wrap_Vector_Vector_int_reserve, METH_VARARGS, NULL},
+	 { "Vector_Vector_int_capacity", _wrap_Vector_Vector_int_capacity, METH_O, NULL},
+	 { "delete_Vector_Vector_int", _wrap_delete_Vector_Vector_int, METH_O, NULL},
+	 { "Vector_Vector_int_swigregister", Vector_Vector_int_swigregister, METH_O, NULL},
+	 { "Vector_Vector_int_swiginit", Vector_Vector_int_swiginit, METH_VARARGS, NULL},
 	 { "DirectorExample___str__", _wrap_DirectorExample___str__, METH_O, NULL},
 	 { "DirectorExample_desc", _wrap_DirectorExample_desc, METH_O, NULL},
 	 { "DirectorExample_func", _wrap_DirectorExample_func, METH_VARARGS, "\n"
@@ -12629,6 +17371,17 @@ static PyMethodDef SwigMethods[] = {
 		"void Skeleton::DirectorExampleUser::set_vec(const std::vector< boost::shared_ptr< DirectorExample > > &V)\n"
 		"\n"
 		""},
+	 { "DirectorExampleUser_value_vec_vec", _wrap_DirectorExampleUser_value_vec_vec, METH_O, "\n"
+		"\n"
+		"const std::vector<std::vector<boost::shared_ptr<DirectorExample> > >& Skeleton::DirectorExampleUser::value_vec_vec() const\n"
+		"\n"
+		""},
+	 { "DirectorExampleUser_set_vec_vec", _wrap_DirectorExampleUser_set_vec_vec, METH_VARARGS, "\n"
+		"\n"
+		"void Skeleton::DirectorExampleUser::set_vec_vec(const std::vector< std::vector< boost::shared_ptr< DirectorExample >\n"
+		"> > &V)\n"
+		"\n"
+		""},
 	 { "DirectorExampleUser_value", _wrap_DirectorExampleUser_value, METH_O, "\n"
 		"\n"
 		"const boost::shared_ptr<DirectorExample>& Skeleton::DirectorExampleUser::value() const\n"
@@ -12644,6 +17397,16 @@ static PyMethodDef SwigMethods[] = {
 		"void Skeleton::DirectorExampleUser::set_vec_int(const std::vector< int > &V)\n"
 		"\n"
 		""},
+	 { "DirectorExampleUser_value_vec_vec_int", _wrap_DirectorExampleUser_value_vec_vec_int, METH_O, "\n"
+		"\n"
+		"const std::vector<std::vector<int> >& Skeleton::DirectorExampleUser::value_vec_vec_int() const\n"
+		"\n"
+		""},
+	 { "DirectorExampleUser_set_vec_vec_int", _wrap_DirectorExampleUser_set_vec_vec_int, METH_VARARGS, "\n"
+		"\n"
+		"void Skeleton::DirectorExampleUser::set_vec_vec_int(const std::vector< std::vector< int > > &V)\n"
+		"\n"
+		""},
 	 { "DirectorExampleUser_set_value", _wrap_DirectorExampleUser_set_value, METH_VARARGS, "\n"
 		"\n"
 		"void Skeleton::DirectorExampleUser::set_value(const boost::shared_ptr< DirectorExample > &V)\n"
@@ -12651,7 +17414,7 @@ static PyMethodDef SwigMethods[] = {
 		""},
 	 { "DirectorExampleUser_apply_func", _wrap_DirectorExampleUser_apply_func, METH_VARARGS, "\n"
 		"\n"
-		"int Skeleton::DirectorExampleUser::apply_func(int v, int ind) const\n"
+		"int Skeleton::DirectorExampleUser::apply_func(int v, int ind, int ind2) const\n"
 		"\n"
 		""},
 	 { "delete_DirectorExampleUser", _wrap_delete_DirectorExampleUser, METH_O, "\n"
@@ -12720,6 +17483,41 @@ static PyMethodDef SwigMethods_proxydocs[] = {
 	 { "delete_Vector_DirectorExample", _wrap_delete_Vector_DirectorExample, METH_O, NULL},
 	 { "Vector_DirectorExample_swigregister", Vector_DirectorExample_swigregister, METH_O, NULL},
 	 { "Vector_DirectorExample_swiginit", Vector_DirectorExample_swiginit, METH_VARARGS, NULL},
+	 { "Vector_Vector_DirectorExample_iterator", _wrap_Vector_Vector_DirectorExample_iterator, METH_O, NULL},
+	 { "Vector_Vector_DirectorExample___nonzero__", _wrap_Vector_Vector_DirectorExample___nonzero__, METH_O, NULL},
+	 { "Vector_Vector_DirectorExample___bool__", _wrap_Vector_Vector_DirectorExample___bool__, METH_O, NULL},
+	 { "Vector_Vector_DirectorExample___len__", _wrap_Vector_Vector_DirectorExample___len__, METH_O, NULL},
+	 { "Vector_Vector_DirectorExample___getslice__", _wrap_Vector_Vector_DirectorExample___getslice__, METH_VARARGS, NULL},
+	 { "Vector_Vector_DirectorExample___setslice__", _wrap_Vector_Vector_DirectorExample___setslice__, METH_VARARGS, NULL},
+	 { "Vector_Vector_DirectorExample___delslice__", _wrap_Vector_Vector_DirectorExample___delslice__, METH_VARARGS, NULL},
+	 { "Vector_Vector_DirectorExample___delitem__", _wrap_Vector_Vector_DirectorExample___delitem__, METH_VARARGS, NULL},
+	 { "Vector_Vector_DirectorExample___getitem__", _wrap_Vector_Vector_DirectorExample___getitem__, METH_VARARGS, NULL},
+	 { "Vector_Vector_DirectorExample___setitem__", _wrap_Vector_Vector_DirectorExample___setitem__, METH_VARARGS, NULL},
+	 { "Vector_Vector_DirectorExample_pop", _wrap_Vector_Vector_DirectorExample_pop, METH_O, NULL},
+	 { "Vector_Vector_DirectorExample_append", _wrap_Vector_Vector_DirectorExample_append, METH_VARARGS, NULL},
+	 { "Vector_Vector_DirectorExample_empty", _wrap_Vector_Vector_DirectorExample_empty, METH_O, NULL},
+	 { "Vector_Vector_DirectorExample_size", _wrap_Vector_Vector_DirectorExample_size, METH_O, NULL},
+	 { "Vector_Vector_DirectorExample_swap", _wrap_Vector_Vector_DirectorExample_swap, METH_VARARGS, NULL},
+	 { "Vector_Vector_DirectorExample_begin", _wrap_Vector_Vector_DirectorExample_begin, METH_O, NULL},
+	 { "Vector_Vector_DirectorExample_end", _wrap_Vector_Vector_DirectorExample_end, METH_O, NULL},
+	 { "Vector_Vector_DirectorExample_rbegin", _wrap_Vector_Vector_DirectorExample_rbegin, METH_O, NULL},
+	 { "Vector_Vector_DirectorExample_rend", _wrap_Vector_Vector_DirectorExample_rend, METH_O, NULL},
+	 { "Vector_Vector_DirectorExample_clear", _wrap_Vector_Vector_DirectorExample_clear, METH_O, NULL},
+	 { "Vector_Vector_DirectorExample_get_allocator", _wrap_Vector_Vector_DirectorExample_get_allocator, METH_O, NULL},
+	 { "Vector_Vector_DirectorExample_pop_back", _wrap_Vector_Vector_DirectorExample_pop_back, METH_O, NULL},
+	 { "Vector_Vector_DirectorExample_erase", _wrap_Vector_Vector_DirectorExample_erase, METH_VARARGS, NULL},
+	 { "new_Vector_Vector_DirectorExample", _wrap_new_Vector_Vector_DirectorExample, METH_VARARGS, NULL},
+	 { "Vector_Vector_DirectorExample_push_back", _wrap_Vector_Vector_DirectorExample_push_back, METH_VARARGS, NULL},
+	 { "Vector_Vector_DirectorExample_front", _wrap_Vector_Vector_DirectorExample_front, METH_O, NULL},
+	 { "Vector_Vector_DirectorExample_back", _wrap_Vector_Vector_DirectorExample_back, METH_O, NULL},
+	 { "Vector_Vector_DirectorExample_assign", _wrap_Vector_Vector_DirectorExample_assign, METH_VARARGS, NULL},
+	 { "Vector_Vector_DirectorExample_resize", _wrap_Vector_Vector_DirectorExample_resize, METH_VARARGS, NULL},
+	 { "Vector_Vector_DirectorExample_insert", _wrap_Vector_Vector_DirectorExample_insert, METH_VARARGS, NULL},
+	 { "Vector_Vector_DirectorExample_reserve", _wrap_Vector_Vector_DirectorExample_reserve, METH_VARARGS, NULL},
+	 { "Vector_Vector_DirectorExample_capacity", _wrap_Vector_Vector_DirectorExample_capacity, METH_O, NULL},
+	 { "delete_Vector_Vector_DirectorExample", _wrap_delete_Vector_Vector_DirectorExample, METH_O, NULL},
+	 { "Vector_Vector_DirectorExample_swigregister", Vector_Vector_DirectorExample_swigregister, METH_O, NULL},
+	 { "Vector_Vector_DirectorExample_swiginit", Vector_Vector_DirectorExample_swiginit, METH_VARARGS, NULL},
 	 { "Vector_int_iterator", _wrap_Vector_int_iterator, METH_O, NULL},
 	 { "Vector_int___nonzero__", _wrap_Vector_int___nonzero__, METH_O, NULL},
 	 { "Vector_int___bool__", _wrap_Vector_int___bool__, METH_O, NULL},
@@ -12755,6 +17553,41 @@ static PyMethodDef SwigMethods_proxydocs[] = {
 	 { "delete_Vector_int", _wrap_delete_Vector_int, METH_O, NULL},
 	 { "Vector_int_swigregister", Vector_int_swigregister, METH_O, NULL},
 	 { "Vector_int_swiginit", Vector_int_swiginit, METH_VARARGS, NULL},
+	 { "Vector_Vector_int_iterator", _wrap_Vector_Vector_int_iterator, METH_O, NULL},
+	 { "Vector_Vector_int___nonzero__", _wrap_Vector_Vector_int___nonzero__, METH_O, NULL},
+	 { "Vector_Vector_int___bool__", _wrap_Vector_Vector_int___bool__, METH_O, NULL},
+	 { "Vector_Vector_int___len__", _wrap_Vector_Vector_int___len__, METH_O, NULL},
+	 { "Vector_Vector_int___getslice__", _wrap_Vector_Vector_int___getslice__, METH_VARARGS, NULL},
+	 { "Vector_Vector_int___setslice__", _wrap_Vector_Vector_int___setslice__, METH_VARARGS, NULL},
+	 { "Vector_Vector_int___delslice__", _wrap_Vector_Vector_int___delslice__, METH_VARARGS, NULL},
+	 { "Vector_Vector_int___delitem__", _wrap_Vector_Vector_int___delitem__, METH_VARARGS, NULL},
+	 { "Vector_Vector_int___getitem__", _wrap_Vector_Vector_int___getitem__, METH_VARARGS, NULL},
+	 { "Vector_Vector_int___setitem__", _wrap_Vector_Vector_int___setitem__, METH_VARARGS, NULL},
+	 { "Vector_Vector_int_pop", _wrap_Vector_Vector_int_pop, METH_O, NULL},
+	 { "Vector_Vector_int_append", _wrap_Vector_Vector_int_append, METH_VARARGS, NULL},
+	 { "Vector_Vector_int_empty", _wrap_Vector_Vector_int_empty, METH_O, NULL},
+	 { "Vector_Vector_int_size", _wrap_Vector_Vector_int_size, METH_O, NULL},
+	 { "Vector_Vector_int_swap", _wrap_Vector_Vector_int_swap, METH_VARARGS, NULL},
+	 { "Vector_Vector_int_begin", _wrap_Vector_Vector_int_begin, METH_O, NULL},
+	 { "Vector_Vector_int_end", _wrap_Vector_Vector_int_end, METH_O, NULL},
+	 { "Vector_Vector_int_rbegin", _wrap_Vector_Vector_int_rbegin, METH_O, NULL},
+	 { "Vector_Vector_int_rend", _wrap_Vector_Vector_int_rend, METH_O, NULL},
+	 { "Vector_Vector_int_clear", _wrap_Vector_Vector_int_clear, METH_O, NULL},
+	 { "Vector_Vector_int_get_allocator", _wrap_Vector_Vector_int_get_allocator, METH_O, NULL},
+	 { "Vector_Vector_int_pop_back", _wrap_Vector_Vector_int_pop_back, METH_O, NULL},
+	 { "Vector_Vector_int_erase", _wrap_Vector_Vector_int_erase, METH_VARARGS, NULL},
+	 { "new_Vector_Vector_int", _wrap_new_Vector_Vector_int, METH_VARARGS, NULL},
+	 { "Vector_Vector_int_push_back", _wrap_Vector_Vector_int_push_back, METH_VARARGS, NULL},
+	 { "Vector_Vector_int_front", _wrap_Vector_Vector_int_front, METH_O, NULL},
+	 { "Vector_Vector_int_back", _wrap_Vector_Vector_int_back, METH_O, NULL},
+	 { "Vector_Vector_int_assign", _wrap_Vector_Vector_int_assign, METH_VARARGS, NULL},
+	 { "Vector_Vector_int_resize", _wrap_Vector_Vector_int_resize, METH_VARARGS, NULL},
+	 { "Vector_Vector_int_insert", _wrap_Vector_Vector_int_insert, METH_VARARGS, NULL},
+	 { "Vector_Vector_int_reserve", _wrap_Vector_Vector_int_reserve, METH_VARARGS, NULL},
+	 { "Vector_Vector_int_capacity", _wrap_Vector_Vector_int_capacity, METH_O, NULL},
+	 { "delete_Vector_Vector_int", _wrap_delete_Vector_Vector_int, METH_O, NULL},
+	 { "Vector_Vector_int_swigregister", Vector_Vector_int_swigregister, METH_O, NULL},
+	 { "Vector_Vector_int_swiginit", Vector_Vector_int_swiginit, METH_VARARGS, NULL},
 	 { "DirectorExample___str__", _wrap_DirectorExample___str__, METH_O, NULL},
 	 { "DirectorExample_desc", _wrap_DirectorExample_desc, METH_O, NULL},
 	 { "DirectorExample_func", _wrap_DirectorExample_func, METH_VARARGS, "\n"
@@ -12801,6 +17634,17 @@ static PyMethodDef SwigMethods_proxydocs[] = {
 		"void Skeleton::DirectorExampleUser::set_vec(const std::vector< boost::shared_ptr< DirectorExample > > &V)\n"
 		"\n"
 		""},
+	 { "DirectorExampleUser_value_vec_vec", _wrap_DirectorExampleUser_value_vec_vec, METH_O, "\n"
+		"\n"
+		"const std::vector<std::vector<boost::shared_ptr<DirectorExample> > >& Skeleton::DirectorExampleUser::value_vec_vec() const\n"
+		"\n"
+		""},
+	 { "DirectorExampleUser_set_vec_vec", _wrap_DirectorExampleUser_set_vec_vec, METH_VARARGS, "\n"
+		"\n"
+		"void Skeleton::DirectorExampleUser::set_vec_vec(const std::vector< std::vector< boost::shared_ptr< DirectorExample >\n"
+		"> > &V)\n"
+		"\n"
+		""},
 	 { "DirectorExampleUser_value", _wrap_DirectorExampleUser_value, METH_O, "\n"
 		"\n"
 		"const boost::shared_ptr<DirectorExample>& Skeleton::DirectorExampleUser::value() const\n"
@@ -12816,6 +17660,16 @@ static PyMethodDef SwigMethods_proxydocs[] = {
 		"void Skeleton::DirectorExampleUser::set_vec_int(const std::vector< int > &V)\n"
 		"\n"
 		""},
+	 { "DirectorExampleUser_value_vec_vec_int", _wrap_DirectorExampleUser_value_vec_vec_int, METH_O, "\n"
+		"\n"
+		"const std::vector<std::vector<int> >& Skeleton::DirectorExampleUser::value_vec_vec_int() const\n"
+		"\n"
+		""},
+	 { "DirectorExampleUser_set_vec_vec_int", _wrap_DirectorExampleUser_set_vec_vec_int, METH_VARARGS, "\n"
+		"\n"
+		"void Skeleton::DirectorExampleUser::set_vec_vec_int(const std::vector< std::vector< int > > &V)\n"
+		"\n"
+		""},
 	 { "DirectorExampleUser_set_value", _wrap_DirectorExampleUser_set_value, METH_VARARGS, "\n"
 		"\n"
 		"void Skeleton::DirectorExampleUser::set_value(const boost::shared_ptr< DirectorExample > &V)\n"
@@ -12823,7 +17677,7 @@ static PyMethodDef SwigMethods_proxydocs[] = {
 		""},
 	 { "DirectorExampleUser_apply_func", _wrap_DirectorExampleUser_apply_func, METH_VARARGS, "\n"
 		"\n"
-		"int Skeleton::DirectorExampleUser::apply_func(int v, int ind) const\n"
+		"int Skeleton::DirectorExampleUser::apply_func(int v, int ind, int ind2) const\n"
 		"\n"
 		""},
 	 { "delete_DirectorExampleUser", _wrap_delete_DirectorExampleUser, METH_O, "\n"
@@ -12966,6 +17820,8 @@ static swig_type_info _swigt__p_size_type = {"_p_size_type", "size_type *", 0, 0
 static swig_type_info _swigt__p_state_type = {"_p_state_type", "state_type *", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_std__allocatorT_boost__shared_ptrT_Skeleton__DirectorExample_t_t = {"_p_std__allocatorT_boost__shared_ptrT_Skeleton__DirectorExample_t_t", "std::vector< boost::shared_ptr< Skeleton::DirectorExample > >::allocator_type *|std::allocator< boost::shared_ptr< Skeleton::DirectorExample > > *", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_std__allocatorT_int_t = {"_p_std__allocatorT_int_t", "std::vector< int >::allocator_type *|std::allocator< int > *", 0, 0, (void*)0, 0};
+static swig_type_info _swigt__p_std__allocatorT_std__vectorT_boost__shared_ptrT_Skeleton__DirectorExample_t_std__allocatorT_boost__shared_ptrT_Skeleton__DirectorExample_t_t_t_t = {"_p_std__allocatorT_std__vectorT_boost__shared_ptrT_Skeleton__DirectorExample_t_std__allocatorT_boost__shared_ptrT_Skeleton__DirectorExample_t_t_t_t", "std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > >::allocator_type *|std::allocator< std::vector< boost::shared_ptr< Skeleton::DirectorExample >,std::allocator< boost::shared_ptr< Skeleton::DirectorExample > > > > *", 0, 0, (void*)0, 0};
+static swig_type_info _swigt__p_std__allocatorT_std__vectorT_int_std__allocatorT_int_t_t_t = {"_p_std__allocatorT_std__vectorT_int_std__allocatorT_int_t_t_t", "std::vector< std::vector< int > >::allocator_type *|std::allocator< std::vector< int,std::allocator< int > > > *", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_std__basic_iosT_char_std__char_traitsT_char_t_t = {"_p_std__basic_iosT_char_std__char_traitsT_char_t_t", "std::ios *|std::basic_ios< char,std::char_traits< char > > *", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_std__basic_iostreamT_char_std__char_traitsT_char_t_t = {"_p_std__basic_iostreamT_char_std__char_traitsT_char_t_t", "std::iostream *|std::basic_iostream< char,std::char_traits< char > > *", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_std__basic_istreamT_char_std__char_traitsT_char_t_t = {"_p_std__basic_istreamT_char_std__char_traitsT_char_t_t", "std::istream *|std::basic_istream< char,std::char_traits< char > > *", 0, 0, (void*)0, 0};
@@ -12973,6 +17829,8 @@ static swig_type_info _swigt__p_std__basic_ostreamT_char_std__char_traitsT_char_
 static swig_type_info _swigt__p_std__invalid_argument = {"_p_std__invalid_argument", "std::invalid_argument *", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_std__vectorT_boost__shared_ptrT_Skeleton__DirectorExample_t_std__allocatorT_boost__shared_ptrT_Skeleton__DirectorExample_t_t_t = {"_p_std__vectorT_boost__shared_ptrT_Skeleton__DirectorExample_t_std__allocatorT_boost__shared_ptrT_Skeleton__DirectorExample_t_t_t", "std::vector< boost::shared_ptr< Skeleton::DirectorExample >,std::allocator< boost::shared_ptr< Skeleton::DirectorExample > > > *|std::vector< boost::shared_ptr< Skeleton::DirectorExample > > *", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_std__vectorT_int_std__allocatorT_int_t_t = {"_p_std__vectorT_int_std__allocatorT_int_t_t", "std::vector< int,std::allocator< int > > *|std::vector< int > *", 0, 0, (void*)0, 0};
+static swig_type_info _swigt__p_std__vectorT_std__vectorT_boost__shared_ptrT_Skeleton__DirectorExample_t_std__allocatorT_boost__shared_ptrT_Skeleton__DirectorExample_t_t_t_std__allocatorT_std__vectorT_boost__shared_ptrT_Skeleton__DirectorExample_t_std__allocatorT_boost__shared_ptrT_Skeleton__DirectorExample_t_t_t_t_t = {"_p_std__vectorT_std__vectorT_boost__shared_ptrT_Skeleton__DirectorExample_t_std__allocatorT_boost__shared_ptrT_Skeleton__DirectorExample_t_t_t_std__allocatorT_std__vectorT_boost__shared_ptrT_Skeleton__DirectorExample_t_std__allocatorT_boost__shared_ptrT_Skeleton__DirectorExample_t_t_t_t_t", "std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample >,std::allocator< boost::shared_ptr< Skeleton::DirectorExample > > > > *|std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample >,std::allocator< boost::shared_ptr< Skeleton::DirectorExample > > >,std::allocator< std::vector< boost::shared_ptr< Skeleton::DirectorExample >,std::allocator< boost::shared_ptr< Skeleton::DirectorExample > > > > > *|std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > > *", 0, 0, (void*)0, 0};
+static swig_type_info _swigt__p_std__vectorT_std__vectorT_int_std__allocatorT_int_t_t_std__allocatorT_std__vectorT_int_std__allocatorT_int_t_t_t_t = {"_p_std__vectorT_std__vectorT_int_std__allocatorT_int_t_t_std__allocatorT_std__vectorT_int_std__allocatorT_int_t_t_t_t", "std::vector< std::vector< int,std::allocator< int > > > *|std::vector< std::vector< int,std::allocator< int > >,std::allocator< std::vector< int,std::allocator< int > > > > *|std::vector< std::vector< int > > *", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_swig__SwigPyIterator = {"_p_swig__SwigPyIterator", "swig::SwigPyIterator *", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_traits_type = {"_p_traits_type", "traits_type *", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_value_type = {"_p_value_type", "value_type *", 0, 0, (void*)0, 0};
@@ -13076,6 +17934,8 @@ static swig_type_info *swig_type_initial[] = {
   &_swigt__p_state_type,
   &_swigt__p_std__allocatorT_boost__shared_ptrT_Skeleton__DirectorExample_t_t,
   &_swigt__p_std__allocatorT_int_t,
+  &_swigt__p_std__allocatorT_std__vectorT_boost__shared_ptrT_Skeleton__DirectorExample_t_std__allocatorT_boost__shared_ptrT_Skeleton__DirectorExample_t_t_t_t,
+  &_swigt__p_std__allocatorT_std__vectorT_int_std__allocatorT_int_t_t_t,
   &_swigt__p_std__basic_iosT_char_std__char_traitsT_char_t_t,
   &_swigt__p_std__basic_iostreamT_char_std__char_traitsT_char_t_t,
   &_swigt__p_std__basic_istreamT_char_std__char_traitsT_char_t_t,
@@ -13083,6 +17943,8 @@ static swig_type_info *swig_type_initial[] = {
   &_swigt__p_std__invalid_argument,
   &_swigt__p_std__vectorT_boost__shared_ptrT_Skeleton__DirectorExample_t_std__allocatorT_boost__shared_ptrT_Skeleton__DirectorExample_t_t_t,
   &_swigt__p_std__vectorT_int_std__allocatorT_int_t_t,
+  &_swigt__p_std__vectorT_std__vectorT_boost__shared_ptrT_Skeleton__DirectorExample_t_std__allocatorT_boost__shared_ptrT_Skeleton__DirectorExample_t_t_t_std__allocatorT_std__vectorT_boost__shared_ptrT_Skeleton__DirectorExample_t_std__allocatorT_boost__shared_ptrT_Skeleton__DirectorExample_t_t_t_t_t,
+  &_swigt__p_std__vectorT_std__vectorT_int_std__allocatorT_int_t_t_std__allocatorT_std__vectorT_int_std__allocatorT_int_t_t_t_t,
   &_swigt__p_swig__SwigPyIterator,
   &_swigt__p_traits_type,
   &_swigt__p_value_type,
@@ -13186,6 +18048,8 @@ static swig_cast_info _swigc__p_size_type[] = {  {&_swigt__p_size_type, 0, 0, 0}
 static swig_cast_info _swigc__p_state_type[] = {  {&_swigt__p_state_type, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_std__allocatorT_boost__shared_ptrT_Skeleton__DirectorExample_t_t[] = {  {&_swigt__p_std__allocatorT_boost__shared_ptrT_Skeleton__DirectorExample_t_t, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_std__allocatorT_int_t[] = {  {&_swigt__p_std__allocatorT_int_t, 0, 0, 0},{0, 0, 0, 0}};
+static swig_cast_info _swigc__p_std__allocatorT_std__vectorT_boost__shared_ptrT_Skeleton__DirectorExample_t_std__allocatorT_boost__shared_ptrT_Skeleton__DirectorExample_t_t_t_t[] = {  {&_swigt__p_std__allocatorT_std__vectorT_boost__shared_ptrT_Skeleton__DirectorExample_t_std__allocatorT_boost__shared_ptrT_Skeleton__DirectorExample_t_t_t_t, 0, 0, 0},{0, 0, 0, 0}};
+static swig_cast_info _swigc__p_std__allocatorT_std__vectorT_int_std__allocatorT_int_t_t_t[] = {  {&_swigt__p_std__allocatorT_std__vectorT_int_std__allocatorT_int_t_t_t, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_std__basic_iosT_char_std__char_traitsT_char_t_t[] = {  {&_swigt__p_std__basic_iosT_char_std__char_traitsT_char_t_t, 0, 0, 0},  {&_swigt__p_std__basic_iostreamT_char_std__char_traitsT_char_t_t, _p_std__basic_iostreamT_char_std__char_traitsT_char_t_tTo_p_std__basic_iosT_char_std__char_traitsT_char_t_t, 0, 0},  {&_swigt__p_std__basic_istreamT_char_std__char_traitsT_char_t_t, _p_std__basic_istreamT_char_std__char_traitsT_char_t_tTo_p_std__basic_iosT_char_std__char_traitsT_char_t_t, 0, 0},  {&_swigt__p_std__basic_ostreamT_char_std__char_traitsT_char_t_t, _p_std__basic_ostreamT_char_std__char_traitsT_char_t_tTo_p_std__basic_iosT_char_std__char_traitsT_char_t_t, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_std__basic_iostreamT_char_std__char_traitsT_char_t_t[] = {  {&_swigt__p_std__basic_iostreamT_char_std__char_traitsT_char_t_t, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_std__basic_istreamT_char_std__char_traitsT_char_t_t[] = {  {&_swigt__p_std__basic_istreamT_char_std__char_traitsT_char_t_t, 0, 0, 0},  {&_swigt__p_std__basic_iostreamT_char_std__char_traitsT_char_t_t, _p_std__basic_iostreamT_char_std__char_traitsT_char_t_tTo_p_std__basic_istreamT_char_std__char_traitsT_char_t_t, 0, 0},{0, 0, 0, 0}};
@@ -13193,6 +18057,8 @@ static swig_cast_info _swigc__p_std__basic_ostreamT_char_std__char_traitsT_char_
 static swig_cast_info _swigc__p_std__invalid_argument[] = {  {&_swigt__p_std__invalid_argument, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_std__vectorT_boost__shared_ptrT_Skeleton__DirectorExample_t_std__allocatorT_boost__shared_ptrT_Skeleton__DirectorExample_t_t_t[] = {  {&_swigt__p_std__vectorT_boost__shared_ptrT_Skeleton__DirectorExample_t_std__allocatorT_boost__shared_ptrT_Skeleton__DirectorExample_t_t_t, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_std__vectorT_int_std__allocatorT_int_t_t[] = {  {&_swigt__p_std__vectorT_int_std__allocatorT_int_t_t, 0, 0, 0},{0, 0, 0, 0}};
+static swig_cast_info _swigc__p_std__vectorT_std__vectorT_boost__shared_ptrT_Skeleton__DirectorExample_t_std__allocatorT_boost__shared_ptrT_Skeleton__DirectorExample_t_t_t_std__allocatorT_std__vectorT_boost__shared_ptrT_Skeleton__DirectorExample_t_std__allocatorT_boost__shared_ptrT_Skeleton__DirectorExample_t_t_t_t_t[] = {  {&_swigt__p_std__vectorT_std__vectorT_boost__shared_ptrT_Skeleton__DirectorExample_t_std__allocatorT_boost__shared_ptrT_Skeleton__DirectorExample_t_t_t_std__allocatorT_std__vectorT_boost__shared_ptrT_Skeleton__DirectorExample_t_std__allocatorT_boost__shared_ptrT_Skeleton__DirectorExample_t_t_t_t_t, 0, 0, 0},{0, 0, 0, 0}};
+static swig_cast_info _swigc__p_std__vectorT_std__vectorT_int_std__allocatorT_int_t_t_std__allocatorT_std__vectorT_int_std__allocatorT_int_t_t_t_t[] = {  {&_swigt__p_std__vectorT_std__vectorT_int_std__allocatorT_int_t_t_std__allocatorT_std__vectorT_int_std__allocatorT_int_t_t_t_t, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_swig__SwigPyIterator[] = {  {&_swigt__p_swig__SwigPyIterator, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_traits_type[] = {  {&_swigt__p_traits_type, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_value_type[] = {  {&_swigt__p_value_type, 0, 0, 0},{0, 0, 0, 0}};
@@ -13296,6 +18162,8 @@ static swig_cast_info *swig_cast_initial[] = {
   _swigc__p_state_type,
   _swigc__p_std__allocatorT_boost__shared_ptrT_Skeleton__DirectorExample_t_t,
   _swigc__p_std__allocatorT_int_t,
+  _swigc__p_std__allocatorT_std__vectorT_boost__shared_ptrT_Skeleton__DirectorExample_t_std__allocatorT_boost__shared_ptrT_Skeleton__DirectorExample_t_t_t_t,
+  _swigc__p_std__allocatorT_std__vectorT_int_std__allocatorT_int_t_t_t,
   _swigc__p_std__basic_iosT_char_std__char_traitsT_char_t_t,
   _swigc__p_std__basic_iostreamT_char_std__char_traitsT_char_t_t,
   _swigc__p_std__basic_istreamT_char_std__char_traitsT_char_t_t,
@@ -13303,6 +18171,8 @@ static swig_cast_info *swig_cast_initial[] = {
   _swigc__p_std__invalid_argument,
   _swigc__p_std__vectorT_boost__shared_ptrT_Skeleton__DirectorExample_t_std__allocatorT_boost__shared_ptrT_Skeleton__DirectorExample_t_t_t,
   _swigc__p_std__vectorT_int_std__allocatorT_int_t_t,
+  _swigc__p_std__vectorT_std__vectorT_boost__shared_ptrT_Skeleton__DirectorExample_t_std__allocatorT_boost__shared_ptrT_Skeleton__DirectorExample_t_t_t_std__allocatorT_std__vectorT_boost__shared_ptrT_Skeleton__DirectorExample_t_std__allocatorT_boost__shared_ptrT_Skeleton__DirectorExample_t_t_t_t_t,
+  _swigc__p_std__vectorT_std__vectorT_int_std__allocatorT_int_t_t_std__allocatorT_std__vectorT_int_std__allocatorT_int_t_t_t_t,
   _swigc__p_swig__SwigPyIterator,
   _swigc__p_traits_type,
   _swigc__p_value_type,

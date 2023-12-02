@@ -53,7 +53,6 @@ class DirectorPythonExample(DirectorExample):
             print("Stuff referring to this:")
             print(gc.get_referents(olist[0]), flush=True)
     
-    
 def test_director_example():
     print("May want to valgrind this, to make sure we have lifetime etc. ok with memory usage.")
     print("Do this with PYTHONMALLOC=malloc valgrind $(which python) $(which pytest) -s lib/director_example_test.py")
@@ -98,6 +97,21 @@ def test_director_example():
     print(euser.value_vec()[3])
     print("Should see e2 and v1 through vp4 deleted", flush=True)
     euser = None
+    print("All Done", flush=True)
+    euser = DirectorExampleUser()
+    v2 = [[DirectorExample(5, "v1"), DirectorPythonExample(5,6, "vp2")],
+          [DirectorExample(6, "v2"), DirectorPythonExample(10,7, "vp4"),
+           DirectorPythonExample(11,7, "vp5")]]
+    euser.set_vec_vec(v2)
+    v2 = None
+    print(euser.value_vec_vec())
+    assert euser.apply_func(10, 0, 0) == 5+10
+    assert euser.apply_func(10, 1, 0) == 6+10
+    assert euser.apply_func(10, 0, 1) == 5+10+2*6
+    assert euser.apply_func(10, 1, 1) == 10+10+2*7
+    assert euser.apply_func(10, 1, 2) == 10+11+2*7
+    print("Should see v1 through vp5 deleted", flush=True)
+    euser=None
     print("All Done", flush=True)
 
 def test_director_pickle_shelve(isolated_dir):
@@ -189,8 +203,4 @@ def test_director_lifetime_shelve(isolated_dir):
     euser_s = None
     print("All done with euser_s")
 
-    
-
-    
-    
     

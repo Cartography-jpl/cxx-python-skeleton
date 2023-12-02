@@ -13,7 +13,9 @@
 // Note we need the template before its first use, so we have all
 // the typemaps in place.
 %template(Vector_DirectorExample) std::vector<boost::shared_ptr<Skeleton::DirectorExample> >;
+%template(Vector_Vector_DirectorExample) std::vector<std::vector<boost::shared_ptr<Skeleton::DirectorExample> > >;
 %template(Vector_int) std::vector<int>;
+%template(Vector_Vector_int) std::vector<std::vector<int> >;
 
 namespace Skeleton {
 %feature("director") DirectorExample;
@@ -39,13 +41,19 @@ public:
   const std::vector<boost::shared_ptr<DirectorExample> >&
     value_vec() const;
   void set_vec(const std::vector<boost::shared_ptr<DirectorExample> >& V);
+  const std::vector<std::vector<boost::shared_ptr<DirectorExample> > >&
+    value_vec_vec() const;
+  void set_vec_vec(const std::vector<std::vector<boost::shared_ptr<DirectorExample> > >& V);
   const boost::shared_ptr<DirectorExample>&
     value() const;
   const std::vector<int>& value_vec_int() const;
   void set_vec_int(const std::vector<int>& V);
+  const std::vector<std::vector<int> >& value_vec_vec_int() const;
+  void set_vec_vec_int(const std::vector<std::vector<int> >& V);
   void set_value(const boost::shared_ptr<DirectorExample>& V);
   int apply_func(int v) const;
   int apply_func(int v, int ind) const;
+  int apply_func(int v, int ind, int ind2) const;
   %pickle_serialization();
 };
 
@@ -93,9 +101,6 @@ public:
        // Transfer ownership of SwigDirector_DirectorExample to pobj.
        SWIG_Python_SetSwigThis(pobj, thisobj);
        Py_DECREF(thisobj);
-       std::cerr << "In load_construct_data\n";
-       std::cerr << "pobj refcnt: " << pobj->ob_refcnt << " address " << pobj->ob_type << "\n";
-       std::cerr << "thisobj refcnt: " << thisobj->ob_refcnt << " address " << thisobj->ob_type << "\n";
      }
    }
 }
