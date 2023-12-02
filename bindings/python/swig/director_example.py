@@ -394,6 +394,6 @@ class DirectorExampleUser(skeleton_swig.generic_object.GenericObject):
 # Register DirectorExampleUser in _director_example:
 _director_example.DirectorExampleUser_swigregister(DirectorExampleUser)
 
-__all__ = ["DirectorExample","DirectorExampleUser","Vector_DirectorExample","Vector_int"]
+__all__ = ["DirectorExample","DirectorExampleUser","Vector_DirectorExample","Vector_Vector_DirectorExample","Vector_int","Vector_Vector_int"]
 
 

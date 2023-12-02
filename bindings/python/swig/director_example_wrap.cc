@@ -6730,7 +6730,7 @@ SWIG_From_std_string  (const std::string& s)
        PyObject* pobj = cpickle_loads(python_object);
        ::new(d)SwigDirector_DirectorExample(pobj);
        boost::shared_ptr<Skeleton::DirectorExample> *smartresult = d ? new boost::shared_ptr<Skeleton::DirectorExample>(d) : 0;
-       PyObject* thisobj = SWIG_NewPointerObj(SWIG_as_voidptr(smartresult), SWIGTYPE_p_boost__shared_ptrT_Skeleton__DirectorExample_t, SWIG_POINTER_NEW | SWIG_POINTER_OWN);
+       PyObject* thisobj = SWIG_NewPointerObj(SWIG_as_voidptr(smartresult), SWIG_TypeQuery("boost::shared_ptr<Skeleton::DirectorExample>*"), SWIG_POINTER_NEW | SWIG_POINTER_OWN);
        // Transfer ownership of SwigDirector_DirectorExample to pobj.
        SWIG_Python_SetSwigThis(pobj, thisobj);
        Py_DECREF(thisobj);
