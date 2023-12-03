@@ -931,7 +931,8 @@ PYTEST_NJOB = 10
 # PYTEST_EXTRAFLAGS="--timeout=20"
 PYTEST_EXTRAFLAGS = 
 PYTEST_FLAGS = -q -n $(PYTEST_NJOB)
-swiginc_HEADERS = @swigrules@/include/my_shared_ptr.i \
+swiginc_HEADERS = @swigrules@/include/director_serialization.i \
+	@swigrules@/include/my_shared_ptr.i \
 	@swigrules@/include/shared_ptr_type_mapper.i \
 	@swigrules@/include/swig_array.i \
 	@swigrules@/include/swig_array_inc.i \

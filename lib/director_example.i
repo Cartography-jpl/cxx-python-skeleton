@@ -59,6 +59,9 @@ public:
 
 }
 
+// Extra code for handling boost serialization/python pickle of
+// director classes
+%skeleton_director_serialization(DirectorExample)
 // TODO Make this into a macro, when we have everything ironed out
 %shared_ptr(SwigDirector_DirectorExample)
 %init {
