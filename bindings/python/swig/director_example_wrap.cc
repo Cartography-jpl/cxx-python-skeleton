@@ -6701,8 +6701,12 @@ SWIG_From_std_string  (const std::string& s)
 }
 
 
- #include "skeleton_serialize_support.h"
- #include "director_example_wrap.h"
+// Needed by code below, can't easily figure these names out
+// automatically so just include here
+#include "director_example_wrap.h"
+
+
+#include "skeleton_serialize_support.h"
  namespace boost {
    namespace serialization {
      template<class Archive>
@@ -6733,7 +6737,7 @@ SWIG_From_std_string  (const std::string& s)
        ::new(d)SwigDirector_DirectorExample(pobj);
        boost::shared_ptr<Skeleton::DirectorExample> *smartresult = d ? new boost::shared_ptr<Skeleton::DirectorExample>(d) : 0;
        PyObject* thisobj = SWIG_NewPointerObj(SWIG_as_voidptr(smartresult), SWIG_TypeQuery("boost::shared_ptr<Skeleton::DirectorExample>*"), SWIG_POINTER_NEW | SWIG_POINTER_OWN);
-       // Transfer ownership of SwigDirector_DirectorExample to pobj.
+       // Transfer ownership of SwigDirector_ ## DirectorExample to pobj.
        SWIG_Python_SetSwigThis(pobj, thisobj);
        Py_DECREF(thisobj);
      }
@@ -18726,7 +18730,7 @@ SWIG_init(void) {
   swig::container_owner_attribute();
   
   
-  Skeleton::SwigTypeMapperBase::add(typeid(SwigDirector_DirectorExample), boost::make_shared<Skeleton::SwigTypeMapper< SwigDirector_DirectorExample > > ("boost::shared_ptr< SwigDirector_DirectorExample > *"));
+  Skeleton::SwigTypeMapperBase::add(typeid(SwigDirector_DirectorExample), boost::make_shared<Skeleton::SwigTypeMapper< SwigDirector_DirectorExample > > ("boost::shared_ptr< SwigDirector" "DirectorExample > *"));
   
 #if PY_VERSION_HEX >= 0x03000000
   return m;
