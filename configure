@@ -2521,7 +2521,6 @@ ac_configure="$SHELL $ac_aux_dir/configure"  # Please don't use this var.
 
 
 
-
 ac_config_files="$ac_config_files script/setup_skeleton.csh script/setup_skeleton.sh"
 
 ac_config_headers="$ac_config_headers lib/skeleton_config.h"
@@ -17582,24 +17581,24 @@ fi
 #
 # if the macro parameter ``version'' is set, honour it
 #
-if test -n ">= '3.4.0'" -a "x$PYTHON" != "x"; then
-   { $as_echo "$as_me:${as_lineno-$LINENO}: checking for a version of Python >= '3.4.0'" >&5
-$as_echo_n "checking for a version of Python >= '3.4.0'... " >&6; }
-   ac_supports_python_ver=`LD_LIBRARY_PATH=$PYTHON_PREFIX/lib:$PYTHON_PREFIX/lib64:$LD_LIBRARY_PATH $PYTHON -c "import sys; \
+if test -n "3.4.0" -a "x$PYTHON" != "x"; then
+   { $as_echo "$as_me:${as_lineno-$LINENO}: checking for a version of Python 3.4.0" >&5
+$as_echo_n "checking for a version of Python 3.4.0... " >&6; }
+   ac_supports_python_ver=`LD_LIBRARY_PATH=$PYTHON_PREFIX/lib:$PYTHON_PREFIX/lib64:$LD_LIBRARY_PATH $PYTHON -c "import sys; from distutils.version import LooseVersion; \
 	ver = sys.version.split ()[0]; \
-	print (ver >= '3.4.0')"`
+	print (LooseVersion(ver) >= LooseVersion('3.4.0'))"`
    if test "$ac_supports_python_ver" = "True"; then
       { $as_echo "$as_me:${as_lineno-$LINENO}: result: yes" >&5
 $as_echo "yes" >&6; }
    else
       { $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
 $as_echo "no" >&6; }
-      { $as_echo "$as_me:${as_lineno-$LINENO}: WARNING: this package requires Python >= '3.4.0'.
+      { $as_echo "$as_me:${as_lineno-$LINENO}: WARNING: this package requires Python 3.4.0.
 If you have it installed, but it isn't the default Python
 interpreter in your system path, please pass the PYTHON_VERSION
 variable to configure. See \`\`configure --help'' for reference.
 " >&5
-$as_echo "$as_me: WARNING: this package requires Python >= '3.4.0'.
+$as_echo "$as_me: WARNING: this package requires Python 3.4.0.
 If you have it installed, but it isn't the default Python
 interpreter in your system path, please pass the PYTHON_VERSION
 variable to configure. See \`\`configure --help'' for reference.
@@ -18229,9 +18228,9 @@ fi
 if test -n ">= '3.4.0'" -a "x$PYTHON" != "x"; then
    { $as_echo "$as_me:${as_lineno-$LINENO}: checking for a version of Python >= '3.4.0'" >&5
 $as_echo_n "checking for a version of Python >= '3.4.0'... " >&6; }
-   ac_supports_python_ver=`LD_LIBRARY_PATH=$PYTHON_PREFIX/lib:$PYTHON_PREFIX/lib64:$LD_LIBRARY_PATH $PYTHON -c "import sys; \
+   ac_supports_python_ver=`LD_LIBRARY_PATH=$PYTHON_PREFIX/lib:$PYTHON_PREFIX/lib64:$LD_LIBRARY_PATH $PYTHON -c "import sys; from distutils.version import LooseVersion; \
 	ver = sys.version.split ()[0]; \
-	print (ver >= '3.4.0')"`
+	print (LooseVersion(ver) >= LooseVersion('>= '3.4.0''))"`
    if test "$ac_supports_python_ver" = "True"; then
       { $as_echo "$as_me:${as_lineno-$LINENO}: result: yes" >&5
 $as_echo "yes" >&6; }
