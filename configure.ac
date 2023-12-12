@@ -1,9 +1,8 @@
 dnl Process this file with autoconf to produce a configure script.
 
-AC_INIT(swig-rules-skeleton, 0.10)
+AC_INIT([swig-rules-skeleton],[0.10])
 AC_CONFIG_AUX_DIR([config])
-AC_CONFIG_MACRO_DIR([config/m4])
-AC_CONFIG_MACRO_DIR([config/m4_local])
+AC_CONFIG_MACRO_DIRS([config/m4 config/m4_local])
 AC_CONFIG_FILES([script/setup_skeleton.csh script/setup_skeleton.sh])
 AC_CONFIG_HEADERS([lib/skeleton_config.h])
 AC_CONFIG_FILES([lib/global_fixture_default.cc])
