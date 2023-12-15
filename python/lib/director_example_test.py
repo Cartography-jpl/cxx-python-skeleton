@@ -12,13 +12,18 @@ _decref = ctypes.pythonapi.Py_DecRef
 _decref.argtypes = [ctypes.py_object]
 _decref.restype = None
 
+
 class DirectorPythonExample(DirectorExample):
+    # Note, tests that use deleted_list need to run in serial
+    deleted_list = set()
+
     def __init__(self, v1, v2, name):
         super().__init__(v1, name)
         self.v2 = v2
         print(f"Creating Python {self.name()}", flush=True)
 
     def __del__(self):
+        self.deleted_list.add(id(self))
         print(f"Destroying Python {self.name()}", flush=True)
 
     def print_ref_count(self):
@@ -53,10 +58,11 @@ class DirectorPythonExample(DirectorExample):
             print("Stuff referring to this:")
             print(gc.get_referents(olist[0]), flush=True)
     
-def test_director_example():
+def test_director_example(serial):
     print("May want to valgrind this, to make sure we have lifetime etc. ok with memory usage.")
     print("Do this with PYTHONMALLOC=malloc valgrind $(which python) $(which pytest) -s lib/director_example_test.py")
     print("(Note PYTHONMALLOC is important, otherwise you get a ton of spurious errors)")
+    DirectorPythonExample.deleted_list.clear()
     e1 = DirectorExample(5, "e1")
     assert e1.func(10) == 5+10
     e1 = None
@@ -96,7 +102,10 @@ def test_director_example():
     print(euser.value_vec()[2])
     print(euser.value_vec()[3])
     print("Should see e2 and v1 through vp4 deleted", flush=True)
+    assert len(DirectorPythonExample.deleted_list) == 0
     euser = None
+    assert len(DirectorPythonExample.deleted_list) == 3
+    DirectorPythonExample.deleted_list.clear()
     print("All Done", flush=True)
     euser = DirectorExampleUser()
     v2 = [[DirectorExample(5, "v1"), DirectorPythonExample(5,6, "vp2")],
@@ -111,10 +120,13 @@ def test_director_example():
     assert euser.apply_func(10, 1, 1) == 10+10+2*7
     assert euser.apply_func(10, 1, 2) == 10+11+2*7
     print("Should see v1 through vp5 deleted", flush=True)
-    euser=None
+    assert len(DirectorPythonExample.deleted_list) == 0
+    euser = None
+    assert len(DirectorPythonExample.deleted_list) == 3
+    DirectorPythonExample.deleted_list.clear()
     print("All Done", flush=True)
 
-def test_director_pickle_shelve(isolated_dir):
+def test_director_pickle_shelve(isolated_dir, serial):
     print("May want to valgrind this, to make sure we have lifetime etc. ok with memory usage.")
     print("Do this with PYTHONMALLOC=malloc valgrind $(which python) $(which pytest) -s lib/director_example_test.py")
     print("(Note PYTHONMALLOC is important, otherwise you get a ton of spurious errors)")
@@ -138,13 +150,19 @@ def test_director_pickle_shelve(isolated_dir):
     e2_s = read_shelve("e2.xml")
     pickle.dump(e2, open("e2.pkl", "wb"))
     e2_p = pickle.load(open("e2.pkl", "rb"))
+    assert len(DirectorPythonExample.deleted_list) == 0
     e2 = None
+    assert len(DirectorPythonExample.deleted_list) == 1
+    DirectorPythonExample.deleted_list.clear()
     assert e2_s.func(10) == 5+10+2*6
     assert e2_p.func(10) == 5+10+2*6
     print(e2_s)
     print(e2_p)
+    assert len(DirectorPythonExample.deleted_list) == 0
     e2_s = None
     e2_p = None
+    assert len(DirectorPythonExample.deleted_list) == 2
+    DirectorPythonExample.deleted_list.clear()
     
     euser = DirectorExampleUser()
     v = [DirectorExample(5, "v1"),
@@ -157,7 +175,10 @@ def test_director_pickle_shelve(isolated_dir):
     euser_s = read_shelve("euser.xml")
     pickle.dump(euser, open("euser.pkl", "wb"))
     euser_p = pickle.load(open("euser.pkl", "rb"))
+    assert len(DirectorPythonExample.deleted_list) == 0
     euser = None
+    assert len(DirectorPythonExample.deleted_list) == 2
+    DirectorPythonExample.deleted_list.clear()
     assert euser_s.apply_func(10, 0) == 5+10
     assert euser_s.apply_func(10, 1) == 6+10
     assert euser_s.apply_func(10, 2) == 5+10+2*6
@@ -174,33 +195,55 @@ def test_director_pickle_shelve(isolated_dir):
     print(euser_p.value_vec()[1])
     print(euser_p.value_vec()[2])
     print(euser_p.value_vec()[3])
+    assert len(DirectorPythonExample.deleted_list) == 0
     euser_s = None
     euser_p = None
+    assert len(DirectorPythonExample.deleted_list) == 4
+    DirectorPythonExample.deleted_list.clear()
     print("All done", flush=True)
 
-def test_director_lifetime_shelve(isolated_dir):
+def test_director_lifetime_shelve(isolated_dir, serial):
+    DirectorPythonExample.deleted_list.clear()
     print("Should see creation message", flush=True)
     e1 = DirectorPythonExample(5,6, "e1")
+    e1_id = id(e1)
     write_shelve("e1.xml", e1)
     print("Should see deletion message", flush=True)
+    assert e1_id not in DirectorPythonExample.deleted_list
     e1 = None
+    assert e1_id in DirectorPythonExample.deleted_list
+    DirectorPythonExample.deleted_list.clear()
     print("All done with e1", flush=True)
     e1_s = read_shelve("e1.xml")
+    e1_s_id = id(e1_s)
     print(e1_s)
     print("Should see deletion message", flush=True)
+    assert e1_s_id not in DirectorPythonExample.deleted_list
     e1_s = None
+    assert e1_s_id in DirectorPythonExample.deleted_list
+    DirectorPythonExample.deleted_list.clear()
     print("All done with e1_s", flush=True)
     print("Should see creation message", flush=True)
     euser = DirectorExampleUser()
     euser.set_vec([DirectorPythonExample(5,6, "e2"),])
+    # We can't easily get the id DirectorPythonExample, because it
+    # gets copied when we return it. So just count the number of
+    # items in the deletion set, that should be pretty accurate 
+    #e2_vec_id = id(euser.value_vec()[0])
     write_shelve("euser.xml", euser)
     print("Should see deletion message", flush=True)
+    assert len(DirectorPythonExample.deleted_list) == 0
     euser = None
+    assert len(DirectorPythonExample.deleted_list) == 1
+    DirectorPythonExample.deleted_list.clear()
     print("All done with euser")
     euser_s = read_shelve("euser.xml")
     print(euser_s.value_vec()[0])
     print("Should see deletion message", flush=True)
+    assert len(DirectorPythonExample.deleted_list) == 0
     euser_s = None
+    assert len(DirectorPythonExample.deleted_list) == 1
+    DirectorPythonExample.deleted_list.clear()
     print("All done with euser_s")
 
     

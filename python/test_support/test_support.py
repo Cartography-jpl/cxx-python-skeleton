@@ -8,6 +8,8 @@ import os
 import sys
 import subprocess
 import pytest
+import filelock
+import contextlib
 
 # Location of test data that is part of source
 unit_test_data = os.path.abspath(os.path.dirname(__file__) + "/../../unit_test_data/") + "/"
@@ -49,3 +51,20 @@ def isolated_dir(tmpdir):
     finally:
         os.chdir(curdir)
 
+@pytest.fixture(scope='session')
+def lock(tmp_path_factory):
+    base_temp = tmp_path_factory.getbasetemp()
+    lock_file = base_temp.parent / 'serial.lock'
+    yield filelock.FileLock(lock_file=str(lock_file))
+    with contextlib.suppress(OSError):
+        os.remove(path=lock_file)
+
+
+# Tests with serial all run in serial, needed for our lifetime tests
+# because we have a class level variable to keep track of the number
+# of objects deleted
+@pytest.fixture()
+def serial(lock):
+    with lock.acquire(poll_interval=0.1):
+        yield
+        
