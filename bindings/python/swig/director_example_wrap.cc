@@ -6701,11 +6701,20 @@ SWIG_From_std_string  (const std::string& s)
 }
 
 
-// Needed by code below, can't easily figure these names out
-// automatically so just include here
-#include "director_example_wrap.h"
-
-
+#ifndef QUOTE  
+#define Q(x)#x
+#define QUOTE(x) Q(x)
+#endif
+  
+// CMAKE unfortunately uses a different name for the wrapper file that
+// the standard SWIG convention. So we set up CMAKE ot pass in a
+// CMAKE_SWIG_FILE_NAMES to get the right inclusion file.  
+#ifndef CMAKE_SWIG_FILE_NAMES  
+#include QUOTE(director_example_wrap.h)
+#else  
+#include QUOTE(director_examplePYTHON_wrap.h)
+#endif  
+  
 #include "skeleton_serialize_support.h"
  namespace boost {
    namespace serialization {

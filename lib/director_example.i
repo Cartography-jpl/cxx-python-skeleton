@@ -61,12 +61,7 @@ public:
 
 // Extra code for handling boost serialization/python pickle of
 // director classes
-%{
-// Needed by code below, can't easily figure these names out
-// automatically so just include here
-#include "director_example_wrap.h"
-%}
-%skeleton_director_serialization(DirectorExample)
+%skeleton_director_serialization(director_example, DirectorExample)
   
 // List of things "import *" will include
 %python_export("DirectorExample", "DirectorExampleUser",

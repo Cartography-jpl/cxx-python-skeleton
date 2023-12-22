@@ -60,6 +60,6 @@
 %include "swig_vector_shared_ptr.i"
 %import "swig_rational.i"
 %include "director_serialization.i"
-%define %skeleton_director_serialization(TYPE...)
-%director_serialization(Skeleton, skeleton_serialize_support.h, TYPE)
+%define %skeleton_director_serialization(BNAME, TYPE...)
+%director_serialization(Skeleton, skeleton_serialize_support.h, BNAME, TYPE)
 %enddef
