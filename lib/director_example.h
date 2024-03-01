@@ -2,6 +2,7 @@
 #define DIRECTOR_EXAMPLE_H
 #include "printable.h"
 #include <boost/shared_ptr.hpp>
+#include <boost/weak_ptr.hpp>
 #include <vector>
 #include <iostream>
 
@@ -30,6 +31,7 @@ public:
   virtual int func(int v) const { return v + value_to_add_; }
   virtual void print(std::ostream& Os) const;
   int value_to_add() const { return value_to_add_;}
+  void value_to_add(int v) { value_to_add_ = v;}
   const std::string& name() const { return name_;}
 protected:
   // Directors with swig seems to need to have this available
@@ -42,6 +44,45 @@ private:
   void serialize(Archive & ar, const unsigned int version);
 };
 
+/****************************************************************//**
+  A weak pointer to a DirectorExample, used to test proper handling of
+  weak pointers and also pointer tracking in the serialization code.
+*******************************************************************/
+class DirectorExampleWeakPtr : public Printable<DirectorExampleWeakPtr> {
+public:
+  // Note, we don't have the logic for passing in a Director object
+  // here and correctly getting a weak ptr. The issue is that our
+  // swig rules return a new shared_ptr with a null deleter due to
+  // lifetime issues (see python_ref_ptr_cleanup.h for description of
+  /// this). We'll come back to this, but for now just punt and also
+  /// keep a copy of a boost::shared_ptr so this doesn't go out of
+  /// existence
+  DirectorExampleWeakPtr(const boost::shared_ptr<DirectorExample>& V)
+    : a_(V), vkludge(V)
+  {
+  }
+  virtual ~DirectorExampleWeakPtr() {}
+  void print(std::ostream& Os) const
+  {
+    Os << "----------------------\n";
+    Os << "DirectorExampleWeakPtr\n";
+    if(a())
+      Os << *a();
+    else
+      Os << "None";
+    Os << "\n----------------------\n";
+  }
+  boost::shared_ptr<DirectorExample> a() const { return a_.lock();}
+  void a(const boost::shared_ptr<DirectorExample>& V) { a_ = V;}
+private:
+  boost::shared_ptr<DirectorExample> vkludge;
+  boost::weak_ptr<DirectorExample> a_;
+  DirectorExampleWeakPtr() {}
+  friend class boost::serialization::access;
+  template<class Archive>
+  void serialize(Archive & ar, const unsigned int version);
+};
+  
 /****************************************************************//**
   Sample class to use DirectorExample, can use to make sure python
   can be passed correctly.
@@ -93,6 +134,7 @@ private:
   
 }
 SKELETON_EXPORT_KEY(DirectorExample);
+SKELETON_EXPORT_KEY(DirectorExampleWeakPtr);
 SKELETON_EXPORT_KEY(DirectorExampleUser);
 #endif
 

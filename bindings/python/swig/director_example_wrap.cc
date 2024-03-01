@@ -3404,118 +3404,120 @@ namespace Swig {
 
 #define SWIGTYPE_p_Skeleton__DirectorExample swig_types[0]
 #define SWIGTYPE_p_Skeleton__DirectorExampleUser swig_types[1]
-#define SWIGTYPE_p_Skeleton__GenericObject swig_types[2]
-#define SWIGTYPE_p_SwigDirector_DirectorExample swig_types[3]
-#define SWIGTYPE_p_allocator_type swig_types[4]
-#define SWIGTYPE_p_blitz__ArrayT_bool_1_t swig_types[5]
-#define SWIGTYPE_p_blitz__ArrayT_bool_2_t swig_types[6]
-#define SWIGTYPE_p_blitz__ArrayT_bool_3_t swig_types[7]
-#define SWIGTYPE_p_blitz__ArrayT_bool_4_t swig_types[8]
-#define SWIGTYPE_p_blitz__ArrayT_bool_5_t swig_types[9]
-#define SWIGTYPE_p_blitz__ArrayT_bool_6_t swig_types[10]
-#define SWIGTYPE_p_blitz__ArrayT_bool_7_t swig_types[11]
-#define SWIGTYPE_p_blitz__ArrayT_bool_8_t swig_types[12]
-#define SWIGTYPE_p_blitz__ArrayT_char_1_t swig_types[13]
-#define SWIGTYPE_p_blitz__ArrayT_char_2_t swig_types[14]
-#define SWIGTYPE_p_blitz__ArrayT_char_3_t swig_types[15]
-#define SWIGTYPE_p_blitz__ArrayT_char_4_t swig_types[16]
-#define SWIGTYPE_p_blitz__ArrayT_char_5_t swig_types[17]
-#define SWIGTYPE_p_blitz__ArrayT_char_6_t swig_types[18]
-#define SWIGTYPE_p_blitz__ArrayT_char_7_t swig_types[19]
-#define SWIGTYPE_p_blitz__ArrayT_char_8_t swig_types[20]
-#define SWIGTYPE_p_blitz__ArrayT_double_1_t swig_types[21]
-#define SWIGTYPE_p_blitz__ArrayT_double_2_t swig_types[22]
-#define SWIGTYPE_p_blitz__ArrayT_double_3_t swig_types[23]
-#define SWIGTYPE_p_blitz__ArrayT_double_4_t swig_types[24]
-#define SWIGTYPE_p_blitz__ArrayT_double_5_t swig_types[25]
-#define SWIGTYPE_p_blitz__ArrayT_double_6_t swig_types[26]
-#define SWIGTYPE_p_blitz__ArrayT_double_7_t swig_types[27]
-#define SWIGTYPE_p_blitz__ArrayT_double_8_t swig_types[28]
-#define SWIGTYPE_p_blitz__ArrayT_float_1_t swig_types[29]
-#define SWIGTYPE_p_blitz__ArrayT_float_2_t swig_types[30]
-#define SWIGTYPE_p_blitz__ArrayT_float_3_t swig_types[31]
-#define SWIGTYPE_p_blitz__ArrayT_float_4_t swig_types[32]
-#define SWIGTYPE_p_blitz__ArrayT_float_5_t swig_types[33]
-#define SWIGTYPE_p_blitz__ArrayT_float_6_t swig_types[34]
-#define SWIGTYPE_p_blitz__ArrayT_float_7_t swig_types[35]
-#define SWIGTYPE_p_blitz__ArrayT_float_8_t swig_types[36]
-#define SWIGTYPE_p_blitz__ArrayT_int_1_t swig_types[37]
-#define SWIGTYPE_p_blitz__ArrayT_int_2_t swig_types[38]
-#define SWIGTYPE_p_blitz__ArrayT_int_3_t swig_types[39]
-#define SWIGTYPE_p_blitz__ArrayT_int_4_t swig_types[40]
-#define SWIGTYPE_p_blitz__ArrayT_int_5_t swig_types[41]
-#define SWIGTYPE_p_blitz__ArrayT_int_6_t swig_types[42]
-#define SWIGTYPE_p_blitz__ArrayT_int_7_t swig_types[43]
-#define SWIGTYPE_p_blitz__ArrayT_int_8_t swig_types[44]
-#define SWIGTYPE_p_blitz__ArrayT_short_1_t swig_types[45]
-#define SWIGTYPE_p_blitz__ArrayT_short_2_t swig_types[46]
-#define SWIGTYPE_p_blitz__ArrayT_short_3_t swig_types[47]
-#define SWIGTYPE_p_blitz__ArrayT_short_4_t swig_types[48]
-#define SWIGTYPE_p_blitz__ArrayT_short_5_t swig_types[49]
-#define SWIGTYPE_p_blitz__ArrayT_short_6_t swig_types[50]
-#define SWIGTYPE_p_blitz__ArrayT_short_7_t swig_types[51]
-#define SWIGTYPE_p_blitz__ArrayT_short_8_t swig_types[52]
-#define SWIGTYPE_p_blitz__ArrayT_unsigned_char_1_t swig_types[53]
-#define SWIGTYPE_p_blitz__ArrayT_unsigned_char_2_t swig_types[54]
-#define SWIGTYPE_p_blitz__ArrayT_unsigned_char_3_t swig_types[55]
-#define SWIGTYPE_p_blitz__ArrayT_unsigned_char_4_t swig_types[56]
-#define SWIGTYPE_p_blitz__ArrayT_unsigned_char_5_t swig_types[57]
-#define SWIGTYPE_p_blitz__ArrayT_unsigned_char_6_t swig_types[58]
-#define SWIGTYPE_p_blitz__ArrayT_unsigned_char_7_t swig_types[59]
-#define SWIGTYPE_p_blitz__ArrayT_unsigned_char_8_t swig_types[60]
-#define SWIGTYPE_p_blitz__ArrayT_unsigned_int_1_t swig_types[61]
-#define SWIGTYPE_p_blitz__ArrayT_unsigned_int_2_t swig_types[62]
-#define SWIGTYPE_p_blitz__ArrayT_unsigned_int_3_t swig_types[63]
-#define SWIGTYPE_p_blitz__ArrayT_unsigned_int_4_t swig_types[64]
-#define SWIGTYPE_p_blitz__ArrayT_unsigned_int_5_t swig_types[65]
-#define SWIGTYPE_p_blitz__ArrayT_unsigned_int_6_t swig_types[66]
-#define SWIGTYPE_p_blitz__ArrayT_unsigned_int_7_t swig_types[67]
-#define SWIGTYPE_p_blitz__ArrayT_unsigned_int_8_t swig_types[68]
-#define SWIGTYPE_p_blitz__ArrayT_unsigned_short_1_t swig_types[69]
-#define SWIGTYPE_p_blitz__ArrayT_unsigned_short_2_t swig_types[70]
-#define SWIGTYPE_p_blitz__ArrayT_unsigned_short_3_t swig_types[71]
-#define SWIGTYPE_p_blitz__ArrayT_unsigned_short_4_t swig_types[72]
-#define SWIGTYPE_p_blitz__ArrayT_unsigned_short_5_t swig_types[73]
-#define SWIGTYPE_p_blitz__ArrayT_unsigned_short_6_t swig_types[74]
-#define SWIGTYPE_p_blitz__ArrayT_unsigned_short_7_t swig_types[75]
-#define SWIGTYPE_p_blitz__ArrayT_unsigned_short_8_t swig_types[76]
-#define SWIGTYPE_p_blitz__Range swig_types[77]
-#define SWIGTYPE_p_boost__shared_ptrT_Skeleton__DirectorExampleUser_t swig_types[78]
-#define SWIGTYPE_p_boost__shared_ptrT_Skeleton__DirectorExample_t swig_types[79]
-#define SWIGTYPE_p_boost__shared_ptrT_Skeleton__GenericObject_t swig_types[80]
-#define SWIGTYPE_p_boost__shared_ptrT_SwigDirector_DirectorExample_t swig_types[81]
-#define SWIGTYPE_p_char swig_types[82]
-#define SWIGTYPE_p_char_type swig_types[83]
-#define SWIGTYPE_p_difference_type swig_types[84]
-#define SWIGTYPE_p_fmtflags swig_types[85]
-#define SWIGTYPE_p_int_type swig_types[86]
-#define SWIGTYPE_p_iostate swig_types[87]
-#define SWIGTYPE_p_off_type swig_types[88]
-#define SWIGTYPE_p_openmode swig_types[89]
-#define SWIGTYPE_p_p_PyObject swig_types[90]
-#define SWIGTYPE_p_pos_type swig_types[91]
-#define SWIGTYPE_p_seekdir swig_types[92]
-#define SWIGTYPE_p_size_t swig_types[93]
-#define SWIGTYPE_p_size_type swig_types[94]
-#define SWIGTYPE_p_state_type swig_types[95]
-#define SWIGTYPE_p_std__allocatorT_boost__shared_ptrT_Skeleton__DirectorExample_t_t swig_types[96]
-#define SWIGTYPE_p_std__allocatorT_int_t swig_types[97]
-#define SWIGTYPE_p_std__allocatorT_std__vectorT_boost__shared_ptrT_Skeleton__DirectorExample_t_std__allocatorT_boost__shared_ptrT_Skeleton__DirectorExample_t_t_t_t swig_types[98]
-#define SWIGTYPE_p_std__allocatorT_std__vectorT_int_std__allocatorT_int_t_t_t swig_types[99]
-#define SWIGTYPE_p_std__basic_iosT_char_std__char_traitsT_char_t_t swig_types[100]
-#define SWIGTYPE_p_std__basic_iostreamT_char_std__char_traitsT_char_t_t swig_types[101]
-#define SWIGTYPE_p_std__basic_istreamT_char_std__char_traitsT_char_t_t swig_types[102]
-#define SWIGTYPE_p_std__basic_ostreamT_char_std__char_traitsT_char_t_t swig_types[103]
-#define SWIGTYPE_p_std__invalid_argument swig_types[104]
-#define SWIGTYPE_p_std__vectorT_boost__shared_ptrT_Skeleton__DirectorExample_t_std__allocatorT_boost__shared_ptrT_Skeleton__DirectorExample_t_t_t swig_types[105]
-#define SWIGTYPE_p_std__vectorT_int_std__allocatorT_int_t_t swig_types[106]
-#define SWIGTYPE_p_std__vectorT_std__vectorT_boost__shared_ptrT_Skeleton__DirectorExample_t_std__allocatorT_boost__shared_ptrT_Skeleton__DirectorExample_t_t_t_std__allocatorT_std__vectorT_boost__shared_ptrT_Skeleton__DirectorExample_t_std__allocatorT_boost__shared_ptrT_Skeleton__DirectorExample_t_t_t_t_t swig_types[107]
-#define SWIGTYPE_p_std__vectorT_std__vectorT_int_std__allocatorT_int_t_t_std__allocatorT_std__vectorT_int_std__allocatorT_int_t_t_t_t swig_types[108]
-#define SWIGTYPE_p_swig__SwigPyIterator swig_types[109]
-#define SWIGTYPE_p_traits_type swig_types[110]
-#define SWIGTYPE_p_value_type swig_types[111]
-static swig_type_info *swig_types[113];
-static swig_module_info swig_module = {swig_types, 112, 0, 0, 0, 0};
+#define SWIGTYPE_p_Skeleton__DirectorExampleWeakPtr swig_types[2]
+#define SWIGTYPE_p_Skeleton__GenericObject swig_types[3]
+#define SWIGTYPE_p_SwigDirector_DirectorExample swig_types[4]
+#define SWIGTYPE_p_allocator_type swig_types[5]
+#define SWIGTYPE_p_blitz__ArrayT_bool_1_t swig_types[6]
+#define SWIGTYPE_p_blitz__ArrayT_bool_2_t swig_types[7]
+#define SWIGTYPE_p_blitz__ArrayT_bool_3_t swig_types[8]
+#define SWIGTYPE_p_blitz__ArrayT_bool_4_t swig_types[9]
+#define SWIGTYPE_p_blitz__ArrayT_bool_5_t swig_types[10]
+#define SWIGTYPE_p_blitz__ArrayT_bool_6_t swig_types[11]
+#define SWIGTYPE_p_blitz__ArrayT_bool_7_t swig_types[12]
+#define SWIGTYPE_p_blitz__ArrayT_bool_8_t swig_types[13]
+#define SWIGTYPE_p_blitz__ArrayT_char_1_t swig_types[14]
+#define SWIGTYPE_p_blitz__ArrayT_char_2_t swig_types[15]
+#define SWIGTYPE_p_blitz__ArrayT_char_3_t swig_types[16]
+#define SWIGTYPE_p_blitz__ArrayT_char_4_t swig_types[17]
+#define SWIGTYPE_p_blitz__ArrayT_char_5_t swig_types[18]
+#define SWIGTYPE_p_blitz__ArrayT_char_6_t swig_types[19]
+#define SWIGTYPE_p_blitz__ArrayT_char_7_t swig_types[20]
+#define SWIGTYPE_p_blitz__ArrayT_char_8_t swig_types[21]
+#define SWIGTYPE_p_blitz__ArrayT_double_1_t swig_types[22]
+#define SWIGTYPE_p_blitz__ArrayT_double_2_t swig_types[23]
+#define SWIGTYPE_p_blitz__ArrayT_double_3_t swig_types[24]
+#define SWIGTYPE_p_blitz__ArrayT_double_4_t swig_types[25]
+#define SWIGTYPE_p_blitz__ArrayT_double_5_t swig_types[26]
+#define SWIGTYPE_p_blitz__ArrayT_double_6_t swig_types[27]
+#define SWIGTYPE_p_blitz__ArrayT_double_7_t swig_types[28]
+#define SWIGTYPE_p_blitz__ArrayT_double_8_t swig_types[29]
+#define SWIGTYPE_p_blitz__ArrayT_float_1_t swig_types[30]
+#define SWIGTYPE_p_blitz__ArrayT_float_2_t swig_types[31]
+#define SWIGTYPE_p_blitz__ArrayT_float_3_t swig_types[32]
+#define SWIGTYPE_p_blitz__ArrayT_float_4_t swig_types[33]
+#define SWIGTYPE_p_blitz__ArrayT_float_5_t swig_types[34]
+#define SWIGTYPE_p_blitz__ArrayT_float_6_t swig_types[35]
+#define SWIGTYPE_p_blitz__ArrayT_float_7_t swig_types[36]
+#define SWIGTYPE_p_blitz__ArrayT_float_8_t swig_types[37]
+#define SWIGTYPE_p_blitz__ArrayT_int_1_t swig_types[38]
+#define SWIGTYPE_p_blitz__ArrayT_int_2_t swig_types[39]
+#define SWIGTYPE_p_blitz__ArrayT_int_3_t swig_types[40]
+#define SWIGTYPE_p_blitz__ArrayT_int_4_t swig_types[41]
+#define SWIGTYPE_p_blitz__ArrayT_int_5_t swig_types[42]
+#define SWIGTYPE_p_blitz__ArrayT_int_6_t swig_types[43]
+#define SWIGTYPE_p_blitz__ArrayT_int_7_t swig_types[44]
+#define SWIGTYPE_p_blitz__ArrayT_int_8_t swig_types[45]
+#define SWIGTYPE_p_blitz__ArrayT_short_1_t swig_types[46]
+#define SWIGTYPE_p_blitz__ArrayT_short_2_t swig_types[47]
+#define SWIGTYPE_p_blitz__ArrayT_short_3_t swig_types[48]
+#define SWIGTYPE_p_blitz__ArrayT_short_4_t swig_types[49]
+#define SWIGTYPE_p_blitz__ArrayT_short_5_t swig_types[50]
+#define SWIGTYPE_p_blitz__ArrayT_short_6_t swig_types[51]
+#define SWIGTYPE_p_blitz__ArrayT_short_7_t swig_types[52]
+#define SWIGTYPE_p_blitz__ArrayT_short_8_t swig_types[53]
+#define SWIGTYPE_p_blitz__ArrayT_unsigned_char_1_t swig_types[54]
+#define SWIGTYPE_p_blitz__ArrayT_unsigned_char_2_t swig_types[55]
+#define SWIGTYPE_p_blitz__ArrayT_unsigned_char_3_t swig_types[56]
+#define SWIGTYPE_p_blitz__ArrayT_unsigned_char_4_t swig_types[57]
+#define SWIGTYPE_p_blitz__ArrayT_unsigned_char_5_t swig_types[58]
+#define SWIGTYPE_p_blitz__ArrayT_unsigned_char_6_t swig_types[59]
+#define SWIGTYPE_p_blitz__ArrayT_unsigned_char_7_t swig_types[60]
+#define SWIGTYPE_p_blitz__ArrayT_unsigned_char_8_t swig_types[61]
+#define SWIGTYPE_p_blitz__ArrayT_unsigned_int_1_t swig_types[62]
+#define SWIGTYPE_p_blitz__ArrayT_unsigned_int_2_t swig_types[63]
+#define SWIGTYPE_p_blitz__ArrayT_unsigned_int_3_t swig_types[64]
+#define SWIGTYPE_p_blitz__ArrayT_unsigned_int_4_t swig_types[65]
+#define SWIGTYPE_p_blitz__ArrayT_unsigned_int_5_t swig_types[66]
+#define SWIGTYPE_p_blitz__ArrayT_unsigned_int_6_t swig_types[67]
+#define SWIGTYPE_p_blitz__ArrayT_unsigned_int_7_t swig_types[68]
+#define SWIGTYPE_p_blitz__ArrayT_unsigned_int_8_t swig_types[69]
+#define SWIGTYPE_p_blitz__ArrayT_unsigned_short_1_t swig_types[70]
+#define SWIGTYPE_p_blitz__ArrayT_unsigned_short_2_t swig_types[71]
+#define SWIGTYPE_p_blitz__ArrayT_unsigned_short_3_t swig_types[72]
+#define SWIGTYPE_p_blitz__ArrayT_unsigned_short_4_t swig_types[73]
+#define SWIGTYPE_p_blitz__ArrayT_unsigned_short_5_t swig_types[74]
+#define SWIGTYPE_p_blitz__ArrayT_unsigned_short_6_t swig_types[75]
+#define SWIGTYPE_p_blitz__ArrayT_unsigned_short_7_t swig_types[76]
+#define SWIGTYPE_p_blitz__ArrayT_unsigned_short_8_t swig_types[77]
+#define SWIGTYPE_p_blitz__Range swig_types[78]
+#define SWIGTYPE_p_boost__shared_ptrT_Skeleton__DirectorExampleUser_t swig_types[79]
+#define SWIGTYPE_p_boost__shared_ptrT_Skeleton__DirectorExampleWeakPtr_t swig_types[80]
+#define SWIGTYPE_p_boost__shared_ptrT_Skeleton__DirectorExample_t swig_types[81]
+#define SWIGTYPE_p_boost__shared_ptrT_Skeleton__GenericObject_t swig_types[82]
+#define SWIGTYPE_p_boost__shared_ptrT_SwigDirector_DirectorExample_t swig_types[83]
+#define SWIGTYPE_p_char swig_types[84]
+#define SWIGTYPE_p_char_type swig_types[85]
+#define SWIGTYPE_p_difference_type swig_types[86]
+#define SWIGTYPE_p_fmtflags swig_types[87]
+#define SWIGTYPE_p_int_type swig_types[88]
+#define SWIGTYPE_p_iostate swig_types[89]
+#define SWIGTYPE_p_off_type swig_types[90]
+#define SWIGTYPE_p_openmode swig_types[91]
+#define SWIGTYPE_p_p_PyObject swig_types[92]
+#define SWIGTYPE_p_pos_type swig_types[93]
+#define SWIGTYPE_p_seekdir swig_types[94]
+#define SWIGTYPE_p_size_t swig_types[95]
+#define SWIGTYPE_p_size_type swig_types[96]
+#define SWIGTYPE_p_state_type swig_types[97]
+#define SWIGTYPE_p_std__allocatorT_boost__shared_ptrT_Skeleton__DirectorExample_t_t swig_types[98]
+#define SWIGTYPE_p_std__allocatorT_int_t swig_types[99]
+#define SWIGTYPE_p_std__allocatorT_std__vectorT_boost__shared_ptrT_Skeleton__DirectorExample_t_std__allocatorT_boost__shared_ptrT_Skeleton__DirectorExample_t_t_t_t swig_types[100]
+#define SWIGTYPE_p_std__allocatorT_std__vectorT_int_std__allocatorT_int_t_t_t swig_types[101]
+#define SWIGTYPE_p_std__basic_iosT_char_std__char_traitsT_char_t_t swig_types[102]
+#define SWIGTYPE_p_std__basic_iostreamT_char_std__char_traitsT_char_t_t swig_types[103]
+#define SWIGTYPE_p_std__basic_istreamT_char_std__char_traitsT_char_t_t swig_types[104]
+#define SWIGTYPE_p_std__basic_ostreamT_char_std__char_traitsT_char_t_t swig_types[105]
+#define SWIGTYPE_p_std__invalid_argument swig_types[106]
+#define SWIGTYPE_p_std__vectorT_boost__shared_ptrT_Skeleton__DirectorExample_t_std__allocatorT_boost__shared_ptrT_Skeleton__DirectorExample_t_t_t swig_types[107]
+#define SWIGTYPE_p_std__vectorT_int_std__allocatorT_int_t_t swig_types[108]
+#define SWIGTYPE_p_std__vectorT_std__vectorT_boost__shared_ptrT_Skeleton__DirectorExample_t_std__allocatorT_boost__shared_ptrT_Skeleton__DirectorExample_t_t_t_std__allocatorT_std__vectorT_boost__shared_ptrT_Skeleton__DirectorExample_t_std__allocatorT_boost__shared_ptrT_Skeleton__DirectorExample_t_t_t_t_t swig_types[109]
+#define SWIGTYPE_p_std__vectorT_std__vectorT_int_std__allocatorT_int_t_t_std__allocatorT_std__vectorT_int_std__allocatorT_int_t_t_t_t swig_types[110]
+#define SWIGTYPE_p_swig__SwigPyIterator swig_types[111]
+#define SWIGTYPE_p_traits_type swig_types[112]
+#define SWIGTYPE_p_value_type swig_types[113]
+static swig_type_info *swig_types[115];
+static swig_module_info swig_module = {swig_types, 114, 0, 0, 0, 0};
 #define SWIG_TypeQuery(name) SWIG_TypeQueryModule(&swig_module, &swig_module, name)
 #define SWIG_MangledTypeQuery(name) SWIG_MangledTypeQueryModule(&swig_module, &swig_module, name)
 
@@ -16107,18 +16109,16 @@ fail:
 }
 
 
-SWIGINTERN PyObject *_wrap_DirectorExample_value_to_add(PyObject *self, PyObject *args) {
+SWIGINTERN PyObject *_wrap_DirectorExample_value_to_add__SWIG_0(PyObject *self, Py_ssize_t nobjs, PyObject **swig_obj) {
   PyObject *resultobj = 0;
   Skeleton::DirectorExample *arg1 = (Skeleton::DirectorExample *) 0 ;
   void *argp1 = 0 ;
   int res1 = 0 ;
   boost::shared_ptr< Skeleton::DirectorExample const > tempshared1 ;
   boost::shared_ptr< Skeleton::DirectorExample const > *smartarg1 = 0 ;
-  PyObject *swig_obj[1] ;
   int result;
   
-  if (!args) SWIG_fail;
-  swig_obj[0] = args;
+  if ((nobjs < 1) || (nobjs > 1)) SWIG_fail;
   {
     int newmem = 0;
     res1 = SWIG_ConvertPtrAndOwn(swig_obj[0], &argp1, SWIGTYPE_p_boost__shared_ptrT_Skeleton__DirectorExample_t, 0 |  0 , &newmem);
@@ -16147,6 +16147,82 @@ SWIGINTERN PyObject *_wrap_DirectorExample_value_to_add(PyObject *self, PyObject
   return resultobj;
 fail:
   return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_DirectorExample_value_to_add__SWIG_1(PyObject *self, Py_ssize_t nobjs, PyObject **swig_obj) {
+  PyObject *resultobj = 0;
+  Skeleton::DirectorExample *arg1 = (Skeleton::DirectorExample *) 0 ;
+  int arg2 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  boost::shared_ptr< Skeleton::DirectorExample > tempshared1 ;
+  boost::shared_ptr< Skeleton::DirectorExample > *smartarg1 = 0 ;
+  int val2 ;
+  int ecode2 = 0 ;
+  
+  if ((nobjs < 2) || (nobjs > 2)) SWIG_fail;
+  {
+    int newmem = 0;
+    res1 = SWIG_ConvertPtrAndOwn(swig_obj[0], &argp1, SWIGTYPE_p_boost__shared_ptrT_Skeleton__DirectorExample_t, 0 |  0 , &newmem);
+    if (!SWIG_IsOK(res1)) {
+      SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "DirectorExample_value_to_add" "', argument " "1"" of type '" "Skeleton::DirectorExample *""'");
+    }
+    if (newmem & SWIG_CAST_NEW_MEMORY) {
+      tempshared1 = *reinterpret_cast< boost::shared_ptr<  Skeleton::DirectorExample > * >(argp1);
+      delete reinterpret_cast< boost::shared_ptr<  Skeleton::DirectorExample > * >(argp1);
+      arg1 = const_cast< Skeleton::DirectorExample * >(tempshared1.get());
+    } else {
+      smartarg1 = reinterpret_cast< boost::shared_ptr<  Skeleton::DirectorExample > * >(argp1);
+      arg1 = const_cast< Skeleton::DirectorExample * >((smartarg1 ? smartarg1->get() : 0));
+    }
+  }
+  ecode2 = SWIG_AsVal_int(swig_obj[1], &val2);
+  if (!SWIG_IsOK(ecode2)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode2), "in method '" "DirectorExample_value_to_add" "', argument " "2"" of type '" "int""'");
+  } 
+  arg2 = static_cast< int >(val2);
+  {
+    try {
+      (arg1)->value_to_add(arg2);
+    } catch (Swig::DirectorException &e) {
+      SWIG_fail; 
+    } catch (const std::exception& e) {
+      SWIG_exception(SWIG_RuntimeError, e.what());
+    }
+  }
+  resultobj = SWIG_Py_Void();
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_DirectorExample_value_to_add(PyObject *self, PyObject *args) {
+  Py_ssize_t argc;
+  PyObject *argv[3] = {
+    0
+  };
+  
+  if (!(argc = SWIG_Python_UnpackTuple(args, "DirectorExample_value_to_add", 0, 2, argv))) SWIG_fail;
+  --argc;
+  if (argc == 1) {
+    PyObject *retobj = _wrap_DirectorExample_value_to_add__SWIG_0(self, argc, argv);
+    if (!SWIG_Python_TypeErrorOccurred(retobj)) return retobj;
+    SWIG_fail;
+  }
+  if (argc == 2) {
+    PyObject *retobj = _wrap_DirectorExample_value_to_add__SWIG_1(self, argc, argv);
+    if (!SWIG_Python_TypeErrorOccurred(retobj)) return retobj;
+    SWIG_fail;
+  }
+  
+fail:
+  SWIG_Python_RaiseOrModifyTypeError("Wrong number or type of arguments for overloaded function 'DirectorExample_value_to_add'.\n"
+    "  Possible C/C++ prototypes are:\n"
+    "    Skeleton::DirectorExample::value_to_add() const\n"
+    "    Skeleton::DirectorExample::value_to_add(int)\n");
+  return 0;
 }
 
 
@@ -16342,6 +16418,293 @@ SWIGINTERN PyObject *DirectorExample_swigregister(PyObject *SWIGUNUSEDPARM(self)
 }
 
 SWIGINTERN PyObject *DirectorExample_swiginit(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  return SWIG_Python_InitShadowInstance(args);
+}
+
+SWIGINTERN PyObject *_wrap_new_DirectorExampleWeakPtr(PyObject *self, PyObject *args) {
+  PyObject *resultobj = 0;
+  boost::shared_ptr< Skeleton::DirectorExample > *arg1 = 0 ;
+  void *argp1 ;
+  int res1 = 0 ;
+  boost::shared_ptr< Skeleton::DirectorExample > tempshared1 ;
+  boost::shared_ptr< Skeleton::DirectorExample > temp2shared1 ;
+  PyObject *swig_obj[1] ;
+  Skeleton::DirectorExampleWeakPtr *result = 0 ;
+  
+  if (!args) SWIG_fail;
+  swig_obj[0] = args;
+  {
+    int newmem = 0;
+    res1 = SWIG_ConvertPtrAndOwn(swig_obj[0], &argp1, SWIGTYPE_p_boost__shared_ptrT_Skeleton__DirectorExample_t,  0 , &newmem);
+    if (!SWIG_IsOK(res1)) {
+      SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "new_DirectorExampleWeakPtr" "', argument " "1"" of type '" "boost::shared_ptr< Skeleton::DirectorExample > const &""'");
+    }
+    if (newmem & SWIG_CAST_NEW_MEMORY) {
+      if (argp1) tempshared1 = *reinterpret_cast< boost::shared_ptr< Skeleton::DirectorExample > * >(argp1);
+      delete reinterpret_cast< boost::shared_ptr< Skeleton::DirectorExample > * >(argp1);
+      arg1 = &tempshared1;
+    } else {
+      arg1 = (argp1) ? reinterpret_cast< boost::shared_ptr< Skeleton::DirectorExample > * >(argp1) : &tempshared1;
+    }
+    // Added mms
+    // Special handling if this is a director class.
+    // See DirectorNotes.md for discussion of this.
+    Swig::Director* dp = dynamic_cast<Swig::Director*>(arg1->get());
+    if(dp) {
+      temp2shared1.reset(arg1->get(), PythonRefPtrCleanup(dp->swig_get_self()));
+      arg1 = &temp2shared1;
+    }
+  }
+  {
+    try {
+      result = (Skeleton::DirectorExampleWeakPtr *)new Skeleton::DirectorExampleWeakPtr((boost::shared_ptr< Skeleton::DirectorExample > const &)*arg1);
+    } catch (Swig::DirectorException &e) {
+      SWIG_fail; 
+    } catch (const std::exception& e) {
+      SWIG_exception(SWIG_RuntimeError, e.what());
+    }
+  }
+  {
+    boost::shared_ptr<  Skeleton::DirectorExampleWeakPtr > *smartresult = result ? new boost::shared_ptr<  Skeleton::DirectorExampleWeakPtr >(result SWIG_NO_NULL_DELETER_SWIG_POINTER_NEW) : 0;
+    resultobj = SWIG_NewPointerObj(SWIG_as_voidptr(smartresult), SWIGTYPE_p_boost__shared_ptrT_Skeleton__DirectorExampleWeakPtr_t, SWIG_POINTER_NEW | SWIG_POINTER_OWN);
+  }
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_DirectorExampleWeakPtr___str__(PyObject *self, PyObject *args) {
+  PyObject *resultobj = 0;
+  Skeleton::DirectorExampleWeakPtr *arg1 = (Skeleton::DirectorExampleWeakPtr *) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  boost::shared_ptr< Skeleton::DirectorExampleWeakPtr const > tempshared1 ;
+  boost::shared_ptr< Skeleton::DirectorExampleWeakPtr const > *smartarg1 = 0 ;
+  PyObject *swig_obj[1] ;
+  std::string result;
+  
+  if (!args) SWIG_fail;
+  swig_obj[0] = args;
+  {
+    int newmem = 0;
+    res1 = SWIG_ConvertPtrAndOwn(swig_obj[0], &argp1, SWIGTYPE_p_boost__shared_ptrT_Skeleton__DirectorExampleWeakPtr_t, 0 |  0 , &newmem);
+    if (!SWIG_IsOK(res1)) {
+      SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "DirectorExampleWeakPtr___str__" "', argument " "1"" of type '" "Skeleton::DirectorExampleWeakPtr const *""'");
+    }
+    if (newmem & SWIG_CAST_NEW_MEMORY) {
+      tempshared1 = *reinterpret_cast< boost::shared_ptr< const Skeleton::DirectorExampleWeakPtr > * >(argp1);
+      delete reinterpret_cast< boost::shared_ptr< const Skeleton::DirectorExampleWeakPtr > * >(argp1);
+      arg1 = const_cast< Skeleton::DirectorExampleWeakPtr * >(tempshared1.get());
+    } else {
+      smartarg1 = reinterpret_cast< boost::shared_ptr< const Skeleton::DirectorExampleWeakPtr > * >(argp1);
+      arg1 = const_cast< Skeleton::DirectorExampleWeakPtr * >((smartarg1 ? smartarg1->get() : 0));
+    }
+  }
+  {
+    try {
+      result = ((Skeleton::DirectorExampleWeakPtr const *)arg1)->print_to_string();
+    } catch (Swig::DirectorException &e) {
+      SWIG_fail; 
+    } catch (const std::exception& e) {
+      SWIG_exception(SWIG_RuntimeError, e.what());
+    }
+  }
+  resultobj = SWIG_From_std_string(static_cast< std::string >(result));
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_DirectorExampleWeakPtr_a__SWIG_0(PyObject *self, Py_ssize_t nobjs, PyObject **swig_obj) {
+  PyObject *resultobj = 0;
+  Skeleton::DirectorExampleWeakPtr *arg1 = (Skeleton::DirectorExampleWeakPtr *) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  boost::shared_ptr< Skeleton::DirectorExampleWeakPtr const > tempshared1 ;
+  boost::shared_ptr< Skeleton::DirectorExampleWeakPtr const > *smartarg1 = 0 ;
+  boost::shared_ptr< Skeleton::DirectorExample > result;
+  
+  if ((nobjs < 1) || (nobjs > 1)) SWIG_fail;
+  {
+    int newmem = 0;
+    res1 = SWIG_ConvertPtrAndOwn(swig_obj[0], &argp1, SWIGTYPE_p_boost__shared_ptrT_Skeleton__DirectorExampleWeakPtr_t, 0 |  0 , &newmem);
+    if (!SWIG_IsOK(res1)) {
+      SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "DirectorExampleWeakPtr_a" "', argument " "1"" of type '" "Skeleton::DirectorExampleWeakPtr const *""'");
+    }
+    if (newmem & SWIG_CAST_NEW_MEMORY) {
+      tempshared1 = *reinterpret_cast< boost::shared_ptr< const Skeleton::DirectorExampleWeakPtr > * >(argp1);
+      delete reinterpret_cast< boost::shared_ptr< const Skeleton::DirectorExampleWeakPtr > * >(argp1);
+      arg1 = const_cast< Skeleton::DirectorExampleWeakPtr * >(tempshared1.get());
+    } else {
+      smartarg1 = reinterpret_cast< boost::shared_ptr< const Skeleton::DirectorExampleWeakPtr > * >(argp1);
+      arg1 = const_cast< Skeleton::DirectorExampleWeakPtr * >((smartarg1 ? smartarg1->get() : 0));
+    }
+  }
+  {
+    try {
+      result = ((Skeleton::DirectorExampleWeakPtr const *)arg1)->a();
+    } catch (Swig::DirectorException &e) {
+      SWIG_fail; 
+    } catch (const std::exception& e) {
+      SWIG_exception(SWIG_RuntimeError, e.what());
+    }
+  }
+  {
+    resultobj = Skeleton::swig_to_python(result);
+  }
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_DirectorExampleWeakPtr_a__SWIG_1(PyObject *self, Py_ssize_t nobjs, PyObject **swig_obj) {
+  PyObject *resultobj = 0;
+  Skeleton::DirectorExampleWeakPtr *arg1 = (Skeleton::DirectorExampleWeakPtr *) 0 ;
+  boost::shared_ptr< Skeleton::DirectorExample > *arg2 = 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  boost::shared_ptr< Skeleton::DirectorExampleWeakPtr > tempshared1 ;
+  boost::shared_ptr< Skeleton::DirectorExampleWeakPtr > *smartarg1 = 0 ;
+  void *argp2 ;
+  int res2 = 0 ;
+  boost::shared_ptr< Skeleton::DirectorExample > tempshared2 ;
+  boost::shared_ptr< Skeleton::DirectorExample > temp2shared2 ;
+  
+  if ((nobjs < 2) || (nobjs > 2)) SWIG_fail;
+  {
+    int newmem = 0;
+    res1 = SWIG_ConvertPtrAndOwn(swig_obj[0], &argp1, SWIGTYPE_p_boost__shared_ptrT_Skeleton__DirectorExampleWeakPtr_t, 0 |  0 , &newmem);
+    if (!SWIG_IsOK(res1)) {
+      SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "DirectorExampleWeakPtr_a" "', argument " "1"" of type '" "Skeleton::DirectorExampleWeakPtr *""'");
+    }
+    if (newmem & SWIG_CAST_NEW_MEMORY) {
+      tempshared1 = *reinterpret_cast< boost::shared_ptr<  Skeleton::DirectorExampleWeakPtr > * >(argp1);
+      delete reinterpret_cast< boost::shared_ptr<  Skeleton::DirectorExampleWeakPtr > * >(argp1);
+      arg1 = const_cast< Skeleton::DirectorExampleWeakPtr * >(tempshared1.get());
+    } else {
+      smartarg1 = reinterpret_cast< boost::shared_ptr<  Skeleton::DirectorExampleWeakPtr > * >(argp1);
+      arg1 = const_cast< Skeleton::DirectorExampleWeakPtr * >((smartarg1 ? smartarg1->get() : 0));
+    }
+  }
+  {
+    int newmem = 0;
+    res2 = SWIG_ConvertPtrAndOwn(swig_obj[1], &argp2, SWIGTYPE_p_boost__shared_ptrT_Skeleton__DirectorExample_t,  0 , &newmem);
+    if (!SWIG_IsOK(res2)) {
+      SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "DirectorExampleWeakPtr_a" "', argument " "2"" of type '" "boost::shared_ptr< Skeleton::DirectorExample > const &""'");
+    }
+    if (newmem & SWIG_CAST_NEW_MEMORY) {
+      if (argp2) tempshared2 = *reinterpret_cast< boost::shared_ptr< Skeleton::DirectorExample > * >(argp2);
+      delete reinterpret_cast< boost::shared_ptr< Skeleton::DirectorExample > * >(argp2);
+      arg2 = &tempshared2;
+    } else {
+      arg2 = (argp2) ? reinterpret_cast< boost::shared_ptr< Skeleton::DirectorExample > * >(argp2) : &tempshared2;
+    }
+    // Added mms
+    // Special handling if this is a director class.
+    // See DirectorNotes.md for discussion of this.
+    Swig::Director* dp = dynamic_cast<Swig::Director*>(arg2->get());
+    if(dp) {
+      temp2shared2.reset(arg2->get(), PythonRefPtrCleanup(dp->swig_get_self()));
+      arg2 = &temp2shared2;
+    }
+  }
+  {
+    try {
+      (arg1)->a((boost::shared_ptr< Skeleton::DirectorExample > const &)*arg2);
+    } catch (Swig::DirectorException &e) {
+      SWIG_fail; 
+    } catch (const std::exception& e) {
+      SWIG_exception(SWIG_RuntimeError, e.what());
+    }
+  }
+  resultobj = SWIG_Py_Void();
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_DirectorExampleWeakPtr_a(PyObject *self, PyObject *args) {
+  Py_ssize_t argc;
+  PyObject *argv[3] = {
+    0
+  };
+  
+  if (!(argc = SWIG_Python_UnpackTuple(args, "DirectorExampleWeakPtr_a", 0, 2, argv))) SWIG_fail;
+  --argc;
+  if (argc == 1) {
+    PyObject *retobj = _wrap_DirectorExampleWeakPtr_a__SWIG_0(self, argc, argv);
+    if (!SWIG_Python_TypeErrorOccurred(retobj)) return retobj;
+    SWIG_fail;
+  }
+  if (argc == 2) {
+    PyObject *retobj = _wrap_DirectorExampleWeakPtr_a__SWIG_1(self, argc, argv);
+    if (!SWIG_Python_TypeErrorOccurred(retobj)) return retobj;
+    SWIG_fail;
+  }
+  
+fail:
+  SWIG_Python_RaiseOrModifyTypeError("Wrong number or type of arguments for overloaded function 'DirectorExampleWeakPtr_a'.\n"
+    "  Possible C/C++ prototypes are:\n"
+    "    Skeleton::DirectorExampleWeakPtr::a() const\n"
+    "    Skeleton::DirectorExampleWeakPtr::a(boost::shared_ptr< Skeleton::DirectorExample > const &)\n");
+  return 0;
+}
+
+
+SWIGINTERN PyObject *_wrap_delete_DirectorExampleWeakPtr(PyObject *self, PyObject *args) {
+  PyObject *resultobj = 0;
+  Skeleton::DirectorExampleWeakPtr *arg1 = (Skeleton::DirectorExampleWeakPtr *) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  boost::shared_ptr< Skeleton::DirectorExampleWeakPtr > tempshared1 ;
+  boost::shared_ptr< Skeleton::DirectorExampleWeakPtr > *smartarg1 = 0 ;
+  PyObject *swig_obj[1] ;
+  
+  if (!args) SWIG_fail;
+  swig_obj[0] = args;
+  {
+    int newmem = 0;
+    res1 = SWIG_ConvertPtrAndOwn(swig_obj[0], &argp1, SWIGTYPE_p_boost__shared_ptrT_Skeleton__DirectorExampleWeakPtr_t, 0 |  0 , &newmem);
+    if (!SWIG_IsOK(res1)) {
+      SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "delete_DirectorExampleWeakPtr" "', argument " "1"" of type '" "Skeleton::DirectorExampleWeakPtr *""'");
+    }
+    if (newmem & SWIG_CAST_NEW_MEMORY) {
+      tempshared1 = *reinterpret_cast< boost::shared_ptr<  Skeleton::DirectorExampleWeakPtr > * >(argp1);
+      delete reinterpret_cast< boost::shared_ptr<  Skeleton::DirectorExampleWeakPtr > * >(argp1);
+      arg1 = const_cast< Skeleton::DirectorExampleWeakPtr * >(tempshared1.get());
+    } else {
+      smartarg1 = reinterpret_cast< boost::shared_ptr<  Skeleton::DirectorExampleWeakPtr > * >(argp1);
+      arg1 = const_cast< Skeleton::DirectorExampleWeakPtr * >((smartarg1 ? smartarg1->get() : 0));
+    }
+  }
+  {
+    try {
+      (void)arg1; delete smartarg1;
+    } catch (Swig::DirectorException &e) {
+      SWIG_fail; 
+    } catch (const std::exception& e) {
+      SWIG_exception(SWIG_RuntimeError, e.what());
+    }
+  }
+  resultobj = SWIG_Py_Void();
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *DirectorExampleWeakPtr_swigregister(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *obj;
+  if (!SWIG_Python_UnpackTuple(args, "swigregister", 1, 1, &obj)) return NULL;
+  SWIG_TypeNewClientData(SWIGTYPE_p_boost__shared_ptrT_Skeleton__DirectorExampleWeakPtr_t, SWIG_NewClientData(obj));
+  return SWIG_Py_Void();
+}
+
+SWIGINTERN PyObject *DirectorExampleWeakPtr_swiginit(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
   return SWIG_Python_InitShadowInstance(args);
 }
 
@@ -17347,9 +17710,9 @@ static PyMethodDef SwigMethods[] = {
 		"virtual int Skeleton::DirectorExample::func(int v) const\n"
 		"\n"
 		""},
-	 { "DirectorExample_value_to_add", _wrap_DirectorExample_value_to_add, METH_O, "\n"
+	 { "DirectorExample_value_to_add", _wrap_DirectorExample_value_to_add, METH_VARARGS, "\n"
 		"\n"
-		"int Skeleton::DirectorExample::value_to_add() const\n"
+		"void Skeleton::DirectorExample::value_to_add(int v)\n"
 		"\n"
 		""},
 	 { "DirectorExample_name", _wrap_DirectorExample_name, METH_O, "\n"
@@ -17370,6 +17733,27 @@ static PyMethodDef SwigMethods[] = {
 	 { "disown_DirectorExample", _wrap_disown_DirectorExample, METH_O, NULL},
 	 { "DirectorExample_swigregister", DirectorExample_swigregister, METH_O, NULL},
 	 { "DirectorExample_swiginit", DirectorExample_swiginit, METH_VARARGS, NULL},
+	 { "new_DirectorExampleWeakPtr", _wrap_new_DirectorExampleWeakPtr, METH_O, "\n"
+		"\n"
+		"Skeleton::DirectorExampleWeakPtr::DirectorExampleWeakPtr(const boost::shared_ptr< DirectorExample > &V)\n"
+		"this).\n"
+		"\n"
+		"We'll come back to this, but for now just punt and also keep a copy of\n"
+		"a boost::shared_ptr so this doesn't go out of existence \n"
+		""},
+	 { "DirectorExampleWeakPtr___str__", _wrap_DirectorExampleWeakPtr___str__, METH_O, NULL},
+	 { "DirectorExampleWeakPtr_a", _wrap_DirectorExampleWeakPtr_a, METH_VARARGS, "\n"
+		"\n"
+		"void Skeleton::DirectorExampleWeakPtr::a(const boost::shared_ptr< DirectorExample > &V)\n"
+		"\n"
+		""},
+	 { "delete_DirectorExampleWeakPtr", _wrap_delete_DirectorExampleWeakPtr, METH_O, "\n"
+		"\n"
+		"virtual Skeleton::DirectorExampleWeakPtr::~DirectorExampleWeakPtr()\n"
+		"\n"
+		""},
+	 { "DirectorExampleWeakPtr_swigregister", DirectorExampleWeakPtr_swigregister, METH_O, NULL},
+	 { "DirectorExampleWeakPtr_swiginit", DirectorExampleWeakPtr_swiginit, METH_VARARGS, NULL},
 	 { "new_DirectorExampleUser", _wrap_new_DirectorExampleUser, METH_NOARGS, "\n"
 		"\n"
 		"Skeleton::DirectorExampleUser::DirectorExampleUser()\n"
@@ -17610,9 +17994,9 @@ static PyMethodDef SwigMethods_proxydocs[] = {
 		"virtual int Skeleton::DirectorExample::func(int v) const\n"
 		"\n"
 		""},
-	 { "DirectorExample_value_to_add", _wrap_DirectorExample_value_to_add, METH_O, "\n"
+	 { "DirectorExample_value_to_add", _wrap_DirectorExample_value_to_add, METH_VARARGS, "\n"
 		"\n"
-		"int Skeleton::DirectorExample::value_to_add() const\n"
+		"void Skeleton::DirectorExample::value_to_add(int v)\n"
 		"\n"
 		""},
 	 { "DirectorExample_name", _wrap_DirectorExample_name, METH_O, "\n"
@@ -17633,6 +18017,27 @@ static PyMethodDef SwigMethods_proxydocs[] = {
 	 { "disown_DirectorExample", _wrap_disown_DirectorExample, METH_O, NULL},
 	 { "DirectorExample_swigregister", DirectorExample_swigregister, METH_O, NULL},
 	 { "DirectorExample_swiginit", DirectorExample_swiginit, METH_VARARGS, NULL},
+	 { "new_DirectorExampleWeakPtr", _wrap_new_DirectorExampleWeakPtr, METH_O, "\n"
+		"\n"
+		"Skeleton::DirectorExampleWeakPtr::DirectorExampleWeakPtr(const boost::shared_ptr< DirectorExample > &V)\n"
+		"this).\n"
+		"\n"
+		"We'll come back to this, but for now just punt and also keep a copy of\n"
+		"a boost::shared_ptr so this doesn't go out of existence \n"
+		""},
+	 { "DirectorExampleWeakPtr___str__", _wrap_DirectorExampleWeakPtr___str__, METH_O, NULL},
+	 { "DirectorExampleWeakPtr_a", _wrap_DirectorExampleWeakPtr_a, METH_VARARGS, "\n"
+		"\n"
+		"void Skeleton::DirectorExampleWeakPtr::a(const boost::shared_ptr< DirectorExample > &V)\n"
+		"\n"
+		""},
+	 { "delete_DirectorExampleWeakPtr", _wrap_delete_DirectorExampleWeakPtr, METH_O, "\n"
+		"\n"
+		"virtual Skeleton::DirectorExampleWeakPtr::~DirectorExampleWeakPtr()\n"
+		"\n"
+		""},
+	 { "DirectorExampleWeakPtr_swigregister", DirectorExampleWeakPtr_swigregister, METH_O, NULL},
+	 { "DirectorExampleWeakPtr_swiginit", DirectorExampleWeakPtr_swiginit, METH_VARARGS, NULL},
 	 { "new_DirectorExampleUser", _wrap_new_DirectorExampleUser, METH_NOARGS, "\n"
 		"\n"
 		"Skeleton::DirectorExampleUser::DirectorExampleUser()\n"
@@ -17714,6 +18119,9 @@ static void *_p_Skeleton__DirectorExampleTo_p_Skeleton__GenericObject(void *x, i
 static void *_p_Skeleton__DirectorExampleUserTo_p_Skeleton__GenericObject(void *x, int *SWIGUNUSEDPARM(newmemory)) {
     return (void *)((Skeleton::GenericObject *)  ((Skeleton::DirectorExampleUser *) x));
 }
+static void *_p_Skeleton__DirectorExampleWeakPtrTo_p_Skeleton__GenericObject(void *x, int *SWIGUNUSEDPARM(newmemory)) {
+    return (void *)((Skeleton::GenericObject *)  ((Skeleton::DirectorExampleWeakPtr *) x));
+}
 static void *_p_boost__shared_ptrT_Skeleton__DirectorExample_tTo_p_boost__shared_ptrT_Skeleton__GenericObject_t(void *x, int *newmemory) {
     *newmemory = SWIG_CAST_NEW_MEMORY;
     return (void *) new boost::shared_ptr< Skeleton::GenericObject >(*(boost::shared_ptr< Skeleton::DirectorExample > *)x);
@@ -17721,6 +18129,10 @@ static void *_p_boost__shared_ptrT_Skeleton__DirectorExample_tTo_p_boost__shared
 static void *_p_boost__shared_ptrT_Skeleton__DirectorExampleUser_tTo_p_boost__shared_ptrT_Skeleton__GenericObject_t(void *x, int *newmemory) {
     *newmemory = SWIG_CAST_NEW_MEMORY;
     return (void *) new boost::shared_ptr< Skeleton::GenericObject >(*(boost::shared_ptr< Skeleton::DirectorExampleUser > *)x);
+}
+static void *_p_boost__shared_ptrT_Skeleton__DirectorExampleWeakPtr_tTo_p_boost__shared_ptrT_Skeleton__GenericObject_t(void *x, int *newmemory) {
+    *newmemory = SWIG_CAST_NEW_MEMORY;
+    return (void *) new boost::shared_ptr< Skeleton::GenericObject >(*(boost::shared_ptr< Skeleton::DirectorExampleWeakPtr > *)x);
 }
 static void *_p_std__basic_iostreamT_char_std__char_traitsT_char_t_tTo_p_std__basic_iosT_char_std__char_traitsT_char_t_t(void *x, int *SWIGUNUSEDPARM(newmemory)) {
     return (void *)((std::basic_ios< char,std::char_traits< char > > *) (std::basic_istream< char > *) ((std::basic_iostream< char,std::char_traits< char > > *) x));
@@ -17739,6 +18151,7 @@ static void *_p_std__basic_iostreamT_char_std__char_traitsT_char_t_tTo_p_std__ba
 }
 static swig_type_info _swigt__p_Skeleton__DirectorExample = {"_p_Skeleton__DirectorExample", "Skeleton::DirectorExample *", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_Skeleton__DirectorExampleUser = {"_p_Skeleton__DirectorExampleUser", "Skeleton::DirectorExampleUser *", 0, 0, (void*)0, 0};
+static swig_type_info _swigt__p_Skeleton__DirectorExampleWeakPtr = {"_p_Skeleton__DirectorExampleWeakPtr", "Skeleton::DirectorExampleWeakPtr *", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_Skeleton__GenericObject = {"_p_Skeleton__GenericObject", "Skeleton::GenericObject *", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_SwigDirector_DirectorExample = {"_p_SwigDirector_DirectorExample", "SwigDirector_DirectorExample *", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_allocator_type = {"_p_allocator_type", "allocator_type *", 0, 0, (void*)0, 0};
@@ -17816,6 +18229,7 @@ static swig_type_info _swigt__p_blitz__ArrayT_unsigned_short_7_t = {"_p_blitz__A
 static swig_type_info _swigt__p_blitz__ArrayT_unsigned_short_8_t = {"_p_blitz__ArrayT_unsigned_short_8_t", "blitz::Array< unsigned short,8 > *", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_blitz__Range = {"_p_blitz__Range", "blitz::Range *", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_boost__shared_ptrT_Skeleton__DirectorExampleUser_t = {"_p_boost__shared_ptrT_Skeleton__DirectorExampleUser_t", "boost::shared_ptr< Skeleton::DirectorExampleUser > *", 0, 0, (void*)0, 0};
+static swig_type_info _swigt__p_boost__shared_ptrT_Skeleton__DirectorExampleWeakPtr_t = {"_p_boost__shared_ptrT_Skeleton__DirectorExampleWeakPtr_t", "boost::shared_ptr< Skeleton::DirectorExampleWeakPtr > *", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_boost__shared_ptrT_Skeleton__DirectorExample_t = {"_p_boost__shared_ptrT_Skeleton__DirectorExample_t", "boost::shared_ptr< Skeleton::DirectorExample > *", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_boost__shared_ptrT_Skeleton__GenericObject_t = {"_p_boost__shared_ptrT_Skeleton__GenericObject_t", "boost::shared_ptr< Skeleton::GenericObject > *", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_boost__shared_ptrT_SwigDirector_DirectorExample_t = {"_p_boost__shared_ptrT_SwigDirector_DirectorExample_t", "boost::shared_ptr< SwigDirector_DirectorExample > *", 0, 0, (void*)0, 0};
@@ -17853,6 +18267,7 @@ static swig_type_info _swigt__p_value_type = {"_p_value_type", "value_type *", 0
 static swig_type_info *swig_type_initial[] = {
   &_swigt__p_Skeleton__DirectorExample,
   &_swigt__p_Skeleton__DirectorExampleUser,
+  &_swigt__p_Skeleton__DirectorExampleWeakPtr,
   &_swigt__p_Skeleton__GenericObject,
   &_swigt__p_SwigDirector_DirectorExample,
   &_swigt__p_allocator_type,
@@ -17930,6 +18345,7 @@ static swig_type_info *swig_type_initial[] = {
   &_swigt__p_blitz__ArrayT_unsigned_short_8_t,
   &_swigt__p_blitz__Range,
   &_swigt__p_boost__shared_ptrT_Skeleton__DirectorExampleUser_t,
+  &_swigt__p_boost__shared_ptrT_Skeleton__DirectorExampleWeakPtr_t,
   &_swigt__p_boost__shared_ptrT_Skeleton__DirectorExample_t,
   &_swigt__p_boost__shared_ptrT_Skeleton__GenericObject_t,
   &_swigt__p_boost__shared_ptrT_SwigDirector_DirectorExample_t,
@@ -17967,7 +18383,8 @@ static swig_type_info *swig_type_initial[] = {
 
 static swig_cast_info _swigc__p_Skeleton__DirectorExample[] = {  {&_swigt__p_Skeleton__DirectorExample, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_Skeleton__DirectorExampleUser[] = {  {&_swigt__p_Skeleton__DirectorExampleUser, 0, 0, 0},{0, 0, 0, 0}};
-static swig_cast_info _swigc__p_Skeleton__GenericObject[] = {  {&_swigt__p_Skeleton__GenericObject, 0, 0, 0},  {&_swigt__p_Skeleton__DirectorExample, _p_Skeleton__DirectorExampleTo_p_Skeleton__GenericObject, 0, 0},  {&_swigt__p_Skeleton__DirectorExampleUser, _p_Skeleton__DirectorExampleUserTo_p_Skeleton__GenericObject, 0, 0},{0, 0, 0, 0}};
+static swig_cast_info _swigc__p_Skeleton__DirectorExampleWeakPtr[] = {  {&_swigt__p_Skeleton__DirectorExampleWeakPtr, 0, 0, 0},{0, 0, 0, 0}};
+static swig_cast_info _swigc__p_Skeleton__GenericObject[] = {  {&_swigt__p_Skeleton__GenericObject, 0, 0, 0},  {&_swigt__p_Skeleton__DirectorExample, _p_Skeleton__DirectorExampleTo_p_Skeleton__GenericObject, 0, 0},  {&_swigt__p_Skeleton__DirectorExampleUser, _p_Skeleton__DirectorExampleUserTo_p_Skeleton__GenericObject, 0, 0},  {&_swigt__p_Skeleton__DirectorExampleWeakPtr, _p_Skeleton__DirectorExampleWeakPtrTo_p_Skeleton__GenericObject, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_SwigDirector_DirectorExample[] = {  {&_swigt__p_SwigDirector_DirectorExample, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_allocator_type[] = {  {&_swigt__p_allocator_type, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_blitz__ArrayT_bool_1_t[] = {  {&_swigt__p_blitz__ArrayT_bool_1_t, 0, 0, 0},{0, 0, 0, 0}};
@@ -18044,8 +18461,9 @@ static swig_cast_info _swigc__p_blitz__ArrayT_unsigned_short_7_t[] = {  {&_swigt
 static swig_cast_info _swigc__p_blitz__ArrayT_unsigned_short_8_t[] = {  {&_swigt__p_blitz__ArrayT_unsigned_short_8_t, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_blitz__Range[] = {  {&_swigt__p_blitz__Range, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_boost__shared_ptrT_Skeleton__DirectorExampleUser_t[] = {  {&_swigt__p_boost__shared_ptrT_Skeleton__DirectorExampleUser_t, 0, 0, 0},{0, 0, 0, 0}};
+static swig_cast_info _swigc__p_boost__shared_ptrT_Skeleton__DirectorExampleWeakPtr_t[] = {  {&_swigt__p_boost__shared_ptrT_Skeleton__DirectorExampleWeakPtr_t, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_boost__shared_ptrT_Skeleton__DirectorExample_t[] = {  {&_swigt__p_boost__shared_ptrT_Skeleton__DirectorExample_t, 0, 0, 0},{0, 0, 0, 0}};
-static swig_cast_info _swigc__p_boost__shared_ptrT_Skeleton__GenericObject_t[] = {  {&_swigt__p_boost__shared_ptrT_Skeleton__GenericObject_t, 0, 0, 0},  {&_swigt__p_boost__shared_ptrT_Skeleton__DirectorExampleUser_t, _p_boost__shared_ptrT_Skeleton__DirectorExampleUser_tTo_p_boost__shared_ptrT_Skeleton__GenericObject_t, 0, 0},  {&_swigt__p_boost__shared_ptrT_Skeleton__DirectorExample_t, _p_boost__shared_ptrT_Skeleton__DirectorExample_tTo_p_boost__shared_ptrT_Skeleton__GenericObject_t, 0, 0},{0, 0, 0, 0}};
+static swig_cast_info _swigc__p_boost__shared_ptrT_Skeleton__GenericObject_t[] = {  {&_swigt__p_boost__shared_ptrT_Skeleton__GenericObject_t, 0, 0, 0},  {&_swigt__p_boost__shared_ptrT_Skeleton__DirectorExampleUser_t, _p_boost__shared_ptrT_Skeleton__DirectorExampleUser_tTo_p_boost__shared_ptrT_Skeleton__GenericObject_t, 0, 0},  {&_swigt__p_boost__shared_ptrT_Skeleton__DirectorExampleWeakPtr_t, _p_boost__shared_ptrT_Skeleton__DirectorExampleWeakPtr_tTo_p_boost__shared_ptrT_Skeleton__GenericObject_t, 0, 0},  {&_swigt__p_boost__shared_ptrT_Skeleton__DirectorExample_t, _p_boost__shared_ptrT_Skeleton__DirectorExample_tTo_p_boost__shared_ptrT_Skeleton__GenericObject_t, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_boost__shared_ptrT_SwigDirector_DirectorExample_t[] = {  {&_swigt__p_boost__shared_ptrT_SwigDirector_DirectorExample_t, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_char[] = {  {&_swigt__p_char, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_char_type[] = {  {&_swigt__p_char_type, 0, 0, 0},{0, 0, 0, 0}};
@@ -18081,6 +18499,7 @@ static swig_cast_info _swigc__p_value_type[] = {  {&_swigt__p_value_type, 0, 0, 
 static swig_cast_info *swig_cast_initial[] = {
   _swigc__p_Skeleton__DirectorExample,
   _swigc__p_Skeleton__DirectorExampleUser,
+  _swigc__p_Skeleton__DirectorExampleWeakPtr,
   _swigc__p_Skeleton__GenericObject,
   _swigc__p_SwigDirector_DirectorExample,
   _swigc__p_allocator_type,
@@ -18158,6 +18577,7 @@ static swig_cast_info *swig_cast_initial[] = {
   _swigc__p_blitz__ArrayT_unsigned_short_8_t,
   _swigc__p_blitz__Range,
   _swigc__p_boost__shared_ptrT_Skeleton__DirectorExampleUser_t,
+  _swigc__p_boost__shared_ptrT_Skeleton__DirectorExampleWeakPtr_t,
   _swigc__p_boost__shared_ptrT_Skeleton__DirectorExample_t,
   _swigc__p_boost__shared_ptrT_Skeleton__GenericObject_t,
   _swigc__p_boost__shared_ptrT_SwigDirector_DirectorExample_t,
@@ -18733,6 +19153,9 @@ SWIG_init(void) {
   
   
   Skeleton::SwigTypeMapperBase::add(typeid(Skeleton::DirectorExampleUser), boost::make_shared<Skeleton::SwigTypeMapper< Skeleton::DirectorExampleUser > > ("boost::shared_ptr< Skeleton::DirectorExampleUser > *"));
+  
+  
+  Skeleton::SwigTypeMapperBase::add(typeid(Skeleton::DirectorExampleWeakPtr), boost::make_shared<Skeleton::SwigTypeMapper< Skeleton::DirectorExampleWeakPtr > > ("boost::shared_ptr< Skeleton::DirectorExampleWeakPtr > *"));
   
   
   // thread safe initialization

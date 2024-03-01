@@ -9,6 +9,7 @@
 %base_import(generic_object)
 %skeleton_shared_ptr(Skeleton::DirectorExample);
 %skeleton_shared_ptr(Skeleton::DirectorExampleUser);
+%skeleton_shared_ptr(Skeleton::DirectorExampleWeakPtr);
 
 // Note we need the template before its first use, so we have all
 // the typemaps in place.
@@ -27,6 +28,7 @@ public:
   virtual std::string desc() const;
   virtual int func(int v) const;
   int value_to_add() const;
+  void value_to_add(int v);
   const std::string& name() const;
   %pickle_serialization();
 protected:  
@@ -34,6 +36,15 @@ protected:
   DirectorExample();
 };
 
+class DirectorExampleWeakPtr : public GenericObject {
+public:
+  DirectorExampleWeakPtr(const boost::shared_ptr<DirectorExample>& V) : a_(V) {}
+  std::string print_to_string() const;
+  boost::shared_ptr<DirectorExample> a() const;
+  void a(const boost::shared_ptr<DirectorExample>& V);
+  %pickle_serialization();
+};
+  
 class DirectorExampleUser : public GenericObject {
 public:
   DirectorExampleUser();
@@ -65,6 +76,7 @@ public:
   
 // List of things "import *" will include
 %python_export("DirectorExample", "DirectorExampleUser",
+	       "DirectorExampleWeakPtr",
 	       "Vector_DirectorExample", "Vector_Vector_DirectorExample",
 	       "Vector_int", "Vector_Vector_int");
 

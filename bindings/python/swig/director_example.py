@@ -350,6 +350,42 @@ class DirectorExample(skeleton_swig.generic_object.GenericObject):
 
 # Register DirectorExample in _director_example:
 _director_example.DirectorExample_swigregister(DirectorExample)
+class DirectorExampleWeakPtr(skeleton_swig.generic_object.GenericObject):
+    r"""
+
+    A weak pointer to a DirectorExample, used to test proper handling of
+    weak pointers and also pointer tracking in the serialization code.
+
+    C++ includes: director_example.h 
+    """
+
+    thisown = property(lambda x: x.this.own(), lambda x, v: x.this.own(v), doc="The membership flag")
+    __repr__ = _swig_repr
+
+    def __init__(self, V):
+        r"""
+
+        Skeleton::DirectorExampleWeakPtr::DirectorExampleWeakPtr(const boost::shared_ptr< DirectorExample > &V)
+        this).
+
+        We'll come back to this, but for now just punt and also keep a copy of
+        a boost::shared_ptr so this doesn't go out of existence 
+        """
+        _director_example.DirectorExampleWeakPtr_swiginit(self, _director_example.new_DirectorExampleWeakPtr(V))
+    __str__ = _swig_new_instance_method(_director_example.DirectorExampleWeakPtr___str__)
+    a = _swig_new_instance_method(_director_example.DirectorExampleWeakPtr_a)
+
+    def __reduce__(self):
+    #Special handling for when we are doing boost serialization, we set
+    #"this" to None
+      if(self.this is None):
+        return super().__reduce__()
+      return _new_from_serialization, (skeleton_swig.serialize_function.serialize_write_binary(self),)
+
+    __swig_destroy__ = _director_example.delete_DirectorExampleWeakPtr
+
+# Register DirectorExampleWeakPtr in _director_example:
+_director_example.DirectorExampleWeakPtr_swigregister(DirectorExampleWeakPtr)
 class DirectorExampleUser(skeleton_swig.generic_object.GenericObject):
     r"""
 
@@ -394,6 +430,6 @@ class DirectorExampleUser(skeleton_swig.generic_object.GenericObject):
 # Register DirectorExampleUser in _director_example:
 _director_example.DirectorExampleUser_swigregister(DirectorExampleUser)
 
-__all__ = ["DirectorExample","DirectorExampleUser","Vector_DirectorExample","Vector_Vector_DirectorExample","Vector_int","Vector_Vector_int"]
+__all__ = ["DirectorExample","DirectorExampleUser","DirectorExampleWeakPtr","Vector_DirectorExample","Vector_Vector_DirectorExample","Vector_int","Vector_Vector_int"]
 
 

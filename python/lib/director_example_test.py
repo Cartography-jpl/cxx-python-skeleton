@@ -246,4 +246,41 @@ def test_director_lifetime_shelve(isolated_dir, serial):
     DirectorPythonExample.deleted_list.clear()
     print("All done with euser_s")
 
+def test_director_example_weak_ptr(isolated_dir, serial):
+    m = GenericObjectMap()
+    m["e1"] = DirectorPythonExample(5,6, "e1")
+    m["e1_weak"] = DirectorExampleWeakPtr(m.e1)
+    print(m.e1)
+    print(m.e1_weak)
+    assert m.e1.func(10) == 5+10+2*6
+    assert m.e1_weak.a().func(10) == 5+10+2*6
+    write_shelve("e1.xml", m)
+    m_s = read_shelve("e1.xml")
+    print("hi there")
+    assert m_s.e1.func(10) == 5+10+2*6
+    print("hi there 2")
+    assert m_s.e1_weak.a().func(10) == 5+10+2*6
+    print("hi there 3")
+    
+    # Check that m_s.b.a and m_s.a are the same. We can't directly compare, python
+    # has two different shared ptr so the are "different". But we can verify
+    # that the underlying C++ object is the same by changing one and making
+    # sure the other is changed also
+    m_s.e1.value_to_add(3)
+    assert m_s.e1.func(10) == 3+10+2*6
+    assert m_s.e1_weak.a().func(10) == 3+10+2*6
+    m_s.e1.v2 = 7
+    assert m_s.e1.func(10) == 3+10+2*7
+    assert m_s.e1_weak.a().func(10) == 3+10+2*7
+
+    # Do the same, but without using a GenericObjectMap. In this case, 
+    # the weak_ptr in C should be set to None.
+    a = DirectorPythonExample(5,6, "e1")
+    c = DirectorExampleWeakPtr(a)
+    t = pickle.dumps(a)
+    a2 = pickle.loads(t)
+    t = pickle.dumps(c)
+    c2 = pickle.loads(t)
+    assert a2.func(10) == 5+10+2*6
+    assert c2.a is None
     
