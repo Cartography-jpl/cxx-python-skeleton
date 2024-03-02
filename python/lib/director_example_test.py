@@ -280,6 +280,12 @@ def test_director_example_weak_ptr(isolated_dir, serial):
     c2 = read_shelve("c.xml")
     assert a2.func(10) == 5+10+2*6
     assert c2.a() is None
+    assert c.a() is not None
+    a = None
+    # This currently doesn't work, but we have test to indicate the problem.
+    if False:
+        assert c.a() is None
+    
 
     # Second version that indicates a problem. We can't really make a weak_ptr from our
     # Director python class, because at the C++ we return a different boost:shared_ptr
