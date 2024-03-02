@@ -362,16 +362,16 @@ class DirectorExampleWeakPtr(skeleton_swig.generic_object.GenericObject):
     thisown = property(lambda x: x.this.own(), lambda x, v: x.this.own(v), doc="The membership flag")
     __repr__ = _swig_repr
 
-    def __init__(self, V):
+    def __init__(self, V, use_kludge=True):
         r"""
 
-        Skeleton::DirectorExampleWeakPtr::DirectorExampleWeakPtr(const boost::shared_ptr< DirectorExample > &V)
+        Skeleton::DirectorExampleWeakPtr::DirectorExampleWeakPtr(const boost::shared_ptr< DirectorExample > &V, bool use_kludge=true)
         this).
 
         We'll come back to this, but for now just punt and also keep a copy of
         a boost::shared_ptr so this doesn't go out of existence 
         """
-        _director_example.DirectorExampleWeakPtr_swiginit(self, _director_example.new_DirectorExampleWeakPtr(V))
+        _director_example.DirectorExampleWeakPtr_swiginit(self, _director_example.new_DirectorExampleWeakPtr(V, use_kludge))
     __str__ = _swig_new_instance_method(_director_example.DirectorExampleWeakPtr___str__)
     a = _swig_new_instance_method(_director_example.DirectorExampleWeakPtr_a)
 

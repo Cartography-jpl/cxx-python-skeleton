@@ -57,9 +57,11 @@ public:
   /// this). We'll come back to this, but for now just punt and also
   /// keep a copy of a boost::shared_ptr so this doesn't go out of
   /// existence
-  DirectorExampleWeakPtr(const boost::shared_ptr<DirectorExample>& V)
-    : a_(V), vkludge(V)
+  DirectorExampleWeakPtr(const boost::shared_ptr<DirectorExample>& V, bool use_kludge = true)
+    : a_(V)
   {
+    if(use_kludge)
+      vkludge = V;
   }
   virtual ~DirectorExampleWeakPtr() {}
   void print(std::ostream& Os) const
@@ -82,7 +84,7 @@ private:
   template<class Archive>
   void serialize(Archive & ar, const unsigned int version);
 };
-  
+
 /****************************************************************//**
   Sample class to use DirectorExample, can use to make sure python
   can be passed correctly.

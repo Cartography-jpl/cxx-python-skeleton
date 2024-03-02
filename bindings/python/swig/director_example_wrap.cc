@@ -6703,6 +6703,20 @@ SWIG_From_std_string  (const std::string& s)
 }
 
 
+SWIGINTERN int
+SWIG_AsVal_bool (PyObject *obj, bool *val)
+{
+  int r;
+  if (!PyBool_Check(obj))
+    return SWIG_ERROR;
+  r = PyObject_IsTrue(obj);
+  if (r == -1)
+    return SWIG_ERROR;
+  if (val) *val = r ? true : false;
+  return SWIG_OK;
+}
+
+
 #ifndef QUOTE  
 #define Q(x)#x
 #define QUOTE(x) Q(x)
@@ -16421,18 +16435,75 @@ SWIGINTERN PyObject *DirectorExample_swiginit(PyObject *SWIGUNUSEDPARM(self), Py
   return SWIG_Python_InitShadowInstance(args);
 }
 
-SWIGINTERN PyObject *_wrap_new_DirectorExampleWeakPtr(PyObject *self, PyObject *args) {
+SWIGINTERN PyObject *_wrap_new_DirectorExampleWeakPtr__SWIG_0(PyObject *self, Py_ssize_t nobjs, PyObject **swig_obj) {
+  PyObject *resultobj = 0;
+  boost::shared_ptr< Skeleton::DirectorExample > *arg1 = 0 ;
+  bool arg2 ;
+  void *argp1 ;
+  int res1 = 0 ;
+  boost::shared_ptr< Skeleton::DirectorExample > tempshared1 ;
+  boost::shared_ptr< Skeleton::DirectorExample > temp2shared1 ;
+  bool val2 ;
+  int ecode2 = 0 ;
+  Skeleton::DirectorExampleWeakPtr *result = 0 ;
+  
+  if ((nobjs < 2) || (nobjs > 2)) SWIG_fail;
+  {
+    int newmem = 0;
+    res1 = SWIG_ConvertPtrAndOwn(swig_obj[0], &argp1, SWIGTYPE_p_boost__shared_ptrT_Skeleton__DirectorExample_t,  0 , &newmem);
+    if (!SWIG_IsOK(res1)) {
+      SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "new_DirectorExampleWeakPtr" "', argument " "1"" of type '" "boost::shared_ptr< Skeleton::DirectorExample > const &""'");
+    }
+    if (newmem & SWIG_CAST_NEW_MEMORY) {
+      if (argp1) tempshared1 = *reinterpret_cast< boost::shared_ptr< Skeleton::DirectorExample > * >(argp1);
+      delete reinterpret_cast< boost::shared_ptr< Skeleton::DirectorExample > * >(argp1);
+      arg1 = &tempshared1;
+    } else {
+      arg1 = (argp1) ? reinterpret_cast< boost::shared_ptr< Skeleton::DirectorExample > * >(argp1) : &tempshared1;
+    }
+    // Added mms
+    // Special handling if this is a director class.
+    // See DirectorNotes.md for discussion of this.
+    Swig::Director* dp = dynamic_cast<Swig::Director*>(arg1->get());
+    if(dp) {
+      temp2shared1.reset(arg1->get(), PythonRefPtrCleanup(dp->swig_get_self()));
+      arg1 = &temp2shared1;
+    }
+  }
+  ecode2 = SWIG_AsVal_bool(swig_obj[1], &val2);
+  if (!SWIG_IsOK(ecode2)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode2), "in method '" "new_DirectorExampleWeakPtr" "', argument " "2"" of type '" "bool""'");
+  } 
+  arg2 = static_cast< bool >(val2);
+  {
+    try {
+      result = (Skeleton::DirectorExampleWeakPtr *)new Skeleton::DirectorExampleWeakPtr((boost::shared_ptr< Skeleton::DirectorExample > const &)*arg1,arg2);
+    } catch (Swig::DirectorException &e) {
+      SWIG_fail; 
+    } catch (const std::exception& e) {
+      SWIG_exception(SWIG_RuntimeError, e.what());
+    }
+  }
+  {
+    boost::shared_ptr<  Skeleton::DirectorExampleWeakPtr > *smartresult = result ? new boost::shared_ptr<  Skeleton::DirectorExampleWeakPtr >(result SWIG_NO_NULL_DELETER_SWIG_POINTER_NEW) : 0;
+    resultobj = SWIG_NewPointerObj(SWIG_as_voidptr(smartresult), SWIGTYPE_p_boost__shared_ptrT_Skeleton__DirectorExampleWeakPtr_t, SWIG_POINTER_NEW | SWIG_POINTER_OWN);
+  }
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_new_DirectorExampleWeakPtr__SWIG_1(PyObject *self, Py_ssize_t nobjs, PyObject **swig_obj) {
   PyObject *resultobj = 0;
   boost::shared_ptr< Skeleton::DirectorExample > *arg1 = 0 ;
   void *argp1 ;
   int res1 = 0 ;
   boost::shared_ptr< Skeleton::DirectorExample > tempshared1 ;
   boost::shared_ptr< Skeleton::DirectorExample > temp2shared1 ;
-  PyObject *swig_obj[1] ;
   Skeleton::DirectorExampleWeakPtr *result = 0 ;
   
-  if (!args) SWIG_fail;
-  swig_obj[0] = args;
+  if ((nobjs < 1) || (nobjs > 1)) SWIG_fail;
   {
     int newmem = 0;
     res1 = SWIG_ConvertPtrAndOwn(swig_obj[0], &argp1, SWIGTYPE_p_boost__shared_ptrT_Skeleton__DirectorExample_t,  0 , &newmem);
@@ -16471,6 +16542,34 @@ SWIGINTERN PyObject *_wrap_new_DirectorExampleWeakPtr(PyObject *self, PyObject *
   return resultobj;
 fail:
   return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_new_DirectorExampleWeakPtr(PyObject *self, PyObject *args) {
+  Py_ssize_t argc;
+  PyObject *argv[3] = {
+    0
+  };
+  
+  if (!(argc = SWIG_Python_UnpackTuple(args, "new_DirectorExampleWeakPtr", 0, 2, argv))) SWIG_fail;
+  --argc;
+  if (argc == 1) {
+    PyObject *retobj = _wrap_new_DirectorExampleWeakPtr__SWIG_1(self, argc, argv);
+    if (!SWIG_Python_TypeErrorOccurred(retobj)) return retobj;
+    SWIG_fail;
+  }
+  if (argc == 2) {
+    PyObject *retobj = _wrap_new_DirectorExampleWeakPtr__SWIG_0(self, argc, argv);
+    if (!SWIG_Python_TypeErrorOccurred(retobj)) return retobj;
+    SWIG_fail;
+  }
+  
+fail:
+  SWIG_Python_RaiseOrModifyTypeError("Wrong number or type of arguments for overloaded function 'new_DirectorExampleWeakPtr'.\n"
+    "  Possible C/C++ prototypes are:\n"
+    "    Skeleton::DirectorExampleWeakPtr::DirectorExampleWeakPtr(boost::shared_ptr< Skeleton::DirectorExample > const &,bool)\n"
+    "    Skeleton::DirectorExampleWeakPtr::DirectorExampleWeakPtr(boost::shared_ptr< Skeleton::DirectorExample > const &)\n");
+  return 0;
 }
 
 
@@ -17733,9 +17832,9 @@ static PyMethodDef SwigMethods[] = {
 	 { "disown_DirectorExample", _wrap_disown_DirectorExample, METH_O, NULL},
 	 { "DirectorExample_swigregister", DirectorExample_swigregister, METH_O, NULL},
 	 { "DirectorExample_swiginit", DirectorExample_swiginit, METH_VARARGS, NULL},
-	 { "new_DirectorExampleWeakPtr", _wrap_new_DirectorExampleWeakPtr, METH_O, "\n"
+	 { "new_DirectorExampleWeakPtr", _wrap_new_DirectorExampleWeakPtr, METH_VARARGS, "\n"
 		"\n"
-		"Skeleton::DirectorExampleWeakPtr::DirectorExampleWeakPtr(const boost::shared_ptr< DirectorExample > &V)\n"
+		"Skeleton::DirectorExampleWeakPtr::DirectorExampleWeakPtr(const boost::shared_ptr< DirectorExample > &V, bool use_kludge=true)\n"
 		"this).\n"
 		"\n"
 		"We'll come back to this, but for now just punt and also keep a copy of\n"
@@ -18017,9 +18116,9 @@ static PyMethodDef SwigMethods_proxydocs[] = {
 	 { "disown_DirectorExample", _wrap_disown_DirectorExample, METH_O, NULL},
 	 { "DirectorExample_swigregister", DirectorExample_swigregister, METH_O, NULL},
 	 { "DirectorExample_swiginit", DirectorExample_swiginit, METH_VARARGS, NULL},
-	 { "new_DirectorExampleWeakPtr", _wrap_new_DirectorExampleWeakPtr, METH_O, "\n"
+	 { "new_DirectorExampleWeakPtr", _wrap_new_DirectorExampleWeakPtr, METH_VARARGS, "\n"
 		"\n"
-		"Skeleton::DirectorExampleWeakPtr::DirectorExampleWeakPtr(const boost::shared_ptr< DirectorExample > &V)\n"
+		"Skeleton::DirectorExampleWeakPtr::DirectorExampleWeakPtr(const boost::shared_ptr< DirectorExample > &V, bool use_kludge=true)\n"
 		"this).\n"
 		"\n"
 		"We'll come back to this, but for now just punt and also keep a copy of\n"

@@ -38,7 +38,7 @@ protected:
 
 class DirectorExampleWeakPtr : public GenericObject {
 public:
-  DirectorExampleWeakPtr(const boost::shared_ptr<DirectorExample>& V) : a_(V) {}
+  DirectorExampleWeakPtr(const boost::shared_ptr<DirectorExample>& V, bool use_kludge=true);
   std::string print_to_string() const;
   boost::shared_ptr<DirectorExample> a() const;
   void a(const boost::shared_ptr<DirectorExample>& V);
