@@ -38,10 +38,13 @@ protected:
 
 class DirectorExampleWeakPtr : public GenericObject {
 public:
-  DirectorExampleWeakPtr(const boost::shared_ptr<DirectorExample>& V, bool use_kludge=true);
+  // See DirectorNotes.md on the used of SHARED_PTR_NO_OWN
+  DirectorExampleWeakPtr(const boost::shared_ptr<DirectorExample>& SHARED_PTR_NO_OWN);
   std::string print_to_string() const;
   boost::shared_ptr<DirectorExample> a() const;
-  void a(const boost::shared_ptr<DirectorExample>& V);
+  void a(const boost::shared_ptr<DirectorExample>& SHARED_PTR_NO_OWN);
+  bool expired() const;
+  long use_count() const;
   %pickle_serialization();
 };
   

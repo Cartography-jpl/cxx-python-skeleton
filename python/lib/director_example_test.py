@@ -280,29 +280,15 @@ def test_director_example_weak_ptr(isolated_dir, serial):
     c2 = read_shelve("c.xml")
     assert a2.func(10) == 5+10+2*6
     assert c2.a() is None
+
+    # Also check handling of weak_ptr
     assert c.a() is not None
+    assert not c.expired()
+    assert c.use_count() == 1
     a = None
-    # This currently doesn't work, but we have test to indicate the problem.
-    if False:
-        assert c.a() is None
+    assert c.expired()
+    assert c.use_count() == 0
+    assert c.a() is None
     
 
-    # Second version that indicates a problem. We can't really make a weak_ptr from our
-    # Director python class, because at the C++ we return a different boost:shared_ptr
-    # (maintain the lifetime at the python level). We'll need to come up with some
-    # fix for this - perhaps swig type maps that allows access to the shared_ptr from
-    # python when we want weak pointers, or something like that. But for now, this doesn't
-    # work correctly
-    m = GenericObjectMap()
-    m["e1"] = DirectorPythonExample(5,6, "e1")
-    # False here turns off the kludge we are using to get this to work
-    m["e1_weak"] = DirectorExampleWeakPtr(m.e1, False)
-    print(m.e1)
-    # This reports that our pointer is None, because the boost:shared_ptr passed to
-    # DirectorExampleWeakPtr has disappeared (although the actual DirectorExample C++ object
-    # is still there, just maintained by its internal python).
-    print(m.e1_weak)
-    assert m.e1.func(10) == 5+10+2*6
-    # This fails, because m.e1_weak.a() is None
-    if False:
-        assert m.e1_weak.a().func(10) == 5+10+2*6
+    

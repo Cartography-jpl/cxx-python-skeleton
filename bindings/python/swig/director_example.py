@@ -362,18 +362,17 @@ class DirectorExampleWeakPtr(skeleton_swig.generic_object.GenericObject):
     thisown = property(lambda x: x.this.own(), lambda x, v: x.this.own(v), doc="The membership flag")
     __repr__ = _swig_repr
 
-    def __init__(self, V, use_kludge=True):
+    def __init__(self, SHARED_PTR_NO_OWN):
         r"""
 
-        Skeleton::DirectorExampleWeakPtr::DirectorExampleWeakPtr(const boost::shared_ptr< DirectorExample > &V, bool use_kludge=true)
-        this).
+        Skeleton::DirectorExampleWeakPtr::DirectorExampleWeakPtr(const boost::shared_ptr< DirectorExample > &V)
 
-        We'll come back to this, but for now just punt and also keep a copy of
-        a boost::shared_ptr so this doesn't go out of existence 
         """
-        _director_example.DirectorExampleWeakPtr_swiginit(self, _director_example.new_DirectorExampleWeakPtr(V, use_kludge))
+        _director_example.DirectorExampleWeakPtr_swiginit(self, _director_example.new_DirectorExampleWeakPtr(SHARED_PTR_NO_OWN))
     __str__ = _swig_new_instance_method(_director_example.DirectorExampleWeakPtr___str__)
     a = _swig_new_instance_method(_director_example.DirectorExampleWeakPtr_a)
+    expired = _swig_new_instance_method(_director_example.DirectorExampleWeakPtr_expired)
+    use_count = _swig_new_instance_method(_director_example.DirectorExampleWeakPtr_use_count)
 
     def __reduce__(self):
     #Special handling for when we are doing boost serialization, we set

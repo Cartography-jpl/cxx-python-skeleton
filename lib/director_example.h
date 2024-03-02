@@ -50,19 +50,8 @@ private:
 *******************************************************************/
 class DirectorExampleWeakPtr : public Printable<DirectorExampleWeakPtr> {
 public:
-  // Note, we don't have the logic for passing in a Director object
-  // here and correctly getting a weak ptr. The issue is that our
-  // swig rules return a new shared_ptr with a null deleter due to
-  // lifetime issues (see python_ref_ptr_cleanup.h for description of
-  /// this). We'll come back to this, but for now just punt and also
-  /// keep a copy of a boost::shared_ptr so this doesn't go out of
-  /// existence
-  DirectorExampleWeakPtr(const boost::shared_ptr<DirectorExample>& V, bool use_kludge = true)
-    : a_(V)
-  {
-    if(use_kludge)
-      vkludge = V;
-  }
+  DirectorExampleWeakPtr(const boost::shared_ptr<DirectorExample>& V)
+    : a_(V) {}
   virtual ~DirectorExampleWeakPtr() {}
   void print(std::ostream& Os) const
   {
@@ -76,8 +65,9 @@ public:
   }
   boost::shared_ptr<DirectorExample> a() const { return a_.lock();}
   void a(const boost::shared_ptr<DirectorExample>& V) { a_ = V;}
+  bool expired() const {return a_.expired();}
+  long use_count() const {return a_.use_count();}
 private:
-  boost::shared_ptr<DirectorExample> vkludge;
   boost::weak_ptr<DirectorExample> a_;
   DirectorExampleWeakPtr() {}
   friend class boost::serialization::access;
