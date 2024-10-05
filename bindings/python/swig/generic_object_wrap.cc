@@ -4779,6 +4779,22 @@ namespace swig {
 #endif  
 
 
+#ifndef QUOTE  
+#define Q(x) #x
+#define QUOTE(x) Q(x)
+#endif
+
+// CMAKE unfortunately uses a different name for the wrapper file that
+// the standard SWIG convention. So we set up CMAKE ot pass in a
+// CMAKE_SWIG_FILE_NAMES to get the right inclusion file.  
+#ifndef CMAKE_SWIG_FILE_NAMES  
+  #define CMAKE_KLUDGE_INCLUDE_HEADER(x) QUOTE(x ## _wrap.h)
+#else  
+  #define CMAKE_KLUDGE_INCLUDE_HEADER(x) QUOTE(x ## PYTHON_wrap.h)
+#endif  
+  
+
+
 #include "generic_object.h"
 
 
