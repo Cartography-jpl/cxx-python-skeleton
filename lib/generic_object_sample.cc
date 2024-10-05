@@ -19,6 +19,13 @@ void GenericObjectB::serialize(Archive & ar, const unsigned int )
 }
 
 template<class Archive>
+void GenericObjectB2::serialize(Archive & ar, const unsigned int )
+{
+  SKELETON_GENERIC_BASE(GenericObjectB2);
+  ar & SKELETON_NVP_(a);
+}
+
+template<class Archive>
 void GenericObjectC::serialize(Archive & ar, const unsigned int )
 {
   SKELETON_GENERIC_BASE(GenericObjectC);
@@ -27,4 +34,5 @@ void GenericObjectC::serialize(Archive & ar, const unsigned int )
 
 SKELETON_IMPLEMENT(GenericObjectA);
 SKELETON_IMPLEMENT(GenericObjectB);
+SKELETON_IMPLEMENT(GenericObjectB2);
 SKELETON_IMPLEMENT(GenericObjectC);

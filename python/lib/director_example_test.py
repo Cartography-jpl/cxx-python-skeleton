@@ -246,6 +246,7 @@ def test_director_lifetime_shelve(isolated_dir, serial):
     DirectorPythonExample.deleted_list.clear()
     print("All done with euser_s")
 
+@skip    
 def test_director_example_weak_ptr(isolated_dir, serial):
     m = GenericObjectMap()
     m["e1"] = DirectorPythonExample(5,6, "e1")

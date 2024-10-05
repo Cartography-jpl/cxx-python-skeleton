@@ -148,7 +148,7 @@ class GenericObjectA(skeleton_swig.generic_object.GenericObject):
     def __init__(self, V):
         r"""
 
-        Skeleton::GenericObjectA::GenericObjectA(int V)
+        Skeleton::GenericObjectA::GenericObjectA()
 
         """
         _generic_object_sample.GenericObjectA_swiginit(self, _generic_object_sample.new_GenericObjectA(V))
@@ -215,6 +215,45 @@ class GenericObjectB(skeleton_swig.generic_object.GenericObject):
 
 # Register GenericObjectB in _generic_object_sample:
 _generic_object_sample.GenericObjectB_swigregister(GenericObjectB)
+class GenericObjectB2(skeleton_swig.generic_object.GenericObject):
+    r"""
+
+    C++ includes: generic_object_sample.h
+
+    """
+
+    thisown = property(lambda x: x.this.own(), lambda x, v: x.this.own(v), doc="The membership flag")
+    __repr__ = _swig_repr
+
+    def __init__(self, V):
+        r"""
+
+        Skeleton::GenericObjectB2::GenericObjectB2(const GenericObjectA &V)
+
+        """
+        _generic_object_sample.GenericObjectB2_swiginit(self, _generic_object_sample.new_GenericObjectB2(V))
+    _v_a = _swig_new_instance_method(_generic_object_sample.GenericObjectB2__v_a)
+
+    @property
+    def a(self):
+        return self._v_a()
+
+    @a.setter
+    def a(self, value):
+      self._v_a(value)
+
+
+    def __reduce__(self):
+    #Special handling for when we are doing boost serialization, we set
+    #"this" to None
+      if(self.this is None):
+        return super().__reduce__()
+      return _new_from_serialization, (skeleton_swig.serialize_function.serialize_write_binary(self),)
+
+    __swig_destroy__ = _generic_object_sample.delete_GenericObjectB2
+
+# Register GenericObjectB2 in _generic_object_sample:
+_generic_object_sample.GenericObjectB2_swigregister(GenericObjectB2)
 class GenericObjectC(skeleton_swig.generic_object.GenericObject):
     r"""
 
@@ -256,6 +295,6 @@ class GenericObjectC(skeleton_swig.generic_object.GenericObject):
 # Register GenericObjectC in _generic_object_sample:
 _generic_object_sample.GenericObjectC_swigregister(GenericObjectC)
 
-__all__ = ["GenericObjectA","GenericObjectB","GenericObjectC"]
+__all__ = ["GenericObjectA","GenericObjectB","GenericObjectB2","GenericObjectC"]
 
 

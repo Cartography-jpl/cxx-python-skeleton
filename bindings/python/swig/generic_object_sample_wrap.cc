@@ -3405,108 +3405,110 @@ namespace Swig {
 #define SWIGTYPE_p_Skeleton__GenericObject swig_types[0]
 #define SWIGTYPE_p_Skeleton__GenericObjectA swig_types[1]
 #define SWIGTYPE_p_Skeleton__GenericObjectB swig_types[2]
-#define SWIGTYPE_p_Skeleton__GenericObjectC swig_types[3]
-#define SWIGTYPE_p_allocator_type swig_types[4]
-#define SWIGTYPE_p_blitz__ArrayT_bool_1_t swig_types[5]
-#define SWIGTYPE_p_blitz__ArrayT_bool_2_t swig_types[6]
-#define SWIGTYPE_p_blitz__ArrayT_bool_3_t swig_types[7]
-#define SWIGTYPE_p_blitz__ArrayT_bool_4_t swig_types[8]
-#define SWIGTYPE_p_blitz__ArrayT_bool_5_t swig_types[9]
-#define SWIGTYPE_p_blitz__ArrayT_bool_6_t swig_types[10]
-#define SWIGTYPE_p_blitz__ArrayT_bool_7_t swig_types[11]
-#define SWIGTYPE_p_blitz__ArrayT_bool_8_t swig_types[12]
-#define SWIGTYPE_p_blitz__ArrayT_char_1_t swig_types[13]
-#define SWIGTYPE_p_blitz__ArrayT_char_2_t swig_types[14]
-#define SWIGTYPE_p_blitz__ArrayT_char_3_t swig_types[15]
-#define SWIGTYPE_p_blitz__ArrayT_char_4_t swig_types[16]
-#define SWIGTYPE_p_blitz__ArrayT_char_5_t swig_types[17]
-#define SWIGTYPE_p_blitz__ArrayT_char_6_t swig_types[18]
-#define SWIGTYPE_p_blitz__ArrayT_char_7_t swig_types[19]
-#define SWIGTYPE_p_blitz__ArrayT_char_8_t swig_types[20]
-#define SWIGTYPE_p_blitz__ArrayT_double_1_t swig_types[21]
-#define SWIGTYPE_p_blitz__ArrayT_double_2_t swig_types[22]
-#define SWIGTYPE_p_blitz__ArrayT_double_3_t swig_types[23]
-#define SWIGTYPE_p_blitz__ArrayT_double_4_t swig_types[24]
-#define SWIGTYPE_p_blitz__ArrayT_double_5_t swig_types[25]
-#define SWIGTYPE_p_blitz__ArrayT_double_6_t swig_types[26]
-#define SWIGTYPE_p_blitz__ArrayT_double_7_t swig_types[27]
-#define SWIGTYPE_p_blitz__ArrayT_double_8_t swig_types[28]
-#define SWIGTYPE_p_blitz__ArrayT_float_1_t swig_types[29]
-#define SWIGTYPE_p_blitz__ArrayT_float_2_t swig_types[30]
-#define SWIGTYPE_p_blitz__ArrayT_float_3_t swig_types[31]
-#define SWIGTYPE_p_blitz__ArrayT_float_4_t swig_types[32]
-#define SWIGTYPE_p_blitz__ArrayT_float_5_t swig_types[33]
-#define SWIGTYPE_p_blitz__ArrayT_float_6_t swig_types[34]
-#define SWIGTYPE_p_blitz__ArrayT_float_7_t swig_types[35]
-#define SWIGTYPE_p_blitz__ArrayT_float_8_t swig_types[36]
-#define SWIGTYPE_p_blitz__ArrayT_int_1_t swig_types[37]
-#define SWIGTYPE_p_blitz__ArrayT_int_2_t swig_types[38]
-#define SWIGTYPE_p_blitz__ArrayT_int_3_t swig_types[39]
-#define SWIGTYPE_p_blitz__ArrayT_int_4_t swig_types[40]
-#define SWIGTYPE_p_blitz__ArrayT_int_5_t swig_types[41]
-#define SWIGTYPE_p_blitz__ArrayT_int_6_t swig_types[42]
-#define SWIGTYPE_p_blitz__ArrayT_int_7_t swig_types[43]
-#define SWIGTYPE_p_blitz__ArrayT_int_8_t swig_types[44]
-#define SWIGTYPE_p_blitz__ArrayT_short_1_t swig_types[45]
-#define SWIGTYPE_p_blitz__ArrayT_short_2_t swig_types[46]
-#define SWIGTYPE_p_blitz__ArrayT_short_3_t swig_types[47]
-#define SWIGTYPE_p_blitz__ArrayT_short_4_t swig_types[48]
-#define SWIGTYPE_p_blitz__ArrayT_short_5_t swig_types[49]
-#define SWIGTYPE_p_blitz__ArrayT_short_6_t swig_types[50]
-#define SWIGTYPE_p_blitz__ArrayT_short_7_t swig_types[51]
-#define SWIGTYPE_p_blitz__ArrayT_short_8_t swig_types[52]
-#define SWIGTYPE_p_blitz__ArrayT_unsigned_char_1_t swig_types[53]
-#define SWIGTYPE_p_blitz__ArrayT_unsigned_char_2_t swig_types[54]
-#define SWIGTYPE_p_blitz__ArrayT_unsigned_char_3_t swig_types[55]
-#define SWIGTYPE_p_blitz__ArrayT_unsigned_char_4_t swig_types[56]
-#define SWIGTYPE_p_blitz__ArrayT_unsigned_char_5_t swig_types[57]
-#define SWIGTYPE_p_blitz__ArrayT_unsigned_char_6_t swig_types[58]
-#define SWIGTYPE_p_blitz__ArrayT_unsigned_char_7_t swig_types[59]
-#define SWIGTYPE_p_blitz__ArrayT_unsigned_char_8_t swig_types[60]
-#define SWIGTYPE_p_blitz__ArrayT_unsigned_int_1_t swig_types[61]
-#define SWIGTYPE_p_blitz__ArrayT_unsigned_int_2_t swig_types[62]
-#define SWIGTYPE_p_blitz__ArrayT_unsigned_int_3_t swig_types[63]
-#define SWIGTYPE_p_blitz__ArrayT_unsigned_int_4_t swig_types[64]
-#define SWIGTYPE_p_blitz__ArrayT_unsigned_int_5_t swig_types[65]
-#define SWIGTYPE_p_blitz__ArrayT_unsigned_int_6_t swig_types[66]
-#define SWIGTYPE_p_blitz__ArrayT_unsigned_int_7_t swig_types[67]
-#define SWIGTYPE_p_blitz__ArrayT_unsigned_int_8_t swig_types[68]
-#define SWIGTYPE_p_blitz__ArrayT_unsigned_short_1_t swig_types[69]
-#define SWIGTYPE_p_blitz__ArrayT_unsigned_short_2_t swig_types[70]
-#define SWIGTYPE_p_blitz__ArrayT_unsigned_short_3_t swig_types[71]
-#define SWIGTYPE_p_blitz__ArrayT_unsigned_short_4_t swig_types[72]
-#define SWIGTYPE_p_blitz__ArrayT_unsigned_short_5_t swig_types[73]
-#define SWIGTYPE_p_blitz__ArrayT_unsigned_short_6_t swig_types[74]
-#define SWIGTYPE_p_blitz__ArrayT_unsigned_short_7_t swig_types[75]
-#define SWIGTYPE_p_blitz__ArrayT_unsigned_short_8_t swig_types[76]
-#define SWIGTYPE_p_blitz__Range swig_types[77]
-#define SWIGTYPE_p_boost__shared_ptrT_Skeleton__GenericObjectA_t swig_types[78]
-#define SWIGTYPE_p_boost__shared_ptrT_Skeleton__GenericObjectB_t swig_types[79]
-#define SWIGTYPE_p_boost__shared_ptrT_Skeleton__GenericObjectC_t swig_types[80]
-#define SWIGTYPE_p_boost__shared_ptrT_Skeleton__GenericObject_t swig_types[81]
-#define SWIGTYPE_p_char swig_types[82]
-#define SWIGTYPE_p_char_type swig_types[83]
-#define SWIGTYPE_p_difference_type swig_types[84]
-#define SWIGTYPE_p_fmtflags swig_types[85]
-#define SWIGTYPE_p_int_type swig_types[86]
-#define SWIGTYPE_p_iostate swig_types[87]
-#define SWIGTYPE_p_off_type swig_types[88]
-#define SWIGTYPE_p_openmode swig_types[89]
-#define SWIGTYPE_p_pos_type swig_types[90]
-#define SWIGTYPE_p_seekdir swig_types[91]
-#define SWIGTYPE_p_size_t swig_types[92]
-#define SWIGTYPE_p_size_type swig_types[93]
-#define SWIGTYPE_p_state_type swig_types[94]
-#define SWIGTYPE_p_std__basic_iosT_char_std__char_traitsT_char_t_t swig_types[95]
-#define SWIGTYPE_p_std__basic_iostreamT_char_std__char_traitsT_char_t_t swig_types[96]
-#define SWIGTYPE_p_std__basic_istreamT_char_std__char_traitsT_char_t_t swig_types[97]
-#define SWIGTYPE_p_std__basic_ostreamT_char_std__char_traitsT_char_t_t swig_types[98]
-#define SWIGTYPE_p_std__invalid_argument swig_types[99]
-#define SWIGTYPE_p_swig__SwigPyIterator swig_types[100]
-#define SWIGTYPE_p_traits_type swig_types[101]
-#define SWIGTYPE_p_value_type swig_types[102]
-static swig_type_info *swig_types[104];
-static swig_module_info swig_module = {swig_types, 103, 0, 0, 0, 0};
+#define SWIGTYPE_p_Skeleton__GenericObjectB2 swig_types[3]
+#define SWIGTYPE_p_Skeleton__GenericObjectC swig_types[4]
+#define SWIGTYPE_p_allocator_type swig_types[5]
+#define SWIGTYPE_p_blitz__ArrayT_bool_1_t swig_types[6]
+#define SWIGTYPE_p_blitz__ArrayT_bool_2_t swig_types[7]
+#define SWIGTYPE_p_blitz__ArrayT_bool_3_t swig_types[8]
+#define SWIGTYPE_p_blitz__ArrayT_bool_4_t swig_types[9]
+#define SWIGTYPE_p_blitz__ArrayT_bool_5_t swig_types[10]
+#define SWIGTYPE_p_blitz__ArrayT_bool_6_t swig_types[11]
+#define SWIGTYPE_p_blitz__ArrayT_bool_7_t swig_types[12]
+#define SWIGTYPE_p_blitz__ArrayT_bool_8_t swig_types[13]
+#define SWIGTYPE_p_blitz__ArrayT_char_1_t swig_types[14]
+#define SWIGTYPE_p_blitz__ArrayT_char_2_t swig_types[15]
+#define SWIGTYPE_p_blitz__ArrayT_char_3_t swig_types[16]
+#define SWIGTYPE_p_blitz__ArrayT_char_4_t swig_types[17]
+#define SWIGTYPE_p_blitz__ArrayT_char_5_t swig_types[18]
+#define SWIGTYPE_p_blitz__ArrayT_char_6_t swig_types[19]
+#define SWIGTYPE_p_blitz__ArrayT_char_7_t swig_types[20]
+#define SWIGTYPE_p_blitz__ArrayT_char_8_t swig_types[21]
+#define SWIGTYPE_p_blitz__ArrayT_double_1_t swig_types[22]
+#define SWIGTYPE_p_blitz__ArrayT_double_2_t swig_types[23]
+#define SWIGTYPE_p_blitz__ArrayT_double_3_t swig_types[24]
+#define SWIGTYPE_p_blitz__ArrayT_double_4_t swig_types[25]
+#define SWIGTYPE_p_blitz__ArrayT_double_5_t swig_types[26]
+#define SWIGTYPE_p_blitz__ArrayT_double_6_t swig_types[27]
+#define SWIGTYPE_p_blitz__ArrayT_double_7_t swig_types[28]
+#define SWIGTYPE_p_blitz__ArrayT_double_8_t swig_types[29]
+#define SWIGTYPE_p_blitz__ArrayT_float_1_t swig_types[30]
+#define SWIGTYPE_p_blitz__ArrayT_float_2_t swig_types[31]
+#define SWIGTYPE_p_blitz__ArrayT_float_3_t swig_types[32]
+#define SWIGTYPE_p_blitz__ArrayT_float_4_t swig_types[33]
+#define SWIGTYPE_p_blitz__ArrayT_float_5_t swig_types[34]
+#define SWIGTYPE_p_blitz__ArrayT_float_6_t swig_types[35]
+#define SWIGTYPE_p_blitz__ArrayT_float_7_t swig_types[36]
+#define SWIGTYPE_p_blitz__ArrayT_float_8_t swig_types[37]
+#define SWIGTYPE_p_blitz__ArrayT_int_1_t swig_types[38]
+#define SWIGTYPE_p_blitz__ArrayT_int_2_t swig_types[39]
+#define SWIGTYPE_p_blitz__ArrayT_int_3_t swig_types[40]
+#define SWIGTYPE_p_blitz__ArrayT_int_4_t swig_types[41]
+#define SWIGTYPE_p_blitz__ArrayT_int_5_t swig_types[42]
+#define SWIGTYPE_p_blitz__ArrayT_int_6_t swig_types[43]
+#define SWIGTYPE_p_blitz__ArrayT_int_7_t swig_types[44]
+#define SWIGTYPE_p_blitz__ArrayT_int_8_t swig_types[45]
+#define SWIGTYPE_p_blitz__ArrayT_short_1_t swig_types[46]
+#define SWIGTYPE_p_blitz__ArrayT_short_2_t swig_types[47]
+#define SWIGTYPE_p_blitz__ArrayT_short_3_t swig_types[48]
+#define SWIGTYPE_p_blitz__ArrayT_short_4_t swig_types[49]
+#define SWIGTYPE_p_blitz__ArrayT_short_5_t swig_types[50]
+#define SWIGTYPE_p_blitz__ArrayT_short_6_t swig_types[51]
+#define SWIGTYPE_p_blitz__ArrayT_short_7_t swig_types[52]
+#define SWIGTYPE_p_blitz__ArrayT_short_8_t swig_types[53]
+#define SWIGTYPE_p_blitz__ArrayT_unsigned_char_1_t swig_types[54]
+#define SWIGTYPE_p_blitz__ArrayT_unsigned_char_2_t swig_types[55]
+#define SWIGTYPE_p_blitz__ArrayT_unsigned_char_3_t swig_types[56]
+#define SWIGTYPE_p_blitz__ArrayT_unsigned_char_4_t swig_types[57]
+#define SWIGTYPE_p_blitz__ArrayT_unsigned_char_5_t swig_types[58]
+#define SWIGTYPE_p_blitz__ArrayT_unsigned_char_6_t swig_types[59]
+#define SWIGTYPE_p_blitz__ArrayT_unsigned_char_7_t swig_types[60]
+#define SWIGTYPE_p_blitz__ArrayT_unsigned_char_8_t swig_types[61]
+#define SWIGTYPE_p_blitz__ArrayT_unsigned_int_1_t swig_types[62]
+#define SWIGTYPE_p_blitz__ArrayT_unsigned_int_2_t swig_types[63]
+#define SWIGTYPE_p_blitz__ArrayT_unsigned_int_3_t swig_types[64]
+#define SWIGTYPE_p_blitz__ArrayT_unsigned_int_4_t swig_types[65]
+#define SWIGTYPE_p_blitz__ArrayT_unsigned_int_5_t swig_types[66]
+#define SWIGTYPE_p_blitz__ArrayT_unsigned_int_6_t swig_types[67]
+#define SWIGTYPE_p_blitz__ArrayT_unsigned_int_7_t swig_types[68]
+#define SWIGTYPE_p_blitz__ArrayT_unsigned_int_8_t swig_types[69]
+#define SWIGTYPE_p_blitz__ArrayT_unsigned_short_1_t swig_types[70]
+#define SWIGTYPE_p_blitz__ArrayT_unsigned_short_2_t swig_types[71]
+#define SWIGTYPE_p_blitz__ArrayT_unsigned_short_3_t swig_types[72]
+#define SWIGTYPE_p_blitz__ArrayT_unsigned_short_4_t swig_types[73]
+#define SWIGTYPE_p_blitz__ArrayT_unsigned_short_5_t swig_types[74]
+#define SWIGTYPE_p_blitz__ArrayT_unsigned_short_6_t swig_types[75]
+#define SWIGTYPE_p_blitz__ArrayT_unsigned_short_7_t swig_types[76]
+#define SWIGTYPE_p_blitz__ArrayT_unsigned_short_8_t swig_types[77]
+#define SWIGTYPE_p_blitz__Range swig_types[78]
+#define SWIGTYPE_p_boost__shared_ptrT_Skeleton__GenericObjectA_t swig_types[79]
+#define SWIGTYPE_p_boost__shared_ptrT_Skeleton__GenericObjectB2_t swig_types[80]
+#define SWIGTYPE_p_boost__shared_ptrT_Skeleton__GenericObjectB_t swig_types[81]
+#define SWIGTYPE_p_boost__shared_ptrT_Skeleton__GenericObjectC_t swig_types[82]
+#define SWIGTYPE_p_boost__shared_ptrT_Skeleton__GenericObject_t swig_types[83]
+#define SWIGTYPE_p_char swig_types[84]
+#define SWIGTYPE_p_char_type swig_types[85]
+#define SWIGTYPE_p_difference_type swig_types[86]
+#define SWIGTYPE_p_fmtflags swig_types[87]
+#define SWIGTYPE_p_int_type swig_types[88]
+#define SWIGTYPE_p_iostate swig_types[89]
+#define SWIGTYPE_p_off_type swig_types[90]
+#define SWIGTYPE_p_openmode swig_types[91]
+#define SWIGTYPE_p_pos_type swig_types[92]
+#define SWIGTYPE_p_seekdir swig_types[93]
+#define SWIGTYPE_p_size_t swig_types[94]
+#define SWIGTYPE_p_size_type swig_types[95]
+#define SWIGTYPE_p_state_type swig_types[96]
+#define SWIGTYPE_p_std__basic_iosT_char_std__char_traitsT_char_t_t swig_types[97]
+#define SWIGTYPE_p_std__basic_iostreamT_char_std__char_traitsT_char_t_t swig_types[98]
+#define SWIGTYPE_p_std__basic_istreamT_char_std__char_traitsT_char_t_t swig_types[99]
+#define SWIGTYPE_p_std__basic_ostreamT_char_std__char_traitsT_char_t_t swig_types[100]
+#define SWIGTYPE_p_std__invalid_argument swig_types[101]
+#define SWIGTYPE_p_swig__SwigPyIterator swig_types[102]
+#define SWIGTYPE_p_traits_type swig_types[103]
+#define SWIGTYPE_p_value_type swig_types[104]
+static swig_type_info *swig_types[106];
+static swig_module_info swig_module = {swig_types, 105, 0, 0, 0, 0};
 #define SWIG_TypeQuery(name) SWIG_TypeQueryModule(&swig_module, &swig_module, name)
 #define SWIG_MangledTypeQuery(name) SWIG_MangledTypeQueryModule(&swig_module, &swig_module, name)
 
@@ -6174,6 +6176,256 @@ SWIGINTERN PyObject *GenericObjectB_swiginit(PyObject *SWIGUNUSEDPARM(self), PyO
   return SWIG_Python_InitShadowInstance(args);
 }
 
+SWIGINTERN PyObject *_wrap_new_GenericObjectB2(PyObject *self, PyObject *args) {
+  PyObject *resultobj = 0;
+  Skeleton::GenericObjectA *arg1 = 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  boost::shared_ptr< Skeleton::GenericObjectA const > tempshared1 ;
+  PyObject *swig_obj[1] ;
+  Skeleton::GenericObjectB2 *result = 0 ;
+  
+  if (!args) SWIG_fail;
+  swig_obj[0] = args;
+  {
+    int newmem = 0;
+    // Added mms
+    // First check to see if all ready pointer type
+    Skeleton::GenericObjectA *ptr;
+    res1 = SWIG_ConvertPtrAndOwn(swig_obj[0], (void**)(&ptr), SWIGTYPE_p_Skeleton__GenericObjectA,  0 , &newmem);
+    if (SWIG_IsOK(res1)) {
+      arg1 = ptr;
+    } else {
+      res1 = SWIG_ConvertPtrAndOwn(swig_obj[0], &argp1, SWIGTYPE_p_boost__shared_ptrT_Skeleton__GenericObjectA_t,  0 , &newmem);
+      if (!SWIG_IsOK(res1)) {
+        SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "new_GenericObjectB2" "', argument " "1"" of type '" "Skeleton::GenericObjectA const &""'");
+      }
+      if (!argp1) {
+        SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "new_GenericObjectB2" "', argument " "1"" of type '" "Skeleton::GenericObjectA const &""'"); 
+      }
+      if (newmem & SWIG_CAST_NEW_MEMORY) {
+        tempshared1 = *reinterpret_cast< boost::shared_ptr< const Skeleton::GenericObjectA > * >(argp1);
+        delete reinterpret_cast< boost::shared_ptr< const Skeleton::GenericObjectA > * >(argp1);
+        arg1 = const_cast< Skeleton::GenericObjectA * >(tempshared1.get());
+      } else {
+        arg1 = const_cast< Skeleton::GenericObjectA * >(reinterpret_cast< boost::shared_ptr< const Skeleton::GenericObjectA > * >(argp1)->get());
+      }
+    }
+  }
+  {
+    try {
+      result = (Skeleton::GenericObjectB2 *)new Skeleton::GenericObjectB2((Skeleton::GenericObjectA const &)*arg1);
+    } catch (Swig::DirectorException &e) {
+      SWIG_fail; 
+    } catch (const std::exception& e) {
+      SWIG_exception(SWIG_RuntimeError, e.what());
+    }
+  }
+  {
+    boost::shared_ptr<  Skeleton::GenericObjectB2 > *smartresult = result ? new boost::shared_ptr<  Skeleton::GenericObjectB2 >(result SWIG_NO_NULL_DELETER_SWIG_POINTER_NEW) : 0;
+    resultobj = SWIG_NewPointerObj(SWIG_as_voidptr(smartresult), SWIGTYPE_p_boost__shared_ptrT_Skeleton__GenericObjectB2_t, SWIG_POINTER_NEW | SWIG_POINTER_OWN);
+  }
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_GenericObjectB2__v_a__SWIG_0(PyObject *self, Py_ssize_t nobjs, PyObject **swig_obj) {
+  PyObject *resultobj = 0;
+  Skeleton::GenericObjectB2 *arg1 = (Skeleton::GenericObjectB2 *) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  boost::shared_ptr< Skeleton::GenericObjectB2 const > tempshared1 ;
+  boost::shared_ptr< Skeleton::GenericObjectB2 const > *smartarg1 = 0 ;
+  SwigValueWrapper< Skeleton::GenericObjectA > result;
+  
+  if ((nobjs < 1) || (nobjs > 1)) SWIG_fail;
+  {
+    int newmem = 0;
+    res1 = SWIG_ConvertPtrAndOwn(swig_obj[0], &argp1, SWIGTYPE_p_boost__shared_ptrT_Skeleton__GenericObjectB2_t, 0 |  0 , &newmem);
+    if (!SWIG_IsOK(res1)) {
+      SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "GenericObjectB2__v_a" "', argument " "1"" of type '" "Skeleton::GenericObjectB2 const *""'");
+    }
+    if (newmem & SWIG_CAST_NEW_MEMORY) {
+      tempshared1 = *reinterpret_cast< boost::shared_ptr< const Skeleton::GenericObjectB2 > * >(argp1);
+      delete reinterpret_cast< boost::shared_ptr< const Skeleton::GenericObjectB2 > * >(argp1);
+      arg1 = const_cast< Skeleton::GenericObjectB2 * >(tempshared1.get());
+    } else {
+      smartarg1 = reinterpret_cast< boost::shared_ptr< const Skeleton::GenericObjectB2 > * >(argp1);
+      arg1 = const_cast< Skeleton::GenericObjectB2 * >((smartarg1 ? smartarg1->get() : 0));
+    }
+  }
+  {
+    try {
+      result = ((Skeleton::GenericObjectB2 const *)arg1)->a();
+    } catch (Swig::DirectorException &e) {
+      SWIG_fail; 
+    } catch (const std::exception& e) {
+      SWIG_exception(SWIG_RuntimeError, e.what());
+    }
+  }
+  {
+    boost::shared_ptr<  Skeleton::GenericObjectA > *smartresult = new boost::shared_ptr<  Skeleton::GenericObjectA >(new Skeleton::GenericObjectA(result));
+    
+    resultobj = SWIG_NewPointerObj(SWIG_as_voidptr(smartresult), SWIGTYPE_p_boost__shared_ptrT_Skeleton__GenericObjectA_t, SWIG_POINTER_OWN);
+  }
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_GenericObjectB2__v_a__SWIG_1(PyObject *self, Py_ssize_t nobjs, PyObject **swig_obj) {
+  PyObject *resultobj = 0;
+  Skeleton::GenericObjectB2 *arg1 = (Skeleton::GenericObjectB2 *) 0 ;
+  Skeleton::GenericObjectA *arg2 = 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  boost::shared_ptr< Skeleton::GenericObjectB2 > tempshared1 ;
+  boost::shared_ptr< Skeleton::GenericObjectB2 > *smartarg1 = 0 ;
+  void *argp2 = 0 ;
+  int res2 = 0 ;
+  boost::shared_ptr< Skeleton::GenericObjectA const > tempshared2 ;
+  
+  if ((nobjs < 2) || (nobjs > 2)) SWIG_fail;
+  {
+    int newmem = 0;
+    res1 = SWIG_ConvertPtrAndOwn(swig_obj[0], &argp1, SWIGTYPE_p_boost__shared_ptrT_Skeleton__GenericObjectB2_t, 0 |  0 , &newmem);
+    if (!SWIG_IsOK(res1)) {
+      SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "GenericObjectB2__v_a" "', argument " "1"" of type '" "Skeleton::GenericObjectB2 *""'");
+    }
+    if (newmem & SWIG_CAST_NEW_MEMORY) {
+      tempshared1 = *reinterpret_cast< boost::shared_ptr<  Skeleton::GenericObjectB2 > * >(argp1);
+      delete reinterpret_cast< boost::shared_ptr<  Skeleton::GenericObjectB2 > * >(argp1);
+      arg1 = const_cast< Skeleton::GenericObjectB2 * >(tempshared1.get());
+    } else {
+      smartarg1 = reinterpret_cast< boost::shared_ptr<  Skeleton::GenericObjectB2 > * >(argp1);
+      arg1 = const_cast< Skeleton::GenericObjectB2 * >((smartarg1 ? smartarg1->get() : 0));
+    }
+  }
+  {
+    int newmem = 0;
+    // Added mms
+    // First check to see if all ready pointer type
+    Skeleton::GenericObjectA *ptr;
+    res2 = SWIG_ConvertPtrAndOwn(swig_obj[1], (void**)(&ptr), SWIGTYPE_p_Skeleton__GenericObjectA,  0 , &newmem);
+    if (SWIG_IsOK(res2)) {
+      arg2 = ptr;
+    } else {
+      res2 = SWIG_ConvertPtrAndOwn(swig_obj[1], &argp2, SWIGTYPE_p_boost__shared_ptrT_Skeleton__GenericObjectA_t,  0 , &newmem);
+      if (!SWIG_IsOK(res2)) {
+        SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "GenericObjectB2__v_a" "', argument " "2"" of type '" "Skeleton::GenericObjectA const &""'");
+      }
+      if (!argp2) {
+        SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "GenericObjectB2__v_a" "', argument " "2"" of type '" "Skeleton::GenericObjectA const &""'"); 
+      }
+      if (newmem & SWIG_CAST_NEW_MEMORY) {
+        tempshared2 = *reinterpret_cast< boost::shared_ptr< const Skeleton::GenericObjectA > * >(argp2);
+        delete reinterpret_cast< boost::shared_ptr< const Skeleton::GenericObjectA > * >(argp2);
+        arg2 = const_cast< Skeleton::GenericObjectA * >(tempshared2.get());
+      } else {
+        arg2 = const_cast< Skeleton::GenericObjectA * >(reinterpret_cast< boost::shared_ptr< const Skeleton::GenericObjectA > * >(argp2)->get());
+      }
+    }
+  }
+  {
+    try {
+      (arg1)->a((Skeleton::GenericObjectA const &)*arg2);
+    } catch (Swig::DirectorException &e) {
+      SWIG_fail; 
+    } catch (const std::exception& e) {
+      SWIG_exception(SWIG_RuntimeError, e.what());
+    }
+  }
+  resultobj = SWIG_Py_Void();
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_GenericObjectB2__v_a(PyObject *self, PyObject *args) {
+  Py_ssize_t argc;
+  PyObject *argv[3] = {
+    0
+  };
+  
+  if (!(argc = SWIG_Python_UnpackTuple(args, "GenericObjectB2__v_a", 0, 2, argv))) SWIG_fail;
+  --argc;
+  if (argc == 1) {
+    PyObject *retobj = _wrap_GenericObjectB2__v_a__SWIG_0(self, argc, argv);
+    if (!SWIG_Python_TypeErrorOccurred(retobj)) return retobj;
+    SWIG_fail;
+  }
+  if (argc == 2) {
+    PyObject *retobj = _wrap_GenericObjectB2__v_a__SWIG_1(self, argc, argv);
+    if (!SWIG_Python_TypeErrorOccurred(retobj)) return retobj;
+    SWIG_fail;
+  }
+  
+fail:
+  SWIG_Python_RaiseOrModifyTypeError("Wrong number or type of arguments for overloaded function 'GenericObjectB2__v_a'.\n"
+    "  Possible C/C++ prototypes are:\n"
+    "    Skeleton::GenericObjectB2::a() const\n"
+    "    Skeleton::GenericObjectB2::a(Skeleton::GenericObjectA const &)\n");
+  return 0;
+}
+
+
+SWIGINTERN PyObject *_wrap_delete_GenericObjectB2(PyObject *self, PyObject *args) {
+  PyObject *resultobj = 0;
+  Skeleton::GenericObjectB2 *arg1 = (Skeleton::GenericObjectB2 *) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  boost::shared_ptr< Skeleton::GenericObjectB2 > tempshared1 ;
+  boost::shared_ptr< Skeleton::GenericObjectB2 > *smartarg1 = 0 ;
+  PyObject *swig_obj[1] ;
+  
+  if (!args) SWIG_fail;
+  swig_obj[0] = args;
+  {
+    int newmem = 0;
+    res1 = SWIG_ConvertPtrAndOwn(swig_obj[0], &argp1, SWIGTYPE_p_boost__shared_ptrT_Skeleton__GenericObjectB2_t, 0 |  0 , &newmem);
+    if (!SWIG_IsOK(res1)) {
+      SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "delete_GenericObjectB2" "', argument " "1"" of type '" "Skeleton::GenericObjectB2 *""'");
+    }
+    if (newmem & SWIG_CAST_NEW_MEMORY) {
+      tempshared1 = *reinterpret_cast< boost::shared_ptr<  Skeleton::GenericObjectB2 > * >(argp1);
+      delete reinterpret_cast< boost::shared_ptr<  Skeleton::GenericObjectB2 > * >(argp1);
+      arg1 = const_cast< Skeleton::GenericObjectB2 * >(tempshared1.get());
+    } else {
+      smartarg1 = reinterpret_cast< boost::shared_ptr<  Skeleton::GenericObjectB2 > * >(argp1);
+      arg1 = const_cast< Skeleton::GenericObjectB2 * >((smartarg1 ? smartarg1->get() : 0));
+    }
+  }
+  {
+    try {
+      (void)arg1; delete smartarg1;
+    } catch (Swig::DirectorException &e) {
+      SWIG_fail; 
+    } catch (const std::exception& e) {
+      SWIG_exception(SWIG_RuntimeError, e.what());
+    }
+  }
+  resultobj = SWIG_Py_Void();
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *GenericObjectB2_swigregister(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *obj;
+  if (!SWIG_Python_UnpackTuple(args, "swigregister", 1, 1, &obj)) return NULL;
+  SWIG_TypeNewClientData(SWIGTYPE_p_boost__shared_ptrT_Skeleton__GenericObjectB2_t, SWIG_NewClientData(obj));
+  return SWIG_Py_Void();
+}
+
+SWIGINTERN PyObject *GenericObjectB2_swiginit(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  return SWIG_Python_InitShadowInstance(args);
+}
+
 SWIGINTERN PyObject *_wrap_new_GenericObjectC(PyObject *self, PyObject *args) {
   PyObject *resultobj = 0;
   boost::shared_ptr< Skeleton::GenericObjectA > *arg1 = 0 ;
@@ -6484,7 +6736,7 @@ static PyMethodDef SwigMethods[] = {
 	 { "SwigPyIterator_swigregister", SwigPyIterator_swigregister, METH_O, NULL},
 	 { "new_GenericObjectA", _wrap_new_GenericObjectA, METH_O, "\n"
 		"\n"
-		"Skeleton::GenericObjectA::GenericObjectA(int V)\n"
+		"Skeleton::GenericObjectA::GenericObjectA()\n"
 		"\n"
 		""},
 	 { "GenericObjectA___str__", _wrap_GenericObjectA___str__, METH_O, NULL},
@@ -6510,6 +6762,19 @@ static PyMethodDef SwigMethods[] = {
 	 { "delete_GenericObjectB", _wrap_delete_GenericObjectB, METH_O, NULL},
 	 { "GenericObjectB_swigregister", GenericObjectB_swigregister, METH_O, NULL},
 	 { "GenericObjectB_swiginit", GenericObjectB_swiginit, METH_VARARGS, NULL},
+	 { "new_GenericObjectB2", _wrap_new_GenericObjectB2, METH_O, "\n"
+		"\n"
+		"Skeleton::GenericObjectB2::GenericObjectB2(const GenericObjectA &V)\n"
+		"\n"
+		""},
+	 { "GenericObjectB2__v_a", _wrap_GenericObjectB2__v_a, METH_VARARGS, "\n"
+		"\n"
+		"void Skeleton::GenericObjectB2::a(const GenericObjectA &V)\n"
+		"\n"
+		""},
+	 { "delete_GenericObjectB2", _wrap_delete_GenericObjectB2, METH_O, NULL},
+	 { "GenericObjectB2_swigregister", GenericObjectB2_swigregister, METH_O, NULL},
+	 { "GenericObjectB2_swiginit", GenericObjectB2_swiginit, METH_VARARGS, NULL},
 	 { "new_GenericObjectC", _wrap_new_GenericObjectC, METH_O, "\n"
 		"\n"
 		"Skeleton::GenericObjectC::GenericObjectC(const boost::shared_ptr< GenericObjectA > &V)\n"
@@ -6550,7 +6815,7 @@ static PyMethodDef SwigMethods_proxydocs[] = {
 	 { "SwigPyIterator_swigregister", SwigPyIterator_swigregister, METH_O, NULL},
 	 { "new_GenericObjectA", _wrap_new_GenericObjectA, METH_O, "\n"
 		"\n"
-		"Skeleton::GenericObjectA::GenericObjectA(int V)\n"
+		"Skeleton::GenericObjectA::GenericObjectA()\n"
 		"\n"
 		""},
 	 { "GenericObjectA___str__", _wrap_GenericObjectA___str__, METH_O, NULL},
@@ -6576,6 +6841,19 @@ static PyMethodDef SwigMethods_proxydocs[] = {
 	 { "delete_GenericObjectB", _wrap_delete_GenericObjectB, METH_O, NULL},
 	 { "GenericObjectB_swigregister", GenericObjectB_swigregister, METH_O, NULL},
 	 { "GenericObjectB_swiginit", GenericObjectB_swiginit, METH_VARARGS, NULL},
+	 { "new_GenericObjectB2", _wrap_new_GenericObjectB2, METH_O, "\n"
+		"\n"
+		"Skeleton::GenericObjectB2::GenericObjectB2(const GenericObjectA &V)\n"
+		"\n"
+		""},
+	 { "GenericObjectB2__v_a", _wrap_GenericObjectB2__v_a, METH_VARARGS, "\n"
+		"\n"
+		"void Skeleton::GenericObjectB2::a(const GenericObjectA &V)\n"
+		"\n"
+		""},
+	 { "delete_GenericObjectB2", _wrap_delete_GenericObjectB2, METH_O, NULL},
+	 { "GenericObjectB2_swigregister", GenericObjectB2_swigregister, METH_O, NULL},
+	 { "GenericObjectB2_swiginit", GenericObjectB2_swiginit, METH_VARARGS, NULL},
 	 { "new_GenericObjectC", _wrap_new_GenericObjectC, METH_O, "\n"
 		"\n"
 		"Skeleton::GenericObjectC::GenericObjectC(const boost::shared_ptr< GenericObjectA > &V)\n"
@@ -6602,6 +6880,9 @@ static void *_p_Skeleton__GenericObjectATo_p_Skeleton__GenericObject(void *x, in
 static void *_p_Skeleton__GenericObjectBTo_p_Skeleton__GenericObject(void *x, int *SWIGUNUSEDPARM(newmemory)) {
     return (void *)((Skeleton::GenericObject *)  ((Skeleton::GenericObjectB *) x));
 }
+static void *_p_Skeleton__GenericObjectB2To_p_Skeleton__GenericObject(void *x, int *SWIGUNUSEDPARM(newmemory)) {
+    return (void *)((Skeleton::GenericObject *)  ((Skeleton::GenericObjectB2 *) x));
+}
 static void *_p_Skeleton__GenericObjectCTo_p_Skeleton__GenericObject(void *x, int *SWIGUNUSEDPARM(newmemory)) {
     return (void *)((Skeleton::GenericObject *)  ((Skeleton::GenericObjectC *) x));
 }
@@ -6612,6 +6893,10 @@ static void *_p_boost__shared_ptrT_Skeleton__GenericObjectA_tTo_p_boost__shared_
 static void *_p_boost__shared_ptrT_Skeleton__GenericObjectB_tTo_p_boost__shared_ptrT_Skeleton__GenericObject_t(void *x, int *newmemory) {
     *newmemory = SWIG_CAST_NEW_MEMORY;
     return (void *) new boost::shared_ptr< Skeleton::GenericObject >(*(boost::shared_ptr< Skeleton::GenericObjectB > *)x);
+}
+static void *_p_boost__shared_ptrT_Skeleton__GenericObjectB2_tTo_p_boost__shared_ptrT_Skeleton__GenericObject_t(void *x, int *newmemory) {
+    *newmemory = SWIG_CAST_NEW_MEMORY;
+    return (void *) new boost::shared_ptr< Skeleton::GenericObject >(*(boost::shared_ptr< Skeleton::GenericObjectB2 > *)x);
 }
 static void *_p_boost__shared_ptrT_Skeleton__GenericObjectC_tTo_p_boost__shared_ptrT_Skeleton__GenericObject_t(void *x, int *newmemory) {
     *newmemory = SWIG_CAST_NEW_MEMORY;
@@ -6635,6 +6920,7 @@ static void *_p_std__basic_iostreamT_char_std__char_traitsT_char_t_tTo_p_std__ba
 static swig_type_info _swigt__p_Skeleton__GenericObject = {"_p_Skeleton__GenericObject", "Skeleton::GenericObject *", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_Skeleton__GenericObjectA = {"_p_Skeleton__GenericObjectA", "Skeleton::GenericObjectA *", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_Skeleton__GenericObjectB = {"_p_Skeleton__GenericObjectB", "Skeleton::GenericObjectB *", 0, 0, (void*)0, 0};
+static swig_type_info _swigt__p_Skeleton__GenericObjectB2 = {"_p_Skeleton__GenericObjectB2", "Skeleton::GenericObjectB2 *", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_Skeleton__GenericObjectC = {"_p_Skeleton__GenericObjectC", "Skeleton::GenericObjectC *", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_allocator_type = {"_p_allocator_type", "allocator_type *", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_blitz__ArrayT_bool_1_t = {"_p_blitz__ArrayT_bool_1_t", "blitz::Array< bool,1 > *", 0, 0, (void*)0, 0};
@@ -6711,6 +6997,7 @@ static swig_type_info _swigt__p_blitz__ArrayT_unsigned_short_7_t = {"_p_blitz__A
 static swig_type_info _swigt__p_blitz__ArrayT_unsigned_short_8_t = {"_p_blitz__ArrayT_unsigned_short_8_t", "blitz::Array< unsigned short,8 > *", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_blitz__Range = {"_p_blitz__Range", "blitz::Range *", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_boost__shared_ptrT_Skeleton__GenericObjectA_t = {"_p_boost__shared_ptrT_Skeleton__GenericObjectA_t", "boost::shared_ptr< Skeleton::GenericObjectA > *", 0, 0, (void*)0, 0};
+static swig_type_info _swigt__p_boost__shared_ptrT_Skeleton__GenericObjectB2_t = {"_p_boost__shared_ptrT_Skeleton__GenericObjectB2_t", "boost::shared_ptr< Skeleton::GenericObjectB2 > *", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_boost__shared_ptrT_Skeleton__GenericObjectB_t = {"_p_boost__shared_ptrT_Skeleton__GenericObjectB_t", "boost::shared_ptr< Skeleton::GenericObjectB > *", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_boost__shared_ptrT_Skeleton__GenericObjectC_t = {"_p_boost__shared_ptrT_Skeleton__GenericObjectC_t", "boost::shared_ptr< Skeleton::GenericObjectC > *", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_boost__shared_ptrT_Skeleton__GenericObject_t = {"_p_boost__shared_ptrT_Skeleton__GenericObject_t", "boost::shared_ptr< Skeleton::GenericObject > *", 0, 0, (void*)0, 0};
@@ -6740,6 +7027,7 @@ static swig_type_info *swig_type_initial[] = {
   &_swigt__p_Skeleton__GenericObject,
   &_swigt__p_Skeleton__GenericObjectA,
   &_swigt__p_Skeleton__GenericObjectB,
+  &_swigt__p_Skeleton__GenericObjectB2,
   &_swigt__p_Skeleton__GenericObjectC,
   &_swigt__p_allocator_type,
   &_swigt__p_blitz__ArrayT_bool_1_t,
@@ -6816,6 +7104,7 @@ static swig_type_info *swig_type_initial[] = {
   &_swigt__p_blitz__ArrayT_unsigned_short_8_t,
   &_swigt__p_blitz__Range,
   &_swigt__p_boost__shared_ptrT_Skeleton__GenericObjectA_t,
+  &_swigt__p_boost__shared_ptrT_Skeleton__GenericObjectB2_t,
   &_swigt__p_boost__shared_ptrT_Skeleton__GenericObjectB_t,
   &_swigt__p_boost__shared_ptrT_Skeleton__GenericObjectC_t,
   &_swigt__p_boost__shared_ptrT_Skeleton__GenericObject_t,
@@ -6842,9 +7131,10 @@ static swig_type_info *swig_type_initial[] = {
   &_swigt__p_value_type,
 };
 
-static swig_cast_info _swigc__p_Skeleton__GenericObject[] = {  {&_swigt__p_Skeleton__GenericObject, 0, 0, 0},  {&_swigt__p_Skeleton__GenericObjectA, _p_Skeleton__GenericObjectATo_p_Skeleton__GenericObject, 0, 0},  {&_swigt__p_Skeleton__GenericObjectB, _p_Skeleton__GenericObjectBTo_p_Skeleton__GenericObject, 0, 0},  {&_swigt__p_Skeleton__GenericObjectC, _p_Skeleton__GenericObjectCTo_p_Skeleton__GenericObject, 0, 0},{0, 0, 0, 0}};
+static swig_cast_info _swigc__p_Skeleton__GenericObject[] = {  {&_swigt__p_Skeleton__GenericObject, 0, 0, 0},  {&_swigt__p_Skeleton__GenericObjectA, _p_Skeleton__GenericObjectATo_p_Skeleton__GenericObject, 0, 0},  {&_swigt__p_Skeleton__GenericObjectB, _p_Skeleton__GenericObjectBTo_p_Skeleton__GenericObject, 0, 0},  {&_swigt__p_Skeleton__GenericObjectB2, _p_Skeleton__GenericObjectB2To_p_Skeleton__GenericObject, 0, 0},  {&_swigt__p_Skeleton__GenericObjectC, _p_Skeleton__GenericObjectCTo_p_Skeleton__GenericObject, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_Skeleton__GenericObjectA[] = {  {&_swigt__p_Skeleton__GenericObjectA, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_Skeleton__GenericObjectB[] = {  {&_swigt__p_Skeleton__GenericObjectB, 0, 0, 0},{0, 0, 0, 0}};
+static swig_cast_info _swigc__p_Skeleton__GenericObjectB2[] = {  {&_swigt__p_Skeleton__GenericObjectB2, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_Skeleton__GenericObjectC[] = {  {&_swigt__p_Skeleton__GenericObjectC, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_allocator_type[] = {  {&_swigt__p_allocator_type, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_blitz__ArrayT_bool_1_t[] = {  {&_swigt__p_blitz__ArrayT_bool_1_t, 0, 0, 0},{0, 0, 0, 0}};
@@ -6921,9 +7211,10 @@ static swig_cast_info _swigc__p_blitz__ArrayT_unsigned_short_7_t[] = {  {&_swigt
 static swig_cast_info _swigc__p_blitz__ArrayT_unsigned_short_8_t[] = {  {&_swigt__p_blitz__ArrayT_unsigned_short_8_t, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_blitz__Range[] = {  {&_swigt__p_blitz__Range, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_boost__shared_ptrT_Skeleton__GenericObjectA_t[] = {  {&_swigt__p_boost__shared_ptrT_Skeleton__GenericObjectA_t, 0, 0, 0},{0, 0, 0, 0}};
+static swig_cast_info _swigc__p_boost__shared_ptrT_Skeleton__GenericObjectB2_t[] = {  {&_swigt__p_boost__shared_ptrT_Skeleton__GenericObjectB2_t, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_boost__shared_ptrT_Skeleton__GenericObjectB_t[] = {  {&_swigt__p_boost__shared_ptrT_Skeleton__GenericObjectB_t, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_boost__shared_ptrT_Skeleton__GenericObjectC_t[] = {  {&_swigt__p_boost__shared_ptrT_Skeleton__GenericObjectC_t, 0, 0, 0},{0, 0, 0, 0}};
-static swig_cast_info _swigc__p_boost__shared_ptrT_Skeleton__GenericObject_t[] = {  {&_swigt__p_boost__shared_ptrT_Skeleton__GenericObject_t, 0, 0, 0},  {&_swigt__p_boost__shared_ptrT_Skeleton__GenericObjectA_t, _p_boost__shared_ptrT_Skeleton__GenericObjectA_tTo_p_boost__shared_ptrT_Skeleton__GenericObject_t, 0, 0},  {&_swigt__p_boost__shared_ptrT_Skeleton__GenericObjectB_t, _p_boost__shared_ptrT_Skeleton__GenericObjectB_tTo_p_boost__shared_ptrT_Skeleton__GenericObject_t, 0, 0},  {&_swigt__p_boost__shared_ptrT_Skeleton__GenericObjectC_t, _p_boost__shared_ptrT_Skeleton__GenericObjectC_tTo_p_boost__shared_ptrT_Skeleton__GenericObject_t, 0, 0},{0, 0, 0, 0}};
+static swig_cast_info _swigc__p_boost__shared_ptrT_Skeleton__GenericObject_t[] = {  {&_swigt__p_boost__shared_ptrT_Skeleton__GenericObject_t, 0, 0, 0},  {&_swigt__p_boost__shared_ptrT_Skeleton__GenericObjectA_t, _p_boost__shared_ptrT_Skeleton__GenericObjectA_tTo_p_boost__shared_ptrT_Skeleton__GenericObject_t, 0, 0},  {&_swigt__p_boost__shared_ptrT_Skeleton__GenericObjectB2_t, _p_boost__shared_ptrT_Skeleton__GenericObjectB2_tTo_p_boost__shared_ptrT_Skeleton__GenericObject_t, 0, 0},  {&_swigt__p_boost__shared_ptrT_Skeleton__GenericObjectB_t, _p_boost__shared_ptrT_Skeleton__GenericObjectB_tTo_p_boost__shared_ptrT_Skeleton__GenericObject_t, 0, 0},  {&_swigt__p_boost__shared_ptrT_Skeleton__GenericObjectC_t, _p_boost__shared_ptrT_Skeleton__GenericObjectC_tTo_p_boost__shared_ptrT_Skeleton__GenericObject_t, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_char[] = {  {&_swigt__p_char, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_char_type[] = {  {&_swigt__p_char_type, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_difference_type[] = {  {&_swigt__p_difference_type, 0, 0, 0},{0, 0, 0, 0}};
@@ -6950,6 +7241,7 @@ static swig_cast_info *swig_cast_initial[] = {
   _swigc__p_Skeleton__GenericObject,
   _swigc__p_Skeleton__GenericObjectA,
   _swigc__p_Skeleton__GenericObjectB,
+  _swigc__p_Skeleton__GenericObjectB2,
   _swigc__p_Skeleton__GenericObjectC,
   _swigc__p_allocator_type,
   _swigc__p_blitz__ArrayT_bool_1_t,
@@ -7026,6 +7318,7 @@ static swig_cast_info *swig_cast_initial[] = {
   _swigc__p_blitz__ArrayT_unsigned_short_8_t,
   _swigc__p_blitz__Range,
   _swigc__p_boost__shared_ptrT_Skeleton__GenericObjectA_t,
+  _swigc__p_boost__shared_ptrT_Skeleton__GenericObjectB2_t,
   _swigc__p_boost__shared_ptrT_Skeleton__GenericObjectB_t,
   _swigc__p_boost__shared_ptrT_Skeleton__GenericObjectC_t,
   _swigc__p_boost__shared_ptrT_Skeleton__GenericObject_t,
@@ -7592,6 +7885,9 @@ SWIG_init(void) {
   
   
   Skeleton::SwigTypeMapperBase::add(typeid(Skeleton::GenericObjectB), boost::make_shared<Skeleton::SwigTypeMapper< Skeleton::GenericObjectB > > ("boost::shared_ptr< Skeleton::GenericObjectB > *"));
+  
+  
+  Skeleton::SwigTypeMapperBase::add(typeid(Skeleton::GenericObjectB2), boost::make_shared<Skeleton::SwigTypeMapper< Skeleton::GenericObjectB2 > > ("boost::shared_ptr< Skeleton::GenericObjectB2 > *"));
   
   
   Skeleton::SwigTypeMapperBase::add(typeid(Skeleton::GenericObjectC), boost::make_shared<Skeleton::SwigTypeMapper< Skeleton::GenericObjectC > > ("boost::shared_ptr< Skeleton::GenericObjectC > *"));

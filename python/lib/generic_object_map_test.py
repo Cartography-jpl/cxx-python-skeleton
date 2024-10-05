@@ -6,10 +6,12 @@ def test_generic_object_map():
     m = GenericObjectMap()
     m["a"] = GenericObjectA(1)
     m["b"] = GenericObjectB(m.a)
+    m["b2"] = GenericObjectB2(m.a)
     t = pickle.dumps(m)
     m2 = pickle.loads(t)
     assert m.a.v == 1
     assert m.b.a.v == 1
+    assert m.b2.a.v == 1
     # Check that m.b.a and m.a are the same. We can't directly compare, python
     # has two different shared ptr so the are "different". But we can verify
     # that the underlying C++ object is the same by changing one and making

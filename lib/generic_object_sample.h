@@ -11,12 +11,12 @@ namespace Skeleton {
 class GenericObjectA : public Printable<GenericObjectA> {
 public:
   GenericObjectA(int V) : v_(V) {}
+  GenericObjectA() {}
   void print(std::ostream& Os) const {Os << "A";}
   int v() const { return v_;}
   void v(int V) { v_ = V;}
 private:
   int v_;
-  GenericObjectA() {}
   friend class boost::serialization::access;
   template<class Archive>
   void serialize(Archive & ar, const unsigned int version);
@@ -36,6 +36,20 @@ private:
   void serialize(Archive & ar, const unsigned int version);
 };
 
+class GenericObjectB2 : public Printable<GenericObjectB> {
+public:
+  GenericObjectB2(const GenericObjectA& V) : a_(V) {}
+  void print(std::ostream& Os) const {Os << "B2";}
+  const GenericObjectA& a() const { return a_;}
+  void a(const GenericObjectA& V) { a_ = V;}
+private:
+  GenericObjectA a_;
+  GenericObjectB2() {}
+  friend class boost::serialization::access;
+  template<class Archive>
+  void serialize(Archive & ar, const unsigned int version);
+};
+  
 class GenericObjectC : public Printable<GenericObjectC> {
 public:
   GenericObjectC(const boost::shared_ptr<GenericObjectA>& V) : a_(V) {}
@@ -53,5 +67,6 @@ private:
 }
 SKELETON_EXPORT_KEY(GenericObjectA);
 SKELETON_EXPORT_KEY(GenericObjectB);
+SKELETON_EXPORT_KEY(GenericObjectB2);
 SKELETON_EXPORT_KEY(GenericObjectC);
 #endif
