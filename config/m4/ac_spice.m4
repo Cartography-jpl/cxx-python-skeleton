@@ -44,8 +44,21 @@ if test "x$want_spice" = "xyes"; then
             SPICE_CFLAGS="-I$ac_spice_path/include"
             succeeded=yes
         else
-	    AC_SEARCH_LIB([SPICE], [spice], , [SpiceCK.h], ,
-                          [libcspice], [-lcspice])
+  	    if test "x$CONDA_PREFIX" != x; then
+	       if test -e "$CONDA_PREFIX/include/SpiceCK.h"; then
+                  SPICE_LIBS="-R$CONDA_PREFIX/lib -L$CONDA_PREFIX/lib -lcspice"
+                  SPICE_CFLAGS="-I$CONDA_PREFIX/include"
+                  succeeded=yes
+	       elif test -e "$prefix/include/SpiceCK.h"; then
+                  SPICE_LIBS="-R$prefix/lib -L$prefix/lib -lcspice"
+                  SPICE_CFLAGS="-I$prefix/include"
+                  succeeded=yes
+	       fi
+            fi
+            if test "$succeeded" != "yes" ; then
+	        AC_SEARCH_LIB([SPICE], [spice], , [SpiceCK.h], ,
+                            [libcspice], [-lcspice])
+            fi
         fi
 	if test "$succeeded" != "yes" -a "x$build_needed_spice" == "xyes" ; then
             build_spice="yes"
