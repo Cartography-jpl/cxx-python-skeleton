@@ -13,6 +13,9 @@
    file. */
 #undef HAVE_BOOST_SERIALIZATION_BOOST_ARRAY_HPP
 
+/* define if the compiler supports basic C++17 syntax */
+#undef HAVE_CXX17
+
 /* Define to 1 if you have the <dlfcn.h> header file. */
 #undef HAVE_DLFCN_H
 
@@ -21,6 +24,12 @@
 
 /* Define to 1 if you have the <memory.h> header file. */
 #undef HAVE_MEMORY_H
+
+/* Define if you have POSIX threads libraries and header files. */
+#undef HAVE_PTHREAD
+
+/* Have PTHREAD_PRIO_INHERIT. */
+#undef HAVE_PTHREAD_PRIO_INHERIT
 
 /* Define to 1 if you have the <stdint.h> header file. */
 #undef HAVE_STDINT_H
@@ -66,6 +75,10 @@
 
 /* Define to the version of this package. */
 #undef PACKAGE_VERSION
+
+/* Define to necessary symbol if this constant uses a non-standard name on
+   your system. */
+#undef PTHREAD_CREATE_JOINABLE
 
 /* Defined if we have boost serialization */
 #undef SKELETON_HAVE_BOOST_SERIALIZATION

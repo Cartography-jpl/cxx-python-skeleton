@@ -15,7 +15,6 @@
 // the typemaps in place.
 %template(Vector_DirectorExample) std::vector<boost::shared_ptr<Skeleton::DirectorExample> >;
 %template(Vector_Vector_DirectorExample) std::vector<std::vector<boost::shared_ptr<Skeleton::DirectorExample> > >;
-%template(Vector_int) std::vector<int>;
 %template(Vector_Vector_int) std::vector<std::vector<int> >;
 
 namespace Skeleton {
@@ -81,6 +80,6 @@ public:
 %python_export("DirectorExample", "DirectorExampleUser",
 	       "DirectorExampleWeakPtr",
 	       "Vector_DirectorExample", "Vector_Vector_DirectorExample",
-	       "Vector_int", "Vector_Vector_int");
+	       "Vector_Vector_int");
 
   
