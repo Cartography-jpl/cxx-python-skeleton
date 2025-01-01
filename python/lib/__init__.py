@@ -12,7 +12,14 @@ from __future__ import absolute_import
 import os
 import re
 import glob
-from skeleton_swig import *
+# See https://github.com/swig/swig/issues/2881#issuecomment-2332652634
+# As of Swig 4.3, have warning in pytest that we can't suppress. This
+# might get fixed, they are currently showing this in Swig 4.4 as one of
+# the scheduled items. But do this in the short term
+import warnings
+with warnings.catch_warnings():
+    warnings.simplefilter("ignore")
+    from skeleton_swig import *
 
 for i in glob.glob(os.path.dirname(__file__) + "/*.py"):
     mname = os.path.basename(i).split('.')[0]

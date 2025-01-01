@@ -7,15 +7,18 @@
 %}
 
 %base_import(generic_object)
-%skeleton_shared_ptr(Skeleton::DirectorExample);
-%skeleton_shared_ptr(Skeleton::DirectorExampleUser);
-%skeleton_shared_ptr(Skeleton::DirectorExampleWeakPtr);
 
 // Note we need the template before its first use, so we have all
 // the typemaps in place.
 %template(Vector_DirectorExample) std::vector<boost::shared_ptr<Skeleton::DirectorExample> >;
 %template(Vector_Vector_DirectorExample) std::vector<std::vector<boost::shared_ptr<Skeleton::DirectorExample> > >;
 %template(Vector_Vector_int) std::vector<std::vector<int> >;
+
+// We also need the shared ptr after the templates, so we override the
+// output type maps for std::vector<boost::shared_ptr<T> >
+%skeleton_shared_ptr(Skeleton::DirectorExample);
+%skeleton_shared_ptr(Skeleton::DirectorExampleUser);
+%skeleton_shared_ptr(Skeleton::DirectorExampleWeakPtr);
 
 namespace Skeleton {
 %feature("director") DirectorExample;

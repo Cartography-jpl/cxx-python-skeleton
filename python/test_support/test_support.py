@@ -2,7 +2,10 @@
 import numpy as np
 from numpy.testing import assert_almost_equal, assert_approx_equal
 from unittest import SkipTest
-from skeleton_swig import *
+import warnings
+with warnings.catch_warnings():
+    warnings.simplefilter("ignore")
+    from skeleton_swig.all import *
 import os.path
 import os
 import sys
