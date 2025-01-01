@@ -15036,7 +15036,7 @@ SWIGINTERN PyObject *_wrap_DirectorExampleUser_value_vec(PyObject *self, PyObjec
     }
   }
   {
-    resultobj = Skeleton::swig_to_python(*result);
+    resultobj = Skeleton::swig_to_python(result);
   }
   return resultobj;
 fail:
@@ -15139,7 +15139,7 @@ SWIGINTERN PyObject *_wrap_DirectorExampleUser_value_vec_vec(PyObject *self, PyO
     }
   }
   {
-    resultobj = Skeleton::swig_to_python(*result);
+    resultobj = Skeleton::swig_to_python(result);
   }
   return resultobj;
 fail:
