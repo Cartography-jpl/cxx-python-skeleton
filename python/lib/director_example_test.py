@@ -4,6 +4,7 @@ import pickle
 import sys
 import gc
 import ctypes
+import tempfile
 
 # For testing, this calls the low level python c API for decreasing the reference
 # count. Can use to try to sort out issues with lifetime
@@ -56,7 +57,17 @@ class DirectorPythonExample(DirectorExample):
                 print(sys.getrefcount(olist[0]))
             print("Stuff referring to this:")
             print(gc.get_referents(olist[0]), flush=True)
-    
+
+class DirectorPythonExampleBadPickle(DirectorPythonExample):
+    '''We have had an issue with serialization where problems get reported as
+    a generic "Python error that I can't parse". We will first have a error case that
+    cleanly triggers this, and then work through how to get more information available
+    here.'''
+    def __init__(self, v1, v2, name):
+        super().__init__(v1, v2, name)
+        # A file handle can't be pickled, so this will trigger an error
+        self.fh = tempfile.TemporaryFile()
+            
 def test_director_example(serial):
     print("May want to valgrind this, to make sure we have lifetime etc. ok with memory usage.")
     print("Do this with PYTHONMALLOC=malloc valgrind $(which python) $(which pytest) -s lib/director_example_test.py")
@@ -210,6 +221,13 @@ def test_director_pickle_shelve(isolated_dir, serial):
     DirectorPythonExample.deleted_list.clear()
     print("All done", flush=True)
 
+def test_director_pickle_error(isolated_dir, serial):
+    e1 = DirectorPythonExampleBadPickle(5,6, "e2")
+    assert e1.func(10) == 5+10+2*6
+    with pytest.raises(BaseException) as e_info:
+        pickle.dump(e1, open("e1.pkl", "wb"))
+    print(e_info.value)
+    
 def test_director_lifetime_shelve(isolated_dir, serial):
     DirectorPythonExample.deleted_list.clear()
     print("Should see creation message", flush=True)
