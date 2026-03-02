@@ -58,6 +58,11 @@ class DirectorPythonExample(DirectorExample):
             print("Stuff referring to this:")
             print(gc.get_referents(olist[0]), flush=True)
 
+class DirectorPythonExampleWithException(DirectorPythonExample):
+    def func(self, v):
+        raise RuntimeError("Error, check if propagate")
+        return super().func(v) + 2 * self.v2
+            
 class DirectorPythonExampleBadPickle(DirectorPythonExample):
     '''We have had an issue with serialization where problems get reported as
     a generic "Python error that I can't parse". We will first have a error case that
@@ -227,6 +232,16 @@ def test_director_pickle_error(isolated_dir, serial):
     with pytest.raises(BaseException) as e_info:
         pickle.dump(e1, open("e1.pkl", "wb"))
     print(e_info.value)
+
+def test_exception_propagate():
+    # Check that when we throw an exception in python called by other code
+    # through a director, we get back the original exception
+    e2 = DirectorPythonExampleWithException(5,6, "e2")
+    euser = DirectorExampleUser()
+    euser.set_value(e2)
+    with pytest.raises(RuntimeError) as e_info:
+        euser.apply_func(10)
+    assert str(e_info.value) == "Error, check if propagate"
     
 def test_director_lifetime_shelve(isolated_dir, serial):
     DirectorPythonExample.deleted_list.clear()

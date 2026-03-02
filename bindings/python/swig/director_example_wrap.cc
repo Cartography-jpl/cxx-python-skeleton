@@ -4547,14 +4547,14 @@ SWIG_AsVal_ptrdiff_t (PyObject * obj, ptrdiff_t *val)
 #include <boost/make_shared.hpp>
 
 
-  // This is defined in swig_wrap.tmpl, so it gets put into swig_wrap.cc
-  std::string parse_python_exception();
+  // This is defined in swig_wrap.tmpl, so it gets put into
+  // swig_wrap.cc
+  #include "python_exception.h"
 
 
 #include "serialize_function.h"
+#include "python_exception.h"  
 #include <stdexcept>
-// This is defined in swig_wrap.tmpl, so it gets put into swig_wrap.cc
-std::string parse_python_exception();
 
 
 //--------------------------------------------------------------
@@ -4575,7 +4575,7 @@ inline std::string cpickle_dumps(PyObject* obj)
 					     PyString_FromString("dumps"),
 					     obj, NULL);
   if(PyErr_Occurred()) {
-    throw std::runtime_error("Python error occurred:\n" + parse_python_exception());
+    throw PythonException();
   }
   char *buf;
   Py_ssize_t len;
@@ -4590,7 +4590,7 @@ inline PyObject* cpickle_loads(const std::string& S)
 					     PyBytes_FromStringAndSize(S.c_str(), S.size()), 
 					     NULL);
   if(PyErr_Occurred()) {
-    throw std::runtime_error("Python error occurred:\n" + parse_python_exception());
+    throw PythonException();
   }
   return res;
 }
@@ -6871,7 +6871,7 @@ std::string SwigDirector_DirectorExample::desc() const {
     PyObject *error = PyErr_Occurred();
     {
       if (error != NULL) {
-        throw std::runtime_error("Python error occured:\n" + parse_python_exception());
+        throw PythonException();
       }
     }
   }
@@ -6907,7 +6907,7 @@ int SwigDirector_DirectorExample::func(int v) const {
     PyObject *error = PyErr_Occurred();
     {
       if (error != NULL) {
-        throw std::runtime_error("Python error occured:\n" + parse_python_exception());
+        throw PythonException();
       }
     }
   }
@@ -7748,6 +7748,9 @@ SWIGINTERN PyObject *_wrap_Vector_DirectorExample_iterator(PyObject *self, PyObj
       result = (swig::SwigPyIterator *)std_vector_Sl_boost_shared_ptr_Sl_Skeleton_DirectorExample_Sg__Sg__iterator(arg1,arg2);
     } catch (Swig::DirectorException &e) {
       SWIG_fail; 
+    } catch (const PythonException& e) {
+      e.restore_python_exception();
+      SWIG_fail; 
     } catch (const std::exception& e) {
       SWIG_exception(SWIG_RuntimeError, e.what());
     }
@@ -7779,6 +7782,9 @@ SWIGINTERN PyObject *_wrap_Vector_DirectorExample___nonzero__(PyObject *self, Py
     try {
       result = (bool)std_vector_Sl_boost_shared_ptr_Sl_Skeleton_DirectorExample_Sg__Sg____nonzero__((std::vector< boost::shared_ptr< Skeleton::DirectorExample > > const *)arg1);
     } catch (Swig::DirectorException &e) {
+      SWIG_fail; 
+    } catch (const PythonException& e) {
+      e.restore_python_exception();
       SWIG_fail; 
     } catch (const std::exception& e) {
       SWIG_exception(SWIG_RuntimeError, e.what());
@@ -7812,6 +7818,9 @@ SWIGINTERN PyObject *_wrap_Vector_DirectorExample___bool__(PyObject *self, PyObj
       result = (bool)std_vector_Sl_boost_shared_ptr_Sl_Skeleton_DirectorExample_Sg__Sg____bool__((std::vector< boost::shared_ptr< Skeleton::DirectorExample > > const *)arg1);
     } catch (Swig::DirectorException &e) {
       SWIG_fail; 
+    } catch (const PythonException& e) {
+      e.restore_python_exception();
+      SWIG_fail; 
     } catch (const std::exception& e) {
       SWIG_exception(SWIG_RuntimeError, e.what());
     }
@@ -7843,6 +7852,9 @@ SWIGINTERN PyObject *_wrap_Vector_DirectorExample___len__(PyObject *self, PyObje
     try {
       result = std_vector_Sl_boost_shared_ptr_Sl_Skeleton_DirectorExample_Sg__Sg____len__((std::vector< boost::shared_ptr< Skeleton::DirectorExample > > const *)arg1);
     } catch (Swig::DirectorException &e) {
+      SWIG_fail; 
+    } catch (const PythonException& e) {
+      e.restore_python_exception();
       SWIG_fail; 
     } catch (const std::exception& e) {
       SWIG_exception(SWIG_RuntimeError, e.what());
@@ -7897,6 +7909,9 @@ SWIGINTERN PyObject *_wrap_Vector_DirectorExample___getslice__(PyObject *self, P
       }
     } catch (Swig::DirectorException &e) {
       SWIG_fail; 
+    } catch (const PythonException& e) {
+      e.restore_python_exception();
+      SWIG_fail; 
     } catch (const std::exception& e) {
       SWIG_exception(SWIG_RuntimeError, e.what());
     }
@@ -7947,6 +7962,9 @@ SWIGINTERN PyObject *_wrap_Vector_DirectorExample___setslice____SWIG_0(PyObject 
         SWIG_exception_fail(SWIG_ValueError, (&_e)->what());
       }
     } catch (Swig::DirectorException &e) {
+      SWIG_fail; 
+    } catch (const PythonException& e) {
+      e.restore_python_exception();
       SWIG_fail; 
     } catch (const std::exception& e) {
       SWIG_exception(SWIG_RuntimeError, e.what());
@@ -8011,6 +8029,9 @@ SWIGINTERN PyObject *_wrap_Vector_DirectorExample___setslice____SWIG_1(PyObject 
         SWIG_exception_fail(SWIG_ValueError, (&_e)->what());
       }
     } catch (Swig::DirectorException &e) {
+      SWIG_fail; 
+    } catch (const PythonException& e) {
+      e.restore_python_exception();
       SWIG_fail; 
     } catch (const std::exception& e) {
       SWIG_exception(SWIG_RuntimeError, e.what());
@@ -8094,6 +8115,9 @@ SWIGINTERN PyObject *_wrap_Vector_DirectorExample___delslice__(PyObject *self, P
       }
     } catch (Swig::DirectorException &e) {
       SWIG_fail; 
+    } catch (const PythonException& e) {
+      e.restore_python_exception();
+      SWIG_fail; 
     } catch (const std::exception& e) {
       SWIG_exception(SWIG_RuntimeError, e.what());
     }
@@ -8137,6 +8161,9 @@ SWIGINTERN PyObject *_wrap_Vector_DirectorExample___delitem____SWIG_0(PyObject *
       }
     } catch (Swig::DirectorException &e) {
       SWIG_fail; 
+    } catch (const PythonException& e) {
+      e.restore_python_exception();
+      SWIG_fail; 
     } catch (const std::exception& e) {
       SWIG_exception(SWIG_RuntimeError, e.what());
     }
@@ -8179,6 +8206,9 @@ SWIGINTERN PyObject *_wrap_Vector_DirectorExample___getitem____SWIG_0(PyObject *
         SWIG_exception_fail(SWIG_ValueError, (&_e)->what());
       }
     } catch (Swig::DirectorException &e) {
+      SWIG_fail; 
+    } catch (const PythonException& e) {
+      e.restore_python_exception();
       SWIG_fail; 
     } catch (const std::exception& e) {
       SWIG_exception(SWIG_RuntimeError, e.what());
@@ -8235,6 +8265,9 @@ SWIGINTERN PyObject *_wrap_Vector_DirectorExample___setitem____SWIG_0(PyObject *
       }
     } catch (Swig::DirectorException &e) {
       SWIG_fail; 
+    } catch (const PythonException& e) {
+      e.restore_python_exception();
+      SWIG_fail; 
     } catch (const std::exception& e) {
       SWIG_exception(SWIG_RuntimeError, e.what());
     }
@@ -8279,6 +8312,9 @@ SWIGINTERN PyObject *_wrap_Vector_DirectorExample___setitem____SWIG_1(PyObject *
       }
     } catch (Swig::DirectorException &e) {
       SWIG_fail; 
+    } catch (const PythonException& e) {
+      e.restore_python_exception();
+      SWIG_fail; 
     } catch (const std::exception& e) {
       SWIG_exception(SWIG_RuntimeError, e.what());
     }
@@ -8320,6 +8356,9 @@ SWIGINTERN PyObject *_wrap_Vector_DirectorExample___delitem____SWIG_1(PyObject *
         SWIG_exception_fail(SWIG_ValueError, (&_e)->what());
       }
     } catch (Swig::DirectorException &e) {
+      SWIG_fail; 
+    } catch (const PythonException& e) {
+      e.restore_python_exception();
       SWIG_fail; 
     } catch (const std::exception& e) {
       SWIG_exception(SWIG_RuntimeError, e.what());
@@ -8397,6 +8436,9 @@ SWIGINTERN PyObject *_wrap_Vector_DirectorExample___getitem____SWIG_1(PyObject *
         SWIG_exception_fail(SWIG_IndexError, (&_e)->what());
       }
     } catch (Swig::DirectorException &e) {
+      SWIG_fail; 
+    } catch (const PythonException& e) {
+      e.restore_python_exception();
       SWIG_fail; 
     } catch (const std::exception& e) {
       SWIG_exception(SWIG_RuntimeError, e.what());
@@ -8486,6 +8528,9 @@ SWIGINTERN PyObject *_wrap_Vector_DirectorExample___setitem____SWIG_2(PyObject *
       }
     } catch (Swig::DirectorException &e) {
       SWIG_fail; 
+    } catch (const PythonException& e) {
+      e.restore_python_exception();
+      SWIG_fail; 
     } catch (const std::exception& e) {
       SWIG_exception(SWIG_RuntimeError, e.what());
     }
@@ -8568,6 +8613,9 @@ SWIGINTERN PyObject *_wrap_Vector_DirectorExample_pop(PyObject *self, PyObject *
       }
     } catch (Swig::DirectorException &e) {
       SWIG_fail; 
+    } catch (const PythonException& e) {
+      e.restore_python_exception();
+      SWIG_fail; 
     } catch (const std::exception& e) {
       SWIG_exception(SWIG_RuntimeError, e.what());
     }
@@ -8609,6 +8657,9 @@ SWIGINTERN PyObject *_wrap_Vector_DirectorExample_append(PyObject *self, PyObjec
       std_vector_Sl_boost_shared_ptr_Sl_Skeleton_DirectorExample_Sg__Sg__append(arg1,(boost::shared_ptr< Skeleton::DirectorExample > const &)*arg2);
     } catch (Swig::DirectorException &e) {
       SWIG_fail; 
+    } catch (const PythonException& e) {
+      e.restore_python_exception();
+      SWIG_fail; 
     } catch (const std::exception& e) {
       SWIG_exception(SWIG_RuntimeError, e.what());
     }
@@ -8630,6 +8681,9 @@ SWIGINTERN PyObject *_wrap_new_Vector_DirectorExample__SWIG_0(PyObject *self, Py
     try {
       result = (std::vector< boost::shared_ptr< Skeleton::DirectorExample > > *)new std::vector< boost::shared_ptr< Skeleton::DirectorExample > >();
     } catch (Swig::DirectorException &e) {
+      SWIG_fail; 
+    } catch (const PythonException& e) {
+      e.restore_python_exception();
       SWIG_fail; 
     } catch (const std::exception& e) {
       SWIG_exception(SWIG_RuntimeError, e.what());
@@ -8666,6 +8720,9 @@ SWIGINTERN PyObject *_wrap_new_Vector_DirectorExample__SWIG_1(PyObject *self, Py
       result = (std::vector< boost::shared_ptr< Skeleton::DirectorExample > > *)new std::vector< boost::shared_ptr< Skeleton::DirectorExample > >((std::vector< boost::shared_ptr< Skeleton::DirectorExample > > const &)*arg1);
     } catch (Swig::DirectorException &e) {
       SWIG_fail; 
+    } catch (const PythonException& e) {
+      e.restore_python_exception();
+      SWIG_fail; 
     } catch (const std::exception& e) {
       SWIG_exception(SWIG_RuntimeError, e.what());
     }
@@ -8700,6 +8757,9 @@ SWIGINTERN PyObject *_wrap_Vector_DirectorExample_empty(PyObject *self, PyObject
       result = (bool)((std::vector< boost::shared_ptr< Skeleton::DirectorExample > > const *)arg1)->empty();
     } catch (Swig::DirectorException &e) {
       SWIG_fail; 
+    } catch (const PythonException& e) {
+      e.restore_python_exception();
+      SWIG_fail; 
     } catch (const std::exception& e) {
       SWIG_exception(SWIG_RuntimeError, e.what());
     }
@@ -8731,6 +8791,9 @@ SWIGINTERN PyObject *_wrap_Vector_DirectorExample_size(PyObject *self, PyObject 
     try {
       result = ((std::vector< boost::shared_ptr< Skeleton::DirectorExample > > const *)arg1)->size();
     } catch (Swig::DirectorException &e) {
+      SWIG_fail; 
+    } catch (const PythonException& e) {
+      e.restore_python_exception();
       SWIG_fail; 
     } catch (const std::exception& e) {
       SWIG_exception(SWIG_RuntimeError, e.what());
@@ -8773,6 +8836,9 @@ SWIGINTERN PyObject *_wrap_Vector_DirectorExample_swap(PyObject *self, PyObject 
       (arg1)->swap(*arg2);
     } catch (Swig::DirectorException &e) {
       SWIG_fail; 
+    } catch (const PythonException& e) {
+      e.restore_python_exception();
+      SWIG_fail; 
     } catch (const std::exception& e) {
       SWIG_exception(SWIG_RuntimeError, e.what());
     }
@@ -8804,6 +8870,9 @@ SWIGINTERN PyObject *_wrap_Vector_DirectorExample_begin(PyObject *self, PyObject
     try {
       result = (arg1)->begin();
     } catch (Swig::DirectorException &e) {
+      SWIG_fail; 
+    } catch (const PythonException& e) {
+      e.restore_python_exception();
       SWIG_fail; 
     } catch (const std::exception& e) {
       SWIG_exception(SWIG_RuntimeError, e.what());
@@ -8838,6 +8907,9 @@ SWIGINTERN PyObject *_wrap_Vector_DirectorExample_end(PyObject *self, PyObject *
       result = (arg1)->end();
     } catch (Swig::DirectorException &e) {
       SWIG_fail; 
+    } catch (const PythonException& e) {
+      e.restore_python_exception();
+      SWIG_fail; 
     } catch (const std::exception& e) {
       SWIG_exception(SWIG_RuntimeError, e.what());
     }
@@ -8870,6 +8942,9 @@ SWIGINTERN PyObject *_wrap_Vector_DirectorExample_rbegin(PyObject *self, PyObjec
     try {
       result = (arg1)->rbegin();
     } catch (Swig::DirectorException &e) {
+      SWIG_fail; 
+    } catch (const PythonException& e) {
+      e.restore_python_exception();
       SWIG_fail; 
     } catch (const std::exception& e) {
       SWIG_exception(SWIG_RuntimeError, e.what());
@@ -8904,6 +8979,9 @@ SWIGINTERN PyObject *_wrap_Vector_DirectorExample_rend(PyObject *self, PyObject 
       result = (arg1)->rend();
     } catch (Swig::DirectorException &e) {
       SWIG_fail; 
+    } catch (const PythonException& e) {
+      e.restore_python_exception();
+      SWIG_fail; 
     } catch (const std::exception& e) {
       SWIG_exception(SWIG_RuntimeError, e.what());
     }
@@ -8935,6 +9013,9 @@ SWIGINTERN PyObject *_wrap_Vector_DirectorExample_clear(PyObject *self, PyObject
     try {
       (arg1)->clear();
     } catch (Swig::DirectorException &e) {
+      SWIG_fail; 
+    } catch (const PythonException& e) {
+      e.restore_python_exception();
       SWIG_fail; 
     } catch (const std::exception& e) {
       SWIG_exception(SWIG_RuntimeError, e.what());
@@ -8968,6 +9049,9 @@ SWIGINTERN PyObject *_wrap_Vector_DirectorExample_get_allocator(PyObject *self, 
       result = ((std::vector< boost::shared_ptr< Skeleton::DirectorExample > > const *)arg1)->get_allocator();
     } catch (Swig::DirectorException &e) {
       SWIG_fail; 
+    } catch (const PythonException& e) {
+      e.restore_python_exception();
+      SWIG_fail; 
     } catch (const std::exception& e) {
       SWIG_exception(SWIG_RuntimeError, e.what());
     }
@@ -8997,6 +9081,9 @@ SWIGINTERN PyObject *_wrap_new_Vector_DirectorExample__SWIG_2(PyObject *self, Py
     try {
       result = (std::vector< boost::shared_ptr< Skeleton::DirectorExample > > *)new std::vector< boost::shared_ptr< Skeleton::DirectorExample > >(SWIG_STD_MOVE(arg1));
     } catch (Swig::DirectorException &e) {
+      SWIG_fail; 
+    } catch (const PythonException& e) {
+      e.restore_python_exception();
       SWIG_fail; 
     } catch (const std::exception& e) {
       SWIG_exception(SWIG_RuntimeError, e.what());
@@ -9028,6 +9115,9 @@ SWIGINTERN PyObject *_wrap_Vector_DirectorExample_pop_back(PyObject *self, PyObj
     try {
       (arg1)->pop_back();
     } catch (Swig::DirectorException &e) {
+      SWIG_fail; 
+    } catch (const PythonException& e) {
+      e.restore_python_exception();
       SWIG_fail; 
     } catch (const std::exception& e) {
       SWIG_exception(SWIG_RuntimeError, e.what());
@@ -9065,6 +9155,9 @@ SWIGINTERN PyObject *_wrap_Vector_DirectorExample_resize__SWIG_0(PyObject *self,
     try {
       (arg1)->resize(SWIG_STD_MOVE(arg2));
     } catch (Swig::DirectorException &e) {
+      SWIG_fail; 
+    } catch (const PythonException& e) {
+      e.restore_python_exception();
       SWIG_fail; 
     } catch (const std::exception& e) {
       SWIG_exception(SWIG_RuntimeError, e.what());
@@ -9109,6 +9202,9 @@ SWIGINTERN PyObject *_wrap_Vector_DirectorExample_erase__SWIG_0(PyObject *self, 
     try {
       result = std_vector_Sl_boost_shared_ptr_Sl_Skeleton_DirectorExample_Sg__Sg__erase__SWIG_0(arg1,SWIG_STD_MOVE(arg2));
     } catch (Swig::DirectorException &e) {
+      SWIG_fail; 
+    } catch (const PythonException& e) {
+      e.restore_python_exception();
       SWIG_fail; 
     } catch (const std::exception& e) {
       SWIG_exception(SWIG_RuntimeError, e.what());
@@ -9168,6 +9264,9 @@ SWIGINTERN PyObject *_wrap_Vector_DirectorExample_erase__SWIG_1(PyObject *self, 
     try {
       result = std_vector_Sl_boost_shared_ptr_Sl_Skeleton_DirectorExample_Sg__Sg__erase__SWIG_1(arg1,SWIG_STD_MOVE(arg2),SWIG_STD_MOVE(arg3));
     } catch (Swig::DirectorException &e) {
+      SWIG_fail; 
+    } catch (const PythonException& e) {
+      e.restore_python_exception();
       SWIG_fail; 
     } catch (const std::exception& e) {
       SWIG_exception(SWIG_RuntimeError, e.what());
@@ -9238,6 +9337,9 @@ SWIGINTERN PyObject *_wrap_new_Vector_DirectorExample__SWIG_3(PyObject *self, Py
     try {
       result = (std::vector< boost::shared_ptr< Skeleton::DirectorExample > > *)new std::vector< boost::shared_ptr< Skeleton::DirectorExample > >(SWIG_STD_MOVE(arg1),(std::vector< boost::shared_ptr< Skeleton::DirectorExample > >::value_type const &)*arg2);
     } catch (Swig::DirectorException &e) {
+      SWIG_fail; 
+    } catch (const PythonException& e) {
+      e.restore_python_exception();
       SWIG_fail; 
     } catch (const std::exception& e) {
       SWIG_exception(SWIG_RuntimeError, e.what());
@@ -9328,6 +9430,9 @@ SWIGINTERN PyObject *_wrap_Vector_DirectorExample_push_back(PyObject *self, PyOb
       (arg1)->push_back((std::vector< boost::shared_ptr< Skeleton::DirectorExample > >::value_type const &)*arg2);
     } catch (Swig::DirectorException &e) {
       SWIG_fail; 
+    } catch (const PythonException& e) {
+      e.restore_python_exception();
+      SWIG_fail; 
     } catch (const std::exception& e) {
       SWIG_exception(SWIG_RuntimeError, e.what());
     }
@@ -9359,6 +9464,9 @@ SWIGINTERN PyObject *_wrap_Vector_DirectorExample_front(PyObject *self, PyObject
     try {
       result = (std::vector< boost::shared_ptr< Skeleton::DirectorExample > >::value_type *) &((std::vector< boost::shared_ptr< Skeleton::DirectorExample > > const *)arg1)->front();
     } catch (Swig::DirectorException &e) {
+      SWIG_fail; 
+    } catch (const PythonException& e) {
+      e.restore_python_exception();
       SWIG_fail; 
     } catch (const std::exception& e) {
       SWIG_exception(SWIG_RuntimeError, e.what());
@@ -9392,6 +9500,9 @@ SWIGINTERN PyObject *_wrap_Vector_DirectorExample_back(PyObject *self, PyObject 
     try {
       result = (std::vector< boost::shared_ptr< Skeleton::DirectorExample > >::value_type *) &((std::vector< boost::shared_ptr< Skeleton::DirectorExample > > const *)arg1)->back();
     } catch (Swig::DirectorException &e) {
+      SWIG_fail; 
+    } catch (const PythonException& e) {
+      e.restore_python_exception();
       SWIG_fail; 
     } catch (const std::exception& e) {
       SWIG_exception(SWIG_RuntimeError, e.what());
@@ -9443,6 +9554,9 @@ SWIGINTERN PyObject *_wrap_Vector_DirectorExample_assign(PyObject *self, PyObjec
       (arg1)->assign(SWIG_STD_MOVE(arg2),(std::vector< boost::shared_ptr< Skeleton::DirectorExample > >::value_type const &)*arg3);
     } catch (Swig::DirectorException &e) {
       SWIG_fail; 
+    } catch (const PythonException& e) {
+      e.restore_python_exception();
+      SWIG_fail; 
     } catch (const std::exception& e) {
       SWIG_exception(SWIG_RuntimeError, e.what());
     }
@@ -9490,6 +9604,9 @@ SWIGINTERN PyObject *_wrap_Vector_DirectorExample_resize__SWIG_1(PyObject *self,
     try {
       (arg1)->resize(SWIG_STD_MOVE(arg2),(std::vector< boost::shared_ptr< Skeleton::DirectorExample > >::value_type const &)*arg3);
     } catch (Swig::DirectorException &e) {
+      SWIG_fail; 
+    } catch (const PythonException& e) {
+      e.restore_python_exception();
       SWIG_fail; 
     } catch (const std::exception& e) {
       SWIG_exception(SWIG_RuntimeError, e.what());
@@ -9574,6 +9691,9 @@ SWIGINTERN PyObject *_wrap_Vector_DirectorExample_insert__SWIG_0(PyObject *self,
       result = std_vector_Sl_boost_shared_ptr_Sl_Skeleton_DirectorExample_Sg__Sg__insert__SWIG_0(arg1,SWIG_STD_MOVE(arg2),(boost::shared_ptr< Skeleton::DirectorExample > const &)*arg3);
     } catch (Swig::DirectorException &e) {
       SWIG_fail; 
+    } catch (const PythonException& e) {
+      e.restore_python_exception();
+      SWIG_fail; 
     } catch (const std::exception& e) {
       SWIG_exception(SWIG_RuntimeError, e.what());
     }
@@ -9636,6 +9756,9 @@ SWIGINTERN PyObject *_wrap_Vector_DirectorExample_insert__SWIG_1(PyObject *self,
     try {
       std_vector_Sl_boost_shared_ptr_Sl_Skeleton_DirectorExample_Sg__Sg__insert__SWIG_1(arg1,SWIG_STD_MOVE(arg2),SWIG_STD_MOVE(arg3),(boost::shared_ptr< Skeleton::DirectorExample > const &)*arg4);
     } catch (Swig::DirectorException &e) {
+      SWIG_fail; 
+    } catch (const PythonException& e) {
+      e.restore_python_exception();
       SWIG_fail; 
     } catch (const std::exception& e) {
       SWIG_exception(SWIG_RuntimeError, e.what());
@@ -9703,6 +9826,9 @@ SWIGINTERN PyObject *_wrap_Vector_DirectorExample_reserve(PyObject *self, PyObje
       (arg1)->reserve(SWIG_STD_MOVE(arg2));
     } catch (Swig::DirectorException &e) {
       SWIG_fail; 
+    } catch (const PythonException& e) {
+      e.restore_python_exception();
+      SWIG_fail; 
     } catch (const std::exception& e) {
       SWIG_exception(SWIG_RuntimeError, e.what());
     }
@@ -9735,6 +9861,9 @@ SWIGINTERN PyObject *_wrap_Vector_DirectorExample_capacity(PyObject *self, PyObj
       result = ((std::vector< boost::shared_ptr< Skeleton::DirectorExample > > const *)arg1)->capacity();
     } catch (Swig::DirectorException &e) {
       SWIG_fail; 
+    } catch (const PythonException& e) {
+      e.restore_python_exception();
+      SWIG_fail; 
     } catch (const std::exception& e) {
       SWIG_exception(SWIG_RuntimeError, e.what());
     }
@@ -9765,6 +9894,9 @@ SWIGINTERN PyObject *_wrap_delete_Vector_DirectorExample(PyObject *self, PyObjec
     try {
       delete arg1;
     } catch (Swig::DirectorException &e) {
+      SWIG_fail; 
+    } catch (const PythonException& e) {
+      e.restore_python_exception();
       SWIG_fail; 
     } catch (const std::exception& e) {
       SWIG_exception(SWIG_RuntimeError, e.what());
@@ -9811,6 +9943,9 @@ SWIGINTERN PyObject *_wrap_Vector_Vector_DirectorExample_iterator(PyObject *self
       result = (swig::SwigPyIterator *)std_vector_Sl_std_vector_Sl_boost_shared_ptr_Sl_Skeleton_DirectorExample_Sg__Sg__Sg__iterator(arg1,arg2);
     } catch (Swig::DirectorException &e) {
       SWIG_fail; 
+    } catch (const PythonException& e) {
+      e.restore_python_exception();
+      SWIG_fail; 
     } catch (const std::exception& e) {
       SWIG_exception(SWIG_RuntimeError, e.what());
     }
@@ -9842,6 +9977,9 @@ SWIGINTERN PyObject *_wrap_Vector_Vector_DirectorExample___nonzero__(PyObject *s
     try {
       result = (bool)std_vector_Sl_std_vector_Sl_boost_shared_ptr_Sl_Skeleton_DirectorExample_Sg__Sg__Sg____nonzero__((std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > > const *)arg1);
     } catch (Swig::DirectorException &e) {
+      SWIG_fail; 
+    } catch (const PythonException& e) {
+      e.restore_python_exception();
       SWIG_fail; 
     } catch (const std::exception& e) {
       SWIG_exception(SWIG_RuntimeError, e.what());
@@ -9875,6 +10013,9 @@ SWIGINTERN PyObject *_wrap_Vector_Vector_DirectorExample___bool__(PyObject *self
       result = (bool)std_vector_Sl_std_vector_Sl_boost_shared_ptr_Sl_Skeleton_DirectorExample_Sg__Sg__Sg____bool__((std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > > const *)arg1);
     } catch (Swig::DirectorException &e) {
       SWIG_fail; 
+    } catch (const PythonException& e) {
+      e.restore_python_exception();
+      SWIG_fail; 
     } catch (const std::exception& e) {
       SWIG_exception(SWIG_RuntimeError, e.what());
     }
@@ -9906,6 +10047,9 @@ SWIGINTERN PyObject *_wrap_Vector_Vector_DirectorExample___len__(PyObject *self,
     try {
       result = std_vector_Sl_std_vector_Sl_boost_shared_ptr_Sl_Skeleton_DirectorExample_Sg__Sg__Sg____len__((std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > > const *)arg1);
     } catch (Swig::DirectorException &e) {
+      SWIG_fail; 
+    } catch (const PythonException& e) {
+      e.restore_python_exception();
       SWIG_fail; 
     } catch (const std::exception& e) {
       SWIG_exception(SWIG_RuntimeError, e.what());
@@ -9960,6 +10104,9 @@ SWIGINTERN PyObject *_wrap_Vector_Vector_DirectorExample___getslice__(PyObject *
       }
     } catch (Swig::DirectorException &e) {
       SWIG_fail; 
+    } catch (const PythonException& e) {
+      e.restore_python_exception();
+      SWIG_fail; 
     } catch (const std::exception& e) {
       SWIG_exception(SWIG_RuntimeError, e.what());
     }
@@ -10010,6 +10157,9 @@ SWIGINTERN PyObject *_wrap_Vector_Vector_DirectorExample___setslice____SWIG_0(Py
         SWIG_exception_fail(SWIG_ValueError, (&_e)->what());
       }
     } catch (Swig::DirectorException &e) {
+      SWIG_fail; 
+    } catch (const PythonException& e) {
+      e.restore_python_exception();
       SWIG_fail; 
     } catch (const std::exception& e) {
       SWIG_exception(SWIG_RuntimeError, e.what());
@@ -10074,6 +10224,9 @@ SWIGINTERN PyObject *_wrap_Vector_Vector_DirectorExample___setslice____SWIG_1(Py
         SWIG_exception_fail(SWIG_ValueError, (&_e)->what());
       }
     } catch (Swig::DirectorException &e) {
+      SWIG_fail; 
+    } catch (const PythonException& e) {
+      e.restore_python_exception();
       SWIG_fail; 
     } catch (const std::exception& e) {
       SWIG_exception(SWIG_RuntimeError, e.what());
@@ -10157,6 +10310,9 @@ SWIGINTERN PyObject *_wrap_Vector_Vector_DirectorExample___delslice__(PyObject *
       }
     } catch (Swig::DirectorException &e) {
       SWIG_fail; 
+    } catch (const PythonException& e) {
+      e.restore_python_exception();
+      SWIG_fail; 
     } catch (const std::exception& e) {
       SWIG_exception(SWIG_RuntimeError, e.what());
     }
@@ -10200,6 +10356,9 @@ SWIGINTERN PyObject *_wrap_Vector_Vector_DirectorExample___delitem____SWIG_0(PyO
       }
     } catch (Swig::DirectorException &e) {
       SWIG_fail; 
+    } catch (const PythonException& e) {
+      e.restore_python_exception();
+      SWIG_fail; 
     } catch (const std::exception& e) {
       SWIG_exception(SWIG_RuntimeError, e.what());
     }
@@ -10242,6 +10401,9 @@ SWIGINTERN PyObject *_wrap_Vector_Vector_DirectorExample___getitem____SWIG_0(PyO
         SWIG_exception_fail(SWIG_ValueError, (&_e)->what());
       }
     } catch (Swig::DirectorException &e) {
+      SWIG_fail; 
+    } catch (const PythonException& e) {
+      e.restore_python_exception();
       SWIG_fail; 
     } catch (const std::exception& e) {
       SWIG_exception(SWIG_RuntimeError, e.what());
@@ -10298,6 +10460,9 @@ SWIGINTERN PyObject *_wrap_Vector_Vector_DirectorExample___setitem____SWIG_0(PyO
       }
     } catch (Swig::DirectorException &e) {
       SWIG_fail; 
+    } catch (const PythonException& e) {
+      e.restore_python_exception();
+      SWIG_fail; 
     } catch (const std::exception& e) {
       SWIG_exception(SWIG_RuntimeError, e.what());
     }
@@ -10342,6 +10507,9 @@ SWIGINTERN PyObject *_wrap_Vector_Vector_DirectorExample___setitem____SWIG_1(PyO
       }
     } catch (Swig::DirectorException &e) {
       SWIG_fail; 
+    } catch (const PythonException& e) {
+      e.restore_python_exception();
+      SWIG_fail; 
     } catch (const std::exception& e) {
       SWIG_exception(SWIG_RuntimeError, e.what());
     }
@@ -10383,6 +10551,9 @@ SWIGINTERN PyObject *_wrap_Vector_Vector_DirectorExample___delitem____SWIG_1(PyO
         SWIG_exception_fail(SWIG_ValueError, (&_e)->what());
       }
     } catch (Swig::DirectorException &e) {
+      SWIG_fail; 
+    } catch (const PythonException& e) {
+      e.restore_python_exception();
       SWIG_fail; 
     } catch (const std::exception& e) {
       SWIG_exception(SWIG_RuntimeError, e.what());
@@ -10460,6 +10631,9 @@ SWIGINTERN PyObject *_wrap_Vector_Vector_DirectorExample___getitem____SWIG_1(PyO
         SWIG_exception_fail(SWIG_IndexError, (&_e)->what());
       }
     } catch (Swig::DirectorException &e) {
+      SWIG_fail; 
+    } catch (const PythonException& e) {
+      e.restore_python_exception();
       SWIG_fail; 
     } catch (const std::exception& e) {
       SWIG_exception(SWIG_RuntimeError, e.what());
@@ -10551,6 +10725,9 @@ SWIGINTERN PyObject *_wrap_Vector_Vector_DirectorExample___setitem____SWIG_2(PyO
       }
     } catch (Swig::DirectorException &e) {
       SWIG_fail; 
+    } catch (const PythonException& e) {
+      e.restore_python_exception();
+      SWIG_fail; 
     } catch (const std::exception& e) {
       SWIG_exception(SWIG_RuntimeError, e.what());
     }
@@ -10635,6 +10812,9 @@ SWIGINTERN PyObject *_wrap_Vector_Vector_DirectorExample_pop(PyObject *self, PyO
       }
     } catch (Swig::DirectorException &e) {
       SWIG_fail; 
+    } catch (const PythonException& e) {
+      e.restore_python_exception();
+      SWIG_fail; 
     } catch (const std::exception& e) {
       SWIG_exception(SWIG_RuntimeError, e.what());
     }
@@ -10678,6 +10858,9 @@ SWIGINTERN PyObject *_wrap_Vector_Vector_DirectorExample_append(PyObject *self, 
       std_vector_Sl_std_vector_Sl_boost_shared_ptr_Sl_Skeleton_DirectorExample_Sg__Sg__Sg__append(arg1,(std::vector< boost::shared_ptr< Skeleton::DirectorExample >,std::allocator< boost::shared_ptr< Skeleton::DirectorExample > > > const &)*arg2);
     } catch (Swig::DirectorException &e) {
       SWIG_fail; 
+    } catch (const PythonException& e) {
+      e.restore_python_exception();
+      SWIG_fail; 
     } catch (const std::exception& e) {
       SWIG_exception(SWIG_RuntimeError, e.what());
     }
@@ -10701,6 +10884,9 @@ SWIGINTERN PyObject *_wrap_new_Vector_Vector_DirectorExample__SWIG_0(PyObject *s
     try {
       result = (std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > > *)new std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > >();
     } catch (Swig::DirectorException &e) {
+      SWIG_fail; 
+    } catch (const PythonException& e) {
+      e.restore_python_exception();
       SWIG_fail; 
     } catch (const std::exception& e) {
       SWIG_exception(SWIG_RuntimeError, e.what());
@@ -10737,6 +10923,9 @@ SWIGINTERN PyObject *_wrap_new_Vector_Vector_DirectorExample__SWIG_1(PyObject *s
       result = (std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > > *)new std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > >((std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample >,std::allocator< boost::shared_ptr< Skeleton::DirectorExample > > > > const &)*arg1);
     } catch (Swig::DirectorException &e) {
       SWIG_fail; 
+    } catch (const PythonException& e) {
+      e.restore_python_exception();
+      SWIG_fail; 
     } catch (const std::exception& e) {
       SWIG_exception(SWIG_RuntimeError, e.what());
     }
@@ -10771,6 +10960,9 @@ SWIGINTERN PyObject *_wrap_Vector_Vector_DirectorExample_empty(PyObject *self, P
       result = (bool)((std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > > const *)arg1)->empty();
     } catch (Swig::DirectorException &e) {
       SWIG_fail; 
+    } catch (const PythonException& e) {
+      e.restore_python_exception();
+      SWIG_fail; 
     } catch (const std::exception& e) {
       SWIG_exception(SWIG_RuntimeError, e.what());
     }
@@ -10802,6 +10994,9 @@ SWIGINTERN PyObject *_wrap_Vector_Vector_DirectorExample_size(PyObject *self, Py
     try {
       result = ((std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > > const *)arg1)->size();
     } catch (Swig::DirectorException &e) {
+      SWIG_fail; 
+    } catch (const PythonException& e) {
+      e.restore_python_exception();
       SWIG_fail; 
     } catch (const std::exception& e) {
       SWIG_exception(SWIG_RuntimeError, e.what());
@@ -10844,6 +11039,9 @@ SWIGINTERN PyObject *_wrap_Vector_Vector_DirectorExample_swap(PyObject *self, Py
       (arg1)->swap(*arg2);
     } catch (Swig::DirectorException &e) {
       SWIG_fail; 
+    } catch (const PythonException& e) {
+      e.restore_python_exception();
+      SWIG_fail; 
     } catch (const std::exception& e) {
       SWIG_exception(SWIG_RuntimeError, e.what());
     }
@@ -10875,6 +11073,9 @@ SWIGINTERN PyObject *_wrap_Vector_Vector_DirectorExample_begin(PyObject *self, P
     try {
       result = (arg1)->begin();
     } catch (Swig::DirectorException &e) {
+      SWIG_fail; 
+    } catch (const PythonException& e) {
+      e.restore_python_exception();
       SWIG_fail; 
     } catch (const std::exception& e) {
       SWIG_exception(SWIG_RuntimeError, e.what());
@@ -10909,6 +11110,9 @@ SWIGINTERN PyObject *_wrap_Vector_Vector_DirectorExample_end(PyObject *self, PyO
       result = (arg1)->end();
     } catch (Swig::DirectorException &e) {
       SWIG_fail; 
+    } catch (const PythonException& e) {
+      e.restore_python_exception();
+      SWIG_fail; 
     } catch (const std::exception& e) {
       SWIG_exception(SWIG_RuntimeError, e.what());
     }
@@ -10941,6 +11145,9 @@ SWIGINTERN PyObject *_wrap_Vector_Vector_DirectorExample_rbegin(PyObject *self, 
     try {
       result = (arg1)->rbegin();
     } catch (Swig::DirectorException &e) {
+      SWIG_fail; 
+    } catch (const PythonException& e) {
+      e.restore_python_exception();
       SWIG_fail; 
     } catch (const std::exception& e) {
       SWIG_exception(SWIG_RuntimeError, e.what());
@@ -10975,6 +11182,9 @@ SWIGINTERN PyObject *_wrap_Vector_Vector_DirectorExample_rend(PyObject *self, Py
       result = (arg1)->rend();
     } catch (Swig::DirectorException &e) {
       SWIG_fail; 
+    } catch (const PythonException& e) {
+      e.restore_python_exception();
+      SWIG_fail; 
     } catch (const std::exception& e) {
       SWIG_exception(SWIG_RuntimeError, e.what());
     }
@@ -11006,6 +11216,9 @@ SWIGINTERN PyObject *_wrap_Vector_Vector_DirectorExample_clear(PyObject *self, P
     try {
       (arg1)->clear();
     } catch (Swig::DirectorException &e) {
+      SWIG_fail; 
+    } catch (const PythonException& e) {
+      e.restore_python_exception();
       SWIG_fail; 
     } catch (const std::exception& e) {
       SWIG_exception(SWIG_RuntimeError, e.what());
@@ -11039,6 +11252,9 @@ SWIGINTERN PyObject *_wrap_Vector_Vector_DirectorExample_get_allocator(PyObject 
       result = ((std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > > const *)arg1)->get_allocator();
     } catch (Swig::DirectorException &e) {
       SWIG_fail; 
+    } catch (const PythonException& e) {
+      e.restore_python_exception();
+      SWIG_fail; 
     } catch (const std::exception& e) {
       SWIG_exception(SWIG_RuntimeError, e.what());
     }
@@ -11068,6 +11284,9 @@ SWIGINTERN PyObject *_wrap_new_Vector_Vector_DirectorExample__SWIG_2(PyObject *s
     try {
       result = (std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > > *)new std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > >(SWIG_STD_MOVE(arg1));
     } catch (Swig::DirectorException &e) {
+      SWIG_fail; 
+    } catch (const PythonException& e) {
+      e.restore_python_exception();
       SWIG_fail; 
     } catch (const std::exception& e) {
       SWIG_exception(SWIG_RuntimeError, e.what());
@@ -11099,6 +11318,9 @@ SWIGINTERN PyObject *_wrap_Vector_Vector_DirectorExample_pop_back(PyObject *self
     try {
       (arg1)->pop_back();
     } catch (Swig::DirectorException &e) {
+      SWIG_fail; 
+    } catch (const PythonException& e) {
+      e.restore_python_exception();
       SWIG_fail; 
     } catch (const std::exception& e) {
       SWIG_exception(SWIG_RuntimeError, e.what());
@@ -11136,6 +11358,9 @@ SWIGINTERN PyObject *_wrap_Vector_Vector_DirectorExample_resize__SWIG_0(PyObject
     try {
       (arg1)->resize(SWIG_STD_MOVE(arg2));
     } catch (Swig::DirectorException &e) {
+      SWIG_fail; 
+    } catch (const PythonException& e) {
+      e.restore_python_exception();
       SWIG_fail; 
     } catch (const std::exception& e) {
       SWIG_exception(SWIG_RuntimeError, e.what());
@@ -11180,6 +11405,9 @@ SWIGINTERN PyObject *_wrap_Vector_Vector_DirectorExample_erase__SWIG_0(PyObject 
     try {
       result = std_vector_Sl_std_vector_Sl_boost_shared_ptr_Sl_Skeleton_DirectorExample_Sg__Sg__Sg__erase__SWIG_0(arg1,SWIG_STD_MOVE(arg2));
     } catch (Swig::DirectorException &e) {
+      SWIG_fail; 
+    } catch (const PythonException& e) {
+      e.restore_python_exception();
       SWIG_fail; 
     } catch (const std::exception& e) {
       SWIG_exception(SWIG_RuntimeError, e.what());
@@ -11239,6 +11467,9 @@ SWIGINTERN PyObject *_wrap_Vector_Vector_DirectorExample_erase__SWIG_1(PyObject 
     try {
       result = std_vector_Sl_std_vector_Sl_boost_shared_ptr_Sl_Skeleton_DirectorExample_Sg__Sg__Sg__erase__SWIG_1(arg1,SWIG_STD_MOVE(arg2),SWIG_STD_MOVE(arg3));
     } catch (Swig::DirectorException &e) {
+      SWIG_fail; 
+    } catch (const PythonException& e) {
+      e.restore_python_exception();
       SWIG_fail; 
     } catch (const std::exception& e) {
       SWIG_exception(SWIG_RuntimeError, e.what());
@@ -11311,6 +11542,9 @@ SWIGINTERN PyObject *_wrap_new_Vector_Vector_DirectorExample__SWIG_3(PyObject *s
     try {
       result = (std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > > *)new std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > >(SWIG_STD_MOVE(arg1),(std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > >::value_type const &)*arg2);
     } catch (Swig::DirectorException &e) {
+      SWIG_fail; 
+    } catch (const PythonException& e) {
+      e.restore_python_exception();
       SWIG_fail; 
     } catch (const std::exception& e) {
       SWIG_exception(SWIG_RuntimeError, e.what());
@@ -11405,6 +11639,9 @@ SWIGINTERN PyObject *_wrap_Vector_Vector_DirectorExample_push_back(PyObject *sel
       (arg1)->push_back((std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > >::value_type const &)*arg2);
     } catch (Swig::DirectorException &e) {
       SWIG_fail; 
+    } catch (const PythonException& e) {
+      e.restore_python_exception();
+      SWIG_fail; 
     } catch (const std::exception& e) {
       SWIG_exception(SWIG_RuntimeError, e.what());
     }
@@ -11439,6 +11676,9 @@ SWIGINTERN PyObject *_wrap_Vector_Vector_DirectorExample_front(PyObject *self, P
       result = (std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > >::value_type *) &((std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > > const *)arg1)->front();
     } catch (Swig::DirectorException &e) {
       SWIG_fail; 
+    } catch (const PythonException& e) {
+      e.restore_python_exception();
+      SWIG_fail; 
     } catch (const std::exception& e) {
       SWIG_exception(SWIG_RuntimeError, e.what());
     }
@@ -11471,6 +11711,9 @@ SWIGINTERN PyObject *_wrap_Vector_Vector_DirectorExample_back(PyObject *self, Py
     try {
       result = (std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > >::value_type *) &((std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > > const *)arg1)->back();
     } catch (Swig::DirectorException &e) {
+      SWIG_fail; 
+    } catch (const PythonException& e) {
+      e.restore_python_exception();
       SWIG_fail; 
     } catch (const std::exception& e) {
       SWIG_exception(SWIG_RuntimeError, e.what());
@@ -11524,6 +11767,9 @@ SWIGINTERN PyObject *_wrap_Vector_Vector_DirectorExample_assign(PyObject *self, 
       (arg1)->assign(SWIG_STD_MOVE(arg2),(std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > >::value_type const &)*arg3);
     } catch (Swig::DirectorException &e) {
       SWIG_fail; 
+    } catch (const PythonException& e) {
+      e.restore_python_exception();
+      SWIG_fail; 
     } catch (const std::exception& e) {
       SWIG_exception(SWIG_RuntimeError, e.what());
     }
@@ -11575,6 +11821,9 @@ SWIGINTERN PyObject *_wrap_Vector_Vector_DirectorExample_resize__SWIG_1(PyObject
     try {
       (arg1)->resize(SWIG_STD_MOVE(arg2),(std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > >::value_type const &)*arg3);
     } catch (Swig::DirectorException &e) {
+      SWIG_fail; 
+    } catch (const PythonException& e) {
+      e.restore_python_exception();
       SWIG_fail; 
     } catch (const std::exception& e) {
       SWIG_exception(SWIG_RuntimeError, e.what());
@@ -11663,6 +11912,9 @@ SWIGINTERN PyObject *_wrap_Vector_Vector_DirectorExample_insert__SWIG_0(PyObject
       result = std_vector_Sl_std_vector_Sl_boost_shared_ptr_Sl_Skeleton_DirectorExample_Sg__Sg__Sg__insert__SWIG_0(arg1,SWIG_STD_MOVE(arg2),(std::vector< boost::shared_ptr< Skeleton::DirectorExample >,std::allocator< boost::shared_ptr< Skeleton::DirectorExample > > > const &)*arg3);
     } catch (Swig::DirectorException &e) {
       SWIG_fail; 
+    } catch (const PythonException& e) {
+      e.restore_python_exception();
+      SWIG_fail; 
     } catch (const std::exception& e) {
       SWIG_exception(SWIG_RuntimeError, e.what());
     }
@@ -11729,6 +11981,9 @@ SWIGINTERN PyObject *_wrap_Vector_Vector_DirectorExample_insert__SWIG_1(PyObject
     try {
       std_vector_Sl_std_vector_Sl_boost_shared_ptr_Sl_Skeleton_DirectorExample_Sg__Sg__Sg__insert__SWIG_1(arg1,SWIG_STD_MOVE(arg2),SWIG_STD_MOVE(arg3),(std::vector< boost::shared_ptr< Skeleton::DirectorExample >,std::allocator< boost::shared_ptr< Skeleton::DirectorExample > > > const &)*arg4);
     } catch (Swig::DirectorException &e) {
+      SWIG_fail; 
+    } catch (const PythonException& e) {
+      e.restore_python_exception();
       SWIG_fail; 
     } catch (const std::exception& e) {
       SWIG_exception(SWIG_RuntimeError, e.what());
@@ -11798,6 +12053,9 @@ SWIGINTERN PyObject *_wrap_Vector_Vector_DirectorExample_reserve(PyObject *self,
       (arg1)->reserve(SWIG_STD_MOVE(arg2));
     } catch (Swig::DirectorException &e) {
       SWIG_fail; 
+    } catch (const PythonException& e) {
+      e.restore_python_exception();
+      SWIG_fail; 
     } catch (const std::exception& e) {
       SWIG_exception(SWIG_RuntimeError, e.what());
     }
@@ -11830,6 +12088,9 @@ SWIGINTERN PyObject *_wrap_Vector_Vector_DirectorExample_capacity(PyObject *self
       result = ((std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > > const *)arg1)->capacity();
     } catch (Swig::DirectorException &e) {
       SWIG_fail; 
+    } catch (const PythonException& e) {
+      e.restore_python_exception();
+      SWIG_fail; 
     } catch (const std::exception& e) {
       SWIG_exception(SWIG_RuntimeError, e.what());
     }
@@ -11860,6 +12121,9 @@ SWIGINTERN PyObject *_wrap_delete_Vector_Vector_DirectorExample(PyObject *self, 
     try {
       delete arg1;
     } catch (Swig::DirectorException &e) {
+      SWIG_fail; 
+    } catch (const PythonException& e) {
+      e.restore_python_exception();
       SWIG_fail; 
     } catch (const std::exception& e) {
       SWIG_exception(SWIG_RuntimeError, e.what());
@@ -11906,6 +12170,9 @@ SWIGINTERN PyObject *_wrap_Vector_Vector_int_iterator(PyObject *self, PyObject *
       result = (swig::SwigPyIterator *)std_vector_Sl_std_vector_Sl_int_Sg__Sg__iterator(arg1,arg2);
     } catch (Swig::DirectorException &e) {
       SWIG_fail; 
+    } catch (const PythonException& e) {
+      e.restore_python_exception();
+      SWIG_fail; 
     } catch (const std::exception& e) {
       SWIG_exception(SWIG_RuntimeError, e.what());
     }
@@ -11937,6 +12204,9 @@ SWIGINTERN PyObject *_wrap_Vector_Vector_int___nonzero__(PyObject *self, PyObjec
     try {
       result = (bool)std_vector_Sl_std_vector_Sl_int_Sg__Sg____nonzero__((std::vector< std::vector< int > > const *)arg1);
     } catch (Swig::DirectorException &e) {
+      SWIG_fail; 
+    } catch (const PythonException& e) {
+      e.restore_python_exception();
       SWIG_fail; 
     } catch (const std::exception& e) {
       SWIG_exception(SWIG_RuntimeError, e.what());
@@ -11970,6 +12240,9 @@ SWIGINTERN PyObject *_wrap_Vector_Vector_int___bool__(PyObject *self, PyObject *
       result = (bool)std_vector_Sl_std_vector_Sl_int_Sg__Sg____bool__((std::vector< std::vector< int > > const *)arg1);
     } catch (Swig::DirectorException &e) {
       SWIG_fail; 
+    } catch (const PythonException& e) {
+      e.restore_python_exception();
+      SWIG_fail; 
     } catch (const std::exception& e) {
       SWIG_exception(SWIG_RuntimeError, e.what());
     }
@@ -12001,6 +12274,9 @@ SWIGINTERN PyObject *_wrap_Vector_Vector_int___len__(PyObject *self, PyObject *a
     try {
       result = std_vector_Sl_std_vector_Sl_int_Sg__Sg____len__((std::vector< std::vector< int > > const *)arg1);
     } catch (Swig::DirectorException &e) {
+      SWIG_fail; 
+    } catch (const PythonException& e) {
+      e.restore_python_exception();
       SWIG_fail; 
     } catch (const std::exception& e) {
       SWIG_exception(SWIG_RuntimeError, e.what());
@@ -12055,6 +12331,9 @@ SWIGINTERN PyObject *_wrap_Vector_Vector_int___getslice__(PyObject *self, PyObje
       }
     } catch (Swig::DirectorException &e) {
       SWIG_fail; 
+    } catch (const PythonException& e) {
+      e.restore_python_exception();
+      SWIG_fail; 
     } catch (const std::exception& e) {
       SWIG_exception(SWIG_RuntimeError, e.what());
     }
@@ -12105,6 +12384,9 @@ SWIGINTERN PyObject *_wrap_Vector_Vector_int___setslice____SWIG_0(PyObject *self
         SWIG_exception_fail(SWIG_ValueError, (&_e)->what());
       }
     } catch (Swig::DirectorException &e) {
+      SWIG_fail; 
+    } catch (const PythonException& e) {
+      e.restore_python_exception();
       SWIG_fail; 
     } catch (const std::exception& e) {
       SWIG_exception(SWIG_RuntimeError, e.what());
@@ -12169,6 +12451,9 @@ SWIGINTERN PyObject *_wrap_Vector_Vector_int___setslice____SWIG_1(PyObject *self
         SWIG_exception_fail(SWIG_ValueError, (&_e)->what());
       }
     } catch (Swig::DirectorException &e) {
+      SWIG_fail; 
+    } catch (const PythonException& e) {
+      e.restore_python_exception();
       SWIG_fail; 
     } catch (const std::exception& e) {
       SWIG_exception(SWIG_RuntimeError, e.what());
@@ -12252,6 +12537,9 @@ SWIGINTERN PyObject *_wrap_Vector_Vector_int___delslice__(PyObject *self, PyObje
       }
     } catch (Swig::DirectorException &e) {
       SWIG_fail; 
+    } catch (const PythonException& e) {
+      e.restore_python_exception();
+      SWIG_fail; 
     } catch (const std::exception& e) {
       SWIG_exception(SWIG_RuntimeError, e.what());
     }
@@ -12295,6 +12583,9 @@ SWIGINTERN PyObject *_wrap_Vector_Vector_int___delitem____SWIG_0(PyObject *self,
       }
     } catch (Swig::DirectorException &e) {
       SWIG_fail; 
+    } catch (const PythonException& e) {
+      e.restore_python_exception();
+      SWIG_fail; 
     } catch (const std::exception& e) {
       SWIG_exception(SWIG_RuntimeError, e.what());
     }
@@ -12337,6 +12628,9 @@ SWIGINTERN PyObject *_wrap_Vector_Vector_int___getitem____SWIG_0(PyObject *self,
         SWIG_exception_fail(SWIG_ValueError, (&_e)->what());
       }
     } catch (Swig::DirectorException &e) {
+      SWIG_fail; 
+    } catch (const PythonException& e) {
+      e.restore_python_exception();
       SWIG_fail; 
     } catch (const std::exception& e) {
       SWIG_exception(SWIG_RuntimeError, e.what());
@@ -12393,6 +12687,9 @@ SWIGINTERN PyObject *_wrap_Vector_Vector_int___setitem____SWIG_0(PyObject *self,
       }
     } catch (Swig::DirectorException &e) {
       SWIG_fail; 
+    } catch (const PythonException& e) {
+      e.restore_python_exception();
+      SWIG_fail; 
     } catch (const std::exception& e) {
       SWIG_exception(SWIG_RuntimeError, e.what());
     }
@@ -12437,6 +12734,9 @@ SWIGINTERN PyObject *_wrap_Vector_Vector_int___setitem____SWIG_1(PyObject *self,
       }
     } catch (Swig::DirectorException &e) {
       SWIG_fail; 
+    } catch (const PythonException& e) {
+      e.restore_python_exception();
+      SWIG_fail; 
     } catch (const std::exception& e) {
       SWIG_exception(SWIG_RuntimeError, e.what());
     }
@@ -12478,6 +12778,9 @@ SWIGINTERN PyObject *_wrap_Vector_Vector_int___delitem____SWIG_1(PyObject *self,
         SWIG_exception_fail(SWIG_ValueError, (&_e)->what());
       }
     } catch (Swig::DirectorException &e) {
+      SWIG_fail; 
+    } catch (const PythonException& e) {
+      e.restore_python_exception();
       SWIG_fail; 
     } catch (const std::exception& e) {
       SWIG_exception(SWIG_RuntimeError, e.what());
@@ -12555,6 +12858,9 @@ SWIGINTERN PyObject *_wrap_Vector_Vector_int___getitem____SWIG_1(PyObject *self,
         SWIG_exception_fail(SWIG_IndexError, (&_e)->what());
       }
     } catch (Swig::DirectorException &e) {
+      SWIG_fail; 
+    } catch (const PythonException& e) {
+      e.restore_python_exception();
       SWIG_fail; 
     } catch (const std::exception& e) {
       SWIG_exception(SWIG_RuntimeError, e.what());
@@ -12646,6 +12952,9 @@ SWIGINTERN PyObject *_wrap_Vector_Vector_int___setitem____SWIG_2(PyObject *self,
       }
     } catch (Swig::DirectorException &e) {
       SWIG_fail; 
+    } catch (const PythonException& e) {
+      e.restore_python_exception();
+      SWIG_fail; 
     } catch (const std::exception& e) {
       SWIG_exception(SWIG_RuntimeError, e.what());
     }
@@ -12730,6 +13039,9 @@ SWIGINTERN PyObject *_wrap_Vector_Vector_int_pop(PyObject *self, PyObject *args)
       }
     } catch (Swig::DirectorException &e) {
       SWIG_fail; 
+    } catch (const PythonException& e) {
+      e.restore_python_exception();
+      SWIG_fail; 
     } catch (const std::exception& e) {
       SWIG_exception(SWIG_RuntimeError, e.what());
     }
@@ -12773,6 +13085,9 @@ SWIGINTERN PyObject *_wrap_Vector_Vector_int_append(PyObject *self, PyObject *ar
       std_vector_Sl_std_vector_Sl_int_Sg__Sg__append(arg1,(std::vector< int,std::allocator< int > > const &)*arg2);
     } catch (Swig::DirectorException &e) {
       SWIG_fail; 
+    } catch (const PythonException& e) {
+      e.restore_python_exception();
+      SWIG_fail; 
     } catch (const std::exception& e) {
       SWIG_exception(SWIG_RuntimeError, e.what());
     }
@@ -12796,6 +13111,9 @@ SWIGINTERN PyObject *_wrap_new_Vector_Vector_int__SWIG_0(PyObject *self, Py_ssiz
     try {
       result = (std::vector< std::vector< int > > *)new std::vector< std::vector< int > >();
     } catch (Swig::DirectorException &e) {
+      SWIG_fail; 
+    } catch (const PythonException& e) {
+      e.restore_python_exception();
       SWIG_fail; 
     } catch (const std::exception& e) {
       SWIG_exception(SWIG_RuntimeError, e.what());
@@ -12832,6 +13150,9 @@ SWIGINTERN PyObject *_wrap_new_Vector_Vector_int__SWIG_1(PyObject *self, Py_ssiz
       result = (std::vector< std::vector< int > > *)new std::vector< std::vector< int > >((std::vector< std::vector< int,std::allocator< int > > > const &)*arg1);
     } catch (Swig::DirectorException &e) {
       SWIG_fail; 
+    } catch (const PythonException& e) {
+      e.restore_python_exception();
+      SWIG_fail; 
     } catch (const std::exception& e) {
       SWIG_exception(SWIG_RuntimeError, e.what());
     }
@@ -12866,6 +13187,9 @@ SWIGINTERN PyObject *_wrap_Vector_Vector_int_empty(PyObject *self, PyObject *arg
       result = (bool)((std::vector< std::vector< int > > const *)arg1)->empty();
     } catch (Swig::DirectorException &e) {
       SWIG_fail; 
+    } catch (const PythonException& e) {
+      e.restore_python_exception();
+      SWIG_fail; 
     } catch (const std::exception& e) {
       SWIG_exception(SWIG_RuntimeError, e.what());
     }
@@ -12897,6 +13221,9 @@ SWIGINTERN PyObject *_wrap_Vector_Vector_int_size(PyObject *self, PyObject *args
     try {
       result = ((std::vector< std::vector< int > > const *)arg1)->size();
     } catch (Swig::DirectorException &e) {
+      SWIG_fail; 
+    } catch (const PythonException& e) {
+      e.restore_python_exception();
       SWIG_fail; 
     } catch (const std::exception& e) {
       SWIG_exception(SWIG_RuntimeError, e.what());
@@ -12939,6 +13266,9 @@ SWIGINTERN PyObject *_wrap_Vector_Vector_int_swap(PyObject *self, PyObject *args
       (arg1)->swap(*arg2);
     } catch (Swig::DirectorException &e) {
       SWIG_fail; 
+    } catch (const PythonException& e) {
+      e.restore_python_exception();
+      SWIG_fail; 
     } catch (const std::exception& e) {
       SWIG_exception(SWIG_RuntimeError, e.what());
     }
@@ -12970,6 +13300,9 @@ SWIGINTERN PyObject *_wrap_Vector_Vector_int_begin(PyObject *self, PyObject *arg
     try {
       result = (arg1)->begin();
     } catch (Swig::DirectorException &e) {
+      SWIG_fail; 
+    } catch (const PythonException& e) {
+      e.restore_python_exception();
       SWIG_fail; 
     } catch (const std::exception& e) {
       SWIG_exception(SWIG_RuntimeError, e.what());
@@ -13004,6 +13337,9 @@ SWIGINTERN PyObject *_wrap_Vector_Vector_int_end(PyObject *self, PyObject *args)
       result = (arg1)->end();
     } catch (Swig::DirectorException &e) {
       SWIG_fail; 
+    } catch (const PythonException& e) {
+      e.restore_python_exception();
+      SWIG_fail; 
     } catch (const std::exception& e) {
       SWIG_exception(SWIG_RuntimeError, e.what());
     }
@@ -13036,6 +13372,9 @@ SWIGINTERN PyObject *_wrap_Vector_Vector_int_rbegin(PyObject *self, PyObject *ar
     try {
       result = (arg1)->rbegin();
     } catch (Swig::DirectorException &e) {
+      SWIG_fail; 
+    } catch (const PythonException& e) {
+      e.restore_python_exception();
       SWIG_fail; 
     } catch (const std::exception& e) {
       SWIG_exception(SWIG_RuntimeError, e.what());
@@ -13070,6 +13409,9 @@ SWIGINTERN PyObject *_wrap_Vector_Vector_int_rend(PyObject *self, PyObject *args
       result = (arg1)->rend();
     } catch (Swig::DirectorException &e) {
       SWIG_fail; 
+    } catch (const PythonException& e) {
+      e.restore_python_exception();
+      SWIG_fail; 
     } catch (const std::exception& e) {
       SWIG_exception(SWIG_RuntimeError, e.what());
     }
@@ -13101,6 +13443,9 @@ SWIGINTERN PyObject *_wrap_Vector_Vector_int_clear(PyObject *self, PyObject *arg
     try {
       (arg1)->clear();
     } catch (Swig::DirectorException &e) {
+      SWIG_fail; 
+    } catch (const PythonException& e) {
+      e.restore_python_exception();
       SWIG_fail; 
     } catch (const std::exception& e) {
       SWIG_exception(SWIG_RuntimeError, e.what());
@@ -13134,6 +13479,9 @@ SWIGINTERN PyObject *_wrap_Vector_Vector_int_get_allocator(PyObject *self, PyObj
       result = ((std::vector< std::vector< int > > const *)arg1)->get_allocator();
     } catch (Swig::DirectorException &e) {
       SWIG_fail; 
+    } catch (const PythonException& e) {
+      e.restore_python_exception();
+      SWIG_fail; 
     } catch (const std::exception& e) {
       SWIG_exception(SWIG_RuntimeError, e.what());
     }
@@ -13163,6 +13511,9 @@ SWIGINTERN PyObject *_wrap_new_Vector_Vector_int__SWIG_2(PyObject *self, Py_ssiz
     try {
       result = (std::vector< std::vector< int > > *)new std::vector< std::vector< int > >(SWIG_STD_MOVE(arg1));
     } catch (Swig::DirectorException &e) {
+      SWIG_fail; 
+    } catch (const PythonException& e) {
+      e.restore_python_exception();
       SWIG_fail; 
     } catch (const std::exception& e) {
       SWIG_exception(SWIG_RuntimeError, e.what());
@@ -13194,6 +13545,9 @@ SWIGINTERN PyObject *_wrap_Vector_Vector_int_pop_back(PyObject *self, PyObject *
     try {
       (arg1)->pop_back();
     } catch (Swig::DirectorException &e) {
+      SWIG_fail; 
+    } catch (const PythonException& e) {
+      e.restore_python_exception();
       SWIG_fail; 
     } catch (const std::exception& e) {
       SWIG_exception(SWIG_RuntimeError, e.what());
@@ -13231,6 +13585,9 @@ SWIGINTERN PyObject *_wrap_Vector_Vector_int_resize__SWIG_0(PyObject *self, Py_s
     try {
       (arg1)->resize(SWIG_STD_MOVE(arg2));
     } catch (Swig::DirectorException &e) {
+      SWIG_fail; 
+    } catch (const PythonException& e) {
+      e.restore_python_exception();
       SWIG_fail; 
     } catch (const std::exception& e) {
       SWIG_exception(SWIG_RuntimeError, e.what());
@@ -13275,6 +13632,9 @@ SWIGINTERN PyObject *_wrap_Vector_Vector_int_erase__SWIG_0(PyObject *self, Py_ss
     try {
       result = std_vector_Sl_std_vector_Sl_int_Sg__Sg__erase__SWIG_0(arg1,SWIG_STD_MOVE(arg2));
     } catch (Swig::DirectorException &e) {
+      SWIG_fail; 
+    } catch (const PythonException& e) {
+      e.restore_python_exception();
       SWIG_fail; 
     } catch (const std::exception& e) {
       SWIG_exception(SWIG_RuntimeError, e.what());
@@ -13334,6 +13694,9 @@ SWIGINTERN PyObject *_wrap_Vector_Vector_int_erase__SWIG_1(PyObject *self, Py_ss
     try {
       result = std_vector_Sl_std_vector_Sl_int_Sg__Sg__erase__SWIG_1(arg1,SWIG_STD_MOVE(arg2),SWIG_STD_MOVE(arg3));
     } catch (Swig::DirectorException &e) {
+      SWIG_fail; 
+    } catch (const PythonException& e) {
+      e.restore_python_exception();
       SWIG_fail; 
     } catch (const std::exception& e) {
       SWIG_exception(SWIG_RuntimeError, e.what());
@@ -13406,6 +13769,9 @@ SWIGINTERN PyObject *_wrap_new_Vector_Vector_int__SWIG_3(PyObject *self, Py_ssiz
     try {
       result = (std::vector< std::vector< int > > *)new std::vector< std::vector< int > >(SWIG_STD_MOVE(arg1),(std::vector< std::vector< int > >::value_type const &)*arg2);
     } catch (Swig::DirectorException &e) {
+      SWIG_fail; 
+    } catch (const PythonException& e) {
+      e.restore_python_exception();
       SWIG_fail; 
     } catch (const std::exception& e) {
       SWIG_exception(SWIG_RuntimeError, e.what());
@@ -13500,6 +13866,9 @@ SWIGINTERN PyObject *_wrap_Vector_Vector_int_push_back(PyObject *self, PyObject 
       (arg1)->push_back((std::vector< std::vector< int > >::value_type const &)*arg2);
     } catch (Swig::DirectorException &e) {
       SWIG_fail; 
+    } catch (const PythonException& e) {
+      e.restore_python_exception();
+      SWIG_fail; 
     } catch (const std::exception& e) {
       SWIG_exception(SWIG_RuntimeError, e.what());
     }
@@ -13534,6 +13903,9 @@ SWIGINTERN PyObject *_wrap_Vector_Vector_int_front(PyObject *self, PyObject *arg
       result = (std::vector< std::vector< int > >::value_type *) &((std::vector< std::vector< int > > const *)arg1)->front();
     } catch (Swig::DirectorException &e) {
       SWIG_fail; 
+    } catch (const PythonException& e) {
+      e.restore_python_exception();
+      SWIG_fail; 
     } catch (const std::exception& e) {
       SWIG_exception(SWIG_RuntimeError, e.what());
     }
@@ -13566,6 +13938,9 @@ SWIGINTERN PyObject *_wrap_Vector_Vector_int_back(PyObject *self, PyObject *args
     try {
       result = (std::vector< std::vector< int > >::value_type *) &((std::vector< std::vector< int > > const *)arg1)->back();
     } catch (Swig::DirectorException &e) {
+      SWIG_fail; 
+    } catch (const PythonException& e) {
+      e.restore_python_exception();
       SWIG_fail; 
     } catch (const std::exception& e) {
       SWIG_exception(SWIG_RuntimeError, e.what());
@@ -13619,6 +13994,9 @@ SWIGINTERN PyObject *_wrap_Vector_Vector_int_assign(PyObject *self, PyObject *ar
       (arg1)->assign(SWIG_STD_MOVE(arg2),(std::vector< std::vector< int > >::value_type const &)*arg3);
     } catch (Swig::DirectorException &e) {
       SWIG_fail; 
+    } catch (const PythonException& e) {
+      e.restore_python_exception();
+      SWIG_fail; 
     } catch (const std::exception& e) {
       SWIG_exception(SWIG_RuntimeError, e.what());
     }
@@ -13670,6 +14048,9 @@ SWIGINTERN PyObject *_wrap_Vector_Vector_int_resize__SWIG_1(PyObject *self, Py_s
     try {
       (arg1)->resize(SWIG_STD_MOVE(arg2),(std::vector< std::vector< int > >::value_type const &)*arg3);
     } catch (Swig::DirectorException &e) {
+      SWIG_fail; 
+    } catch (const PythonException& e) {
+      e.restore_python_exception();
       SWIG_fail; 
     } catch (const std::exception& e) {
       SWIG_exception(SWIG_RuntimeError, e.what());
@@ -13758,6 +14139,9 @@ SWIGINTERN PyObject *_wrap_Vector_Vector_int_insert__SWIG_0(PyObject *self, Py_s
       result = std_vector_Sl_std_vector_Sl_int_Sg__Sg__insert__SWIG_0(arg1,SWIG_STD_MOVE(arg2),(std::vector< int,std::allocator< int > > const &)*arg3);
     } catch (Swig::DirectorException &e) {
       SWIG_fail; 
+    } catch (const PythonException& e) {
+      e.restore_python_exception();
+      SWIG_fail; 
     } catch (const std::exception& e) {
       SWIG_exception(SWIG_RuntimeError, e.what());
     }
@@ -13824,6 +14208,9 @@ SWIGINTERN PyObject *_wrap_Vector_Vector_int_insert__SWIG_1(PyObject *self, Py_s
     try {
       std_vector_Sl_std_vector_Sl_int_Sg__Sg__insert__SWIG_1(arg1,SWIG_STD_MOVE(arg2),SWIG_STD_MOVE(arg3),(std::vector< int,std::allocator< int > > const &)*arg4);
     } catch (Swig::DirectorException &e) {
+      SWIG_fail; 
+    } catch (const PythonException& e) {
+      e.restore_python_exception();
       SWIG_fail; 
     } catch (const std::exception& e) {
       SWIG_exception(SWIG_RuntimeError, e.what());
@@ -13893,6 +14280,9 @@ SWIGINTERN PyObject *_wrap_Vector_Vector_int_reserve(PyObject *self, PyObject *a
       (arg1)->reserve(SWIG_STD_MOVE(arg2));
     } catch (Swig::DirectorException &e) {
       SWIG_fail; 
+    } catch (const PythonException& e) {
+      e.restore_python_exception();
+      SWIG_fail; 
     } catch (const std::exception& e) {
       SWIG_exception(SWIG_RuntimeError, e.what());
     }
@@ -13925,6 +14315,9 @@ SWIGINTERN PyObject *_wrap_Vector_Vector_int_capacity(PyObject *self, PyObject *
       result = ((std::vector< std::vector< int > > const *)arg1)->capacity();
     } catch (Swig::DirectorException &e) {
       SWIG_fail; 
+    } catch (const PythonException& e) {
+      e.restore_python_exception();
+      SWIG_fail; 
     } catch (const std::exception& e) {
       SWIG_exception(SWIG_RuntimeError, e.what());
     }
@@ -13955,6 +14348,9 @@ SWIGINTERN PyObject *_wrap_delete_Vector_Vector_int(PyObject *self, PyObject *ar
     try {
       delete arg1;
     } catch (Swig::DirectorException &e) {
+      SWIG_fail; 
+    } catch (const PythonException& e) {
+      e.restore_python_exception();
       SWIG_fail; 
     } catch (const std::exception& e) {
       SWIG_exception(SWIG_RuntimeError, e.what());
@@ -14018,6 +14414,9 @@ SWIGINTERN PyObject *_wrap_new_DirectorExample__SWIG_0(PyObject *self, Py_ssize_
       
     } catch (Swig::DirectorException &e) {
       SWIG_fail; 
+    } catch (const PythonException& e) {
+      e.restore_python_exception();
+      SWIG_fail; 
     } catch (const std::exception& e) {
       SWIG_exception(SWIG_RuntimeError, e.what());
     }
@@ -14066,6 +14465,9 @@ SWIGINTERN PyObject *_wrap_DirectorExample___str__(PyObject *self, PyObject *arg
     try {
       result = ((Skeleton::DirectorExample const *)arg1)->print_to_string();
     } catch (Swig::DirectorException &e) {
+      SWIG_fail; 
+    } catch (const PythonException& e) {
+      e.restore_python_exception();
       SWIG_fail; 
     } catch (const std::exception& e) {
       SWIG_exception(SWIG_RuntimeError, e.what());
@@ -14119,6 +14521,9 @@ SWIGINTERN PyObject *_wrap_DirectorExample_desc(PyObject *self, PyObject *args) 
           result = ((Skeleton::DirectorExample const *)arg1)->desc();
         }
       } catch (Swig::DirectorException &e) {
+        SWIG_fail; 
+      } catch (const PythonException& e) {
+        e.restore_python_exception();
         SWIG_fail; 
       } catch (const std::exception& e) {
         SWIG_exception(SWIG_RuntimeError, e.what());
@@ -14183,6 +14588,9 @@ SWIGINTERN PyObject *_wrap_DirectorExample_func(PyObject *self, PyObject *args) 
         }
       } catch (Swig::DirectorException &e) {
         SWIG_fail; 
+      } catch (const PythonException& e) {
+        e.restore_python_exception();
+        SWIG_fail; 
       } catch (const std::exception& e) {
         SWIG_exception(SWIG_RuntimeError, e.what());
       }
@@ -14227,6 +14635,9 @@ SWIGINTERN PyObject *_wrap_DirectorExample_value_to_add__SWIG_0(PyObject *self, 
     try {
       result = (int)((Skeleton::DirectorExample const *)arg1)->value_to_add();
     } catch (Swig::DirectorException &e) {
+      SWIG_fail; 
+    } catch (const PythonException& e) {
+      e.restore_python_exception();
       SWIG_fail; 
     } catch (const std::exception& e) {
       SWIG_exception(SWIG_RuntimeError, e.what());
@@ -14276,6 +14687,9 @@ SWIGINTERN PyObject *_wrap_DirectorExample_value_to_add__SWIG_1(PyObject *self, 
     try {
       (arg1)->value_to_add(arg2);
     } catch (Swig::DirectorException &e) {
+      SWIG_fail; 
+    } catch (const PythonException& e) {
+      e.restore_python_exception();
       SWIG_fail; 
     } catch (const std::exception& e) {
       SWIG_exception(SWIG_RuntimeError, e.what());
@@ -14349,6 +14763,9 @@ SWIGINTERN PyObject *_wrap_DirectorExample_name(PyObject *self, PyObject *args) 
       result = (std::string *) &((Skeleton::DirectorExample const *)arg1)->name();
     } catch (Swig::DirectorException &e) {
       SWIG_fail; 
+    } catch (const PythonException& e) {
+      e.restore_python_exception();
+      SWIG_fail; 
     } catch (const std::exception& e) {
       SWIG_exception(SWIG_RuntimeError, e.what());
     }
@@ -14379,6 +14796,9 @@ SWIGINTERN PyObject *_wrap_new_DirectorExample__SWIG_1(PyObject *self, Py_ssize_
       }
       
     } catch (Swig::DirectorException &e) {
+      SWIG_fail; 
+    } catch (const PythonException& e) {
+      e.restore_python_exception();
       SWIG_fail; 
     } catch (const std::exception& e) {
       SWIG_exception(SWIG_RuntimeError, e.what());
@@ -14453,6 +14873,9 @@ SWIGINTERN PyObject *_wrap_delete_DirectorExample(PyObject *self, PyObject *args
     try {
       (void)arg1; delete smartarg1;
     } catch (Swig::DirectorException &e) {
+      SWIG_fail; 
+    } catch (const PythonException& e) {
+      e.restore_python_exception();
       SWIG_fail; 
     } catch (const std::exception& e) {
       SWIG_exception(SWIG_RuntimeError, e.what());
@@ -14572,6 +14995,9 @@ SWIGINTERN PyObject *_wrap_new_DirectorExampleWeakPtr(PyObject *self, PyObject *
       result = (Skeleton::DirectorExampleWeakPtr *)new Skeleton::DirectorExampleWeakPtr((boost::shared_ptr< Skeleton::DirectorExample > const &)*arg1);
     } catch (Swig::DirectorException &e) {
       SWIG_fail; 
+    } catch (const PythonException& e) {
+      e.restore_python_exception();
+      SWIG_fail; 
     } catch (const std::exception& e) {
       SWIG_exception(SWIG_RuntimeError, e.what());
     }
@@ -14619,6 +15045,9 @@ SWIGINTERN PyObject *_wrap_DirectorExampleWeakPtr___str__(PyObject *self, PyObje
       result = ((Skeleton::DirectorExampleWeakPtr const *)arg1)->print_to_string();
     } catch (Swig::DirectorException &e) {
       SWIG_fail; 
+    } catch (const PythonException& e) {
+      e.restore_python_exception();
+      SWIG_fail; 
     } catch (const std::exception& e) {
       SWIG_exception(SWIG_RuntimeError, e.what());
     }
@@ -14660,6 +15089,9 @@ SWIGINTERN PyObject *_wrap_DirectorExampleWeakPtr_a__SWIG_0(PyObject *self, Py_s
     try {
       result = ((Skeleton::DirectorExampleWeakPtr const *)arg1)->a();
     } catch (Swig::DirectorException &e) {
+      SWIG_fail; 
+    } catch (const PythonException& e) {
+      e.restore_python_exception();
       SWIG_fail; 
     } catch (const std::exception& e) {
       SWIG_exception(SWIG_RuntimeError, e.what());
@@ -14748,6 +15180,9 @@ SWIGINTERN PyObject *_wrap_DirectorExampleWeakPtr_a__SWIG_1(PyObject *self, Py_s
       (arg1)->a((boost::shared_ptr< Skeleton::DirectorExample > const &)*arg2);
     } catch (Swig::DirectorException &e) {
       SWIG_fail; 
+    } catch (const PythonException& e) {
+      e.restore_python_exception();
+      SWIG_fail; 
     } catch (const std::exception& e) {
       SWIG_exception(SWIG_RuntimeError, e.what());
     }
@@ -14820,6 +15255,9 @@ SWIGINTERN PyObject *_wrap_DirectorExampleWeakPtr_expired(PyObject *self, PyObje
       result = (bool)((Skeleton::DirectorExampleWeakPtr const *)arg1)->expired();
     } catch (Swig::DirectorException &e) {
       SWIG_fail; 
+    } catch (const PythonException& e) {
+      e.restore_python_exception();
+      SWIG_fail; 
     } catch (const std::exception& e) {
       SWIG_exception(SWIG_RuntimeError, e.what());
     }
@@ -14864,6 +15302,9 @@ SWIGINTERN PyObject *_wrap_DirectorExampleWeakPtr_use_count(PyObject *self, PyOb
       result = (long)((Skeleton::DirectorExampleWeakPtr const *)arg1)->use_count();
     } catch (Swig::DirectorException &e) {
       SWIG_fail; 
+    } catch (const PythonException& e) {
+      e.restore_python_exception();
+      SWIG_fail; 
     } catch (const std::exception& e) {
       SWIG_exception(SWIG_RuntimeError, e.what());
     }
@@ -14907,6 +15348,9 @@ SWIGINTERN PyObject *_wrap_delete_DirectorExampleWeakPtr(PyObject *self, PyObjec
       (void)arg1; delete smartarg1;
     } catch (Swig::DirectorException &e) {
       SWIG_fail; 
+    } catch (const PythonException& e) {
+      e.restore_python_exception();
+      SWIG_fail; 
     } catch (const std::exception& e) {
       SWIG_exception(SWIG_RuntimeError, e.what());
     }
@@ -14939,6 +15383,9 @@ SWIGINTERN PyObject *_wrap_new_DirectorExampleUser(PyObject *self, PyObject *arg
     try {
       result = (Skeleton::DirectorExampleUser *)new Skeleton::DirectorExampleUser();
     } catch (Swig::DirectorException &e) {
+      SWIG_fail; 
+    } catch (const PythonException& e) {
+      e.restore_python_exception();
       SWIG_fail; 
     } catch (const std::exception& e) {
       SWIG_exception(SWIG_RuntimeError, e.what());
@@ -14987,6 +15434,9 @@ SWIGINTERN PyObject *_wrap_DirectorExampleUser___str__(PyObject *self, PyObject 
       result = ((Skeleton::DirectorExampleUser const *)arg1)->print_to_string();
     } catch (Swig::DirectorException &e) {
       SWIG_fail; 
+    } catch (const PythonException& e) {
+      e.restore_python_exception();
+      SWIG_fail; 
     } catch (const std::exception& e) {
       SWIG_exception(SWIG_RuntimeError, e.what());
     }
@@ -15030,6 +15480,9 @@ SWIGINTERN PyObject *_wrap_DirectorExampleUser_value_vec(PyObject *self, PyObjec
     try {
       result = (std::vector< boost::shared_ptr< Skeleton::DirectorExample >,std::allocator< boost::shared_ptr< Skeleton::DirectorExample > > > *) &((Skeleton::DirectorExampleUser const *)arg1)->value_vec();
     } catch (Swig::DirectorException &e) {
+      SWIG_fail; 
+    } catch (const PythonException& e) {
+      e.restore_python_exception();
       SWIG_fail; 
     } catch (const std::exception& e) {
       SWIG_exception(SWIG_RuntimeError, e.what());
@@ -15088,6 +15541,9 @@ SWIGINTERN PyObject *_wrap_DirectorExampleUser_set_vec(PyObject *self, PyObject 
       (arg1)->set_vec((std::vector< boost::shared_ptr< Skeleton::DirectorExample >,std::allocator< boost::shared_ptr< Skeleton::DirectorExample > > > const &)*arg2);
     } catch (Swig::DirectorException &e) {
       SWIG_fail; 
+    } catch (const PythonException& e) {
+      e.restore_python_exception();
+      SWIG_fail; 
     } catch (const std::exception& e) {
       SWIG_exception(SWIG_RuntimeError, e.what());
     }
@@ -15133,6 +15589,9 @@ SWIGINTERN PyObject *_wrap_DirectorExampleUser_value_vec_vec(PyObject *self, PyO
     try {
       result = (std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample >,std::allocator< boost::shared_ptr< Skeleton::DirectorExample > > >,std::allocator< std::vector< boost::shared_ptr< Skeleton::DirectorExample >,std::allocator< boost::shared_ptr< Skeleton::DirectorExample > > > > > *) &((Skeleton::DirectorExampleUser const *)arg1)->value_vec_vec();
     } catch (Swig::DirectorException &e) {
+      SWIG_fail; 
+    } catch (const PythonException& e) {
+      e.restore_python_exception();
       SWIG_fail; 
     } catch (const std::exception& e) {
       SWIG_exception(SWIG_RuntimeError, e.what());
@@ -15191,6 +15650,9 @@ SWIGINTERN PyObject *_wrap_DirectorExampleUser_set_vec_vec(PyObject *self, PyObj
       (arg1)->set_vec_vec((std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample >,std::allocator< boost::shared_ptr< Skeleton::DirectorExample > > >,std::allocator< std::vector< boost::shared_ptr< Skeleton::DirectorExample >,std::allocator< boost::shared_ptr< Skeleton::DirectorExample > > > > > const &)*arg2);
     } catch (Swig::DirectorException &e) {
       SWIG_fail; 
+    } catch (const PythonException& e) {
+      e.restore_python_exception();
+      SWIG_fail; 
     } catch (const std::exception& e) {
       SWIG_exception(SWIG_RuntimeError, e.what());
     }
@@ -15237,6 +15699,9 @@ SWIGINTERN PyObject *_wrap_DirectorExampleUser_value(PyObject *self, PyObject *a
       result = (boost::shared_ptr< Skeleton::DirectorExample > *) &((Skeleton::DirectorExampleUser const *)arg1)->value();
     } catch (Swig::DirectorException &e) {
       SWIG_fail; 
+    } catch (const PythonException& e) {
+      e.restore_python_exception();
+      SWIG_fail; 
     } catch (const std::exception& e) {
       SWIG_exception(SWIG_RuntimeError, e.what());
     }
@@ -15282,6 +15747,9 @@ SWIGINTERN PyObject *_wrap_DirectorExampleUser_value_vec_int(PyObject *self, PyO
     try {
       result = (std::vector< int,std::allocator< int > > *) &((Skeleton::DirectorExampleUser const *)arg1)->value_vec_int();
     } catch (Swig::DirectorException &e) {
+      SWIG_fail; 
+    } catch (const PythonException& e) {
+      e.restore_python_exception();
       SWIG_fail; 
     } catch (const std::exception& e) {
       SWIG_exception(SWIG_RuntimeError, e.what());
@@ -15338,6 +15806,9 @@ SWIGINTERN PyObject *_wrap_DirectorExampleUser_set_vec_int(PyObject *self, PyObj
       (arg1)->set_vec_int((std::vector< int,std::allocator< int > > const &)*arg2);
     } catch (Swig::DirectorException &e) {
       SWIG_fail; 
+    } catch (const PythonException& e) {
+      e.restore_python_exception();
+      SWIG_fail; 
     } catch (const std::exception& e) {
       SWIG_exception(SWIG_RuntimeError, e.what());
     }
@@ -15383,6 +15854,9 @@ SWIGINTERN PyObject *_wrap_DirectorExampleUser_value_vec_vec_int(PyObject *self,
     try {
       result = (std::vector< std::vector< int,std::allocator< int > >,std::allocator< std::vector< int,std::allocator< int > > > > *) &((Skeleton::DirectorExampleUser const *)arg1)->value_vec_vec_int();
     } catch (Swig::DirectorException &e) {
+      SWIG_fail; 
+    } catch (const PythonException& e) {
+      e.restore_python_exception();
       SWIG_fail; 
     } catch (const std::exception& e) {
       SWIG_exception(SWIG_RuntimeError, e.what());
@@ -15438,6 +15912,9 @@ SWIGINTERN PyObject *_wrap_DirectorExampleUser_set_vec_vec_int(PyObject *self, P
     try {
       (arg1)->set_vec_vec_int((std::vector< std::vector< int,std::allocator< int > >,std::allocator< std::vector< int,std::allocator< int > > > > const &)*arg2);
     } catch (Swig::DirectorException &e) {
+      SWIG_fail; 
+    } catch (const PythonException& e) {
+      e.restore_python_exception();
       SWIG_fail; 
     } catch (const std::exception& e) {
       SWIG_exception(SWIG_RuntimeError, e.what());
@@ -15510,6 +15987,9 @@ SWIGINTERN PyObject *_wrap_DirectorExampleUser_set_value(PyObject *self, PyObjec
       (arg1)->set_value((boost::shared_ptr< Skeleton::DirectorExample > const &)*arg2);
     } catch (Swig::DirectorException &e) {
       SWIG_fail; 
+    } catch (const PythonException& e) {
+      e.restore_python_exception();
+      SWIG_fail; 
     } catch (const std::exception& e) {
       SWIG_exception(SWIG_RuntimeError, e.what());
     }
@@ -15559,6 +16039,9 @@ SWIGINTERN PyObject *_wrap_DirectorExampleUser_apply_func__SWIG_0(PyObject *self
     try {
       result = (int)((Skeleton::DirectorExampleUser const *)arg1)->apply_func(arg2);
     } catch (Swig::DirectorException &e) {
+      SWIG_fail; 
+    } catch (const PythonException& e) {
+      e.restore_python_exception();
       SWIG_fail; 
     } catch (const std::exception& e) {
       SWIG_exception(SWIG_RuntimeError, e.what());
@@ -15617,6 +16100,9 @@ SWIGINTERN PyObject *_wrap_DirectorExampleUser_apply_func__SWIG_1(PyObject *self
     try {
       result = (int)((Skeleton::DirectorExampleUser const *)arg1)->apply_func(arg2,arg3);
     } catch (Swig::DirectorException &e) {
+      SWIG_fail; 
+    } catch (const PythonException& e) {
+      e.restore_python_exception();
       SWIG_fail; 
     } catch (const std::exception& e) {
       SWIG_exception(SWIG_RuntimeError, e.what());
@@ -15683,6 +16169,9 @@ SWIGINTERN PyObject *_wrap_DirectorExampleUser_apply_func__SWIG_2(PyObject *self
     try {
       result = (int)((Skeleton::DirectorExampleUser const *)arg1)->apply_func(arg2,arg3,arg4);
     } catch (Swig::DirectorException &e) {
+      SWIG_fail; 
+    } catch (const PythonException& e) {
+      e.restore_python_exception();
       SWIG_fail; 
     } catch (const std::exception& e) {
       SWIG_exception(SWIG_RuntimeError, e.what());
@@ -15760,6 +16249,9 @@ SWIGINTERN PyObject *_wrap_delete_DirectorExampleUser(PyObject *self, PyObject *
     try {
       (void)arg1; delete smartarg1;
     } catch (Swig::DirectorException &e) {
+      SWIG_fail; 
+    } catch (const PythonException& e) {
+      e.restore_python_exception();
       SWIG_fail; 
     } catch (const std::exception& e) {
       SWIG_exception(SWIG_RuntimeError, e.what());
