@@ -151,6 +151,7 @@ class NumpySample(skeleton_swig.generic_object.GenericObject):
     def data(self):
         return self._v_data()
 
+    maybe_range = _swig_new_instance_method(_numpy_sample.NumpySample_maybe_range)
     __swig_destroy__ = _numpy_sample.delete_NumpySample
 
 # Register NumpySample in _numpy_sample:

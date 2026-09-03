@@ -4544,24 +4544,29 @@ inline PyObject* cpickle_module()
 
 inline std::string cpickle_dumps(PyObject* obj)
 {
-  PyObject* res = PyObject_CallMethodObjArgs(cpickle_module(),
-					     PyUnicode_FromString("dumps"),
-					     obj, NULL);
+  static PyObject* dumps_name = 0;
+  if(!dumps_name)
+    dumps_name = PyUnicode_FromString("dumps");
+  PyObject* res = PyObject_CallMethodObjArgs(cpickle_module(), dumps_name, obj, NULL);
   if(PyErr_Occurred()) {
     throw PythonException();
   }
   char *buf;
   Py_ssize_t len;
   PyBytes_AsStringAndSize(res, &buf, &len);
-  return std::string(buf, len);
+  std::string result(buf, len);
+  Py_DECREF(res);
+  return result;
 }
 
 inline PyObject* cpickle_loads(const std::string& S)
 {
-  PyObject* res = PyObject_CallMethodObjArgs(cpickle_module(),
-					     PyUnicode_FromString("loads"),
-					     PyBytes_FromStringAndSize(S.c_str(), S.size()), 
-					     NULL);
+  static PyObject* loads_name = 0;
+  if(!loads_name)
+    loads_name = PyUnicode_FromString("loads");
+  PyObject* data = PyBytes_FromStringAndSize(S.c_str(), S.size());
+  PyObject* res = PyObject_CallMethodObjArgs(cpickle_module(), loads_name, data, NULL);
+  Py_DECREF(data);
   if(PyErr_Occurred()) {
     throw PythonException();
   }
@@ -4969,14 +4974,18 @@ public:
     fh(Fh), fis(Fis) {}
   std::streamsize read(char* s, std::streamsize n)
   {
-    PyObject* res = PyObject_CallMethod(fh, "read", "(i)", (Py_ssize_t) n);
+    PyObject* res = PyObject_CallMethod(fh, "read", "(n)", (Py_ssize_t) n);
     if(res == NULL) {
       throw std::runtime_error("Call to FileHandle read failed");
     }
-    char *rescp = PyBytes_AsString(res);
-    std::copy(rescp, rescp + n, s);
+    char *rescp;
+    Py_ssize_t reslen;
+    PyBytes_AsStringAndSize(res, &rescp, &reslen);
+    // Python's read(n) can return fewer than n bytes (e.g., near EOF), so
+    // only copy what was actually returned.
+    std::copy(rescp, rescp + reslen, s);
     Py_DECREF(res);
-    return n;
+    return reslen;
   }
   std::streamoff seek(std::streamoff off, std::ios_base::seekdir way)
   {
@@ -4984,12 +4993,15 @@ public:
   }
   std::streamsize write(const char* s, std::streamsize n)
   {
-    // Different format strings for python 2 vs 3.
+    // Different format strings for python 2 vs 3. The "#" length argument
+    // is a plain int here (PY_SSIZE_T_CLEAN isn't defined), so cast down
+    // rather than passing a Py_ssize_t -- passing the wrong size is
+    // undefined behavior even though it happens to work on common ABIs.
 #if PY_MAJOR_VERSION > 2
-    PyObject* res = PyObject_CallMethod(fh, "write", "(y#)", s, (Py_ssize_t) n);
+    PyObject* res = PyObject_CallMethod(fh, "write", "(y#)", s, (int) n);
 #else
-    PyObject* res = PyObject_CallMethod(fh, "write", "(s#)", s, (Py_ssize_t) n);
-#endif    
+    PyObject* res = PyObject_CallMethod(fh, "write", "(s#)", s, (int) n);
+#endif
     if(res == NULL) {
       throw std::runtime_error("Call to FileHandle write failed");
     } else {
@@ -5461,6 +5473,20 @@ struct SWIG_null_deleter {
 
 
 #define SWIG_NO_NULL_DELETER_SWIG_BUILTIN_INIT
+
+
+SWIGINTERN int
+SWIG_AsVal_bool (PyObject *obj, bool *val)
+{
+  int r;
+  if (!PyBool_Check(obj))
+    return SWIG_ERROR;
+  r = PyObject_IsTrue(obj);
+  if (r == -1)
+    return SWIG_ERROR;
+  if (val) *val = r ? true : false;
+  return SWIG_OK;
+}
 
 
 
@@ -6331,6 +6357,77 @@ fail:
 }
 
 
+SWIGINTERN PyObject *_wrap_NumpySample_maybe_range(PyObject *self, PyObject *args) {
+  PyObject *resultobj = 0;
+  Skeleton::NumpySample *arg1 = 0 ;
+  bool arg2 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  boost::shared_ptr< Skeleton::NumpySample const > tempshared1 ;
+  boost::shared_ptr< Skeleton::NumpySample const > *smartarg1 = 0 ;
+  bool val2 ;
+  int ecode2 = 0 ;
+  PyObject *swig_obj[2] ;
+  SwigValueWrapper< boost::optional< blitz::Range > > result;
+  
+  (void)self;
+  if (!SWIG_Python_UnpackTuple(args, "NumpySample_maybe_range", 2, 2, swig_obj)) SWIG_fail;
+  {
+    int newmem = 0;
+    res1 = SWIG_ConvertPtrAndOwn(swig_obj[0], &argp1, SWIGTYPE_p_boost__shared_ptrT_Skeleton__NumpySample_t, 0 |  0 , &newmem);
+    if (!SWIG_IsOK(res1)) {
+      SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "NumpySample_maybe_range" "', argument " "1"" of type '" "Skeleton::NumpySample const *""'");
+    }
+    if (newmem & SWIG_CAST_NEW_MEMORY) {
+      tempshared1 = *reinterpret_cast< boost::shared_ptr< const Skeleton::NumpySample > * >(argp1);
+      delete reinterpret_cast< boost::shared_ptr< const Skeleton::NumpySample > * >(argp1);
+      arg1 = const_cast< Skeleton::NumpySample * >(tempshared1.get());
+    } else {
+      smartarg1 = reinterpret_cast< boost::shared_ptr< const Skeleton::NumpySample > * >(argp1);
+      arg1 = const_cast< Skeleton::NumpySample * >((smartarg1 ? smartarg1->get() : 0));
+    }
+  }
+  ecode2 = SWIG_AsVal_bool(swig_obj[1], &val2);
+  if (!SWIG_IsOK(ecode2)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode2), "in method '" "NumpySample_maybe_range" "', argument " "2"" of type '" "bool""'");
+  } 
+  arg2 = static_cast< bool >(val2);
+  {
+    try {
+      result = ((Skeleton::NumpySample const *)arg1)->maybe_range(arg2);
+    } catch (Swig::DirectorException &e) {
+      SWIG_fail; 
+    } catch (const PythonException& e) {
+      e.restore_python_exception();
+      SWIG_fail; 
+    } catch (const std::exception& e) {
+      SWIG_exception(SWIG_RuntimeError, e.what());
+    }
+  }
+  
+  // result may be a SwigValueWrapper<boost::optional<blitz::Range> > here,
+  // which only provides one implicit conversion (to
+  // boost::optional<blitz::Range>&) -- chaining that with optional's own
+  // operator bool() isn't allowed implicitly, so force the first
+  // conversion explicitly via a named local. Scoped in its own block
+  // so it doesn't cross the "fail:" label SWIG's argument-checking
+  // macros jump to earlier in the wrapper function.
+  {
+    boost::optional<blitz::Range> swig_opt_range = result;
+    if (swig_opt_range) {
+      resultobj = SWIG_NewPointerObj(new blitz::Range(swig_opt_range.get()), SWIGTYPE_p_blitz__Range, SWIG_POINTER_OWN | 0);
+    } else {
+      resultobj = Py_None;
+      Py_INCREF(Py_None);
+    }
+  }
+  
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
 SWIGINTERN PyObject *_wrap_delete_NumpySample(PyObject *self, PyObject *args) {
   PyObject *resultobj = 0;
   Skeleton::NumpySample *arg1 = 0 ;
@@ -6418,6 +6515,14 @@ static PyMethodDef SwigMethods[] = {
 		"const blitz::Array< double, 2 > & Skeleton::NumpySample::data() const\n"
 		"Skeleton::NumpySample::data\n"
 		""},
+	 { "NumpySample_maybe_range", _wrap_NumpySample_maybe_range, METH_VARARGS, "\n"
+		"\n"
+		"boost::optional< blitz::Range > Skeleton::NumpySample::maybe_range(bool Return_empty) const\n"
+		"Skeleton::NumpySample::maybe_range\n"
+		"Used to test the boost::optional<blitz::Range> swig typemap.\n"
+		"Returns a disengaged optional if Return_empty is true, otherwise a\n"
+		"Range covering the rows of data(). \n"
+		""},
 	 { "delete_NumpySample", _wrap_delete_NumpySample, METH_O, NULL},
 	 { "NumpySample_swigregister", NumpySample_swigregister, METH_O, NULL},
 	 { "NumpySample_swiginit", NumpySample_swiginit, METH_VARARGS, NULL},
@@ -6453,6 +6558,14 @@ static PyMethodDef SwigMethods_proxydocs[] = {
 		"\n"
 		"const blitz::Array< double, 2 > & Skeleton::NumpySample::data() const\n"
 		"Skeleton::NumpySample::data\n"
+		""},
+	 { "NumpySample_maybe_range", _wrap_NumpySample_maybe_range, METH_VARARGS, "\n"
+		"\n"
+		"boost::optional< blitz::Range > Skeleton::NumpySample::maybe_range(bool Return_empty) const\n"
+		"Skeleton::NumpySample::maybe_range\n"
+		"Used to test the boost::optional<blitz::Range> swig typemap.\n"
+		"Returns a disengaged optional if Return_empty is true, otherwise a\n"
+		"Range covering the rows of data(). \n"
 		""},
 	 { "delete_NumpySample", _wrap_delete_NumpySample, METH_O, NULL},
 	 { "NumpySample_swigregister", NumpySample_swigregister, METH_O, NULL},

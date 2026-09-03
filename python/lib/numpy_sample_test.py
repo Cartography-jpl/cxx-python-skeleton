@@ -92,8 +92,17 @@ def test_lifetime_round_trip_array():
     a = None
     print(t.data[0,0])
     assert t.data[0,0] == 1
-    
-    
-    
-    
-    
+
+def test_maybe_range():
+    '''Regression test for the boost::optional<blitz::Range> out typemap
+    in swig_boost_optional.i. This used to check "if (&$1)" (the address
+    of a local, which is never null) instead of "if ($1)" (whether the
+    optional is engaged), so a disengaged optional would call .get() on
+    itself, invoking undefined behavior, instead of returning None.'''
+    t = NumpySample()
+    r = t.maybe_range(False)
+    assert r is not None
+    assert r.first() == 0
+    assert r.last() == t.data.shape[0] - 1
+    assert t.maybe_range(True) is None
+

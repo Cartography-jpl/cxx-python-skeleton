@@ -24,6 +24,19 @@ def test_iostream_read():
     assert iostream_swig.read(fh).encode('utf-8') == content
     assert fh.tell() == len(start_string) + len(content + b" ")
     assert fh.read() == end_string
+
+def test_iostream_read_to_eof():
+    '''Regression test for python_fh_device::read: reading exactly to the
+    end of the underlying python file handle used to report a full read
+    even when python's read() returned fewer bytes (or none, at EOF),
+    which could feed garbage bytes into the stream or leave the C++ side
+    unable to see EOF at all. This reads a stream with no trailing
+    content, so the last extraction has to read right up against EOF.'''
+    iostream_swig = IostreamSwig("hello world", 2)
+    content = b"hello world"
+    fh = BytesIO(content)
+    assert iostream_swig.read(fh).encode('utf-8') == content
+    assert fh.read() == b""
     
         
     
