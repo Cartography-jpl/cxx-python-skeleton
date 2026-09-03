@@ -1,0 +1,16 @@
+[workspace]
+authors = ["Mike Smyth <Mike.M.Smyth@jpl.nasa.gov>"]
+channels = ["conda-forge"]
+name = "build-pixi"
+platforms = ["linux-64"]
+version = "0.1.0"
+
+[tasks]
+
+[dependencies]
+python = "3.14.7.*"
+libboost-devel = ">=1.92.0,<2"
+libblitz = ">=1.0.2,<2"
+compilers = ">=2.0.0,<3"
+doxygen = ">=1.18.0,<2"
+swig = "<4.4.0"
