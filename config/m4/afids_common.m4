@@ -105,10 +105,10 @@ AM_CONDITIONAL([HAVE_GCC], [test "$GCC" = yes])
 PKG_PROG_PKG_CONFIG
 
 if test "x$THIRDPARTY" = x -o "$THIRDPARTY" = "build" -o "$THIRDPARTY" = "build_needed"; then
-  pkg_extra_path=\${prefix}/lib/pkgconfig:/opt/afids_support/lib/pkgconfig
+  pkg_extra_path=${prefix}/lib/pkgconfig:/opt/afids_support/lib/pkgconfig
   geocal_support_path=${prefix}
 else
-  pkg_extra_path=\${prefix}/lib/pkgconfig:$THIRDPARTY/lib/pkgconfig:/opt/afids_support/lib/pkgconfig
+  pkg_extra_path=${prefix}/lib/pkgconfig:$THIRDPARTY/lib/pkgconfig:/opt/afids_support/lib/pkgconfig
   geocal_support_path=$THIRDPARTY
 fi
 if test "x$CONDA_PREFIX" != x; then

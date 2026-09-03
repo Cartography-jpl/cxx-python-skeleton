@@ -84,7 +84,10 @@ if test "x$want_boost" = "xyes"; then
             if test "$build_boost" = "yes"; then
                BOOST_LIBDIR="$ac_boost_path/lib"
                BOOST_REGEX_LIB="-lboost_regex"
-               BOOST_FILESYSTEM_LIB="-lboost_filesystem -lboost_system"
+               BOOST_FILESYSTEM_LIB="-lboost_filesystem"
+               if test -e "$ac_boost_path/lib/libboost_system.so" -o -e "$ac_boost_path/lib/libboost_system.la" -o -e "$ac_boost_path/lib/libboost_system.dylib"; then
+                  BOOST_FILESYSTEM_LIB="$BOOST_FILESYSTEM_LIB -lboost_system"
+               fi
                BOOST_DATETIME_LIB="-lboost_date_time"
                BOOST_IOSTREAMS_LIB="-lboost_iostreams"
                BOOST_SERIALIZATION_LIB="-lboost_serialization"
@@ -97,7 +100,10 @@ if test "x$want_boost" = "xyes"; then
                    if test -e "$ac_boost_lib_base/$ac_boost_lib"; then
                        BOOST_LIBDIR="$ac_boost_lib_base"
                        BOOST_REGEX_LIB="-lboost_regex"
-		       BOOST_FILESYSTEM_LIB="-lboost_filesystem -lboost_system"
+		       BOOST_FILESYSTEM_LIB="-lboost_filesystem"
+		       if test -e "$ac_boost_lib_base/libboost_system.so" -o -e "$ac_boost_lib_base/libboost_system.la" -o -e "$ac_boost_lib_base/libboost_system.dylib"; then
+		          BOOST_FILESYSTEM_LIB="$BOOST_FILESYSTEM_LIB -lboost_system"
+		       fi
                        BOOST_DATETIME_LIB="-lboost_date_time"
 		       BOOST_IOSTREAMS_LIB="-lboost_iostreams"
                        BOOST_SERIALIZATION_LIB="-lboost_serialization"
@@ -111,7 +117,10 @@ if test "x$want_boost" = "xyes"; then
                    if test -e "$ac_boost_lib_base/$ac_boost_lib"; then
                        BOOST_LIBDIR="$ac_boost_lib_base"
                        BOOST_REGEX_LIB="-lboost_regex-mt"
-		       BOOST_FILESYSTEM_LIB="-lboost_filesystem-mt -lboost_system-mt"
+		       BOOST_FILESYSTEM_LIB="-lboost_filesystem-mt"
+		       if test -e "$ac_boost_lib_base/libboost_system-mt.so" -o -e "$ac_boost_lib_base/libboost_system-mt.la" -o -e "$ac_boost_lib_base/libboost_system-mt.dylib"; then
+		          BOOST_FILESYSTEM_LIB="$BOOST_FILESYSTEM_LIB -lboost_system-mt"
+		       fi
                        BOOST_DATETIME_LIB="-lboost_date_time-mt"
                        BOOST_IOSTREAMS_LIB="-lboost_iostreams-mt"
                        BOOST_SERIALIZATION_LIB="-lboost_serialization-mt"
