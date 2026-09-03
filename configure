@@ -1588,8 +1588,9 @@ Some influential environment variables:
               name.
   SPHINXBUILD Override the Sphinx build executable to use, the default is just
               'sphinx-build'
-  PYTEST      Override the pytest executable to use, the default is just
-              'py.test'
+  PYTEST      Override the pytest executable to use, the default is to search
+              for 'pytest' then fall back to 'py.test' (modern pytest installs
+              only provide the 'pytest' script)
   BLITZ_CFLAGS
               C compiler flags for BLITZ, overriding pkg-config
   BLITZ_LIBS  linker flags for BLITZ, overriding pkg-config
@@ -19190,9 +19191,9 @@ fi
 if test -n "3.4.0" -a "x$PYTHON" != "x"; then
    { $as_echo "$as_me:${as_lineno-$LINENO}: checking for a version of Python 3.4.0" >&5
 $as_echo_n "checking for a version of Python 3.4.0... " >&6; }
-   ac_supports_python_ver=`LD_LIBRARY_PATH=$PYTHON_PREFIX/lib:$PYTHON_PREFIX/lib64:$LD_LIBRARY_PATH $PYTHON -c "import sys; from distutils.version import LooseVersion; \
-	ver = sys.version.split ()[0]; \
-	print (LooseVersion(ver) >= LooseVersion('3.4.0'))"`
+   ac_supports_python_ver=`LD_LIBRARY_PATH=$PYTHON_PREFIX/lib:$PYTHON_PREFIX/lib64:$LD_LIBRARY_PATH $PYTHON -c "import sys, re; \
+	req = tuple(int(x) for x in re.findall(r'[0-9]+', '3.4.0')); \
+	print (sys.version_info[:len(req)] >= req)"`
    if test "$ac_supports_python_ver" = "True"; then
       { $as_echo "$as_me:${as_lineno-$LINENO}: result: yes" >&5
 $as_echo "yes" >&6; }
@@ -19396,7 +19397,7 @@ fi
 $as_echo_n "checking $PYTHON_NAME module: numpy... " >&6; }
           if test -n "numpy.version.version"
 	  then
-   	     $PYTHON -c "import numpy; from distutils.version import LooseVersion; assert(LooseVersion(numpy.version.version) >= LooseVersion('1.7.0'))" 2>/dev/null
+   	     $PYTHON -c "import numpy; from packaging.version import Version; assert(Version(numpy.version.version) >= Version('1.7.0'))" 2>/dev/null
 	  else
    	     $PYTHON -c "import numpy" 2>/dev/null
 	  fi
@@ -19427,7 +19428,7 @@ $as_echo "$as_me: WARNING: failed to find required module numpy" >&2;}
 $as_echo_n "checking $PYTHON_NAME module: scipy... " >&6; }
           if test -n "scipy.version.version"
 	  then
-   	     $PYTHON -c "import scipy; from distutils.version import LooseVersion; assert(LooseVersion(scipy.version.version) >= LooseVersion('0.10.1'))" 2>/dev/null
+   	     $PYTHON -c "import scipy; from packaging.version import Version; assert(Version(scipy.version.version) >= Version('0.10.1'))" 2>/dev/null
 	  else
    	     $PYTHON -c "import scipy" 2>/dev/null
 	  fi
@@ -19458,7 +19459,7 @@ $as_echo "$as_me: WARNING: failed to find required module scipy" >&2;}
 $as_echo_n "checking $PYTHON_NAME module: matplotlib... " >&6; }
           if test -n "matplotlib.__version__"
 	  then
-   	     $PYTHON -c "import matplotlib; from distutils.version import LooseVersion; assert(LooseVersion(matplotlib.__version__) >= LooseVersion('1.0.1'))" 2>/dev/null
+   	     $PYTHON -c "import matplotlib; from packaging.version import Version; assert(Version(matplotlib.__version__) >= Version('1.0.1'))" 2>/dev/null
 	  else
    	     $PYTHON -c "import matplotlib" 2>/dev/null
 	  fi
@@ -19490,7 +19491,7 @@ $as_echo "$as_me: WARNING: failed to find required module matplotlib" >&2;}
 $as_echo_n "checking $PYTHON_NAME module: h5py... " >&6; }
           if test -n ""
 	  then
-   	     $PYTHON -c "import h5py; from distutils.version import LooseVersion; assert(LooseVersion() >= LooseVersion(''))" 2>/dev/null
+   	     $PYTHON -c "import h5py; from packaging.version import Version; assert(Version() >= Version(''))" 2>/dev/null
 	  else
    	     $PYTHON -c "import h5py" 2>/dev/null
 	  fi
@@ -19521,7 +19522,7 @@ $as_echo "$as_me: WARNING: failed to find required module h5py" >&2;}
 $as_echo_n "checking $PYTHON_NAME module: sphinx... " >&6; }
           if test -n ""
 	  then
-   	     $PYTHON -c "import sphinx; from distutils.version import LooseVersion; assert(LooseVersion() >= LooseVersion(''))" 2>/dev/null
+   	     $PYTHON -c "import sphinx; from packaging.version import Version; assert(Version() >= Version(''))" 2>/dev/null
 	  else
    	     $PYTHON -c "import sphinx" 2>/dev/null
 	  fi
@@ -19552,7 +19553,7 @@ $as_echo "$as_me: WARNING: failed to find required module sphinx" >&2;}
 $as_echo_n "checking $PYTHON_NAME module: sqlite3... " >&6; }
           if test -n ""
 	  then
-   	     $PYTHON -c "import sqlite3; from distutils.version import LooseVersion; assert(LooseVersion() >= LooseVersion(''))" 2>/dev/null
+   	     $PYTHON -c "import sqlite3; from packaging.version import Version; assert(Version() >= Version(''))" 2>/dev/null
 	  else
    	     $PYTHON -c "import sqlite3" 2>/dev/null
 	  fi
@@ -19577,9 +19578,9 @@ $as_echo "$as_me: WARNING: failed to find required module sqlite3" >&2;}
     fi
 
 	if test "x$PYTHON" != "x"; then
-          pythondir=`$PYTHON -c "from distutils.sysconfig import *; print(get_python_lib(False,False,''))"`
-          platpythondir=`$PYTHON -c "from distutils.sysconfig import *; print(get_python_lib(True,False,''))"`
-          PYTHON_NUMPY_CPPFLAGS=`$PYTHON -c "from numpy.distutils.misc_util import *; print('-I' + ' -I'.join(get_numpy_include_dirs()))"`
+          pythondir=`$PYTHON -c "import sysconfig; print(sysconfig.get_path('purelib', vars={'base': '', 'platbase': ''}).lstrip('/'))"`
+          platpythondir=`$PYTHON -c "import sysconfig; print(sysconfig.get_path('platlib', vars={'base': '', 'platbase': ''}).lstrip('/'))"`
+          PYTHON_NUMPY_CPPFLAGS=`$PYTHON -c "import numpy; print('-I' + numpy.get_include())"`
 	fi
 	LD_LIBRARY_PATH=$old_ld_library_path
 
@@ -19650,9 +19651,53 @@ fi
         have_pytest=no
 
         if test "$PYTEST" == ""; then
-           PYTEST=py.test
-        fi
-        # Extract the first word of "$PYTEST", so it can be a program name with args.
+           for ac_prog in pytest py.test
+do
+  # Extract the first word of "$ac_prog", so it can be a program name with args.
+set dummy $ac_prog; ac_word=$2
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for $ac_word" >&5
+$as_echo_n "checking for $ac_word... " >&6; }
+if ${ac_cv_path_PYTEST+:} false; then :
+  $as_echo_n "(cached) " >&6
+else
+  case $PYTEST in
+  [\\/]* | ?:[\\/]*)
+  ac_cv_path_PYTEST="$PYTEST" # Let the user override the test with a path.
+  ;;
+  *)
+  as_save_IFS=$IFS; IFS=$PATH_SEPARATOR
+for as_dir in $python_search_path
+do
+  IFS=$as_save_IFS
+  test -z "$as_dir" && as_dir=.
+    for ac_exec_ext in '' $ac_executable_extensions; do
+  if as_fn_executable_p "$as_dir/$ac_word$ac_exec_ext"; then
+    ac_cv_path_PYTEST="$as_dir/$ac_word$ac_exec_ext"
+    $as_echo "$as_me:${as_lineno-$LINENO}: found $as_dir/$ac_word$ac_exec_ext" >&5
+    break 2
+  fi
+done
+  done
+IFS=$as_save_IFS
+
+  ;;
+esac
+fi
+PYTEST=$ac_cv_path_PYTEST
+if test -n "$PYTEST"; then
+  { $as_echo "$as_me:${as_lineno-$LINENO}: result: $PYTEST" >&5
+$as_echo "$PYTEST" >&6; }
+else
+  { $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
+$as_echo "no" >&6; }
+fi
+
+
+  test -n "$PYTEST" && break
+done
+
+        else
+           # Extract the first word of "$PYTEST", so it can be a program name with args.
 set dummy $PYTEST; ac_word=$2
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking for $ac_word" >&5
 $as_echo_n "checking for $ac_word... " >&6; }
@@ -19692,9 +19737,10 @@ $as_echo "no" >&6; }
 fi
 
 
+        fi
         if test -z "$PYTEST" ; then
-           { $as_echo "$as_me:${as_lineno-$LINENO}: WARNING: cannot find 'py.test' program." >&5
-$as_echo "$as_me: WARNING: cannot find 'py.test' program." >&2;}
+           { $as_echo "$as_me:${as_lineno-$LINENO}: WARNING: cannot find 'pytest' or 'py.test' program." >&5
+$as_echo "$as_me: WARNING: cannot find 'pytest' or 'py.test' program." >&2;}
            PYTEST='echo "Error: pytest is not installed. " ; false'
         else
           have_pytest=yes
@@ -19834,9 +19880,9 @@ fi
 if test -n ">= '3.4.0'" -a "x$PYTHON" != "x"; then
    { $as_echo "$as_me:${as_lineno-$LINENO}: checking for a version of Python >= '3.4.0'" >&5
 $as_echo_n "checking for a version of Python >= '3.4.0'... " >&6; }
-   ac_supports_python_ver=`LD_LIBRARY_PATH=$PYTHON_PREFIX/lib:$PYTHON_PREFIX/lib64:$LD_LIBRARY_PATH $PYTHON -c "import sys; from distutils.version import LooseVersion; \
-	ver = sys.version.split ()[0]; \
-	print (LooseVersion(ver) >= LooseVersion('>= '3.4.0''))"`
+   ac_supports_python_ver=`LD_LIBRARY_PATH=$PYTHON_PREFIX/lib:$PYTHON_PREFIX/lib64:$LD_LIBRARY_PATH $PYTHON -c "import sys, re; \
+	req = tuple(int(x) for x in re.findall(r'[0-9]+', '>= '3.4.0'')); \
+	print (sys.version_info[:len(req)] >= req)"`
    if test "$ac_supports_python_ver" = "True"; then
       { $as_echo "$as_me:${as_lineno-$LINENO}: result: yes" >&5
 $as_echo "yes" >&6; }
@@ -20031,8 +20077,8 @@ ac_compiler_gnu=$ac_cv_c_compiler_gnu
 fi
 
         if test "x$PYTHON" != "x"; then
-           pythondir=`$PYTHON -c "from distutils.sysconfig import *; print(get_python_lib(False,False,''))"`
-           platpythondir=`$PYTHON -c "from distutils.sysconfig import *; print(get_python_lib(True,False,''))"`
+           pythondir=`$PYTHON -c "import sysconfig; print(sysconfig.get_path('purelib', vars={'base': '', 'platbase': ''}).lstrip('/'))"`
+           platpythondir=`$PYTHON -c "import sysconfig; print(sysconfig.get_path('platlib', vars={'base': '', 'platbase': ''}).lstrip('/'))"`
 
    	    if false; then
   HAVE_SPHINX_TRUE=

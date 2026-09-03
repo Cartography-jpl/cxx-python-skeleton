@@ -32,13 +32,42 @@ Useful `configure` options:
 - `--without-boost-serialization` — disable boost-serialization support code
 
 Building requires: boost (>=1.46.0), blitz, SWIG (maintainer mode + `HAVE_SWIG`), and if generating SWIG
-wrappers, doxygen. A pixi-based dev environment is provided at `env/linux/pixi.toml` (python, boost, blitz,
-compilers, doxygen, swig<4.4.0) as a convenient way to get a working toolchain, e.g. for testing against a
-different SWIG version.
+wrappers, doxygen. `configure` (via `AFIDS_PYTHON`, `config/m4/afids_python.m4`) also requires numpy, scipy,
+matplotlib, sphinx, and sqlite3 to be importable by the configured Python, plus a `pytest`/`py.test` program
+on `PATH`. A pixi-based dev environment is provided at `env/linux/pixi.toml` (python, boost, blitz, compilers,
+doxygen, swig<4.4.0, packaging, numpy, scipy, matplotlib, sphinx, pytest) as a convenient way to get a working
+toolchain, e.g. for testing against a different SWIG version.
+
+### Python version compatibility note
+
+`config/m4/ac_python.m4`, `config/m4/ac_python_module_with_version.m4`, and `config/m4/afids_python.m4` used
+to shell out to `distutils` (version comparison, `sysconfig`, numpy include dirs) — this breaks entirely on
+Python >=3.12, which removed `distutils` from the stdlib. These were rewritten to use `sys.version_info`
+(interpreter version check), `packaging.version.Version` (third-party module version checks — the actual
+PEP 440-compliant replacement for `distutils.version.LooseVersion`), stdlib `sysconfig.get_path(...)`
+(replacing `distutils.sysconfig.get_python_lib(...)`), and `numpy.get_include()` (replacing
+`numpy.distutils.misc_util.get_numpy_include_dirs()`). `config/m4/ac_python_pytest.m4` was also updated to
+look for `pytest` before falling back to the old `py.test` script name, since pytest >=6 no longer installs
+`py.test`. `packaging` is now a required dependency for running `configure`; it's declared in
+`env/linux/pixi.toml`. These `config/m4/*.m4` files are themselves a `git subtree` from a separate shared
+repo (`general-autoconf`, remote `autoconf-repo`) — after editing them, re-run `./bootstrap` to regenerate
+`configure`/`aclocal.m4`, and consider pushing the fix upstream via `git subtree push --prefix config/m4
+autoconf-repo master` since other projects built on the same macros hit the identical distutils breakage.
 
 After configure, `source script/setup_skeleton.sh` (generated from `script/setup_skeleton.sh.in`) sets
 `PYTHONPATH`/`PATH`/`SKELETONTOP` so the built library and python bindings are importable — this is done
 automatically by the test scripts below but is needed if running things manually.
+
+### Scratch build/test environment
+
+`/home/smyth/Local/swig-rules-skeleton-build/build-pixi` is a scratch pixi environment (outside this repo)
+that can be used to actually configure/build/run tests against, e.g.:
+```sh
+cd /home/smyth/Local/swig-rules-skeleton-build/build-pixi
+../../swig-rules-skeleton/configure --prefix=$CONDA_PREFIX --enable-maintainer-mode --enable-debug
+```
+It's fine to modify this environment's `pixi.toml`/add packages to it as needed to get a build working — it's
+disposable scratch space, not something to be precious about.
 
 ## Tests
 
@@ -122,3 +151,8 @@ git fetch swig-rules-repo && git diff HEAD:swig_rules swig-rules-repo/master   #
 If subtree push complains "tip of current branch is behind" even after a pull, this is a known subtree quirk —
 try `git push swig-rules-repo $(git subtree split --prefix swig_rules master):master --force` (see
 `README.git` for more detail/links).
+
+## Claude-generated documentation
+
+Place any documentation you generate (reviews, analysis notes, design writeups, etc.) in `claude_notes/`
+unless the user directs you to put it somewhere else.
