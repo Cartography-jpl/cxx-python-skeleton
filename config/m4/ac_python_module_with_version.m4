@@ -16,7 +16,7 @@ AC_DEFUN([AC_PYTHON_MODULE_WITH_VERSION],[
       AC_MSG_CHECKING($PYTHON_NAME module: $1)
           if test -n "$3"
 	  then
-   	     $PYTHON -c "import $1; from distutils.version import LooseVersion; assert(LooseVersion($3) >= LooseVersion('$2'))" 2>/dev/null
+   	     $PYTHON -c "import $1; from packaging.version import Version; assert(Version($3) >= Version('$2'))" 2>/dev/null
 	  else
    	     $PYTHON -c "import $1" 2>/dev/null
 	  fi

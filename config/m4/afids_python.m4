@@ -70,9 +70,9 @@ if test "x$want_python" = "xyes"; then
         AC_PYTHON_MODULE_WITH_VERSION(sphinx, , , [required])
         AC_PYTHON_MODULE_WITH_VERSION(sqlite3, , , [required])
 	if test "x$PYTHON" != "x"; then
-          pythondir=`$PYTHON -c "from distutils.sysconfig import *; print(get_python_lib(False,False,''))"`
-          platpythondir=`$PYTHON -c "from distutils.sysconfig import *; print(get_python_lib(True,False,''))"`
-          PYTHON_NUMPY_CPPFLAGS=`$PYTHON -c "from numpy.distutils.misc_util import *; print('-I' + ' -I'.join(get_numpy_include_dirs()))"`
+          pythondir=`$PYTHON -c "import sysconfig; print(sysconfig.get_path('purelib', vars={'base': '', 'platbase': ''}).lstrip('/'))"`
+          platpythondir=`$PYTHON -c "import sysconfig; print(sysconfig.get_path('platlib', vars={'base': '', 'platbase': ''}).lstrip('/'))"`
+          PYTHON_NUMPY_CPPFLAGS=`$PYTHON -c "import numpy; print('-I' + numpy.get_include())"`
 	fi
 	LD_LIBRARY_PATH=$old_ld_library_path
         AC_SUBST([PYTHON_NUMPY_CPPFLAGS])
@@ -96,8 +96,8 @@ if test "x$want_python" = "xyes"; then
 	fi
         AC_PYTHON_DEVEL([>= '3.4.0'])
         if test "x$PYTHON" != "x"; then
-           pythondir=`$PYTHON -c "from distutils.sysconfig import *; print(get_python_lib(False,False,''))"`
-           platpythondir=`$PYTHON -c "from distutils.sysconfig import *; print(get_python_lib(True,False,''))"`
+           pythondir=`$PYTHON -c "import sysconfig; print(sysconfig.get_path('purelib', vars={'base': '', 'platbase': ''}).lstrip('/'))"`
+           platpythondir=`$PYTHON -c "import sysconfig; print(sysconfig.get_path('platlib', vars={'base': '', 'platbase': ''}).lstrip('/'))"`
            AC_SUBST([platpythondir])
    	   AM_CONDITIONAL([HAVE_SPHINX], [false])
            AM_CONDITIONAL([HAVE_PYTEST], [false])

@@ -17,13 +17,15 @@
 AC_DEFUN([AC_PROG_PYTEST],[
         have_pytest=no
         AC_ARG_VAR([PYTEST], [Override the pytest executable to use,
-           the default is just 'py.test'])
+           the default is to search for 'pytest' then fall back to 'py.test'
+           (modern pytest installs only provide the 'pytest' script)])
         if test "$PYTEST" == ""; then
-           PYTEST=py.test
+           AC_PATH_PROGS([PYTEST],[pytest py.test], [], [$python_search_path])
+        else
+           AC_PATH_PROG([PYTEST],[$PYTEST], [], [$python_search_path])
         fi
-        AC_PATH_PROG([PYTEST],[$PYTEST], [], [$python_search_path])
         if test -z "$PYTEST" ; then
-           AC_MSG_WARN([cannot find 'py.test' program.])
+           AC_MSG_WARN([cannot find 'pytest' or 'py.test' program.])
            PYTEST='echo "Error: pytest is not installed. " ; false'
         else
           have_pytest=yes
