@@ -4771,12 +4771,18 @@ struct ArrayConversionException : public std::exception
 // "asarray" fails. 
 //--------------------------------------------------------------
 
+inline PyObject* asarray_name()
+{
+  static PyObject* name = PyUnicode_FromString("asarray");
+  return name;
+}
+
 template<class T> PyObject* to_numpy(PyObject* obj);
 
 template<> inline PyObject* to_numpy<double>(PyObject* obj)
 {
   PyObject* res = PyObject_CallMethodObjArgs(numpy_module(), 
-                                             PyUnicode_FromString("asarray"), 
+                                             asarray_name(), 
                                              obj, numpy_dot_float64(), NULL);
   // Don't worry about errors , since we just return a null
   PyErr_Clear();
@@ -4786,7 +4792,7 @@ template<> inline PyObject* to_numpy<double>(PyObject* obj)
 template<> inline PyObject* to_numpy<float>(PyObject* obj)
 {
   PyObject* res = PyObject_CallMethodObjArgs(numpy_module(), 
-                                             PyUnicode_FromString("asarray"), 
+                                             asarray_name(), 
                                              obj, numpy_dot_float32(), NULL);
   // Don't worry about errors , since we just return a null
   PyErr_Clear();
@@ -4796,7 +4802,7 @@ template<> inline PyObject* to_numpy<float>(PyObject* obj)
 template<> inline PyObject* to_numpy<bool>(PyObject* obj)
 {
   PyObject* res = PyObject_CallMethodObjArgs(numpy_module(), 
-                                    PyUnicode_FromString("asarray"), 
+                                    asarray_name(), 
                                     obj, numpy_dot_bool(), NULL);
   PyErr_Clear();
   return res;
@@ -4805,7 +4811,7 @@ template<> inline PyObject* to_numpy<bool>(PyObject* obj)
 template<> inline PyObject* to_numpy<int>(PyObject* obj)
 {
   PyObject* res = PyObject_CallMethodObjArgs(numpy_module(), 
-                                    PyUnicode_FromString("asarray"), 
+                                    asarray_name(), 
                                     obj, numpy_dot_int32(), NULL);
   PyErr_Clear();
   return res;
@@ -4814,7 +4820,7 @@ template<> inline PyObject* to_numpy<int>(PyObject* obj)
 template<> inline PyObject* to_numpy<unsigned int>(PyObject* obj)
 {
   PyObject* res = PyObject_CallMethodObjArgs(numpy_module(), 
-                                    PyUnicode_FromString("asarray"), 
+                                    asarray_name(), 
                                     obj, numpy_dot_uint32(), NULL);
   PyErr_Clear();
   return res;
@@ -4823,7 +4829,7 @@ template<> inline PyObject* to_numpy<unsigned int>(PyObject* obj)
 template<> inline PyObject* to_numpy<short int>(PyObject* obj)
 {
   PyObject* res = PyObject_CallMethodObjArgs(numpy_module(), 
-                                    PyUnicode_FromString("asarray"), 
+                                    asarray_name(), 
                                     obj, numpy_dot_int16(), NULL);
   PyErr_Clear();
   return res;
@@ -4832,7 +4838,7 @@ template<> inline PyObject* to_numpy<short int>(PyObject* obj)
 template<> inline PyObject* to_numpy<unsigned short int>(PyObject* obj)
 {
   PyObject* res = PyObject_CallMethodObjArgs(numpy_module(), 
-                                    PyUnicode_FromString("asarray"), 
+                                    asarray_name(), 
                                     obj, numpy_dot_uint16(), NULL);
   PyErr_Clear();
   return res;
@@ -4841,7 +4847,7 @@ template<> inline PyObject* to_numpy<unsigned short int>(PyObject* obj)
 template<> inline PyObject* to_numpy<char>(PyObject* obj)
 {
   PyObject* res = PyObject_CallMethodObjArgs(numpy_module(), 
-                                    PyUnicode_FromString("asarray"), 
+                                    asarray_name(), 
                                     obj, numpy_dot_int8(), NULL);
   PyErr_Clear();
   return res;
@@ -4850,7 +4856,7 @@ template<> inline PyObject* to_numpy<char>(PyObject* obj)
 template<> inline PyObject* to_numpy<unsigned char>(PyObject* obj)
 {
   PyObject* res = PyObject_CallMethodObjArgs(numpy_module(), 
-                                    PyUnicode_FromString("asarray"), 
+                                    asarray_name(), 
                                     obj, numpy_dot_uint8(), NULL);
   PyErr_Clear();
   return res;
@@ -4927,11 +4933,15 @@ inline void iter_to_vector_of_arrays(PyObject *sequence, std::vector<blitz::Arra
     if(!numpy.obj) {
       std::stringstream err_msg;
       err_msg << "iter_to_vector_of_arrays: object is not a numpy object at index: " << iter_index;
+      Py_DECREF(item);
+      Py_DECREF(iterator);
       throw ArrayConversionException(err_msg.str());
     }
     if(PyArray_NDIM((PyArrayObject*) numpy.obj) != DIM) {
       std::stringstream err_msg;
       err_msg << "iter_to_vector_of_arrays: incorrect dimension of numpy object at index: " << iter_index << ", expected dimension: " << DIM;
+      Py_DECREF(item);
+      Py_DECREF(iterator);
       throw ArrayConversionException(err_msg.str());
     }
 
@@ -5440,6 +5450,14 @@ namespace swig {
 	  Swig::Director* dp = dynamic_cast<Swig::Director*>(p->get());
 	  if(dp) {
 	    boost::shared_ptr<T> *p2 = new boost::shared_ptr<T>(p->get(), PythonRefPtrCleanup(dp->swig_get_self()));
+	    // If p was itself a heap allocation from the cast above (newmem
+	    // & SWIG_CAST_NEW_MEMORY), we're about to replace it with p2 --
+	    // free it first rather than leaking it. If newmem wasn't set, p
+	    // points at a shared_ptr swig still owns elsewhere, so leave it
+	    // alone.
+	    if (newmem & SWIG_CAST_NEW_MEMORY) {
+	      delete p;
+	    }
 	    p = p2;
             res |= SWIG_NEWOBJMASK;
 	  }
@@ -6734,9 +6752,10 @@ SWIG_From_std_string  (const std::string& s)
 			      const SwigDirector_DirectorExample* d, 
 			      const unsigned int version)
      {
+       static PyObject* swig_this_name = PyUnicode_FromString("this");
        PyObject* pobj = d->swig_get_self();
-       PyObject* this_save = PyObject_GetAttr(pobj, PyUnicode_FromString("this"));
-       PyObject_SetAttr(pobj, PyUnicode_FromString("this"), Py_None);
+       PyObject* this_save = PyObject_GetAttr(pobj, swig_this_name);
+       PyObject_SetAttr(pobj, swig_this_name, Py_None);
        // If cpickle_dumps or the archive write throws (e.g., the python
        // object has an unpicklable attribute), we still need to restore
        // "this" before letting the exception propagate. Otherwise pobj is
@@ -6746,11 +6765,11 @@ SWIG_From_std_string  (const std::string& s)
          std::string python_object = cpickle_dumps(pobj);
          ar & BOOST_SERIALIZATION_NVP(python_object);
        } catch (...) {
-         PyObject_SetAttr(pobj, PyUnicode_FromString("this"), this_save);
+         PyObject_SetAttr(pobj, swig_this_name, this_save);
          Py_DECREF(this_save);
          throw;
        }
-       PyObject_SetAttr(pobj, PyUnicode_FromString("this"), this_save);
+       PyObject_SetAttr(pobj, swig_this_name, this_save);
        Py_DECREF(this_save);
      }
      template<class Archive>
@@ -6760,12 +6779,20 @@ SWIG_From_std_string  (const std::string& s)
        std::string python_object;
        ar & BOOST_SERIALIZATION_NVP(python_object);
        PyObject* pobj = cpickle_loads(python_object);
-       ::new(d)SwigDirector_DirectorExample(pobj);
-       boost::shared_ptr<Skeleton::DirectorExample> *smartresult = d ? new boost::shared_ptr<Skeleton::DirectorExample>(d) : 0;
-       PyObject* thisobj = SWIG_NewPointerObj(SWIG_as_voidptr(smartresult), SWIG_TypeQuery("boost::shared_ptr<Skeleton::DirectorExample>*"), SWIG_POINTER_NEW | SWIG_POINTER_OWN);
-       // Transfer ownership of SwigDirector_ ## DirectorExample to pobj.
-       SWIG_Python_SetSwigThis(pobj, thisobj);
-       Py_DECREF(thisobj);
+       try {
+         ::new(d)SwigDirector_DirectorExample(pobj);
+         boost::shared_ptr<Skeleton::DirectorExample> *smartresult = d ? new boost::shared_ptr<Skeleton::DirectorExample>(d) : 0;
+         PyObject* thisobj = SWIG_NewPointerObj(SWIG_as_voidptr(smartresult), SWIG_TypeQuery("boost::shared_ptr<Skeleton::DirectorExample>*"), SWIG_POINTER_NEW | SWIG_POINTER_OWN);
+         // Transfer ownership of SwigDirector_ ## DirectorExample to pobj.
+         SWIG_Python_SetSwigThis(pobj, thisobj);
+         Py_DECREF(thisobj);
+       } catch (...) {
+         // Construction never completed, so pobj's new reference (from
+         // cpickle_loads) was never handed off to anything -- release it
+         // before propagating the exception.
+         Py_DECREF(pobj);
+         throw;
+       }
      }
    }
 }
@@ -7583,12 +7610,19 @@ SWIGINTERN PyObject *_wrap_Vector_DirectorExample_iterator(PyObject *self, PyObj
     try {
       result = (swig::SwigPyIterator *)std_vector_Sl_boost_shared_ptr_Sl_Skeleton_DirectorExample_Sg__Sg__iterator(arg1,arg2);
     } catch (Swig::DirectorException &e) {
-      SWIG_fail; 
+      SWIG_fail;
     } catch (const PythonException& e) {
       e.restore_python_exception();
-      SWIG_fail; 
+      SWIG_fail;
     } catch (const std::exception& e) {
       SWIG_exception(SWIG_RuntimeError, e.what());
+    } catch (...) {
+      // Anything not derived from std::exception (a raw type, a
+      // third-party exception hierarchy that doesn't inherit
+      // std::exception, etc.) would otherwise propagate across the
+      // extern "C" boundary into CPython -- undefined behavior, in
+      // practice a process abort rather than a clean Python exception.
+      SWIG_exception(SWIG_RuntimeError, "unknown C++ exception");
     }
   }
   if (!result) SWIG_fail;
@@ -7619,12 +7653,19 @@ SWIGINTERN PyObject *_wrap_Vector_DirectorExample___bool__(PyObject *self, PyObj
     try {
       result = (bool)std_vector_Sl_boost_shared_ptr_Sl_Skeleton_DirectorExample_Sg__Sg____bool__((std::vector< boost::shared_ptr< Skeleton::DirectorExample > > const *)arg1);
     } catch (Swig::DirectorException &e) {
-      SWIG_fail; 
+      SWIG_fail;
     } catch (const PythonException& e) {
       e.restore_python_exception();
-      SWIG_fail; 
+      SWIG_fail;
     } catch (const std::exception& e) {
       SWIG_exception(SWIG_RuntimeError, e.what());
+    } catch (...) {
+      // Anything not derived from std::exception (a raw type, a
+      // third-party exception hierarchy that doesn't inherit
+      // std::exception, etc.) would otherwise propagate across the
+      // extern "C" boundary into CPython -- undefined behavior, in
+      // practice a process abort rather than a clean Python exception.
+      SWIG_exception(SWIG_RuntimeError, "unknown C++ exception");
     }
   }
   resultobj = SWIG_From_bool(static_cast< bool >(result));
@@ -7654,12 +7695,19 @@ SWIGINTERN PyObject *_wrap_Vector_DirectorExample___len__(PyObject *self, PyObje
     try {
       result = std_vector_Sl_boost_shared_ptr_Sl_Skeleton_DirectorExample_Sg__Sg____len__((std::vector< boost::shared_ptr< Skeleton::DirectorExample > > const *)arg1);
     } catch (Swig::DirectorException &e) {
-      SWIG_fail; 
+      SWIG_fail;
     } catch (const PythonException& e) {
       e.restore_python_exception();
-      SWIG_fail; 
+      SWIG_fail;
     } catch (const std::exception& e) {
       SWIG_exception(SWIG_RuntimeError, e.what());
+    } catch (...) {
+      // Anything not derived from std::exception (a raw type, a
+      // third-party exception hierarchy that doesn't inherit
+      // std::exception, etc.) would otherwise propagate across the
+      // extern "C" boundary into CPython -- undefined behavior, in
+      // practice a process abort rather than a clean Python exception.
+      SWIG_exception(SWIG_RuntimeError, "unknown C++ exception");
     }
   }
   resultobj = SWIG_From_size_t(static_cast< size_t >(result));
@@ -7700,12 +7748,19 @@ SWIGINTERN PyObject *_wrap_Vector_DirectorExample___delitem____SWIG_0(PyObject *
         SWIG_exception_fail(SWIG_ValueError, (&_e)->what());
       }
     } catch (Swig::DirectorException &e) {
-      SWIG_fail; 
+      SWIG_fail;
     } catch (const PythonException& e) {
       e.restore_python_exception();
-      SWIG_fail; 
+      SWIG_fail;
     } catch (const std::exception& e) {
       SWIG_exception(SWIG_RuntimeError, e.what());
+    } catch (...) {
+      // Anything not derived from std::exception (a raw type, a
+      // third-party exception hierarchy that doesn't inherit
+      // std::exception, etc.) would otherwise propagate across the
+      // extern "C" boundary into CPython -- undefined behavior, in
+      // practice a process abort rather than a clean Python exception.
+      SWIG_exception(SWIG_RuntimeError, "unknown C++ exception");
     }
   }
   resultobj = SWIG_Py_Void();
@@ -7746,12 +7801,19 @@ SWIGINTERN PyObject *_wrap_Vector_DirectorExample___getitem____SWIG_0(PyObject *
         SWIG_exception_fail(SWIG_ValueError, (&_e)->what());
       }
     } catch (Swig::DirectorException &e) {
-      SWIG_fail; 
+      SWIG_fail;
     } catch (const PythonException& e) {
       e.restore_python_exception();
-      SWIG_fail; 
+      SWIG_fail;
     } catch (const std::exception& e) {
       SWIG_exception(SWIG_RuntimeError, e.what());
+    } catch (...) {
+      // Anything not derived from std::exception (a raw type, a
+      // third-party exception hierarchy that doesn't inherit
+      // std::exception, etc.) would otherwise propagate across the
+      // extern "C" boundary into CPython -- undefined behavior, in
+      // practice a process abort rather than a clean Python exception.
+      SWIG_exception(SWIG_RuntimeError, "unknown C++ exception");
     }
   }
   resultobj = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIGTYPE_p_std__vectorT_boost__shared_ptrT_Skeleton__DirectorExample_t_t, SWIG_POINTER_OWN |  0 );
@@ -7804,12 +7866,19 @@ SWIGINTERN PyObject *_wrap_Vector_DirectorExample___setitem____SWIG_0(PyObject *
         SWIG_exception_fail(SWIG_ValueError, (&_e)->what());
       }
     } catch (Swig::DirectorException &e) {
-      SWIG_fail; 
+      SWIG_fail;
     } catch (const PythonException& e) {
       e.restore_python_exception();
-      SWIG_fail; 
+      SWIG_fail;
     } catch (const std::exception& e) {
       SWIG_exception(SWIG_RuntimeError, e.what());
+    } catch (...) {
+      // Anything not derived from std::exception (a raw type, a
+      // third-party exception hierarchy that doesn't inherit
+      // std::exception, etc.) would otherwise propagate across the
+      // extern "C" boundary into CPython -- undefined behavior, in
+      // practice a process abort rather than a clean Python exception.
+      SWIG_exception(SWIG_RuntimeError, "unknown C++ exception");
     }
   }
   resultobj = SWIG_Py_Void();
@@ -7851,12 +7920,19 @@ SWIGINTERN PyObject *_wrap_Vector_DirectorExample___setitem____SWIG_1(PyObject *
         SWIG_exception_fail(SWIG_ValueError, (&_e)->what());
       }
     } catch (Swig::DirectorException &e) {
-      SWIG_fail; 
+      SWIG_fail;
     } catch (const PythonException& e) {
       e.restore_python_exception();
-      SWIG_fail; 
+      SWIG_fail;
     } catch (const std::exception& e) {
       SWIG_exception(SWIG_RuntimeError, e.what());
+    } catch (...) {
+      // Anything not derived from std::exception (a raw type, a
+      // third-party exception hierarchy that doesn't inherit
+      // std::exception, etc.) would otherwise propagate across the
+      // extern "C" boundary into CPython -- undefined behavior, in
+      // practice a process abort rather than a clean Python exception.
+      SWIG_exception(SWIG_RuntimeError, "unknown C++ exception");
     }
   }
   resultobj = SWIG_Py_Void();
@@ -7896,12 +7972,19 @@ SWIGINTERN PyObject *_wrap_Vector_DirectorExample___delitem____SWIG_1(PyObject *
         SWIG_exception_fail(SWIG_ValueError, (&_e)->what());
       }
     } catch (Swig::DirectorException &e) {
-      SWIG_fail; 
+      SWIG_fail;
     } catch (const PythonException& e) {
       e.restore_python_exception();
-      SWIG_fail; 
+      SWIG_fail;
     } catch (const std::exception& e) {
       SWIG_exception(SWIG_RuntimeError, e.what());
+    } catch (...) {
+      // Anything not derived from std::exception (a raw type, a
+      // third-party exception hierarchy that doesn't inherit
+      // std::exception, etc.) would otherwise propagate across the
+      // extern "C" boundary into CPython -- undefined behavior, in
+      // practice a process abort rather than a clean Python exception.
+      SWIG_exception(SWIG_RuntimeError, "unknown C++ exception");
     }
   }
   resultobj = SWIG_Py_Void();
@@ -7976,12 +8059,19 @@ SWIGINTERN PyObject *_wrap_Vector_DirectorExample___getitem____SWIG_1(PyObject *
         SWIG_exception_fail(SWIG_IndexError, (&_e)->what());
       }
     } catch (Swig::DirectorException &e) {
-      SWIG_fail; 
+      SWIG_fail;
     } catch (const PythonException& e) {
       e.restore_python_exception();
-      SWIG_fail; 
+      SWIG_fail;
     } catch (const std::exception& e) {
       SWIG_exception(SWIG_RuntimeError, e.what());
+    } catch (...) {
+      // Anything not derived from std::exception (a raw type, a
+      // third-party exception hierarchy that doesn't inherit
+      // std::exception, etc.) would otherwise propagate across the
+      // extern "C" boundary into CPython -- undefined behavior, in
+      // practice a process abort rather than a clean Python exception.
+      SWIG_exception(SWIG_RuntimeError, "unknown C++ exception");
     }
   }
   resultobj = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIGTYPE_p_boost__shared_ptrT_Skeleton__DirectorExample_t, 0 |  0 );
@@ -8069,12 +8159,19 @@ SWIGINTERN PyObject *_wrap_Vector_DirectorExample___setitem____SWIG_2(PyObject *
         SWIG_exception_fail(SWIG_IndexError, (&_e)->what());
       }
     } catch (Swig::DirectorException &e) {
-      SWIG_fail; 
+      SWIG_fail;
     } catch (const PythonException& e) {
       e.restore_python_exception();
-      SWIG_fail; 
+      SWIG_fail;
     } catch (const std::exception& e) {
       SWIG_exception(SWIG_RuntimeError, e.what());
+    } catch (...) {
+      // Anything not derived from std::exception (a raw type, a
+      // third-party exception hierarchy that doesn't inherit
+      // std::exception, etc.) would otherwise propagate across the
+      // extern "C" boundary into CPython -- undefined behavior, in
+      // practice a process abort rather than a clean Python exception.
+      SWIG_exception(SWIG_RuntimeError, "unknown C++ exception");
     }
   }
   resultobj = SWIG_Py_Void();
@@ -8154,12 +8251,19 @@ SWIGINTERN PyObject *_wrap_Vector_DirectorExample_pop(PyObject *self, PyObject *
         SWIG_exception_fail(SWIG_IndexError, (&_e)->what());
       }
     } catch (Swig::DirectorException &e) {
-      SWIG_fail; 
+      SWIG_fail;
     } catch (const PythonException& e) {
       e.restore_python_exception();
-      SWIG_fail; 
+      SWIG_fail;
     } catch (const std::exception& e) {
       SWIG_exception(SWIG_RuntimeError, e.what());
+    } catch (...) {
+      // Anything not derived from std::exception (a raw type, a
+      // third-party exception hierarchy that doesn't inherit
+      // std::exception, etc.) would otherwise propagate across the
+      // extern "C" boundary into CPython -- undefined behavior, in
+      // practice a process abort rather than a clean Python exception.
+      SWIG_exception(SWIG_RuntimeError, "unknown C++ exception");
     }
   }
   resultobj = SWIG_NewPointerObj((new std::vector< boost::shared_ptr< Skeleton::DirectorExample > >::value_type(result)), SWIGTYPE_p_boost__shared_ptrT_Skeleton__DirectorExample_t, SWIG_POINTER_OWN |  0 );
@@ -8198,12 +8302,19 @@ SWIGINTERN PyObject *_wrap_Vector_DirectorExample_append(PyObject *self, PyObjec
     try {
       std_vector_Sl_boost_shared_ptr_Sl_Skeleton_DirectorExample_Sg__Sg__append(arg1,(boost::shared_ptr< Skeleton::DirectorExample > const &)*arg2);
     } catch (Swig::DirectorException &e) {
-      SWIG_fail; 
+      SWIG_fail;
     } catch (const PythonException& e) {
       e.restore_python_exception();
-      SWIG_fail; 
+      SWIG_fail;
     } catch (const std::exception& e) {
       SWIG_exception(SWIG_RuntimeError, e.what());
+    } catch (...) {
+      // Anything not derived from std::exception (a raw type, a
+      // third-party exception hierarchy that doesn't inherit
+      // std::exception, etc.) would otherwise propagate across the
+      // extern "C" boundary into CPython -- undefined behavior, in
+      // practice a process abort rather than a clean Python exception.
+      SWIG_exception(SWIG_RuntimeError, "unknown C++ exception");
     }
   }
   resultobj = SWIG_Py_Void();
@@ -8223,12 +8334,19 @@ SWIGINTERN PyObject *_wrap_new_Vector_DirectorExample__SWIG_0(PyObject *self, Py
     try {
       result = (std::vector< boost::shared_ptr< Skeleton::DirectorExample > > *)new std::vector< boost::shared_ptr< Skeleton::DirectorExample > >();
     } catch (Swig::DirectorException &e) {
-      SWIG_fail; 
+      SWIG_fail;
     } catch (const PythonException& e) {
       e.restore_python_exception();
-      SWIG_fail; 
+      SWIG_fail;
     } catch (const std::exception& e) {
       SWIG_exception(SWIG_RuntimeError, e.what());
+    } catch (...) {
+      // Anything not derived from std::exception (a raw type, a
+      // third-party exception hierarchy that doesn't inherit
+      // std::exception, etc.) would otherwise propagate across the
+      // extern "C" boundary into CPython -- undefined behavior, in
+      // practice a process abort rather than a clean Python exception.
+      SWIG_exception(SWIG_RuntimeError, "unknown C++ exception");
     }
   }
   resultobj = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIGTYPE_p_std__vectorT_boost__shared_ptrT_Skeleton__DirectorExample_t_t, SWIG_POINTER_NEW |  0 );
@@ -8261,12 +8379,19 @@ SWIGINTERN PyObject *_wrap_new_Vector_DirectorExample__SWIG_1(PyObject *self, Py
     try {
       result = (std::vector< boost::shared_ptr< Skeleton::DirectorExample > > *)new std::vector< boost::shared_ptr< Skeleton::DirectorExample > >((std::vector< boost::shared_ptr< Skeleton::DirectorExample > > const &)*arg1);
     } catch (Swig::DirectorException &e) {
-      SWIG_fail; 
+      SWIG_fail;
     } catch (const PythonException& e) {
       e.restore_python_exception();
-      SWIG_fail; 
+      SWIG_fail;
     } catch (const std::exception& e) {
       SWIG_exception(SWIG_RuntimeError, e.what());
+    } catch (...) {
+      // Anything not derived from std::exception (a raw type, a
+      // third-party exception hierarchy that doesn't inherit
+      // std::exception, etc.) would otherwise propagate across the
+      // extern "C" boundary into CPython -- undefined behavior, in
+      // practice a process abort rather than a clean Python exception.
+      SWIG_exception(SWIG_RuntimeError, "unknown C++ exception");
     }
   }
   resultobj = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIGTYPE_p_std__vectorT_boost__shared_ptrT_Skeleton__DirectorExample_t_t, SWIG_POINTER_NEW |  0 );
@@ -8298,12 +8423,19 @@ SWIGINTERN PyObject *_wrap_Vector_DirectorExample_empty(PyObject *self, PyObject
     try {
       result = (bool)((std::vector< boost::shared_ptr< Skeleton::DirectorExample > > const *)arg1)->empty();
     } catch (Swig::DirectorException &e) {
-      SWIG_fail; 
+      SWIG_fail;
     } catch (const PythonException& e) {
       e.restore_python_exception();
-      SWIG_fail; 
+      SWIG_fail;
     } catch (const std::exception& e) {
       SWIG_exception(SWIG_RuntimeError, e.what());
+    } catch (...) {
+      // Anything not derived from std::exception (a raw type, a
+      // third-party exception hierarchy that doesn't inherit
+      // std::exception, etc.) would otherwise propagate across the
+      // extern "C" boundary into CPython -- undefined behavior, in
+      // practice a process abort rather than a clean Python exception.
+      SWIG_exception(SWIG_RuntimeError, "unknown C++ exception");
     }
   }
   resultobj = SWIG_From_bool(static_cast< bool >(result));
@@ -8333,12 +8465,19 @@ SWIGINTERN PyObject *_wrap_Vector_DirectorExample_size(PyObject *self, PyObject 
     try {
       result = ((std::vector< boost::shared_ptr< Skeleton::DirectorExample > > const *)arg1)->size();
     } catch (Swig::DirectorException &e) {
-      SWIG_fail; 
+      SWIG_fail;
     } catch (const PythonException& e) {
       e.restore_python_exception();
-      SWIG_fail; 
+      SWIG_fail;
     } catch (const std::exception& e) {
       SWIG_exception(SWIG_RuntimeError, e.what());
+    } catch (...) {
+      // Anything not derived from std::exception (a raw type, a
+      // third-party exception hierarchy that doesn't inherit
+      // std::exception, etc.) would otherwise propagate across the
+      // extern "C" boundary into CPython -- undefined behavior, in
+      // practice a process abort rather than a clean Python exception.
+      SWIG_exception(SWIG_RuntimeError, "unknown C++ exception");
     }
   }
   resultobj = SWIG_From_size_t(static_cast< size_t >(result));
@@ -8377,12 +8516,19 @@ SWIGINTERN PyObject *_wrap_Vector_DirectorExample_swap(PyObject *self, PyObject 
     try {
       (arg1)->swap(*arg2);
     } catch (Swig::DirectorException &e) {
-      SWIG_fail; 
+      SWIG_fail;
     } catch (const PythonException& e) {
       e.restore_python_exception();
-      SWIG_fail; 
+      SWIG_fail;
     } catch (const std::exception& e) {
       SWIG_exception(SWIG_RuntimeError, e.what());
+    } catch (...) {
+      // Anything not derived from std::exception (a raw type, a
+      // third-party exception hierarchy that doesn't inherit
+      // std::exception, etc.) would otherwise propagate across the
+      // extern "C" boundary into CPython -- undefined behavior, in
+      // practice a process abort rather than a clean Python exception.
+      SWIG_exception(SWIG_RuntimeError, "unknown C++ exception");
     }
   }
   resultobj = SWIG_Py_Void();
@@ -8412,12 +8558,19 @@ SWIGINTERN PyObject *_wrap_Vector_DirectorExample_begin(PyObject *self, PyObject
     try {
       result = (arg1)->begin();
     } catch (Swig::DirectorException &e) {
-      SWIG_fail; 
+      SWIG_fail;
     } catch (const PythonException& e) {
       e.restore_python_exception();
-      SWIG_fail; 
+      SWIG_fail;
     } catch (const std::exception& e) {
       SWIG_exception(SWIG_RuntimeError, e.what());
+    } catch (...) {
+      // Anything not derived from std::exception (a raw type, a
+      // third-party exception hierarchy that doesn't inherit
+      // std::exception, etc.) would otherwise propagate across the
+      // extern "C" boundary into CPython -- undefined behavior, in
+      // practice a process abort rather than a clean Python exception.
+      SWIG_exception(SWIG_RuntimeError, "unknown C++ exception");
     }
   }
   resultobj = SWIG_NewPointerObj(swig::make_output_iterator(static_cast< const std::vector< boost::shared_ptr< Skeleton::DirectorExample > >::iterator & >(result)),
@@ -8448,12 +8601,19 @@ SWIGINTERN PyObject *_wrap_Vector_DirectorExample_end(PyObject *self, PyObject *
     try {
       result = (arg1)->end();
     } catch (Swig::DirectorException &e) {
-      SWIG_fail; 
+      SWIG_fail;
     } catch (const PythonException& e) {
       e.restore_python_exception();
-      SWIG_fail; 
+      SWIG_fail;
     } catch (const std::exception& e) {
       SWIG_exception(SWIG_RuntimeError, e.what());
+    } catch (...) {
+      // Anything not derived from std::exception (a raw type, a
+      // third-party exception hierarchy that doesn't inherit
+      // std::exception, etc.) would otherwise propagate across the
+      // extern "C" boundary into CPython -- undefined behavior, in
+      // practice a process abort rather than a clean Python exception.
+      SWIG_exception(SWIG_RuntimeError, "unknown C++ exception");
     }
   }
   resultobj = SWIG_NewPointerObj(swig::make_output_iterator(static_cast< const std::vector< boost::shared_ptr< Skeleton::DirectorExample > >::iterator & >(result)),
@@ -8484,12 +8644,19 @@ SWIGINTERN PyObject *_wrap_Vector_DirectorExample_rbegin(PyObject *self, PyObjec
     try {
       result = (arg1)->rbegin();
     } catch (Swig::DirectorException &e) {
-      SWIG_fail; 
+      SWIG_fail;
     } catch (const PythonException& e) {
       e.restore_python_exception();
-      SWIG_fail; 
+      SWIG_fail;
     } catch (const std::exception& e) {
       SWIG_exception(SWIG_RuntimeError, e.what());
+    } catch (...) {
+      // Anything not derived from std::exception (a raw type, a
+      // third-party exception hierarchy that doesn't inherit
+      // std::exception, etc.) would otherwise propagate across the
+      // extern "C" boundary into CPython -- undefined behavior, in
+      // practice a process abort rather than a clean Python exception.
+      SWIG_exception(SWIG_RuntimeError, "unknown C++ exception");
     }
   }
   resultobj = SWIG_NewPointerObj(swig::make_output_iterator(static_cast< const std::vector< boost::shared_ptr< Skeleton::DirectorExample > >::reverse_iterator & >(result)),
@@ -8520,12 +8687,19 @@ SWIGINTERN PyObject *_wrap_Vector_DirectorExample_rend(PyObject *self, PyObject 
     try {
       result = (arg1)->rend();
     } catch (Swig::DirectorException &e) {
-      SWIG_fail; 
+      SWIG_fail;
     } catch (const PythonException& e) {
       e.restore_python_exception();
-      SWIG_fail; 
+      SWIG_fail;
     } catch (const std::exception& e) {
       SWIG_exception(SWIG_RuntimeError, e.what());
+    } catch (...) {
+      // Anything not derived from std::exception (a raw type, a
+      // third-party exception hierarchy that doesn't inherit
+      // std::exception, etc.) would otherwise propagate across the
+      // extern "C" boundary into CPython -- undefined behavior, in
+      // practice a process abort rather than a clean Python exception.
+      SWIG_exception(SWIG_RuntimeError, "unknown C++ exception");
     }
   }
   resultobj = SWIG_NewPointerObj(swig::make_output_iterator(static_cast< const std::vector< boost::shared_ptr< Skeleton::DirectorExample > >::reverse_iterator & >(result)),
@@ -8555,12 +8729,19 @@ SWIGINTERN PyObject *_wrap_Vector_DirectorExample_clear(PyObject *self, PyObject
     try {
       (arg1)->clear();
     } catch (Swig::DirectorException &e) {
-      SWIG_fail; 
+      SWIG_fail;
     } catch (const PythonException& e) {
       e.restore_python_exception();
-      SWIG_fail; 
+      SWIG_fail;
     } catch (const std::exception& e) {
       SWIG_exception(SWIG_RuntimeError, e.what());
+    } catch (...) {
+      // Anything not derived from std::exception (a raw type, a
+      // third-party exception hierarchy that doesn't inherit
+      // std::exception, etc.) would otherwise propagate across the
+      // extern "C" boundary into CPython -- undefined behavior, in
+      // practice a process abort rather than a clean Python exception.
+      SWIG_exception(SWIG_RuntimeError, "unknown C++ exception");
     }
   }
   resultobj = SWIG_Py_Void();
@@ -8590,12 +8771,19 @@ SWIGINTERN PyObject *_wrap_Vector_DirectorExample_get_allocator(PyObject *self, 
     try {
       result = ((std::vector< boost::shared_ptr< Skeleton::DirectorExample > > const *)arg1)->get_allocator();
     } catch (Swig::DirectorException &e) {
-      SWIG_fail; 
+      SWIG_fail;
     } catch (const PythonException& e) {
       e.restore_python_exception();
-      SWIG_fail; 
+      SWIG_fail;
     } catch (const std::exception& e) {
       SWIG_exception(SWIG_RuntimeError, e.what());
+    } catch (...) {
+      // Anything not derived from std::exception (a raw type, a
+      // third-party exception hierarchy that doesn't inherit
+      // std::exception, etc.) would otherwise propagate across the
+      // extern "C" boundary into CPython -- undefined behavior, in
+      // practice a process abort rather than a clean Python exception.
+      SWIG_exception(SWIG_RuntimeError, "unknown C++ exception");
     }
   }
   resultobj = SWIG_NewPointerObj((new std::vector< boost::shared_ptr< Skeleton::DirectorExample > >::allocator_type(result)), SWIGTYPE_p_std__allocatorT_boost__shared_ptrT_Skeleton__DirectorExample_t_t, SWIG_POINTER_OWN |  0 );
@@ -8623,12 +8811,19 @@ SWIGINTERN PyObject *_wrap_new_Vector_DirectorExample__SWIG_2(PyObject *self, Py
     try {
       result = (std::vector< boost::shared_ptr< Skeleton::DirectorExample > > *)new std::vector< boost::shared_ptr< Skeleton::DirectorExample > >(SWIG_STD_MOVE(*(&arg1)));
     } catch (Swig::DirectorException &e) {
-      SWIG_fail; 
+      SWIG_fail;
     } catch (const PythonException& e) {
       e.restore_python_exception();
-      SWIG_fail; 
+      SWIG_fail;
     } catch (const std::exception& e) {
       SWIG_exception(SWIG_RuntimeError, e.what());
+    } catch (...) {
+      // Anything not derived from std::exception (a raw type, a
+      // third-party exception hierarchy that doesn't inherit
+      // std::exception, etc.) would otherwise propagate across the
+      // extern "C" boundary into CPython -- undefined behavior, in
+      // practice a process abort rather than a clean Python exception.
+      SWIG_exception(SWIG_RuntimeError, "unknown C++ exception");
     }
   }
   resultobj = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIGTYPE_p_std__vectorT_boost__shared_ptrT_Skeleton__DirectorExample_t_t, SWIG_POINTER_NEW |  0 );
@@ -8657,12 +8852,19 @@ SWIGINTERN PyObject *_wrap_Vector_DirectorExample_pop_back(PyObject *self, PyObj
     try {
       (arg1)->pop_back();
     } catch (Swig::DirectorException &e) {
-      SWIG_fail; 
+      SWIG_fail;
     } catch (const PythonException& e) {
       e.restore_python_exception();
-      SWIG_fail; 
+      SWIG_fail;
     } catch (const std::exception& e) {
       SWIG_exception(SWIG_RuntimeError, e.what());
+    } catch (...) {
+      // Anything not derived from std::exception (a raw type, a
+      // third-party exception hierarchy that doesn't inherit
+      // std::exception, etc.) would otherwise propagate across the
+      // extern "C" boundary into CPython -- undefined behavior, in
+      // practice a process abort rather than a clean Python exception.
+      SWIG_exception(SWIG_RuntimeError, "unknown C++ exception");
     }
   }
   resultobj = SWIG_Py_Void();
@@ -8697,12 +8899,19 @@ SWIGINTERN PyObject *_wrap_Vector_DirectorExample_resize__SWIG_0(PyObject *self,
     try {
       (arg1)->resize(SWIG_STD_MOVE(*(&arg2)));
     } catch (Swig::DirectorException &e) {
-      SWIG_fail; 
+      SWIG_fail;
     } catch (const PythonException& e) {
       e.restore_python_exception();
-      SWIG_fail; 
+      SWIG_fail;
     } catch (const std::exception& e) {
       SWIG_exception(SWIG_RuntimeError, e.what());
+    } catch (...) {
+      // Anything not derived from std::exception (a raw type, a
+      // third-party exception hierarchy that doesn't inherit
+      // std::exception, etc.) would otherwise propagate across the
+      // extern "C" boundary into CPython -- undefined behavior, in
+      // practice a process abort rather than a clean Python exception.
+      SWIG_exception(SWIG_RuntimeError, "unknown C++ exception");
     }
   }
   resultobj = SWIG_Py_Void();
@@ -8744,12 +8953,19 @@ SWIGINTERN PyObject *_wrap_Vector_DirectorExample_erase__SWIG_0(PyObject *self, 
     try {
       result = std_vector_Sl_boost_shared_ptr_Sl_Skeleton_DirectorExample_Sg__Sg__erase__SWIG_0(arg1,SWIG_STD_MOVE(*(&arg2)));
     } catch (Swig::DirectorException &e) {
-      SWIG_fail; 
+      SWIG_fail;
     } catch (const PythonException& e) {
       e.restore_python_exception();
-      SWIG_fail; 
+      SWIG_fail;
     } catch (const std::exception& e) {
       SWIG_exception(SWIG_RuntimeError, e.what());
+    } catch (...) {
+      // Anything not derived from std::exception (a raw type, a
+      // third-party exception hierarchy that doesn't inherit
+      // std::exception, etc.) would otherwise propagate across the
+      // extern "C" boundary into CPython -- undefined behavior, in
+      // practice a process abort rather than a clean Python exception.
+      SWIG_exception(SWIG_RuntimeError, "unknown C++ exception");
     }
   }
   resultobj = SWIG_NewPointerObj(swig::make_output_iterator(static_cast< const std::vector< boost::shared_ptr< Skeleton::DirectorExample > >::iterator & >(result)),
@@ -8806,12 +9022,19 @@ SWIGINTERN PyObject *_wrap_Vector_DirectorExample_erase__SWIG_1(PyObject *self, 
     try {
       result = std_vector_Sl_boost_shared_ptr_Sl_Skeleton_DirectorExample_Sg__Sg__erase__SWIG_1(arg1,SWIG_STD_MOVE(*(&arg2)),SWIG_STD_MOVE(*(&arg3)));
     } catch (Swig::DirectorException &e) {
-      SWIG_fail; 
+      SWIG_fail;
     } catch (const PythonException& e) {
       e.restore_python_exception();
-      SWIG_fail; 
+      SWIG_fail;
     } catch (const std::exception& e) {
       SWIG_exception(SWIG_RuntimeError, e.what());
+    } catch (...) {
+      // Anything not derived from std::exception (a raw type, a
+      // third-party exception hierarchy that doesn't inherit
+      // std::exception, etc.) would otherwise propagate across the
+      // extern "C" boundary into CPython -- undefined behavior, in
+      // practice a process abort rather than a clean Python exception.
+      SWIG_exception(SWIG_RuntimeError, "unknown C++ exception");
     }
   }
   resultobj = SWIG_NewPointerObj(swig::make_output_iterator(static_cast< const std::vector< boost::shared_ptr< Skeleton::DirectorExample > >::iterator & >(result)),
@@ -8879,12 +9102,19 @@ SWIGINTERN PyObject *_wrap_new_Vector_DirectorExample__SWIG_3(PyObject *self, Py
     try {
       result = (std::vector< boost::shared_ptr< Skeleton::DirectorExample > > *)new std::vector< boost::shared_ptr< Skeleton::DirectorExample > >(SWIG_STD_MOVE(*(&arg1)),(std::vector< boost::shared_ptr< Skeleton::DirectorExample > >::value_type const &)*arg2);
     } catch (Swig::DirectorException &e) {
-      SWIG_fail; 
+      SWIG_fail;
     } catch (const PythonException& e) {
       e.restore_python_exception();
-      SWIG_fail; 
+      SWIG_fail;
     } catch (const std::exception& e) {
       SWIG_exception(SWIG_RuntimeError, e.what());
+    } catch (...) {
+      // Anything not derived from std::exception (a raw type, a
+      // third-party exception hierarchy that doesn't inherit
+      // std::exception, etc.) would otherwise propagate across the
+      // extern "C" boundary into CPython -- undefined behavior, in
+      // practice a process abort rather than a clean Python exception.
+      SWIG_exception(SWIG_RuntimeError, "unknown C++ exception");
     }
   }
   resultobj = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIGTYPE_p_std__vectorT_boost__shared_ptrT_Skeleton__DirectorExample_t_t, SWIG_POINTER_NEW |  0 );
@@ -8971,12 +9201,19 @@ SWIGINTERN PyObject *_wrap_Vector_DirectorExample_push_back(PyObject *self, PyOb
     try {
       (arg1)->push_back((std::vector< boost::shared_ptr< Skeleton::DirectorExample > >::value_type const &)*arg2);
     } catch (Swig::DirectorException &e) {
-      SWIG_fail; 
+      SWIG_fail;
     } catch (const PythonException& e) {
       e.restore_python_exception();
-      SWIG_fail; 
+      SWIG_fail;
     } catch (const std::exception& e) {
       SWIG_exception(SWIG_RuntimeError, e.what());
+    } catch (...) {
+      // Anything not derived from std::exception (a raw type, a
+      // third-party exception hierarchy that doesn't inherit
+      // std::exception, etc.) would otherwise propagate across the
+      // extern "C" boundary into CPython -- undefined behavior, in
+      // practice a process abort rather than a clean Python exception.
+      SWIG_exception(SWIG_RuntimeError, "unknown C++ exception");
     }
   }
   resultobj = SWIG_Py_Void();
@@ -9006,12 +9243,19 @@ SWIGINTERN PyObject *_wrap_Vector_DirectorExample_front(PyObject *self, PyObject
     try {
       result = (std::vector< boost::shared_ptr< Skeleton::DirectorExample > >::value_type *) &((std::vector< boost::shared_ptr< Skeleton::DirectorExample > > const *)arg1)->front();
     } catch (Swig::DirectorException &e) {
-      SWIG_fail; 
+      SWIG_fail;
     } catch (const PythonException& e) {
       e.restore_python_exception();
-      SWIG_fail; 
+      SWIG_fail;
     } catch (const std::exception& e) {
       SWIG_exception(SWIG_RuntimeError, e.what());
+    } catch (...) {
+      // Anything not derived from std::exception (a raw type, a
+      // third-party exception hierarchy that doesn't inherit
+      // std::exception, etc.) would otherwise propagate across the
+      // extern "C" boundary into CPython -- undefined behavior, in
+      // practice a process abort rather than a clean Python exception.
+      SWIG_exception(SWIG_RuntimeError, "unknown C++ exception");
     }
   }
   resultobj = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIGTYPE_p_boost__shared_ptrT_Skeleton__DirectorExample_t, 0 |  0 );
@@ -9044,12 +9288,19 @@ SWIGINTERN PyObject *_wrap_Vector_DirectorExample_back(PyObject *self, PyObject 
     try {
       result = (std::vector< boost::shared_ptr< Skeleton::DirectorExample > >::value_type *) &((std::vector< boost::shared_ptr< Skeleton::DirectorExample > > const *)arg1)->back();
     } catch (Swig::DirectorException &e) {
-      SWIG_fail; 
+      SWIG_fail;
     } catch (const PythonException& e) {
       e.restore_python_exception();
-      SWIG_fail; 
+      SWIG_fail;
     } catch (const std::exception& e) {
       SWIG_exception(SWIG_RuntimeError, e.what());
+    } catch (...) {
+      // Anything not derived from std::exception (a raw type, a
+      // third-party exception hierarchy that doesn't inherit
+      // std::exception, etc.) would otherwise propagate across the
+      // extern "C" boundary into CPython -- undefined behavior, in
+      // practice a process abort rather than a clean Python exception.
+      SWIG_exception(SWIG_RuntimeError, "unknown C++ exception");
     }
   }
   resultobj = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIGTYPE_p_boost__shared_ptrT_Skeleton__DirectorExample_t, 0 |  0 );
@@ -9099,12 +9350,19 @@ SWIGINTERN PyObject *_wrap_Vector_DirectorExample_assign(PyObject *self, PyObjec
     try {
       (arg1)->assign(SWIG_STD_MOVE(*(&arg2)),(std::vector< boost::shared_ptr< Skeleton::DirectorExample > >::value_type const &)*arg3);
     } catch (Swig::DirectorException &e) {
-      SWIG_fail; 
+      SWIG_fail;
     } catch (const PythonException& e) {
       e.restore_python_exception();
-      SWIG_fail; 
+      SWIG_fail;
     } catch (const std::exception& e) {
       SWIG_exception(SWIG_RuntimeError, e.what());
+    } catch (...) {
+      // Anything not derived from std::exception (a raw type, a
+      // third-party exception hierarchy that doesn't inherit
+      // std::exception, etc.) would otherwise propagate across the
+      // extern "C" boundary into CPython -- undefined behavior, in
+      // practice a process abort rather than a clean Python exception.
+      SWIG_exception(SWIG_RuntimeError, "unknown C++ exception");
     }
   }
   resultobj = SWIG_Py_Void();
@@ -9150,12 +9408,19 @@ SWIGINTERN PyObject *_wrap_Vector_DirectorExample_resize__SWIG_1(PyObject *self,
     try {
       (arg1)->resize(SWIG_STD_MOVE(*(&arg2)),(std::vector< boost::shared_ptr< Skeleton::DirectorExample > >::value_type const &)*arg3);
     } catch (Swig::DirectorException &e) {
-      SWIG_fail; 
+      SWIG_fail;
     } catch (const PythonException& e) {
       e.restore_python_exception();
-      SWIG_fail; 
+      SWIG_fail;
     } catch (const std::exception& e) {
       SWIG_exception(SWIG_RuntimeError, e.what());
+    } catch (...) {
+      // Anything not derived from std::exception (a raw type, a
+      // third-party exception hierarchy that doesn't inherit
+      // std::exception, etc.) would otherwise propagate across the
+      // extern "C" boundary into CPython -- undefined behavior, in
+      // practice a process abort rather than a clean Python exception.
+      SWIG_exception(SWIG_RuntimeError, "unknown C++ exception");
     }
   }
   resultobj = SWIG_Py_Void();
@@ -9236,12 +9501,19 @@ SWIGINTERN PyObject *_wrap_Vector_DirectorExample_insert__SWIG_0(PyObject *self,
     try {
       result = std_vector_Sl_boost_shared_ptr_Sl_Skeleton_DirectorExample_Sg__Sg__insert__SWIG_0(arg1,SWIG_STD_MOVE(*(&arg2)),(boost::shared_ptr< Skeleton::DirectorExample > const &)*arg3);
     } catch (Swig::DirectorException &e) {
-      SWIG_fail; 
+      SWIG_fail;
     } catch (const PythonException& e) {
       e.restore_python_exception();
-      SWIG_fail; 
+      SWIG_fail;
     } catch (const std::exception& e) {
       SWIG_exception(SWIG_RuntimeError, e.what());
+    } catch (...) {
+      // Anything not derived from std::exception (a raw type, a
+      // third-party exception hierarchy that doesn't inherit
+      // std::exception, etc.) would otherwise propagate across the
+      // extern "C" boundary into CPython -- undefined behavior, in
+      // practice a process abort rather than a clean Python exception.
+      SWIG_exception(SWIG_RuntimeError, "unknown C++ exception");
     }
   }
   resultobj = SWIG_NewPointerObj(swig::make_output_iterator(static_cast< const std::vector< boost::shared_ptr< Skeleton::DirectorExample > >::iterator & >(result)),
@@ -9302,12 +9574,19 @@ SWIGINTERN PyObject *_wrap_Vector_DirectorExample_insert__SWIG_1(PyObject *self,
     try {
       std_vector_Sl_boost_shared_ptr_Sl_Skeleton_DirectorExample_Sg__Sg__insert__SWIG_1(arg1,SWIG_STD_MOVE(*(&arg2)),SWIG_STD_MOVE(*(&arg3)),(boost::shared_ptr< Skeleton::DirectorExample > const &)*arg4);
     } catch (Swig::DirectorException &e) {
-      SWIG_fail; 
+      SWIG_fail;
     } catch (const PythonException& e) {
       e.restore_python_exception();
-      SWIG_fail; 
+      SWIG_fail;
     } catch (const std::exception& e) {
       SWIG_exception(SWIG_RuntimeError, e.what());
+    } catch (...) {
+      // Anything not derived from std::exception (a raw type, a
+      // third-party exception hierarchy that doesn't inherit
+      // std::exception, etc.) would otherwise propagate across the
+      // extern "C" boundary into CPython -- undefined behavior, in
+      // practice a process abort rather than a clean Python exception.
+      SWIG_exception(SWIG_RuntimeError, "unknown C++ exception");
     }
   }
   resultobj = SWIG_Py_Void();
@@ -9371,12 +9650,19 @@ SWIGINTERN PyObject *_wrap_Vector_DirectorExample_reserve(PyObject *self, PyObje
     try {
       (arg1)->reserve(SWIG_STD_MOVE(*(&arg2)));
     } catch (Swig::DirectorException &e) {
-      SWIG_fail; 
+      SWIG_fail;
     } catch (const PythonException& e) {
       e.restore_python_exception();
-      SWIG_fail; 
+      SWIG_fail;
     } catch (const std::exception& e) {
       SWIG_exception(SWIG_RuntimeError, e.what());
+    } catch (...) {
+      // Anything not derived from std::exception (a raw type, a
+      // third-party exception hierarchy that doesn't inherit
+      // std::exception, etc.) would otherwise propagate across the
+      // extern "C" boundary into CPython -- undefined behavior, in
+      // practice a process abort rather than a clean Python exception.
+      SWIG_exception(SWIG_RuntimeError, "unknown C++ exception");
     }
   }
   resultobj = SWIG_Py_Void();
@@ -9406,12 +9692,19 @@ SWIGINTERN PyObject *_wrap_Vector_DirectorExample_capacity(PyObject *self, PyObj
     try {
       result = ((std::vector< boost::shared_ptr< Skeleton::DirectorExample > > const *)arg1)->capacity();
     } catch (Swig::DirectorException &e) {
-      SWIG_fail; 
+      SWIG_fail;
     } catch (const PythonException& e) {
       e.restore_python_exception();
-      SWIG_fail; 
+      SWIG_fail;
     } catch (const std::exception& e) {
       SWIG_exception(SWIG_RuntimeError, e.what());
+    } catch (...) {
+      // Anything not derived from std::exception (a raw type, a
+      // third-party exception hierarchy that doesn't inherit
+      // std::exception, etc.) would otherwise propagate across the
+      // extern "C" boundary into CPython -- undefined behavior, in
+      // practice a process abort rather than a clean Python exception.
+      SWIG_exception(SWIG_RuntimeError, "unknown C++ exception");
     }
   }
   resultobj = SWIG_From_size_t(static_cast< size_t >(result));
@@ -9440,12 +9733,19 @@ SWIGINTERN PyObject *_wrap_delete_Vector_DirectorExample(PyObject *self, PyObjec
     try {
       delete arg1;
     } catch (Swig::DirectorException &e) {
-      SWIG_fail; 
+      SWIG_fail;
     } catch (const PythonException& e) {
       e.restore_python_exception();
-      SWIG_fail; 
+      SWIG_fail;
     } catch (const std::exception& e) {
       SWIG_exception(SWIG_RuntimeError, e.what());
+    } catch (...) {
+      // Anything not derived from std::exception (a raw type, a
+      // third-party exception hierarchy that doesn't inherit
+      // std::exception, etc.) would otherwise propagate across the
+      // extern "C" boundary into CPython -- undefined behavior, in
+      // practice a process abort rather than a clean Python exception.
+      SWIG_exception(SWIG_RuntimeError, "unknown C++ exception");
     }
   }
   resultobj = SWIG_Py_Void();
@@ -9488,12 +9788,19 @@ SWIGINTERN PyObject *_wrap_Vector_Vector_DirectorExample_iterator(PyObject *self
     try {
       result = (swig::SwigPyIterator *)std_vector_Sl_std_vector_Sl_boost_shared_ptr_Sl_Skeleton_DirectorExample_Sg__Sg__Sg__iterator(arg1,arg2);
     } catch (Swig::DirectorException &e) {
-      SWIG_fail; 
+      SWIG_fail;
     } catch (const PythonException& e) {
       e.restore_python_exception();
-      SWIG_fail; 
+      SWIG_fail;
     } catch (const std::exception& e) {
       SWIG_exception(SWIG_RuntimeError, e.what());
+    } catch (...) {
+      // Anything not derived from std::exception (a raw type, a
+      // third-party exception hierarchy that doesn't inherit
+      // std::exception, etc.) would otherwise propagate across the
+      // extern "C" boundary into CPython -- undefined behavior, in
+      // practice a process abort rather than a clean Python exception.
+      SWIG_exception(SWIG_RuntimeError, "unknown C++ exception");
     }
   }
   if (!result) SWIG_fail;
@@ -9524,12 +9831,19 @@ SWIGINTERN PyObject *_wrap_Vector_Vector_DirectorExample___bool__(PyObject *self
     try {
       result = (bool)std_vector_Sl_std_vector_Sl_boost_shared_ptr_Sl_Skeleton_DirectorExample_Sg__Sg__Sg____bool__((std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > > const *)arg1);
     } catch (Swig::DirectorException &e) {
-      SWIG_fail; 
+      SWIG_fail;
     } catch (const PythonException& e) {
       e.restore_python_exception();
-      SWIG_fail; 
+      SWIG_fail;
     } catch (const std::exception& e) {
       SWIG_exception(SWIG_RuntimeError, e.what());
+    } catch (...) {
+      // Anything not derived from std::exception (a raw type, a
+      // third-party exception hierarchy that doesn't inherit
+      // std::exception, etc.) would otherwise propagate across the
+      // extern "C" boundary into CPython -- undefined behavior, in
+      // practice a process abort rather than a clean Python exception.
+      SWIG_exception(SWIG_RuntimeError, "unknown C++ exception");
     }
   }
   resultobj = SWIG_From_bool(static_cast< bool >(result));
@@ -9559,12 +9873,19 @@ SWIGINTERN PyObject *_wrap_Vector_Vector_DirectorExample___len__(PyObject *self,
     try {
       result = std_vector_Sl_std_vector_Sl_boost_shared_ptr_Sl_Skeleton_DirectorExample_Sg__Sg__Sg____len__((std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > > const *)arg1);
     } catch (Swig::DirectorException &e) {
-      SWIG_fail; 
+      SWIG_fail;
     } catch (const PythonException& e) {
       e.restore_python_exception();
-      SWIG_fail; 
+      SWIG_fail;
     } catch (const std::exception& e) {
       SWIG_exception(SWIG_RuntimeError, e.what());
+    } catch (...) {
+      // Anything not derived from std::exception (a raw type, a
+      // third-party exception hierarchy that doesn't inherit
+      // std::exception, etc.) would otherwise propagate across the
+      // extern "C" boundary into CPython -- undefined behavior, in
+      // practice a process abort rather than a clean Python exception.
+      SWIG_exception(SWIG_RuntimeError, "unknown C++ exception");
     }
   }
   resultobj = SWIG_From_size_t(static_cast< size_t >(result));
@@ -9605,12 +9926,19 @@ SWIGINTERN PyObject *_wrap_Vector_Vector_DirectorExample___delitem____SWIG_0(PyO
         SWIG_exception_fail(SWIG_ValueError, (&_e)->what());
       }
     } catch (Swig::DirectorException &e) {
-      SWIG_fail; 
+      SWIG_fail;
     } catch (const PythonException& e) {
       e.restore_python_exception();
-      SWIG_fail; 
+      SWIG_fail;
     } catch (const std::exception& e) {
       SWIG_exception(SWIG_RuntimeError, e.what());
+    } catch (...) {
+      // Anything not derived from std::exception (a raw type, a
+      // third-party exception hierarchy that doesn't inherit
+      // std::exception, etc.) would otherwise propagate across the
+      // extern "C" boundary into CPython -- undefined behavior, in
+      // practice a process abort rather than a clean Python exception.
+      SWIG_exception(SWIG_RuntimeError, "unknown C++ exception");
     }
   }
   resultobj = SWIG_Py_Void();
@@ -9651,12 +9979,19 @@ SWIGINTERN PyObject *_wrap_Vector_Vector_DirectorExample___getitem____SWIG_0(PyO
         SWIG_exception_fail(SWIG_ValueError, (&_e)->what());
       }
     } catch (Swig::DirectorException &e) {
-      SWIG_fail; 
+      SWIG_fail;
     } catch (const PythonException& e) {
       e.restore_python_exception();
-      SWIG_fail; 
+      SWIG_fail;
     } catch (const std::exception& e) {
       SWIG_exception(SWIG_RuntimeError, e.what());
+    } catch (...) {
+      // Anything not derived from std::exception (a raw type, a
+      // third-party exception hierarchy that doesn't inherit
+      // std::exception, etc.) would otherwise propagate across the
+      // extern "C" boundary into CPython -- undefined behavior, in
+      // practice a process abort rather than a clean Python exception.
+      SWIG_exception(SWIG_RuntimeError, "unknown C++ exception");
     }
   }
   resultobj = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIGTYPE_p_std__vectorT_std__vectorT_boost__shared_ptrT_Skeleton__DirectorExample_t_t_t, SWIG_POINTER_OWN |  0 );
@@ -9709,12 +10044,19 @@ SWIGINTERN PyObject *_wrap_Vector_Vector_DirectorExample___setitem____SWIG_0(PyO
         SWIG_exception_fail(SWIG_ValueError, (&_e)->what());
       }
     } catch (Swig::DirectorException &e) {
-      SWIG_fail; 
+      SWIG_fail;
     } catch (const PythonException& e) {
       e.restore_python_exception();
-      SWIG_fail; 
+      SWIG_fail;
     } catch (const std::exception& e) {
       SWIG_exception(SWIG_RuntimeError, e.what());
+    } catch (...) {
+      // Anything not derived from std::exception (a raw type, a
+      // third-party exception hierarchy that doesn't inherit
+      // std::exception, etc.) would otherwise propagate across the
+      // extern "C" boundary into CPython -- undefined behavior, in
+      // practice a process abort rather than a clean Python exception.
+      SWIG_exception(SWIG_RuntimeError, "unknown C++ exception");
     }
   }
   resultobj = SWIG_Py_Void();
@@ -9756,12 +10098,19 @@ SWIGINTERN PyObject *_wrap_Vector_Vector_DirectorExample___setitem____SWIG_1(PyO
         SWIG_exception_fail(SWIG_ValueError, (&_e)->what());
       }
     } catch (Swig::DirectorException &e) {
-      SWIG_fail; 
+      SWIG_fail;
     } catch (const PythonException& e) {
       e.restore_python_exception();
-      SWIG_fail; 
+      SWIG_fail;
     } catch (const std::exception& e) {
       SWIG_exception(SWIG_RuntimeError, e.what());
+    } catch (...) {
+      // Anything not derived from std::exception (a raw type, a
+      // third-party exception hierarchy that doesn't inherit
+      // std::exception, etc.) would otherwise propagate across the
+      // extern "C" boundary into CPython -- undefined behavior, in
+      // practice a process abort rather than a clean Python exception.
+      SWIG_exception(SWIG_RuntimeError, "unknown C++ exception");
     }
   }
   resultobj = SWIG_Py_Void();
@@ -9801,12 +10150,19 @@ SWIGINTERN PyObject *_wrap_Vector_Vector_DirectorExample___delitem____SWIG_1(PyO
         SWIG_exception_fail(SWIG_ValueError, (&_e)->what());
       }
     } catch (Swig::DirectorException &e) {
-      SWIG_fail; 
+      SWIG_fail;
     } catch (const PythonException& e) {
       e.restore_python_exception();
-      SWIG_fail; 
+      SWIG_fail;
     } catch (const std::exception& e) {
       SWIG_exception(SWIG_RuntimeError, e.what());
+    } catch (...) {
+      // Anything not derived from std::exception (a raw type, a
+      // third-party exception hierarchy that doesn't inherit
+      // std::exception, etc.) would otherwise propagate across the
+      // extern "C" boundary into CPython -- undefined behavior, in
+      // practice a process abort rather than a clean Python exception.
+      SWIG_exception(SWIG_RuntimeError, "unknown C++ exception");
     }
   }
   resultobj = SWIG_Py_Void();
@@ -9881,12 +10237,19 @@ SWIGINTERN PyObject *_wrap_Vector_Vector_DirectorExample___getitem____SWIG_1(PyO
         SWIG_exception_fail(SWIG_IndexError, (&_e)->what());
       }
     } catch (Swig::DirectorException &e) {
-      SWIG_fail; 
+      SWIG_fail;
     } catch (const PythonException& e) {
       e.restore_python_exception();
-      SWIG_fail; 
+      SWIG_fail;
     } catch (const std::exception& e) {
       SWIG_exception(SWIG_RuntimeError, e.what());
+    } catch (...) {
+      // Anything not derived from std::exception (a raw type, a
+      // third-party exception hierarchy that doesn't inherit
+      // std::exception, etc.) would otherwise propagate across the
+      // extern "C" boundary into CPython -- undefined behavior, in
+      // practice a process abort rather than a clean Python exception.
+      SWIG_exception(SWIG_RuntimeError, "unknown C++ exception");
     }
   }
   resultobj = swig::from(static_cast< std::vector< boost::shared_ptr< Skeleton::DirectorExample >,std::allocator< boost::shared_ptr< Skeleton::DirectorExample > > > >(*result));
@@ -9976,12 +10339,19 @@ SWIGINTERN PyObject *_wrap_Vector_Vector_DirectorExample___setitem____SWIG_2(PyO
         SWIG_exception_fail(SWIG_IndexError, (&_e)->what());
       }
     } catch (Swig::DirectorException &e) {
-      SWIG_fail; 
+      SWIG_fail;
     } catch (const PythonException& e) {
       e.restore_python_exception();
-      SWIG_fail; 
+      SWIG_fail;
     } catch (const std::exception& e) {
       SWIG_exception(SWIG_RuntimeError, e.what());
+    } catch (...) {
+      // Anything not derived from std::exception (a raw type, a
+      // third-party exception hierarchy that doesn't inherit
+      // std::exception, etc.) would otherwise propagate across the
+      // extern "C" boundary into CPython -- undefined behavior, in
+      // practice a process abort rather than a clean Python exception.
+      SWIG_exception(SWIG_RuntimeError, "unknown C++ exception");
     }
   }
   resultobj = SWIG_Py_Void();
@@ -10063,12 +10433,19 @@ SWIGINTERN PyObject *_wrap_Vector_Vector_DirectorExample_pop(PyObject *self, PyO
         SWIG_exception_fail(SWIG_IndexError, (&_e)->what());
       }
     } catch (Swig::DirectorException &e) {
-      SWIG_fail; 
+      SWIG_fail;
     } catch (const PythonException& e) {
       e.restore_python_exception();
-      SWIG_fail; 
+      SWIG_fail;
     } catch (const std::exception& e) {
       SWIG_exception(SWIG_RuntimeError, e.what());
+    } catch (...) {
+      // Anything not derived from std::exception (a raw type, a
+      // third-party exception hierarchy that doesn't inherit
+      // std::exception, etc.) would otherwise propagate across the
+      // extern "C" boundary into CPython -- undefined behavior, in
+      // practice a process abort rather than a clean Python exception.
+      SWIG_exception(SWIG_RuntimeError, "unknown C++ exception");
     }
   }
   resultobj = swig::from(static_cast< std::vector< boost::shared_ptr< Skeleton::DirectorExample >,std::allocator< boost::shared_ptr< Skeleton::DirectorExample > > > >(result));
@@ -10109,12 +10486,19 @@ SWIGINTERN PyObject *_wrap_Vector_Vector_DirectorExample_append(PyObject *self, 
     try {
       std_vector_Sl_std_vector_Sl_boost_shared_ptr_Sl_Skeleton_DirectorExample_Sg__Sg__Sg__append(arg1,(std::vector< boost::shared_ptr< Skeleton::DirectorExample >,std::allocator< boost::shared_ptr< Skeleton::DirectorExample > > > const &)*arg2);
     } catch (Swig::DirectorException &e) {
-      SWIG_fail; 
+      SWIG_fail;
     } catch (const PythonException& e) {
       e.restore_python_exception();
-      SWIG_fail; 
+      SWIG_fail;
     } catch (const std::exception& e) {
       SWIG_exception(SWIG_RuntimeError, e.what());
+    } catch (...) {
+      // Anything not derived from std::exception (a raw type, a
+      // third-party exception hierarchy that doesn't inherit
+      // std::exception, etc.) would otherwise propagate across the
+      // extern "C" boundary into CPython -- undefined behavior, in
+      // practice a process abort rather than a clean Python exception.
+      SWIG_exception(SWIG_RuntimeError, "unknown C++ exception");
     }
   }
   resultobj = SWIG_Py_Void();
@@ -10136,12 +10520,19 @@ SWIGINTERN PyObject *_wrap_new_Vector_Vector_DirectorExample__SWIG_0(PyObject *s
     try {
       result = (std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > > *)new std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > >();
     } catch (Swig::DirectorException &e) {
-      SWIG_fail; 
+      SWIG_fail;
     } catch (const PythonException& e) {
       e.restore_python_exception();
-      SWIG_fail; 
+      SWIG_fail;
     } catch (const std::exception& e) {
       SWIG_exception(SWIG_RuntimeError, e.what());
+    } catch (...) {
+      // Anything not derived from std::exception (a raw type, a
+      // third-party exception hierarchy that doesn't inherit
+      // std::exception, etc.) would otherwise propagate across the
+      // extern "C" boundary into CPython -- undefined behavior, in
+      // practice a process abort rather than a clean Python exception.
+      SWIG_exception(SWIG_RuntimeError, "unknown C++ exception");
     }
   }
   resultobj = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIGTYPE_p_std__vectorT_std__vectorT_boost__shared_ptrT_Skeleton__DirectorExample_t_t_t, SWIG_POINTER_NEW |  0 );
@@ -10174,12 +10565,19 @@ SWIGINTERN PyObject *_wrap_new_Vector_Vector_DirectorExample__SWIG_1(PyObject *s
     try {
       result = (std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > > *)new std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > >((std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample >,std::allocator< boost::shared_ptr< Skeleton::DirectorExample > > > > const &)*arg1);
     } catch (Swig::DirectorException &e) {
-      SWIG_fail; 
+      SWIG_fail;
     } catch (const PythonException& e) {
       e.restore_python_exception();
-      SWIG_fail; 
+      SWIG_fail;
     } catch (const std::exception& e) {
       SWIG_exception(SWIG_RuntimeError, e.what());
+    } catch (...) {
+      // Anything not derived from std::exception (a raw type, a
+      // third-party exception hierarchy that doesn't inherit
+      // std::exception, etc.) would otherwise propagate across the
+      // extern "C" boundary into CPython -- undefined behavior, in
+      // practice a process abort rather than a clean Python exception.
+      SWIG_exception(SWIG_RuntimeError, "unknown C++ exception");
     }
   }
   resultobj = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIGTYPE_p_std__vectorT_std__vectorT_boost__shared_ptrT_Skeleton__DirectorExample_t_t_t, SWIG_POINTER_NEW |  0 );
@@ -10211,12 +10609,19 @@ SWIGINTERN PyObject *_wrap_Vector_Vector_DirectorExample_empty(PyObject *self, P
     try {
       result = (bool)((std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > > const *)arg1)->empty();
     } catch (Swig::DirectorException &e) {
-      SWIG_fail; 
+      SWIG_fail;
     } catch (const PythonException& e) {
       e.restore_python_exception();
-      SWIG_fail; 
+      SWIG_fail;
     } catch (const std::exception& e) {
       SWIG_exception(SWIG_RuntimeError, e.what());
+    } catch (...) {
+      // Anything not derived from std::exception (a raw type, a
+      // third-party exception hierarchy that doesn't inherit
+      // std::exception, etc.) would otherwise propagate across the
+      // extern "C" boundary into CPython -- undefined behavior, in
+      // practice a process abort rather than a clean Python exception.
+      SWIG_exception(SWIG_RuntimeError, "unknown C++ exception");
     }
   }
   resultobj = SWIG_From_bool(static_cast< bool >(result));
@@ -10246,12 +10651,19 @@ SWIGINTERN PyObject *_wrap_Vector_Vector_DirectorExample_size(PyObject *self, Py
     try {
       result = ((std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > > const *)arg1)->size();
     } catch (Swig::DirectorException &e) {
-      SWIG_fail; 
+      SWIG_fail;
     } catch (const PythonException& e) {
       e.restore_python_exception();
-      SWIG_fail; 
+      SWIG_fail;
     } catch (const std::exception& e) {
       SWIG_exception(SWIG_RuntimeError, e.what());
+    } catch (...) {
+      // Anything not derived from std::exception (a raw type, a
+      // third-party exception hierarchy that doesn't inherit
+      // std::exception, etc.) would otherwise propagate across the
+      // extern "C" boundary into CPython -- undefined behavior, in
+      // practice a process abort rather than a clean Python exception.
+      SWIG_exception(SWIG_RuntimeError, "unknown C++ exception");
     }
   }
   resultobj = SWIG_From_size_t(static_cast< size_t >(result));
@@ -10290,12 +10702,19 @@ SWIGINTERN PyObject *_wrap_Vector_Vector_DirectorExample_swap(PyObject *self, Py
     try {
       (arg1)->swap(*arg2);
     } catch (Swig::DirectorException &e) {
-      SWIG_fail; 
+      SWIG_fail;
     } catch (const PythonException& e) {
       e.restore_python_exception();
-      SWIG_fail; 
+      SWIG_fail;
     } catch (const std::exception& e) {
       SWIG_exception(SWIG_RuntimeError, e.what());
+    } catch (...) {
+      // Anything not derived from std::exception (a raw type, a
+      // third-party exception hierarchy that doesn't inherit
+      // std::exception, etc.) would otherwise propagate across the
+      // extern "C" boundary into CPython -- undefined behavior, in
+      // practice a process abort rather than a clean Python exception.
+      SWIG_exception(SWIG_RuntimeError, "unknown C++ exception");
     }
   }
   resultobj = SWIG_Py_Void();
@@ -10325,12 +10744,19 @@ SWIGINTERN PyObject *_wrap_Vector_Vector_DirectorExample_begin(PyObject *self, P
     try {
       result = (arg1)->begin();
     } catch (Swig::DirectorException &e) {
-      SWIG_fail; 
+      SWIG_fail;
     } catch (const PythonException& e) {
       e.restore_python_exception();
-      SWIG_fail; 
+      SWIG_fail;
     } catch (const std::exception& e) {
       SWIG_exception(SWIG_RuntimeError, e.what());
+    } catch (...) {
+      // Anything not derived from std::exception (a raw type, a
+      // third-party exception hierarchy that doesn't inherit
+      // std::exception, etc.) would otherwise propagate across the
+      // extern "C" boundary into CPython -- undefined behavior, in
+      // practice a process abort rather than a clean Python exception.
+      SWIG_exception(SWIG_RuntimeError, "unknown C++ exception");
     }
   }
   resultobj = SWIG_NewPointerObj(swig::make_output_iterator(static_cast< const std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > >::iterator & >(result)),
@@ -10361,12 +10787,19 @@ SWIGINTERN PyObject *_wrap_Vector_Vector_DirectorExample_end(PyObject *self, PyO
     try {
       result = (arg1)->end();
     } catch (Swig::DirectorException &e) {
-      SWIG_fail; 
+      SWIG_fail;
     } catch (const PythonException& e) {
       e.restore_python_exception();
-      SWIG_fail; 
+      SWIG_fail;
     } catch (const std::exception& e) {
       SWIG_exception(SWIG_RuntimeError, e.what());
+    } catch (...) {
+      // Anything not derived from std::exception (a raw type, a
+      // third-party exception hierarchy that doesn't inherit
+      // std::exception, etc.) would otherwise propagate across the
+      // extern "C" boundary into CPython -- undefined behavior, in
+      // practice a process abort rather than a clean Python exception.
+      SWIG_exception(SWIG_RuntimeError, "unknown C++ exception");
     }
   }
   resultobj = SWIG_NewPointerObj(swig::make_output_iterator(static_cast< const std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > >::iterator & >(result)),
@@ -10397,12 +10830,19 @@ SWIGINTERN PyObject *_wrap_Vector_Vector_DirectorExample_rbegin(PyObject *self, 
     try {
       result = (arg1)->rbegin();
     } catch (Swig::DirectorException &e) {
-      SWIG_fail; 
+      SWIG_fail;
     } catch (const PythonException& e) {
       e.restore_python_exception();
-      SWIG_fail; 
+      SWIG_fail;
     } catch (const std::exception& e) {
       SWIG_exception(SWIG_RuntimeError, e.what());
+    } catch (...) {
+      // Anything not derived from std::exception (a raw type, a
+      // third-party exception hierarchy that doesn't inherit
+      // std::exception, etc.) would otherwise propagate across the
+      // extern "C" boundary into CPython -- undefined behavior, in
+      // practice a process abort rather than a clean Python exception.
+      SWIG_exception(SWIG_RuntimeError, "unknown C++ exception");
     }
   }
   resultobj = SWIG_NewPointerObj(swig::make_output_iterator(static_cast< const std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > >::reverse_iterator & >(result)),
@@ -10433,12 +10873,19 @@ SWIGINTERN PyObject *_wrap_Vector_Vector_DirectorExample_rend(PyObject *self, Py
     try {
       result = (arg1)->rend();
     } catch (Swig::DirectorException &e) {
-      SWIG_fail; 
+      SWIG_fail;
     } catch (const PythonException& e) {
       e.restore_python_exception();
-      SWIG_fail; 
+      SWIG_fail;
     } catch (const std::exception& e) {
       SWIG_exception(SWIG_RuntimeError, e.what());
+    } catch (...) {
+      // Anything not derived from std::exception (a raw type, a
+      // third-party exception hierarchy that doesn't inherit
+      // std::exception, etc.) would otherwise propagate across the
+      // extern "C" boundary into CPython -- undefined behavior, in
+      // practice a process abort rather than a clean Python exception.
+      SWIG_exception(SWIG_RuntimeError, "unknown C++ exception");
     }
   }
   resultobj = SWIG_NewPointerObj(swig::make_output_iterator(static_cast< const std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > >::reverse_iterator & >(result)),
@@ -10468,12 +10915,19 @@ SWIGINTERN PyObject *_wrap_Vector_Vector_DirectorExample_clear(PyObject *self, P
     try {
       (arg1)->clear();
     } catch (Swig::DirectorException &e) {
-      SWIG_fail; 
+      SWIG_fail;
     } catch (const PythonException& e) {
       e.restore_python_exception();
-      SWIG_fail; 
+      SWIG_fail;
     } catch (const std::exception& e) {
       SWIG_exception(SWIG_RuntimeError, e.what());
+    } catch (...) {
+      // Anything not derived from std::exception (a raw type, a
+      // third-party exception hierarchy that doesn't inherit
+      // std::exception, etc.) would otherwise propagate across the
+      // extern "C" boundary into CPython -- undefined behavior, in
+      // practice a process abort rather than a clean Python exception.
+      SWIG_exception(SWIG_RuntimeError, "unknown C++ exception");
     }
   }
   resultobj = SWIG_Py_Void();
@@ -10503,12 +10957,19 @@ SWIGINTERN PyObject *_wrap_Vector_Vector_DirectorExample_get_allocator(PyObject 
     try {
       result = ((std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > > const *)arg1)->get_allocator();
     } catch (Swig::DirectorException &e) {
-      SWIG_fail; 
+      SWIG_fail;
     } catch (const PythonException& e) {
       e.restore_python_exception();
-      SWIG_fail; 
+      SWIG_fail;
     } catch (const std::exception& e) {
       SWIG_exception(SWIG_RuntimeError, e.what());
+    } catch (...) {
+      // Anything not derived from std::exception (a raw type, a
+      // third-party exception hierarchy that doesn't inherit
+      // std::exception, etc.) would otherwise propagate across the
+      // extern "C" boundary into CPython -- undefined behavior, in
+      // practice a process abort rather than a clean Python exception.
+      SWIG_exception(SWIG_RuntimeError, "unknown C++ exception");
     }
   }
   resultobj = SWIG_NewPointerObj((new std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > >::allocator_type(result)), SWIGTYPE_p_std__allocatorT_std__vectorT_boost__shared_ptrT_Skeleton__DirectorExample_t_t_t, SWIG_POINTER_OWN |  0 );
@@ -10536,12 +10997,19 @@ SWIGINTERN PyObject *_wrap_new_Vector_Vector_DirectorExample__SWIG_2(PyObject *s
     try {
       result = (std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > > *)new std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > >(SWIG_STD_MOVE(*(&arg1)));
     } catch (Swig::DirectorException &e) {
-      SWIG_fail; 
+      SWIG_fail;
     } catch (const PythonException& e) {
       e.restore_python_exception();
-      SWIG_fail; 
+      SWIG_fail;
     } catch (const std::exception& e) {
       SWIG_exception(SWIG_RuntimeError, e.what());
+    } catch (...) {
+      // Anything not derived from std::exception (a raw type, a
+      // third-party exception hierarchy that doesn't inherit
+      // std::exception, etc.) would otherwise propagate across the
+      // extern "C" boundary into CPython -- undefined behavior, in
+      // practice a process abort rather than a clean Python exception.
+      SWIG_exception(SWIG_RuntimeError, "unknown C++ exception");
     }
   }
   resultobj = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIGTYPE_p_std__vectorT_std__vectorT_boost__shared_ptrT_Skeleton__DirectorExample_t_t_t, SWIG_POINTER_NEW |  0 );
@@ -10570,12 +11038,19 @@ SWIGINTERN PyObject *_wrap_Vector_Vector_DirectorExample_pop_back(PyObject *self
     try {
       (arg1)->pop_back();
     } catch (Swig::DirectorException &e) {
-      SWIG_fail; 
+      SWIG_fail;
     } catch (const PythonException& e) {
       e.restore_python_exception();
-      SWIG_fail; 
+      SWIG_fail;
     } catch (const std::exception& e) {
       SWIG_exception(SWIG_RuntimeError, e.what());
+    } catch (...) {
+      // Anything not derived from std::exception (a raw type, a
+      // third-party exception hierarchy that doesn't inherit
+      // std::exception, etc.) would otherwise propagate across the
+      // extern "C" boundary into CPython -- undefined behavior, in
+      // practice a process abort rather than a clean Python exception.
+      SWIG_exception(SWIG_RuntimeError, "unknown C++ exception");
     }
   }
   resultobj = SWIG_Py_Void();
@@ -10610,12 +11085,19 @@ SWIGINTERN PyObject *_wrap_Vector_Vector_DirectorExample_resize__SWIG_0(PyObject
     try {
       (arg1)->resize(SWIG_STD_MOVE(*(&arg2)));
     } catch (Swig::DirectorException &e) {
-      SWIG_fail; 
+      SWIG_fail;
     } catch (const PythonException& e) {
       e.restore_python_exception();
-      SWIG_fail; 
+      SWIG_fail;
     } catch (const std::exception& e) {
       SWIG_exception(SWIG_RuntimeError, e.what());
+    } catch (...) {
+      // Anything not derived from std::exception (a raw type, a
+      // third-party exception hierarchy that doesn't inherit
+      // std::exception, etc.) would otherwise propagate across the
+      // extern "C" boundary into CPython -- undefined behavior, in
+      // practice a process abort rather than a clean Python exception.
+      SWIG_exception(SWIG_RuntimeError, "unknown C++ exception");
     }
   }
   resultobj = SWIG_Py_Void();
@@ -10657,12 +11139,19 @@ SWIGINTERN PyObject *_wrap_Vector_Vector_DirectorExample_erase__SWIG_0(PyObject 
     try {
       result = std_vector_Sl_std_vector_Sl_boost_shared_ptr_Sl_Skeleton_DirectorExample_Sg__Sg__Sg__erase__SWIG_0(arg1,SWIG_STD_MOVE(*(&arg2)));
     } catch (Swig::DirectorException &e) {
-      SWIG_fail; 
+      SWIG_fail;
     } catch (const PythonException& e) {
       e.restore_python_exception();
-      SWIG_fail; 
+      SWIG_fail;
     } catch (const std::exception& e) {
       SWIG_exception(SWIG_RuntimeError, e.what());
+    } catch (...) {
+      // Anything not derived from std::exception (a raw type, a
+      // third-party exception hierarchy that doesn't inherit
+      // std::exception, etc.) would otherwise propagate across the
+      // extern "C" boundary into CPython -- undefined behavior, in
+      // practice a process abort rather than a clean Python exception.
+      SWIG_exception(SWIG_RuntimeError, "unknown C++ exception");
     }
   }
   resultobj = SWIG_NewPointerObj(swig::make_output_iterator(static_cast< const std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > >::iterator & >(result)),
@@ -10719,12 +11208,19 @@ SWIGINTERN PyObject *_wrap_Vector_Vector_DirectorExample_erase__SWIG_1(PyObject 
     try {
       result = std_vector_Sl_std_vector_Sl_boost_shared_ptr_Sl_Skeleton_DirectorExample_Sg__Sg__Sg__erase__SWIG_1(arg1,SWIG_STD_MOVE(*(&arg2)),SWIG_STD_MOVE(*(&arg3)));
     } catch (Swig::DirectorException &e) {
-      SWIG_fail; 
+      SWIG_fail;
     } catch (const PythonException& e) {
       e.restore_python_exception();
-      SWIG_fail; 
+      SWIG_fail;
     } catch (const std::exception& e) {
       SWIG_exception(SWIG_RuntimeError, e.what());
+    } catch (...) {
+      // Anything not derived from std::exception (a raw type, a
+      // third-party exception hierarchy that doesn't inherit
+      // std::exception, etc.) would otherwise propagate across the
+      // extern "C" boundary into CPython -- undefined behavior, in
+      // practice a process abort rather than a clean Python exception.
+      SWIG_exception(SWIG_RuntimeError, "unknown C++ exception");
     }
   }
   resultobj = SWIG_NewPointerObj(swig::make_output_iterator(static_cast< const std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > >::iterator & >(result)),
@@ -10794,12 +11290,19 @@ SWIGINTERN PyObject *_wrap_new_Vector_Vector_DirectorExample__SWIG_3(PyObject *s
     try {
       result = (std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > > *)new std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > >(SWIG_STD_MOVE(*(&arg1)),(std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > >::value_type const &)*arg2);
     } catch (Swig::DirectorException &e) {
-      SWIG_fail; 
+      SWIG_fail;
     } catch (const PythonException& e) {
       e.restore_python_exception();
-      SWIG_fail; 
+      SWIG_fail;
     } catch (const std::exception& e) {
       SWIG_exception(SWIG_RuntimeError, e.what());
+    } catch (...) {
+      // Anything not derived from std::exception (a raw type, a
+      // third-party exception hierarchy that doesn't inherit
+      // std::exception, etc.) would otherwise propagate across the
+      // extern "C" boundary into CPython -- undefined behavior, in
+      // practice a process abort rather than a clean Python exception.
+      SWIG_exception(SWIG_RuntimeError, "unknown C++ exception");
     }
   }
   resultobj = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIGTYPE_p_std__vectorT_std__vectorT_boost__shared_ptrT_Skeleton__DirectorExample_t_t_t, SWIG_POINTER_NEW |  0 );
@@ -10890,12 +11393,19 @@ SWIGINTERN PyObject *_wrap_Vector_Vector_DirectorExample_push_back(PyObject *sel
     try {
       (arg1)->push_back((std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > >::value_type const &)*arg2);
     } catch (Swig::DirectorException &e) {
-      SWIG_fail; 
+      SWIG_fail;
     } catch (const PythonException& e) {
       e.restore_python_exception();
-      SWIG_fail; 
+      SWIG_fail;
     } catch (const std::exception& e) {
       SWIG_exception(SWIG_RuntimeError, e.what());
+    } catch (...) {
+      // Anything not derived from std::exception (a raw type, a
+      // third-party exception hierarchy that doesn't inherit
+      // std::exception, etc.) would otherwise propagate across the
+      // extern "C" boundary into CPython -- undefined behavior, in
+      // practice a process abort rather than a clean Python exception.
+      SWIG_exception(SWIG_RuntimeError, "unknown C++ exception");
     }
   }
   resultobj = SWIG_Py_Void();
@@ -10927,12 +11437,19 @@ SWIGINTERN PyObject *_wrap_Vector_Vector_DirectorExample_front(PyObject *self, P
     try {
       result = (std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > >::value_type *) &((std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > > const *)arg1)->front();
     } catch (Swig::DirectorException &e) {
-      SWIG_fail; 
+      SWIG_fail;
     } catch (const PythonException& e) {
       e.restore_python_exception();
-      SWIG_fail; 
+      SWIG_fail;
     } catch (const std::exception& e) {
       SWIG_exception(SWIG_RuntimeError, e.what());
+    } catch (...) {
+      // Anything not derived from std::exception (a raw type, a
+      // third-party exception hierarchy that doesn't inherit
+      // std::exception, etc.) would otherwise propagate across the
+      // extern "C" boundary into CPython -- undefined behavior, in
+      // practice a process abort rather than a clean Python exception.
+      SWIG_exception(SWIG_RuntimeError, "unknown C++ exception");
     }
   }
   resultobj = swig::from(static_cast< std::vector< boost::shared_ptr< Skeleton::DirectorExample >,std::allocator< boost::shared_ptr< Skeleton::DirectorExample > > > >(*result));
@@ -10965,12 +11482,19 @@ SWIGINTERN PyObject *_wrap_Vector_Vector_DirectorExample_back(PyObject *self, Py
     try {
       result = (std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > >::value_type *) &((std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > > const *)arg1)->back();
     } catch (Swig::DirectorException &e) {
-      SWIG_fail; 
+      SWIG_fail;
     } catch (const PythonException& e) {
       e.restore_python_exception();
-      SWIG_fail; 
+      SWIG_fail;
     } catch (const std::exception& e) {
       SWIG_exception(SWIG_RuntimeError, e.what());
+    } catch (...) {
+      // Anything not derived from std::exception (a raw type, a
+      // third-party exception hierarchy that doesn't inherit
+      // std::exception, etc.) would otherwise propagate across the
+      // extern "C" boundary into CPython -- undefined behavior, in
+      // practice a process abort rather than a clean Python exception.
+      SWIG_exception(SWIG_RuntimeError, "unknown C++ exception");
     }
   }
   resultobj = swig::from(static_cast< std::vector< boost::shared_ptr< Skeleton::DirectorExample >,std::allocator< boost::shared_ptr< Skeleton::DirectorExample > > > >(*result));
@@ -11022,12 +11546,19 @@ SWIGINTERN PyObject *_wrap_Vector_Vector_DirectorExample_assign(PyObject *self, 
     try {
       (arg1)->assign(SWIG_STD_MOVE(*(&arg2)),(std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > >::value_type const &)*arg3);
     } catch (Swig::DirectorException &e) {
-      SWIG_fail; 
+      SWIG_fail;
     } catch (const PythonException& e) {
       e.restore_python_exception();
-      SWIG_fail; 
+      SWIG_fail;
     } catch (const std::exception& e) {
       SWIG_exception(SWIG_RuntimeError, e.what());
+    } catch (...) {
+      // Anything not derived from std::exception (a raw type, a
+      // third-party exception hierarchy that doesn't inherit
+      // std::exception, etc.) would otherwise propagate across the
+      // extern "C" boundary into CPython -- undefined behavior, in
+      // practice a process abort rather than a clean Python exception.
+      SWIG_exception(SWIG_RuntimeError, "unknown C++ exception");
     }
   }
   resultobj = SWIG_Py_Void();
@@ -11077,12 +11608,19 @@ SWIGINTERN PyObject *_wrap_Vector_Vector_DirectorExample_resize__SWIG_1(PyObject
     try {
       (arg1)->resize(SWIG_STD_MOVE(*(&arg2)),(std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > >::value_type const &)*arg3);
     } catch (Swig::DirectorException &e) {
-      SWIG_fail; 
+      SWIG_fail;
     } catch (const PythonException& e) {
       e.restore_python_exception();
-      SWIG_fail; 
+      SWIG_fail;
     } catch (const std::exception& e) {
       SWIG_exception(SWIG_RuntimeError, e.what());
+    } catch (...) {
+      // Anything not derived from std::exception (a raw type, a
+      // third-party exception hierarchy that doesn't inherit
+      // std::exception, etc.) would otherwise propagate across the
+      // extern "C" boundary into CPython -- undefined behavior, in
+      // practice a process abort rather than a clean Python exception.
+      SWIG_exception(SWIG_RuntimeError, "unknown C++ exception");
     }
   }
   resultobj = SWIG_Py_Void();
@@ -11167,12 +11705,19 @@ SWIGINTERN PyObject *_wrap_Vector_Vector_DirectorExample_insert__SWIG_0(PyObject
     try {
       result = std_vector_Sl_std_vector_Sl_boost_shared_ptr_Sl_Skeleton_DirectorExample_Sg__Sg__Sg__insert__SWIG_0(arg1,SWIG_STD_MOVE(*(&arg2)),(std::vector< boost::shared_ptr< Skeleton::DirectorExample >,std::allocator< boost::shared_ptr< Skeleton::DirectorExample > > > const &)*arg3);
     } catch (Swig::DirectorException &e) {
-      SWIG_fail; 
+      SWIG_fail;
     } catch (const PythonException& e) {
       e.restore_python_exception();
-      SWIG_fail; 
+      SWIG_fail;
     } catch (const std::exception& e) {
       SWIG_exception(SWIG_RuntimeError, e.what());
+    } catch (...) {
+      // Anything not derived from std::exception (a raw type, a
+      // third-party exception hierarchy that doesn't inherit
+      // std::exception, etc.) would otherwise propagate across the
+      // extern "C" boundary into CPython -- undefined behavior, in
+      // practice a process abort rather than a clean Python exception.
+      SWIG_exception(SWIG_RuntimeError, "unknown C++ exception");
     }
   }
   resultobj = SWIG_NewPointerObj(swig::make_output_iterator(static_cast< const std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > >::iterator & >(result)),
@@ -11237,12 +11782,19 @@ SWIGINTERN PyObject *_wrap_Vector_Vector_DirectorExample_insert__SWIG_1(PyObject
     try {
       std_vector_Sl_std_vector_Sl_boost_shared_ptr_Sl_Skeleton_DirectorExample_Sg__Sg__Sg__insert__SWIG_1(arg1,SWIG_STD_MOVE(*(&arg2)),SWIG_STD_MOVE(*(&arg3)),(std::vector< boost::shared_ptr< Skeleton::DirectorExample >,std::allocator< boost::shared_ptr< Skeleton::DirectorExample > > > const &)*arg4);
     } catch (Swig::DirectorException &e) {
-      SWIG_fail; 
+      SWIG_fail;
     } catch (const PythonException& e) {
       e.restore_python_exception();
-      SWIG_fail; 
+      SWIG_fail;
     } catch (const std::exception& e) {
       SWIG_exception(SWIG_RuntimeError, e.what());
+    } catch (...) {
+      // Anything not derived from std::exception (a raw type, a
+      // third-party exception hierarchy that doesn't inherit
+      // std::exception, etc.) would otherwise propagate across the
+      // extern "C" boundary into CPython -- undefined behavior, in
+      // practice a process abort rather than a clean Python exception.
+      SWIG_exception(SWIG_RuntimeError, "unknown C++ exception");
     }
   }
   resultobj = SWIG_Py_Void();
@@ -11308,12 +11860,19 @@ SWIGINTERN PyObject *_wrap_Vector_Vector_DirectorExample_reserve(PyObject *self,
     try {
       (arg1)->reserve(SWIG_STD_MOVE(*(&arg2)));
     } catch (Swig::DirectorException &e) {
-      SWIG_fail; 
+      SWIG_fail;
     } catch (const PythonException& e) {
       e.restore_python_exception();
-      SWIG_fail; 
+      SWIG_fail;
     } catch (const std::exception& e) {
       SWIG_exception(SWIG_RuntimeError, e.what());
+    } catch (...) {
+      // Anything not derived from std::exception (a raw type, a
+      // third-party exception hierarchy that doesn't inherit
+      // std::exception, etc.) would otherwise propagate across the
+      // extern "C" boundary into CPython -- undefined behavior, in
+      // practice a process abort rather than a clean Python exception.
+      SWIG_exception(SWIG_RuntimeError, "unknown C++ exception");
     }
   }
   resultobj = SWIG_Py_Void();
@@ -11343,12 +11902,19 @@ SWIGINTERN PyObject *_wrap_Vector_Vector_DirectorExample_capacity(PyObject *self
     try {
       result = ((std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > > const *)arg1)->capacity();
     } catch (Swig::DirectorException &e) {
-      SWIG_fail; 
+      SWIG_fail;
     } catch (const PythonException& e) {
       e.restore_python_exception();
-      SWIG_fail; 
+      SWIG_fail;
     } catch (const std::exception& e) {
       SWIG_exception(SWIG_RuntimeError, e.what());
+    } catch (...) {
+      // Anything not derived from std::exception (a raw type, a
+      // third-party exception hierarchy that doesn't inherit
+      // std::exception, etc.) would otherwise propagate across the
+      // extern "C" boundary into CPython -- undefined behavior, in
+      // practice a process abort rather than a clean Python exception.
+      SWIG_exception(SWIG_RuntimeError, "unknown C++ exception");
     }
   }
   resultobj = SWIG_From_size_t(static_cast< size_t >(result));
@@ -11377,12 +11943,19 @@ SWIGINTERN PyObject *_wrap_delete_Vector_Vector_DirectorExample(PyObject *self, 
     try {
       delete arg1;
     } catch (Swig::DirectorException &e) {
-      SWIG_fail; 
+      SWIG_fail;
     } catch (const PythonException& e) {
       e.restore_python_exception();
-      SWIG_fail; 
+      SWIG_fail;
     } catch (const std::exception& e) {
       SWIG_exception(SWIG_RuntimeError, e.what());
+    } catch (...) {
+      // Anything not derived from std::exception (a raw type, a
+      // third-party exception hierarchy that doesn't inherit
+      // std::exception, etc.) would otherwise propagate across the
+      // extern "C" boundary into CPython -- undefined behavior, in
+      // practice a process abort rather than a clean Python exception.
+      SWIG_exception(SWIG_RuntimeError, "unknown C++ exception");
     }
   }
   resultobj = SWIG_Py_Void();
@@ -11425,12 +11998,19 @@ SWIGINTERN PyObject *_wrap_Vector_Vector_int_iterator(PyObject *self, PyObject *
     try {
       result = (swig::SwigPyIterator *)std_vector_Sl_std_vector_Sl_int_Sg__Sg__iterator(arg1,arg2);
     } catch (Swig::DirectorException &e) {
-      SWIG_fail; 
+      SWIG_fail;
     } catch (const PythonException& e) {
       e.restore_python_exception();
-      SWIG_fail; 
+      SWIG_fail;
     } catch (const std::exception& e) {
       SWIG_exception(SWIG_RuntimeError, e.what());
+    } catch (...) {
+      // Anything not derived from std::exception (a raw type, a
+      // third-party exception hierarchy that doesn't inherit
+      // std::exception, etc.) would otherwise propagate across the
+      // extern "C" boundary into CPython -- undefined behavior, in
+      // practice a process abort rather than a clean Python exception.
+      SWIG_exception(SWIG_RuntimeError, "unknown C++ exception");
     }
   }
   if (!result) SWIG_fail;
@@ -11461,12 +12041,19 @@ SWIGINTERN PyObject *_wrap_Vector_Vector_int___bool__(PyObject *self, PyObject *
     try {
       result = (bool)std_vector_Sl_std_vector_Sl_int_Sg__Sg____bool__((std::vector< std::vector< int > > const *)arg1);
     } catch (Swig::DirectorException &e) {
-      SWIG_fail; 
+      SWIG_fail;
     } catch (const PythonException& e) {
       e.restore_python_exception();
-      SWIG_fail; 
+      SWIG_fail;
     } catch (const std::exception& e) {
       SWIG_exception(SWIG_RuntimeError, e.what());
+    } catch (...) {
+      // Anything not derived from std::exception (a raw type, a
+      // third-party exception hierarchy that doesn't inherit
+      // std::exception, etc.) would otherwise propagate across the
+      // extern "C" boundary into CPython -- undefined behavior, in
+      // practice a process abort rather than a clean Python exception.
+      SWIG_exception(SWIG_RuntimeError, "unknown C++ exception");
     }
   }
   resultobj = SWIG_From_bool(static_cast< bool >(result));
@@ -11496,12 +12083,19 @@ SWIGINTERN PyObject *_wrap_Vector_Vector_int___len__(PyObject *self, PyObject *a
     try {
       result = std_vector_Sl_std_vector_Sl_int_Sg__Sg____len__((std::vector< std::vector< int > > const *)arg1);
     } catch (Swig::DirectorException &e) {
-      SWIG_fail; 
+      SWIG_fail;
     } catch (const PythonException& e) {
       e.restore_python_exception();
-      SWIG_fail; 
+      SWIG_fail;
     } catch (const std::exception& e) {
       SWIG_exception(SWIG_RuntimeError, e.what());
+    } catch (...) {
+      // Anything not derived from std::exception (a raw type, a
+      // third-party exception hierarchy that doesn't inherit
+      // std::exception, etc.) would otherwise propagate across the
+      // extern "C" boundary into CPython -- undefined behavior, in
+      // practice a process abort rather than a clean Python exception.
+      SWIG_exception(SWIG_RuntimeError, "unknown C++ exception");
     }
   }
   resultobj = SWIG_From_size_t(static_cast< size_t >(result));
@@ -11542,12 +12136,19 @@ SWIGINTERN PyObject *_wrap_Vector_Vector_int___delitem____SWIG_0(PyObject *self,
         SWIG_exception_fail(SWIG_ValueError, (&_e)->what());
       }
     } catch (Swig::DirectorException &e) {
-      SWIG_fail; 
+      SWIG_fail;
     } catch (const PythonException& e) {
       e.restore_python_exception();
-      SWIG_fail; 
+      SWIG_fail;
     } catch (const std::exception& e) {
       SWIG_exception(SWIG_RuntimeError, e.what());
+    } catch (...) {
+      // Anything not derived from std::exception (a raw type, a
+      // third-party exception hierarchy that doesn't inherit
+      // std::exception, etc.) would otherwise propagate across the
+      // extern "C" boundary into CPython -- undefined behavior, in
+      // practice a process abort rather than a clean Python exception.
+      SWIG_exception(SWIG_RuntimeError, "unknown C++ exception");
     }
   }
   resultobj = SWIG_Py_Void();
@@ -11588,12 +12189,19 @@ SWIGINTERN PyObject *_wrap_Vector_Vector_int___getitem____SWIG_0(PyObject *self,
         SWIG_exception_fail(SWIG_ValueError, (&_e)->what());
       }
     } catch (Swig::DirectorException &e) {
-      SWIG_fail; 
+      SWIG_fail;
     } catch (const PythonException& e) {
       e.restore_python_exception();
-      SWIG_fail; 
+      SWIG_fail;
     } catch (const std::exception& e) {
       SWIG_exception(SWIG_RuntimeError, e.what());
+    } catch (...) {
+      // Anything not derived from std::exception (a raw type, a
+      // third-party exception hierarchy that doesn't inherit
+      // std::exception, etc.) would otherwise propagate across the
+      // extern "C" boundary into CPython -- undefined behavior, in
+      // practice a process abort rather than a clean Python exception.
+      SWIG_exception(SWIG_RuntimeError, "unknown C++ exception");
     }
   }
   resultobj = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIGTYPE_p_std__vectorT_std__vectorT_int_t_t, SWIG_POINTER_OWN |  0 );
@@ -11646,12 +12254,19 @@ SWIGINTERN PyObject *_wrap_Vector_Vector_int___setitem____SWIG_0(PyObject *self,
         SWIG_exception_fail(SWIG_ValueError, (&_e)->what());
       }
     } catch (Swig::DirectorException &e) {
-      SWIG_fail; 
+      SWIG_fail;
     } catch (const PythonException& e) {
       e.restore_python_exception();
-      SWIG_fail; 
+      SWIG_fail;
     } catch (const std::exception& e) {
       SWIG_exception(SWIG_RuntimeError, e.what());
+    } catch (...) {
+      // Anything not derived from std::exception (a raw type, a
+      // third-party exception hierarchy that doesn't inherit
+      // std::exception, etc.) would otherwise propagate across the
+      // extern "C" boundary into CPython -- undefined behavior, in
+      // practice a process abort rather than a clean Python exception.
+      SWIG_exception(SWIG_RuntimeError, "unknown C++ exception");
     }
   }
   resultobj = SWIG_Py_Void();
@@ -11693,12 +12308,19 @@ SWIGINTERN PyObject *_wrap_Vector_Vector_int___setitem____SWIG_1(PyObject *self,
         SWIG_exception_fail(SWIG_ValueError, (&_e)->what());
       }
     } catch (Swig::DirectorException &e) {
-      SWIG_fail; 
+      SWIG_fail;
     } catch (const PythonException& e) {
       e.restore_python_exception();
-      SWIG_fail; 
+      SWIG_fail;
     } catch (const std::exception& e) {
       SWIG_exception(SWIG_RuntimeError, e.what());
+    } catch (...) {
+      // Anything not derived from std::exception (a raw type, a
+      // third-party exception hierarchy that doesn't inherit
+      // std::exception, etc.) would otherwise propagate across the
+      // extern "C" boundary into CPython -- undefined behavior, in
+      // practice a process abort rather than a clean Python exception.
+      SWIG_exception(SWIG_RuntimeError, "unknown C++ exception");
     }
   }
   resultobj = SWIG_Py_Void();
@@ -11738,12 +12360,19 @@ SWIGINTERN PyObject *_wrap_Vector_Vector_int___delitem____SWIG_1(PyObject *self,
         SWIG_exception_fail(SWIG_ValueError, (&_e)->what());
       }
     } catch (Swig::DirectorException &e) {
-      SWIG_fail; 
+      SWIG_fail;
     } catch (const PythonException& e) {
       e.restore_python_exception();
-      SWIG_fail; 
+      SWIG_fail;
     } catch (const std::exception& e) {
       SWIG_exception(SWIG_RuntimeError, e.what());
+    } catch (...) {
+      // Anything not derived from std::exception (a raw type, a
+      // third-party exception hierarchy that doesn't inherit
+      // std::exception, etc.) would otherwise propagate across the
+      // extern "C" boundary into CPython -- undefined behavior, in
+      // practice a process abort rather than a clean Python exception.
+      SWIG_exception(SWIG_RuntimeError, "unknown C++ exception");
     }
   }
   resultobj = SWIG_Py_Void();
@@ -11818,12 +12447,19 @@ SWIGINTERN PyObject *_wrap_Vector_Vector_int___getitem____SWIG_1(PyObject *self,
         SWIG_exception_fail(SWIG_IndexError, (&_e)->what());
       }
     } catch (Swig::DirectorException &e) {
-      SWIG_fail; 
+      SWIG_fail;
     } catch (const PythonException& e) {
       e.restore_python_exception();
-      SWIG_fail; 
+      SWIG_fail;
     } catch (const std::exception& e) {
       SWIG_exception(SWIG_RuntimeError, e.what());
+    } catch (...) {
+      // Anything not derived from std::exception (a raw type, a
+      // third-party exception hierarchy that doesn't inherit
+      // std::exception, etc.) would otherwise propagate across the
+      // extern "C" boundary into CPython -- undefined behavior, in
+      // practice a process abort rather than a clean Python exception.
+      SWIG_exception(SWIG_RuntimeError, "unknown C++ exception");
     }
   }
   resultobj = swig::from(static_cast< std::vector< int,std::allocator< int > > >(*result));
@@ -11913,12 +12549,19 @@ SWIGINTERN PyObject *_wrap_Vector_Vector_int___setitem____SWIG_2(PyObject *self,
         SWIG_exception_fail(SWIG_IndexError, (&_e)->what());
       }
     } catch (Swig::DirectorException &e) {
-      SWIG_fail; 
+      SWIG_fail;
     } catch (const PythonException& e) {
       e.restore_python_exception();
-      SWIG_fail; 
+      SWIG_fail;
     } catch (const std::exception& e) {
       SWIG_exception(SWIG_RuntimeError, e.what());
+    } catch (...) {
+      // Anything not derived from std::exception (a raw type, a
+      // third-party exception hierarchy that doesn't inherit
+      // std::exception, etc.) would otherwise propagate across the
+      // extern "C" boundary into CPython -- undefined behavior, in
+      // practice a process abort rather than a clean Python exception.
+      SWIG_exception(SWIG_RuntimeError, "unknown C++ exception");
     }
   }
   resultobj = SWIG_Py_Void();
@@ -12000,12 +12643,19 @@ SWIGINTERN PyObject *_wrap_Vector_Vector_int_pop(PyObject *self, PyObject *args)
         SWIG_exception_fail(SWIG_IndexError, (&_e)->what());
       }
     } catch (Swig::DirectorException &e) {
-      SWIG_fail; 
+      SWIG_fail;
     } catch (const PythonException& e) {
       e.restore_python_exception();
-      SWIG_fail; 
+      SWIG_fail;
     } catch (const std::exception& e) {
       SWIG_exception(SWIG_RuntimeError, e.what());
+    } catch (...) {
+      // Anything not derived from std::exception (a raw type, a
+      // third-party exception hierarchy that doesn't inherit
+      // std::exception, etc.) would otherwise propagate across the
+      // extern "C" boundary into CPython -- undefined behavior, in
+      // practice a process abort rather than a clean Python exception.
+      SWIG_exception(SWIG_RuntimeError, "unknown C++ exception");
     }
   }
   resultobj = swig::from(static_cast< std::vector< int,std::allocator< int > > >(result));
@@ -12046,12 +12696,19 @@ SWIGINTERN PyObject *_wrap_Vector_Vector_int_append(PyObject *self, PyObject *ar
     try {
       std_vector_Sl_std_vector_Sl_int_Sg__Sg__append(arg1,(std::vector< int,std::allocator< int > > const &)*arg2);
     } catch (Swig::DirectorException &e) {
-      SWIG_fail; 
+      SWIG_fail;
     } catch (const PythonException& e) {
       e.restore_python_exception();
-      SWIG_fail; 
+      SWIG_fail;
     } catch (const std::exception& e) {
       SWIG_exception(SWIG_RuntimeError, e.what());
+    } catch (...) {
+      // Anything not derived from std::exception (a raw type, a
+      // third-party exception hierarchy that doesn't inherit
+      // std::exception, etc.) would otherwise propagate across the
+      // extern "C" boundary into CPython -- undefined behavior, in
+      // practice a process abort rather than a clean Python exception.
+      SWIG_exception(SWIG_RuntimeError, "unknown C++ exception");
     }
   }
   resultobj = SWIG_Py_Void();
@@ -12073,12 +12730,19 @@ SWIGINTERN PyObject *_wrap_new_Vector_Vector_int__SWIG_0(PyObject *self, Py_ssiz
     try {
       result = (std::vector< std::vector< int > > *)new std::vector< std::vector< int > >();
     } catch (Swig::DirectorException &e) {
-      SWIG_fail; 
+      SWIG_fail;
     } catch (const PythonException& e) {
       e.restore_python_exception();
-      SWIG_fail; 
+      SWIG_fail;
     } catch (const std::exception& e) {
       SWIG_exception(SWIG_RuntimeError, e.what());
+    } catch (...) {
+      // Anything not derived from std::exception (a raw type, a
+      // third-party exception hierarchy that doesn't inherit
+      // std::exception, etc.) would otherwise propagate across the
+      // extern "C" boundary into CPython -- undefined behavior, in
+      // practice a process abort rather than a clean Python exception.
+      SWIG_exception(SWIG_RuntimeError, "unknown C++ exception");
     }
   }
   resultobj = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIGTYPE_p_std__vectorT_std__vectorT_int_t_t, SWIG_POINTER_NEW |  0 );
@@ -12111,12 +12775,19 @@ SWIGINTERN PyObject *_wrap_new_Vector_Vector_int__SWIG_1(PyObject *self, Py_ssiz
     try {
       result = (std::vector< std::vector< int > > *)new std::vector< std::vector< int > >((std::vector< std::vector< int,std::allocator< int > > > const &)*arg1);
     } catch (Swig::DirectorException &e) {
-      SWIG_fail; 
+      SWIG_fail;
     } catch (const PythonException& e) {
       e.restore_python_exception();
-      SWIG_fail; 
+      SWIG_fail;
     } catch (const std::exception& e) {
       SWIG_exception(SWIG_RuntimeError, e.what());
+    } catch (...) {
+      // Anything not derived from std::exception (a raw type, a
+      // third-party exception hierarchy that doesn't inherit
+      // std::exception, etc.) would otherwise propagate across the
+      // extern "C" boundary into CPython -- undefined behavior, in
+      // practice a process abort rather than a clean Python exception.
+      SWIG_exception(SWIG_RuntimeError, "unknown C++ exception");
     }
   }
   resultobj = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIGTYPE_p_std__vectorT_std__vectorT_int_t_t, SWIG_POINTER_NEW |  0 );
@@ -12148,12 +12819,19 @@ SWIGINTERN PyObject *_wrap_Vector_Vector_int_empty(PyObject *self, PyObject *arg
     try {
       result = (bool)((std::vector< std::vector< int > > const *)arg1)->empty();
     } catch (Swig::DirectorException &e) {
-      SWIG_fail; 
+      SWIG_fail;
     } catch (const PythonException& e) {
       e.restore_python_exception();
-      SWIG_fail; 
+      SWIG_fail;
     } catch (const std::exception& e) {
       SWIG_exception(SWIG_RuntimeError, e.what());
+    } catch (...) {
+      // Anything not derived from std::exception (a raw type, a
+      // third-party exception hierarchy that doesn't inherit
+      // std::exception, etc.) would otherwise propagate across the
+      // extern "C" boundary into CPython -- undefined behavior, in
+      // practice a process abort rather than a clean Python exception.
+      SWIG_exception(SWIG_RuntimeError, "unknown C++ exception");
     }
   }
   resultobj = SWIG_From_bool(static_cast< bool >(result));
@@ -12183,12 +12861,19 @@ SWIGINTERN PyObject *_wrap_Vector_Vector_int_size(PyObject *self, PyObject *args
     try {
       result = ((std::vector< std::vector< int > > const *)arg1)->size();
     } catch (Swig::DirectorException &e) {
-      SWIG_fail; 
+      SWIG_fail;
     } catch (const PythonException& e) {
       e.restore_python_exception();
-      SWIG_fail; 
+      SWIG_fail;
     } catch (const std::exception& e) {
       SWIG_exception(SWIG_RuntimeError, e.what());
+    } catch (...) {
+      // Anything not derived from std::exception (a raw type, a
+      // third-party exception hierarchy that doesn't inherit
+      // std::exception, etc.) would otherwise propagate across the
+      // extern "C" boundary into CPython -- undefined behavior, in
+      // practice a process abort rather than a clean Python exception.
+      SWIG_exception(SWIG_RuntimeError, "unknown C++ exception");
     }
   }
   resultobj = SWIG_From_size_t(static_cast< size_t >(result));
@@ -12227,12 +12912,19 @@ SWIGINTERN PyObject *_wrap_Vector_Vector_int_swap(PyObject *self, PyObject *args
     try {
       (arg1)->swap(*arg2);
     } catch (Swig::DirectorException &e) {
-      SWIG_fail; 
+      SWIG_fail;
     } catch (const PythonException& e) {
       e.restore_python_exception();
-      SWIG_fail; 
+      SWIG_fail;
     } catch (const std::exception& e) {
       SWIG_exception(SWIG_RuntimeError, e.what());
+    } catch (...) {
+      // Anything not derived from std::exception (a raw type, a
+      // third-party exception hierarchy that doesn't inherit
+      // std::exception, etc.) would otherwise propagate across the
+      // extern "C" boundary into CPython -- undefined behavior, in
+      // practice a process abort rather than a clean Python exception.
+      SWIG_exception(SWIG_RuntimeError, "unknown C++ exception");
     }
   }
   resultobj = SWIG_Py_Void();
@@ -12262,12 +12954,19 @@ SWIGINTERN PyObject *_wrap_Vector_Vector_int_begin(PyObject *self, PyObject *arg
     try {
       result = (arg1)->begin();
     } catch (Swig::DirectorException &e) {
-      SWIG_fail; 
+      SWIG_fail;
     } catch (const PythonException& e) {
       e.restore_python_exception();
-      SWIG_fail; 
+      SWIG_fail;
     } catch (const std::exception& e) {
       SWIG_exception(SWIG_RuntimeError, e.what());
+    } catch (...) {
+      // Anything not derived from std::exception (a raw type, a
+      // third-party exception hierarchy that doesn't inherit
+      // std::exception, etc.) would otherwise propagate across the
+      // extern "C" boundary into CPython -- undefined behavior, in
+      // practice a process abort rather than a clean Python exception.
+      SWIG_exception(SWIG_RuntimeError, "unknown C++ exception");
     }
   }
   resultobj = SWIG_NewPointerObj(swig::make_output_iterator(static_cast< const std::vector< std::vector< int > >::iterator & >(result)),
@@ -12298,12 +12997,19 @@ SWIGINTERN PyObject *_wrap_Vector_Vector_int_end(PyObject *self, PyObject *args)
     try {
       result = (arg1)->end();
     } catch (Swig::DirectorException &e) {
-      SWIG_fail; 
+      SWIG_fail;
     } catch (const PythonException& e) {
       e.restore_python_exception();
-      SWIG_fail; 
+      SWIG_fail;
     } catch (const std::exception& e) {
       SWIG_exception(SWIG_RuntimeError, e.what());
+    } catch (...) {
+      // Anything not derived from std::exception (a raw type, a
+      // third-party exception hierarchy that doesn't inherit
+      // std::exception, etc.) would otherwise propagate across the
+      // extern "C" boundary into CPython -- undefined behavior, in
+      // practice a process abort rather than a clean Python exception.
+      SWIG_exception(SWIG_RuntimeError, "unknown C++ exception");
     }
   }
   resultobj = SWIG_NewPointerObj(swig::make_output_iterator(static_cast< const std::vector< std::vector< int > >::iterator & >(result)),
@@ -12334,12 +13040,19 @@ SWIGINTERN PyObject *_wrap_Vector_Vector_int_rbegin(PyObject *self, PyObject *ar
     try {
       result = (arg1)->rbegin();
     } catch (Swig::DirectorException &e) {
-      SWIG_fail; 
+      SWIG_fail;
     } catch (const PythonException& e) {
       e.restore_python_exception();
-      SWIG_fail; 
+      SWIG_fail;
     } catch (const std::exception& e) {
       SWIG_exception(SWIG_RuntimeError, e.what());
+    } catch (...) {
+      // Anything not derived from std::exception (a raw type, a
+      // third-party exception hierarchy that doesn't inherit
+      // std::exception, etc.) would otherwise propagate across the
+      // extern "C" boundary into CPython -- undefined behavior, in
+      // practice a process abort rather than a clean Python exception.
+      SWIG_exception(SWIG_RuntimeError, "unknown C++ exception");
     }
   }
   resultobj = SWIG_NewPointerObj(swig::make_output_iterator(static_cast< const std::vector< std::vector< int > >::reverse_iterator & >(result)),
@@ -12370,12 +13083,19 @@ SWIGINTERN PyObject *_wrap_Vector_Vector_int_rend(PyObject *self, PyObject *args
     try {
       result = (arg1)->rend();
     } catch (Swig::DirectorException &e) {
-      SWIG_fail; 
+      SWIG_fail;
     } catch (const PythonException& e) {
       e.restore_python_exception();
-      SWIG_fail; 
+      SWIG_fail;
     } catch (const std::exception& e) {
       SWIG_exception(SWIG_RuntimeError, e.what());
+    } catch (...) {
+      // Anything not derived from std::exception (a raw type, a
+      // third-party exception hierarchy that doesn't inherit
+      // std::exception, etc.) would otherwise propagate across the
+      // extern "C" boundary into CPython -- undefined behavior, in
+      // practice a process abort rather than a clean Python exception.
+      SWIG_exception(SWIG_RuntimeError, "unknown C++ exception");
     }
   }
   resultobj = SWIG_NewPointerObj(swig::make_output_iterator(static_cast< const std::vector< std::vector< int > >::reverse_iterator & >(result)),
@@ -12405,12 +13125,19 @@ SWIGINTERN PyObject *_wrap_Vector_Vector_int_clear(PyObject *self, PyObject *arg
     try {
       (arg1)->clear();
     } catch (Swig::DirectorException &e) {
-      SWIG_fail; 
+      SWIG_fail;
     } catch (const PythonException& e) {
       e.restore_python_exception();
-      SWIG_fail; 
+      SWIG_fail;
     } catch (const std::exception& e) {
       SWIG_exception(SWIG_RuntimeError, e.what());
+    } catch (...) {
+      // Anything not derived from std::exception (a raw type, a
+      // third-party exception hierarchy that doesn't inherit
+      // std::exception, etc.) would otherwise propagate across the
+      // extern "C" boundary into CPython -- undefined behavior, in
+      // practice a process abort rather than a clean Python exception.
+      SWIG_exception(SWIG_RuntimeError, "unknown C++ exception");
     }
   }
   resultobj = SWIG_Py_Void();
@@ -12440,12 +13167,19 @@ SWIGINTERN PyObject *_wrap_Vector_Vector_int_get_allocator(PyObject *self, PyObj
     try {
       result = ((std::vector< std::vector< int > > const *)arg1)->get_allocator();
     } catch (Swig::DirectorException &e) {
-      SWIG_fail; 
+      SWIG_fail;
     } catch (const PythonException& e) {
       e.restore_python_exception();
-      SWIG_fail; 
+      SWIG_fail;
     } catch (const std::exception& e) {
       SWIG_exception(SWIG_RuntimeError, e.what());
+    } catch (...) {
+      // Anything not derived from std::exception (a raw type, a
+      // third-party exception hierarchy that doesn't inherit
+      // std::exception, etc.) would otherwise propagate across the
+      // extern "C" boundary into CPython -- undefined behavior, in
+      // practice a process abort rather than a clean Python exception.
+      SWIG_exception(SWIG_RuntimeError, "unknown C++ exception");
     }
   }
   resultobj = SWIG_NewPointerObj((new std::vector< std::vector< int > >::allocator_type(result)), SWIGTYPE_p_std__allocatorT_std__vectorT_int_t_t, SWIG_POINTER_OWN |  0 );
@@ -12473,12 +13207,19 @@ SWIGINTERN PyObject *_wrap_new_Vector_Vector_int__SWIG_2(PyObject *self, Py_ssiz
     try {
       result = (std::vector< std::vector< int > > *)new std::vector< std::vector< int > >(SWIG_STD_MOVE(*(&arg1)));
     } catch (Swig::DirectorException &e) {
-      SWIG_fail; 
+      SWIG_fail;
     } catch (const PythonException& e) {
       e.restore_python_exception();
-      SWIG_fail; 
+      SWIG_fail;
     } catch (const std::exception& e) {
       SWIG_exception(SWIG_RuntimeError, e.what());
+    } catch (...) {
+      // Anything not derived from std::exception (a raw type, a
+      // third-party exception hierarchy that doesn't inherit
+      // std::exception, etc.) would otherwise propagate across the
+      // extern "C" boundary into CPython -- undefined behavior, in
+      // practice a process abort rather than a clean Python exception.
+      SWIG_exception(SWIG_RuntimeError, "unknown C++ exception");
     }
   }
   resultobj = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIGTYPE_p_std__vectorT_std__vectorT_int_t_t, SWIG_POINTER_NEW |  0 );
@@ -12507,12 +13248,19 @@ SWIGINTERN PyObject *_wrap_Vector_Vector_int_pop_back(PyObject *self, PyObject *
     try {
       (arg1)->pop_back();
     } catch (Swig::DirectorException &e) {
-      SWIG_fail; 
+      SWIG_fail;
     } catch (const PythonException& e) {
       e.restore_python_exception();
-      SWIG_fail; 
+      SWIG_fail;
     } catch (const std::exception& e) {
       SWIG_exception(SWIG_RuntimeError, e.what());
+    } catch (...) {
+      // Anything not derived from std::exception (a raw type, a
+      // third-party exception hierarchy that doesn't inherit
+      // std::exception, etc.) would otherwise propagate across the
+      // extern "C" boundary into CPython -- undefined behavior, in
+      // practice a process abort rather than a clean Python exception.
+      SWIG_exception(SWIG_RuntimeError, "unknown C++ exception");
     }
   }
   resultobj = SWIG_Py_Void();
@@ -12547,12 +13295,19 @@ SWIGINTERN PyObject *_wrap_Vector_Vector_int_resize__SWIG_0(PyObject *self, Py_s
     try {
       (arg1)->resize(SWIG_STD_MOVE(*(&arg2)));
     } catch (Swig::DirectorException &e) {
-      SWIG_fail; 
+      SWIG_fail;
     } catch (const PythonException& e) {
       e.restore_python_exception();
-      SWIG_fail; 
+      SWIG_fail;
     } catch (const std::exception& e) {
       SWIG_exception(SWIG_RuntimeError, e.what());
+    } catch (...) {
+      // Anything not derived from std::exception (a raw type, a
+      // third-party exception hierarchy that doesn't inherit
+      // std::exception, etc.) would otherwise propagate across the
+      // extern "C" boundary into CPython -- undefined behavior, in
+      // practice a process abort rather than a clean Python exception.
+      SWIG_exception(SWIG_RuntimeError, "unknown C++ exception");
     }
   }
   resultobj = SWIG_Py_Void();
@@ -12594,12 +13349,19 @@ SWIGINTERN PyObject *_wrap_Vector_Vector_int_erase__SWIG_0(PyObject *self, Py_ss
     try {
       result = std_vector_Sl_std_vector_Sl_int_Sg__Sg__erase__SWIG_0(arg1,SWIG_STD_MOVE(*(&arg2)));
     } catch (Swig::DirectorException &e) {
-      SWIG_fail; 
+      SWIG_fail;
     } catch (const PythonException& e) {
       e.restore_python_exception();
-      SWIG_fail; 
+      SWIG_fail;
     } catch (const std::exception& e) {
       SWIG_exception(SWIG_RuntimeError, e.what());
+    } catch (...) {
+      // Anything not derived from std::exception (a raw type, a
+      // third-party exception hierarchy that doesn't inherit
+      // std::exception, etc.) would otherwise propagate across the
+      // extern "C" boundary into CPython -- undefined behavior, in
+      // practice a process abort rather than a clean Python exception.
+      SWIG_exception(SWIG_RuntimeError, "unknown C++ exception");
     }
   }
   resultobj = SWIG_NewPointerObj(swig::make_output_iterator(static_cast< const std::vector< std::vector< int > >::iterator & >(result)),
@@ -12656,12 +13418,19 @@ SWIGINTERN PyObject *_wrap_Vector_Vector_int_erase__SWIG_1(PyObject *self, Py_ss
     try {
       result = std_vector_Sl_std_vector_Sl_int_Sg__Sg__erase__SWIG_1(arg1,SWIG_STD_MOVE(*(&arg2)),SWIG_STD_MOVE(*(&arg3)));
     } catch (Swig::DirectorException &e) {
-      SWIG_fail; 
+      SWIG_fail;
     } catch (const PythonException& e) {
       e.restore_python_exception();
-      SWIG_fail; 
+      SWIG_fail;
     } catch (const std::exception& e) {
       SWIG_exception(SWIG_RuntimeError, e.what());
+    } catch (...) {
+      // Anything not derived from std::exception (a raw type, a
+      // third-party exception hierarchy that doesn't inherit
+      // std::exception, etc.) would otherwise propagate across the
+      // extern "C" boundary into CPython -- undefined behavior, in
+      // practice a process abort rather than a clean Python exception.
+      SWIG_exception(SWIG_RuntimeError, "unknown C++ exception");
     }
   }
   resultobj = SWIG_NewPointerObj(swig::make_output_iterator(static_cast< const std::vector< std::vector< int > >::iterator & >(result)),
@@ -12731,12 +13500,19 @@ SWIGINTERN PyObject *_wrap_new_Vector_Vector_int__SWIG_3(PyObject *self, Py_ssiz
     try {
       result = (std::vector< std::vector< int > > *)new std::vector< std::vector< int > >(SWIG_STD_MOVE(*(&arg1)),(std::vector< std::vector< int > >::value_type const &)*arg2);
     } catch (Swig::DirectorException &e) {
-      SWIG_fail; 
+      SWIG_fail;
     } catch (const PythonException& e) {
       e.restore_python_exception();
-      SWIG_fail; 
+      SWIG_fail;
     } catch (const std::exception& e) {
       SWIG_exception(SWIG_RuntimeError, e.what());
+    } catch (...) {
+      // Anything not derived from std::exception (a raw type, a
+      // third-party exception hierarchy that doesn't inherit
+      // std::exception, etc.) would otherwise propagate across the
+      // extern "C" boundary into CPython -- undefined behavior, in
+      // practice a process abort rather than a clean Python exception.
+      SWIG_exception(SWIG_RuntimeError, "unknown C++ exception");
     }
   }
   resultobj = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIGTYPE_p_std__vectorT_std__vectorT_int_t_t, SWIG_POINTER_NEW |  0 );
@@ -12827,12 +13603,19 @@ SWIGINTERN PyObject *_wrap_Vector_Vector_int_push_back(PyObject *self, PyObject 
     try {
       (arg1)->push_back((std::vector< std::vector< int > >::value_type const &)*arg2);
     } catch (Swig::DirectorException &e) {
-      SWIG_fail; 
+      SWIG_fail;
     } catch (const PythonException& e) {
       e.restore_python_exception();
-      SWIG_fail; 
+      SWIG_fail;
     } catch (const std::exception& e) {
       SWIG_exception(SWIG_RuntimeError, e.what());
+    } catch (...) {
+      // Anything not derived from std::exception (a raw type, a
+      // third-party exception hierarchy that doesn't inherit
+      // std::exception, etc.) would otherwise propagate across the
+      // extern "C" boundary into CPython -- undefined behavior, in
+      // practice a process abort rather than a clean Python exception.
+      SWIG_exception(SWIG_RuntimeError, "unknown C++ exception");
     }
   }
   resultobj = SWIG_Py_Void();
@@ -12864,12 +13647,19 @@ SWIGINTERN PyObject *_wrap_Vector_Vector_int_front(PyObject *self, PyObject *arg
     try {
       result = (std::vector< std::vector< int > >::value_type *) &((std::vector< std::vector< int > > const *)arg1)->front();
     } catch (Swig::DirectorException &e) {
-      SWIG_fail; 
+      SWIG_fail;
     } catch (const PythonException& e) {
       e.restore_python_exception();
-      SWIG_fail; 
+      SWIG_fail;
     } catch (const std::exception& e) {
       SWIG_exception(SWIG_RuntimeError, e.what());
+    } catch (...) {
+      // Anything not derived from std::exception (a raw type, a
+      // third-party exception hierarchy that doesn't inherit
+      // std::exception, etc.) would otherwise propagate across the
+      // extern "C" boundary into CPython -- undefined behavior, in
+      // practice a process abort rather than a clean Python exception.
+      SWIG_exception(SWIG_RuntimeError, "unknown C++ exception");
     }
   }
   resultobj = swig::from(static_cast< std::vector< int,std::allocator< int > > >(*result));
@@ -12902,12 +13692,19 @@ SWIGINTERN PyObject *_wrap_Vector_Vector_int_back(PyObject *self, PyObject *args
     try {
       result = (std::vector< std::vector< int > >::value_type *) &((std::vector< std::vector< int > > const *)arg1)->back();
     } catch (Swig::DirectorException &e) {
-      SWIG_fail; 
+      SWIG_fail;
     } catch (const PythonException& e) {
       e.restore_python_exception();
-      SWIG_fail; 
+      SWIG_fail;
     } catch (const std::exception& e) {
       SWIG_exception(SWIG_RuntimeError, e.what());
+    } catch (...) {
+      // Anything not derived from std::exception (a raw type, a
+      // third-party exception hierarchy that doesn't inherit
+      // std::exception, etc.) would otherwise propagate across the
+      // extern "C" boundary into CPython -- undefined behavior, in
+      // practice a process abort rather than a clean Python exception.
+      SWIG_exception(SWIG_RuntimeError, "unknown C++ exception");
     }
   }
   resultobj = swig::from(static_cast< std::vector< int,std::allocator< int > > >(*result));
@@ -12959,12 +13756,19 @@ SWIGINTERN PyObject *_wrap_Vector_Vector_int_assign(PyObject *self, PyObject *ar
     try {
       (arg1)->assign(SWIG_STD_MOVE(*(&arg2)),(std::vector< std::vector< int > >::value_type const &)*arg3);
     } catch (Swig::DirectorException &e) {
-      SWIG_fail; 
+      SWIG_fail;
     } catch (const PythonException& e) {
       e.restore_python_exception();
-      SWIG_fail; 
+      SWIG_fail;
     } catch (const std::exception& e) {
       SWIG_exception(SWIG_RuntimeError, e.what());
+    } catch (...) {
+      // Anything not derived from std::exception (a raw type, a
+      // third-party exception hierarchy that doesn't inherit
+      // std::exception, etc.) would otherwise propagate across the
+      // extern "C" boundary into CPython -- undefined behavior, in
+      // practice a process abort rather than a clean Python exception.
+      SWIG_exception(SWIG_RuntimeError, "unknown C++ exception");
     }
   }
   resultobj = SWIG_Py_Void();
@@ -13014,12 +13818,19 @@ SWIGINTERN PyObject *_wrap_Vector_Vector_int_resize__SWIG_1(PyObject *self, Py_s
     try {
       (arg1)->resize(SWIG_STD_MOVE(*(&arg2)),(std::vector< std::vector< int > >::value_type const &)*arg3);
     } catch (Swig::DirectorException &e) {
-      SWIG_fail; 
+      SWIG_fail;
     } catch (const PythonException& e) {
       e.restore_python_exception();
-      SWIG_fail; 
+      SWIG_fail;
     } catch (const std::exception& e) {
       SWIG_exception(SWIG_RuntimeError, e.what());
+    } catch (...) {
+      // Anything not derived from std::exception (a raw type, a
+      // third-party exception hierarchy that doesn't inherit
+      // std::exception, etc.) would otherwise propagate across the
+      // extern "C" boundary into CPython -- undefined behavior, in
+      // practice a process abort rather than a clean Python exception.
+      SWIG_exception(SWIG_RuntimeError, "unknown C++ exception");
     }
   }
   resultobj = SWIG_Py_Void();
@@ -13104,12 +13915,19 @@ SWIGINTERN PyObject *_wrap_Vector_Vector_int_insert__SWIG_0(PyObject *self, Py_s
     try {
       result = std_vector_Sl_std_vector_Sl_int_Sg__Sg__insert__SWIG_0(arg1,SWIG_STD_MOVE(*(&arg2)),(std::vector< int,std::allocator< int > > const &)*arg3);
     } catch (Swig::DirectorException &e) {
-      SWIG_fail; 
+      SWIG_fail;
     } catch (const PythonException& e) {
       e.restore_python_exception();
-      SWIG_fail; 
+      SWIG_fail;
     } catch (const std::exception& e) {
       SWIG_exception(SWIG_RuntimeError, e.what());
+    } catch (...) {
+      // Anything not derived from std::exception (a raw type, a
+      // third-party exception hierarchy that doesn't inherit
+      // std::exception, etc.) would otherwise propagate across the
+      // extern "C" boundary into CPython -- undefined behavior, in
+      // practice a process abort rather than a clean Python exception.
+      SWIG_exception(SWIG_RuntimeError, "unknown C++ exception");
     }
   }
   resultobj = SWIG_NewPointerObj(swig::make_output_iterator(static_cast< const std::vector< std::vector< int > >::iterator & >(result)),
@@ -13174,12 +13992,19 @@ SWIGINTERN PyObject *_wrap_Vector_Vector_int_insert__SWIG_1(PyObject *self, Py_s
     try {
       std_vector_Sl_std_vector_Sl_int_Sg__Sg__insert__SWIG_1(arg1,SWIG_STD_MOVE(*(&arg2)),SWIG_STD_MOVE(*(&arg3)),(std::vector< int,std::allocator< int > > const &)*arg4);
     } catch (Swig::DirectorException &e) {
-      SWIG_fail; 
+      SWIG_fail;
     } catch (const PythonException& e) {
       e.restore_python_exception();
-      SWIG_fail; 
+      SWIG_fail;
     } catch (const std::exception& e) {
       SWIG_exception(SWIG_RuntimeError, e.what());
+    } catch (...) {
+      // Anything not derived from std::exception (a raw type, a
+      // third-party exception hierarchy that doesn't inherit
+      // std::exception, etc.) would otherwise propagate across the
+      // extern "C" boundary into CPython -- undefined behavior, in
+      // practice a process abort rather than a clean Python exception.
+      SWIG_exception(SWIG_RuntimeError, "unknown C++ exception");
     }
   }
   resultobj = SWIG_Py_Void();
@@ -13245,12 +14070,19 @@ SWIGINTERN PyObject *_wrap_Vector_Vector_int_reserve(PyObject *self, PyObject *a
     try {
       (arg1)->reserve(SWIG_STD_MOVE(*(&arg2)));
     } catch (Swig::DirectorException &e) {
-      SWIG_fail; 
+      SWIG_fail;
     } catch (const PythonException& e) {
       e.restore_python_exception();
-      SWIG_fail; 
+      SWIG_fail;
     } catch (const std::exception& e) {
       SWIG_exception(SWIG_RuntimeError, e.what());
+    } catch (...) {
+      // Anything not derived from std::exception (a raw type, a
+      // third-party exception hierarchy that doesn't inherit
+      // std::exception, etc.) would otherwise propagate across the
+      // extern "C" boundary into CPython -- undefined behavior, in
+      // practice a process abort rather than a clean Python exception.
+      SWIG_exception(SWIG_RuntimeError, "unknown C++ exception");
     }
   }
   resultobj = SWIG_Py_Void();
@@ -13280,12 +14112,19 @@ SWIGINTERN PyObject *_wrap_Vector_Vector_int_capacity(PyObject *self, PyObject *
     try {
       result = ((std::vector< std::vector< int > > const *)arg1)->capacity();
     } catch (Swig::DirectorException &e) {
-      SWIG_fail; 
+      SWIG_fail;
     } catch (const PythonException& e) {
       e.restore_python_exception();
-      SWIG_fail; 
+      SWIG_fail;
     } catch (const std::exception& e) {
       SWIG_exception(SWIG_RuntimeError, e.what());
+    } catch (...) {
+      // Anything not derived from std::exception (a raw type, a
+      // third-party exception hierarchy that doesn't inherit
+      // std::exception, etc.) would otherwise propagate across the
+      // extern "C" boundary into CPython -- undefined behavior, in
+      // practice a process abort rather than a clean Python exception.
+      SWIG_exception(SWIG_RuntimeError, "unknown C++ exception");
     }
   }
   resultobj = SWIG_From_size_t(static_cast< size_t >(result));
@@ -13314,12 +14153,19 @@ SWIGINTERN PyObject *_wrap_delete_Vector_Vector_int(PyObject *self, PyObject *ar
     try {
       delete arg1;
     } catch (Swig::DirectorException &e) {
-      SWIG_fail; 
+      SWIG_fail;
     } catch (const PythonException& e) {
       e.restore_python_exception();
-      SWIG_fail; 
+      SWIG_fail;
     } catch (const std::exception& e) {
       SWIG_exception(SWIG_RuntimeError, e.what());
+    } catch (...) {
+      // Anything not derived from std::exception (a raw type, a
+      // third-party exception hierarchy that doesn't inherit
+      // std::exception, etc.) would otherwise propagate across the
+      // extern "C" boundary into CPython -- undefined behavior, in
+      // practice a process abort rather than a clean Python exception.
+      SWIG_exception(SWIG_RuntimeError, "unknown C++ exception");
     }
   }
   resultobj = SWIG_Py_Void();
@@ -13379,12 +14225,19 @@ SWIGINTERN PyObject *_wrap_new_DirectorExample__SWIG_0(PyObject *self, Py_ssize_
       }
       
     } catch (Swig::DirectorException &e) {
-      SWIG_fail; 
+      SWIG_fail;
     } catch (const PythonException& e) {
       e.restore_python_exception();
-      SWIG_fail; 
+      SWIG_fail;
     } catch (const std::exception& e) {
       SWIG_exception(SWIG_RuntimeError, e.what());
+    } catch (...) {
+      // Anything not derived from std::exception (a raw type, a
+      // third-party exception hierarchy that doesn't inherit
+      // std::exception, etc.) would otherwise propagate across the
+      // extern "C" boundary into CPython -- undefined behavior, in
+      // practice a process abort rather than a clean Python exception.
+      SWIG_exception(SWIG_RuntimeError, "unknown C++ exception");
     }
   }
   {
@@ -13431,12 +14284,19 @@ SWIGINTERN PyObject *_wrap_DirectorExample___str__(PyObject *self, PyObject *arg
     try {
       result = ((Skeleton::DirectorExample const *)arg1)->print_to_string();
     } catch (Swig::DirectorException &e) {
-      SWIG_fail; 
+      SWIG_fail;
     } catch (const PythonException& e) {
       e.restore_python_exception();
-      SWIG_fail; 
+      SWIG_fail;
     } catch (const std::exception& e) {
       SWIG_exception(SWIG_RuntimeError, e.what());
+    } catch (...) {
+      // Anything not derived from std::exception (a raw type, a
+      // third-party exception hierarchy that doesn't inherit
+      // std::exception, etc.) would otherwise propagate across the
+      // extern "C" boundary into CPython -- undefined behavior, in
+      // practice a process abort rather than a clean Python exception.
+      SWIG_exception(SWIG_RuntimeError, "unknown C++ exception");
     }
   }
   resultobj = SWIG_From_std_string(static_cast< std::string >(result));
@@ -13487,12 +14347,19 @@ SWIGINTERN PyObject *_wrap_DirectorExample_desc(PyObject *self, PyObject *args) 
           result = ((Skeleton::DirectorExample const *)arg1)->desc();
         }
       } catch (Swig::DirectorException &e) {
-        SWIG_fail; 
+        SWIG_fail;
       } catch (const PythonException& e) {
         e.restore_python_exception();
-        SWIG_fail; 
+        SWIG_fail;
       } catch (const std::exception& e) {
         SWIG_exception(SWIG_RuntimeError, e.what());
+      } catch (...) {
+        // Anything not derived from std::exception (a raw type, a
+        // third-party exception hierarchy that doesn't inherit
+        // std::exception, etc.) would otherwise propagate across the
+        // extern "C" boundary into CPython -- undefined behavior, in
+        // practice a process abort rather than a clean Python exception.
+        SWIG_exception(SWIG_RuntimeError, "unknown C++ exception");
       }
     }
   } catch (Swig::DirectorException&) {
@@ -13553,12 +14420,19 @@ SWIGINTERN PyObject *_wrap_DirectorExample_func(PyObject *self, PyObject *args) 
           result = (int)((Skeleton::DirectorExample const *)arg1)->func(arg2);
         }
       } catch (Swig::DirectorException &e) {
-        SWIG_fail; 
+        SWIG_fail;
       } catch (const PythonException& e) {
         e.restore_python_exception();
-        SWIG_fail; 
+        SWIG_fail;
       } catch (const std::exception& e) {
         SWIG_exception(SWIG_RuntimeError, e.what());
+      } catch (...) {
+        // Anything not derived from std::exception (a raw type, a
+        // third-party exception hierarchy that doesn't inherit
+        // std::exception, etc.) would otherwise propagate across the
+        // extern "C" boundary into CPython -- undefined behavior, in
+        // practice a process abort rather than a clean Python exception.
+        SWIG_exception(SWIG_RuntimeError, "unknown C++ exception");
       }
     }
   } catch (Swig::DirectorException&) {
@@ -13601,12 +14475,19 @@ SWIGINTERN PyObject *_wrap_DirectorExample_value_to_add__SWIG_0(PyObject *self, 
     try {
       result = (int)((Skeleton::DirectorExample const *)arg1)->value_to_add();
     } catch (Swig::DirectorException &e) {
-      SWIG_fail; 
+      SWIG_fail;
     } catch (const PythonException& e) {
       e.restore_python_exception();
-      SWIG_fail; 
+      SWIG_fail;
     } catch (const std::exception& e) {
       SWIG_exception(SWIG_RuntimeError, e.what());
+    } catch (...) {
+      // Anything not derived from std::exception (a raw type, a
+      // third-party exception hierarchy that doesn't inherit
+      // std::exception, etc.) would otherwise propagate across the
+      // extern "C" boundary into CPython -- undefined behavior, in
+      // practice a process abort rather than a clean Python exception.
+      SWIG_exception(SWIG_RuntimeError, "unknown C++ exception");
     }
   }
   resultobj = SWIG_From_int(static_cast< int >(result));
@@ -13653,12 +14534,19 @@ SWIGINTERN PyObject *_wrap_DirectorExample_value_to_add__SWIG_1(PyObject *self, 
     try {
       (arg1)->value_to_add(arg2);
     } catch (Swig::DirectorException &e) {
-      SWIG_fail; 
+      SWIG_fail;
     } catch (const PythonException& e) {
       e.restore_python_exception();
-      SWIG_fail; 
+      SWIG_fail;
     } catch (const std::exception& e) {
       SWIG_exception(SWIG_RuntimeError, e.what());
+    } catch (...) {
+      // Anything not derived from std::exception (a raw type, a
+      // third-party exception hierarchy that doesn't inherit
+      // std::exception, etc.) would otherwise propagate across the
+      // extern "C" boundary into CPython -- undefined behavior, in
+      // practice a process abort rather than a clean Python exception.
+      SWIG_exception(SWIG_RuntimeError, "unknown C++ exception");
     }
   }
   resultobj = SWIG_Py_Void();
@@ -13728,12 +14616,19 @@ SWIGINTERN PyObject *_wrap_DirectorExample_name(PyObject *self, PyObject *args) 
     try {
       result = (std::string *) &((Skeleton::DirectorExample const *)arg1)->name();
     } catch (Swig::DirectorException &e) {
-      SWIG_fail; 
+      SWIG_fail;
     } catch (const PythonException& e) {
       e.restore_python_exception();
-      SWIG_fail; 
+      SWIG_fail;
     } catch (const std::exception& e) {
       SWIG_exception(SWIG_RuntimeError, e.what());
+    } catch (...) {
+      // Anything not derived from std::exception (a raw type, a
+      // third-party exception hierarchy that doesn't inherit
+      // std::exception, etc.) would otherwise propagate across the
+      // extern "C" boundary into CPython -- undefined behavior, in
+      // practice a process abort rather than a clean Python exception.
+      SWIG_exception(SWIG_RuntimeError, "unknown C++ exception");
     }
   }
   resultobj = SWIG_From_std_string(static_cast< std::string >(*result));
@@ -13762,12 +14657,19 @@ SWIGINTERN PyObject *_wrap_new_DirectorExample__SWIG_1(PyObject *self, Py_ssize_
       }
       
     } catch (Swig::DirectorException &e) {
-      SWIG_fail; 
+      SWIG_fail;
     } catch (const PythonException& e) {
       e.restore_python_exception();
-      SWIG_fail; 
+      SWIG_fail;
     } catch (const std::exception& e) {
       SWIG_exception(SWIG_RuntimeError, e.what());
+    } catch (...) {
+      // Anything not derived from std::exception (a raw type, a
+      // third-party exception hierarchy that doesn't inherit
+      // std::exception, etc.) would otherwise propagate across the
+      // extern "C" boundary into CPython -- undefined behavior, in
+      // practice a process abort rather than a clean Python exception.
+      SWIG_exception(SWIG_RuntimeError, "unknown C++ exception");
     }
   }
   {
@@ -13839,12 +14741,19 @@ SWIGINTERN PyObject *_wrap_delete_DirectorExample(PyObject *self, PyObject *args
     try {
       (void)arg1; delete smartarg1;
     } catch (Swig::DirectorException &e) {
-      SWIG_fail; 
+      SWIG_fail;
     } catch (const PythonException& e) {
       e.restore_python_exception();
-      SWIG_fail; 
+      SWIG_fail;
     } catch (const std::exception& e) {
       SWIG_exception(SWIG_RuntimeError, e.what());
+    } catch (...) {
+      // Anything not derived from std::exception (a raw type, a
+      // third-party exception hierarchy that doesn't inherit
+      // std::exception, etc.) would otherwise propagate across the
+      // extern "C" boundary into CPython -- undefined behavior, in
+      // practice a process abort rather than a clean Python exception.
+      SWIG_exception(SWIG_RuntimeError, "unknown C++ exception");
     }
   }
   resultobj = SWIG_Py_Void();
@@ -13941,7 +14850,11 @@ SWIGINTERN PyObject *_wrap_new_DirectorExampleWeakPtr(PyObject *self, PyObject *
     
     Swig::Director* dp = dynamic_cast<Swig::Director*>(arg1->get());
     if(dp) {
-      PyObject* this_pobj = PyObject_GetAttr(swig_obj[0], PyUnicode_FromString("this"));
+      static PyObject* swig_this_name = PyUnicode_FromString("this");
+      PyObject* this_pobj = PyObject_GetAttr(swig_obj[0], swig_this_name);
+      if (!this_pobj) {
+        SWIG_exception_fail(SWIG_ArgError(SWIG_ERROR), "in method '" "new_DirectorExampleWeakPtr" "', argument " "1"" of type '" "boost::shared_ptr< Skeleton::DirectorExample > const &""'");
+      }
       res1 = SWIG_ConvertPtrAndOwn(this_pobj, &argp1, SWIGTYPE_p_boost__shared_ptrT_Skeleton__DirectorExample_t,  0 , &newmem);
       Py_DECREF(this_pobj);
       if (!SWIG_IsOK(res1)) {
@@ -13960,12 +14873,19 @@ SWIGINTERN PyObject *_wrap_new_DirectorExampleWeakPtr(PyObject *self, PyObject *
     try {
       result = (Skeleton::DirectorExampleWeakPtr *)new Skeleton::DirectorExampleWeakPtr((boost::shared_ptr< Skeleton::DirectorExample > const &)*arg1);
     } catch (Swig::DirectorException &e) {
-      SWIG_fail; 
+      SWIG_fail;
     } catch (const PythonException& e) {
       e.restore_python_exception();
-      SWIG_fail; 
+      SWIG_fail;
     } catch (const std::exception& e) {
       SWIG_exception(SWIG_RuntimeError, e.what());
+    } catch (...) {
+      // Anything not derived from std::exception (a raw type, a
+      // third-party exception hierarchy that doesn't inherit
+      // std::exception, etc.) would otherwise propagate across the
+      // extern "C" boundary into CPython -- undefined behavior, in
+      // practice a process abort rather than a clean Python exception.
+      SWIG_exception(SWIG_RuntimeError, "unknown C++ exception");
     }
   }
   {
@@ -14010,12 +14930,19 @@ SWIGINTERN PyObject *_wrap_DirectorExampleWeakPtr___str__(PyObject *self, PyObje
     try {
       result = ((Skeleton::DirectorExampleWeakPtr const *)arg1)->print_to_string();
     } catch (Swig::DirectorException &e) {
-      SWIG_fail; 
+      SWIG_fail;
     } catch (const PythonException& e) {
       e.restore_python_exception();
-      SWIG_fail; 
+      SWIG_fail;
     } catch (const std::exception& e) {
       SWIG_exception(SWIG_RuntimeError, e.what());
+    } catch (...) {
+      // Anything not derived from std::exception (a raw type, a
+      // third-party exception hierarchy that doesn't inherit
+      // std::exception, etc.) would otherwise propagate across the
+      // extern "C" boundary into CPython -- undefined behavior, in
+      // practice a process abort rather than a clean Python exception.
+      SWIG_exception(SWIG_RuntimeError, "unknown C++ exception");
     }
   }
   resultobj = SWIG_From_std_string(static_cast< std::string >(result));
@@ -14055,12 +14982,19 @@ SWIGINTERN PyObject *_wrap_DirectorExampleWeakPtr_a__SWIG_0(PyObject *self, Py_s
     try {
       result = ((Skeleton::DirectorExampleWeakPtr const *)arg1)->a();
     } catch (Swig::DirectorException &e) {
-      SWIG_fail; 
+      SWIG_fail;
     } catch (const PythonException& e) {
       e.restore_python_exception();
-      SWIG_fail; 
+      SWIG_fail;
     } catch (const std::exception& e) {
       SWIG_exception(SWIG_RuntimeError, e.what());
+    } catch (...) {
+      // Anything not derived from std::exception (a raw type, a
+      // third-party exception hierarchy that doesn't inherit
+      // std::exception, etc.) would otherwise propagate across the
+      // extern "C" boundary into CPython -- undefined behavior, in
+      // practice a process abort rather than a clean Python exception.
+      SWIG_exception(SWIG_RuntimeError, "unknown C++ exception");
     }
   }
   {
@@ -14126,7 +15060,11 @@ SWIGINTERN PyObject *_wrap_DirectorExampleWeakPtr_a__SWIG_1(PyObject *self, Py_s
     
     Swig::Director* dp = dynamic_cast<Swig::Director*>(arg2->get());
     if(dp) {
-      PyObject* this_pobj = PyObject_GetAttr(swig_obj[1], PyUnicode_FromString("this"));
+      static PyObject* swig_this_name = PyUnicode_FromString("this");
+      PyObject* this_pobj = PyObject_GetAttr(swig_obj[1], swig_this_name);
+      if (!this_pobj) {
+        SWIG_exception_fail(SWIG_ArgError(SWIG_ERROR), "in method '" "DirectorExampleWeakPtr_a" "', argument " "2"" of type '" "boost::shared_ptr< Skeleton::DirectorExample > const &""'");
+      }
       res2 = SWIG_ConvertPtrAndOwn(this_pobj, &argp2, SWIGTYPE_p_boost__shared_ptrT_Skeleton__DirectorExample_t,  0 , &newmem);
       Py_DECREF(this_pobj);
       if (!SWIG_IsOK(res2)) {
@@ -14145,12 +15083,19 @@ SWIGINTERN PyObject *_wrap_DirectorExampleWeakPtr_a__SWIG_1(PyObject *self, Py_s
     try {
       (arg1)->a((boost::shared_ptr< Skeleton::DirectorExample > const &)*arg2);
     } catch (Swig::DirectorException &e) {
-      SWIG_fail; 
+      SWIG_fail;
     } catch (const PythonException& e) {
       e.restore_python_exception();
-      SWIG_fail; 
+      SWIG_fail;
     } catch (const std::exception& e) {
       SWIG_exception(SWIG_RuntimeError, e.what());
+    } catch (...) {
+      // Anything not derived from std::exception (a raw type, a
+      // third-party exception hierarchy that doesn't inherit
+      // std::exception, etc.) would otherwise propagate across the
+      // extern "C" boundary into CPython -- undefined behavior, in
+      // practice a process abort rather than a clean Python exception.
+      SWIG_exception(SWIG_RuntimeError, "unknown C++ exception");
     }
   }
   resultobj = SWIG_Py_Void();
@@ -14220,12 +15165,19 @@ SWIGINTERN PyObject *_wrap_DirectorExampleWeakPtr_expired(PyObject *self, PyObje
     try {
       result = (bool)((Skeleton::DirectorExampleWeakPtr const *)arg1)->expired();
     } catch (Swig::DirectorException &e) {
-      SWIG_fail; 
+      SWIG_fail;
     } catch (const PythonException& e) {
       e.restore_python_exception();
-      SWIG_fail; 
+      SWIG_fail;
     } catch (const std::exception& e) {
       SWIG_exception(SWIG_RuntimeError, e.what());
+    } catch (...) {
+      // Anything not derived from std::exception (a raw type, a
+      // third-party exception hierarchy that doesn't inherit
+      // std::exception, etc.) would otherwise propagate across the
+      // extern "C" boundary into CPython -- undefined behavior, in
+      // practice a process abort rather than a clean Python exception.
+      SWIG_exception(SWIG_RuntimeError, "unknown C++ exception");
     }
   }
   resultobj = SWIG_From_bool(static_cast< bool >(result));
@@ -14267,12 +15219,19 @@ SWIGINTERN PyObject *_wrap_DirectorExampleWeakPtr_use_count(PyObject *self, PyOb
     try {
       result = (long)((Skeleton::DirectorExampleWeakPtr const *)arg1)->use_count();
     } catch (Swig::DirectorException &e) {
-      SWIG_fail; 
+      SWIG_fail;
     } catch (const PythonException& e) {
       e.restore_python_exception();
-      SWIG_fail; 
+      SWIG_fail;
     } catch (const std::exception& e) {
       SWIG_exception(SWIG_RuntimeError, e.what());
+    } catch (...) {
+      // Anything not derived from std::exception (a raw type, a
+      // third-party exception hierarchy that doesn't inherit
+      // std::exception, etc.) would otherwise propagate across the
+      // extern "C" boundary into CPython -- undefined behavior, in
+      // practice a process abort rather than a clean Python exception.
+      SWIG_exception(SWIG_RuntimeError, "unknown C++ exception");
     }
   }
   resultobj = SWIG_From_long(static_cast< long >(result));
@@ -14313,12 +15272,19 @@ SWIGINTERN PyObject *_wrap_delete_DirectorExampleWeakPtr(PyObject *self, PyObjec
     try {
       (void)arg1; delete smartarg1;
     } catch (Swig::DirectorException &e) {
-      SWIG_fail; 
+      SWIG_fail;
     } catch (const PythonException& e) {
       e.restore_python_exception();
-      SWIG_fail; 
+      SWIG_fail;
     } catch (const std::exception& e) {
       SWIG_exception(SWIG_RuntimeError, e.what());
+    } catch (...) {
+      // Anything not derived from std::exception (a raw type, a
+      // third-party exception hierarchy that doesn't inherit
+      // std::exception, etc.) would otherwise propagate across the
+      // extern "C" boundary into CPython -- undefined behavior, in
+      // practice a process abort rather than a clean Python exception.
+      SWIG_exception(SWIG_RuntimeError, "unknown C++ exception");
     }
   }
   resultobj = SWIG_Py_Void();
@@ -14349,12 +15315,19 @@ SWIGINTERN PyObject *_wrap_new_DirectorExampleUser(PyObject *self, PyObject *arg
     try {
       result = (Skeleton::DirectorExampleUser *)new Skeleton::DirectorExampleUser();
     } catch (Swig::DirectorException &e) {
-      SWIG_fail; 
+      SWIG_fail;
     } catch (const PythonException& e) {
       e.restore_python_exception();
-      SWIG_fail; 
+      SWIG_fail;
     } catch (const std::exception& e) {
       SWIG_exception(SWIG_RuntimeError, e.what());
+    } catch (...) {
+      // Anything not derived from std::exception (a raw type, a
+      // third-party exception hierarchy that doesn't inherit
+      // std::exception, etc.) would otherwise propagate across the
+      // extern "C" boundary into CPython -- undefined behavior, in
+      // practice a process abort rather than a clean Python exception.
+      SWIG_exception(SWIG_RuntimeError, "unknown C++ exception");
     }
   }
   {
@@ -14399,12 +15372,19 @@ SWIGINTERN PyObject *_wrap_DirectorExampleUser___str__(PyObject *self, PyObject 
     try {
       result = ((Skeleton::DirectorExampleUser const *)arg1)->print_to_string();
     } catch (Swig::DirectorException &e) {
-      SWIG_fail; 
+      SWIG_fail;
     } catch (const PythonException& e) {
       e.restore_python_exception();
-      SWIG_fail; 
+      SWIG_fail;
     } catch (const std::exception& e) {
       SWIG_exception(SWIG_RuntimeError, e.what());
+    } catch (...) {
+      // Anything not derived from std::exception (a raw type, a
+      // third-party exception hierarchy that doesn't inherit
+      // std::exception, etc.) would otherwise propagate across the
+      // extern "C" boundary into CPython -- undefined behavior, in
+      // practice a process abort rather than a clean Python exception.
+      SWIG_exception(SWIG_RuntimeError, "unknown C++ exception");
     }
   }
   resultobj = SWIG_From_std_string(static_cast< std::string >(result));
@@ -14446,12 +15426,19 @@ SWIGINTERN PyObject *_wrap_DirectorExampleUser_value_vec(PyObject *self, PyObjec
     try {
       result = (std::vector< boost::shared_ptr< Skeleton::DirectorExample >,std::allocator< boost::shared_ptr< Skeleton::DirectorExample > > > *) &((Skeleton::DirectorExampleUser const *)arg1)->value_vec();
     } catch (Swig::DirectorException &e) {
-      SWIG_fail; 
+      SWIG_fail;
     } catch (const PythonException& e) {
       e.restore_python_exception();
-      SWIG_fail; 
+      SWIG_fail;
     } catch (const std::exception& e) {
       SWIG_exception(SWIG_RuntimeError, e.what());
+    } catch (...) {
+      // Anything not derived from std::exception (a raw type, a
+      // third-party exception hierarchy that doesn't inherit
+      // std::exception, etc.) would otherwise propagate across the
+      // extern "C" boundary into CPython -- undefined behavior, in
+      // practice a process abort rather than a clean Python exception.
+      SWIG_exception(SWIG_RuntimeError, "unknown C++ exception");
     }
   }
   {
@@ -14506,12 +15493,19 @@ SWIGINTERN PyObject *_wrap_DirectorExampleUser_set_vec(PyObject *self, PyObject 
     try {
       (arg1)->set_vec((std::vector< boost::shared_ptr< Skeleton::DirectorExample >,std::allocator< boost::shared_ptr< Skeleton::DirectorExample > > > const &)*arg2);
     } catch (Swig::DirectorException &e) {
-      SWIG_fail; 
+      SWIG_fail;
     } catch (const PythonException& e) {
       e.restore_python_exception();
-      SWIG_fail; 
+      SWIG_fail;
     } catch (const std::exception& e) {
       SWIG_exception(SWIG_RuntimeError, e.what());
+    } catch (...) {
+      // Anything not derived from std::exception (a raw type, a
+      // third-party exception hierarchy that doesn't inherit
+      // std::exception, etc.) would otherwise propagate across the
+      // extern "C" boundary into CPython -- undefined behavior, in
+      // practice a process abort rather than a clean Python exception.
+      SWIG_exception(SWIG_RuntimeError, "unknown C++ exception");
     }
   }
   resultobj = SWIG_Py_Void();
@@ -14555,12 +15549,19 @@ SWIGINTERN PyObject *_wrap_DirectorExampleUser_value_vec_vec(PyObject *self, PyO
     try {
       result = (std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample >,std::allocator< boost::shared_ptr< Skeleton::DirectorExample > > >,std::allocator< std::vector< boost::shared_ptr< Skeleton::DirectorExample >,std::allocator< boost::shared_ptr< Skeleton::DirectorExample > > > > > *) &((Skeleton::DirectorExampleUser const *)arg1)->value_vec_vec();
     } catch (Swig::DirectorException &e) {
-      SWIG_fail; 
+      SWIG_fail;
     } catch (const PythonException& e) {
       e.restore_python_exception();
-      SWIG_fail; 
+      SWIG_fail;
     } catch (const std::exception& e) {
       SWIG_exception(SWIG_RuntimeError, e.what());
+    } catch (...) {
+      // Anything not derived from std::exception (a raw type, a
+      // third-party exception hierarchy that doesn't inherit
+      // std::exception, etc.) would otherwise propagate across the
+      // extern "C" boundary into CPython -- undefined behavior, in
+      // practice a process abort rather than a clean Python exception.
+      SWIG_exception(SWIG_RuntimeError, "unknown C++ exception");
     }
   }
   {
@@ -14615,12 +15616,19 @@ SWIGINTERN PyObject *_wrap_DirectorExampleUser_set_vec_vec(PyObject *self, PyObj
     try {
       (arg1)->set_vec_vec((std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample >,std::allocator< boost::shared_ptr< Skeleton::DirectorExample > > >,std::allocator< std::vector< boost::shared_ptr< Skeleton::DirectorExample >,std::allocator< boost::shared_ptr< Skeleton::DirectorExample > > > > > const &)*arg2);
     } catch (Swig::DirectorException &e) {
-      SWIG_fail; 
+      SWIG_fail;
     } catch (const PythonException& e) {
       e.restore_python_exception();
-      SWIG_fail; 
+      SWIG_fail;
     } catch (const std::exception& e) {
       SWIG_exception(SWIG_RuntimeError, e.what());
+    } catch (...) {
+      // Anything not derived from std::exception (a raw type, a
+      // third-party exception hierarchy that doesn't inherit
+      // std::exception, etc.) would otherwise propagate across the
+      // extern "C" boundary into CPython -- undefined behavior, in
+      // practice a process abort rather than a clean Python exception.
+      SWIG_exception(SWIG_RuntimeError, "unknown C++ exception");
     }
   }
   resultobj = SWIG_Py_Void();
@@ -14664,12 +15672,19 @@ SWIGINTERN PyObject *_wrap_DirectorExampleUser_value(PyObject *self, PyObject *a
     try {
       result = (boost::shared_ptr< Skeleton::DirectorExample > *) &((Skeleton::DirectorExampleUser const *)arg1)->value();
     } catch (Swig::DirectorException &e) {
-      SWIG_fail; 
+      SWIG_fail;
     } catch (const PythonException& e) {
       e.restore_python_exception();
-      SWIG_fail; 
+      SWIG_fail;
     } catch (const std::exception& e) {
       SWIG_exception(SWIG_RuntimeError, e.what());
+    } catch (...) {
+      // Anything not derived from std::exception (a raw type, a
+      // third-party exception hierarchy that doesn't inherit
+      // std::exception, etc.) would otherwise propagate across the
+      // extern "C" boundary into CPython -- undefined behavior, in
+      // practice a process abort rather than a clean Python exception.
+      SWIG_exception(SWIG_RuntimeError, "unknown C++ exception");
     }
   }
   {
@@ -14713,12 +15728,19 @@ SWIGINTERN PyObject *_wrap_DirectorExampleUser_value_vec_int(PyObject *self, PyO
     try {
       result = (std::vector< int,std::allocator< int > > *) &((Skeleton::DirectorExampleUser const *)arg1)->value_vec_int();
     } catch (Swig::DirectorException &e) {
-      SWIG_fail; 
+      SWIG_fail;
     } catch (const PythonException& e) {
       e.restore_python_exception();
-      SWIG_fail; 
+      SWIG_fail;
     } catch (const std::exception& e) {
       SWIG_exception(SWIG_RuntimeError, e.what());
+    } catch (...) {
+      // Anything not derived from std::exception (a raw type, a
+      // third-party exception hierarchy that doesn't inherit
+      // std::exception, etc.) would otherwise propagate across the
+      // extern "C" boundary into CPython -- undefined behavior, in
+      // practice a process abort rather than a clean Python exception.
+      SWIG_exception(SWIG_RuntimeError, "unknown C++ exception");
     }
   }
   resultobj = swig::from(static_cast< std::vector< int,std::allocator< int > > >(*result));
@@ -14771,12 +15793,19 @@ SWIGINTERN PyObject *_wrap_DirectorExampleUser_set_vec_int(PyObject *self, PyObj
     try {
       (arg1)->set_vec_int((std::vector< int,std::allocator< int > > const &)*arg2);
     } catch (Swig::DirectorException &e) {
-      SWIG_fail; 
+      SWIG_fail;
     } catch (const PythonException& e) {
       e.restore_python_exception();
-      SWIG_fail; 
+      SWIG_fail;
     } catch (const std::exception& e) {
       SWIG_exception(SWIG_RuntimeError, e.what());
+    } catch (...) {
+      // Anything not derived from std::exception (a raw type, a
+      // third-party exception hierarchy that doesn't inherit
+      // std::exception, etc.) would otherwise propagate across the
+      // extern "C" boundary into CPython -- undefined behavior, in
+      // practice a process abort rather than a clean Python exception.
+      SWIG_exception(SWIG_RuntimeError, "unknown C++ exception");
     }
   }
   resultobj = SWIG_Py_Void();
@@ -14820,12 +15849,19 @@ SWIGINTERN PyObject *_wrap_DirectorExampleUser_value_vec_vec_int(PyObject *self,
     try {
       result = (std::vector< std::vector< int,std::allocator< int > >,std::allocator< std::vector< int,std::allocator< int > > > > *) &((Skeleton::DirectorExampleUser const *)arg1)->value_vec_vec_int();
     } catch (Swig::DirectorException &e) {
-      SWIG_fail; 
+      SWIG_fail;
     } catch (const PythonException& e) {
       e.restore_python_exception();
-      SWIG_fail; 
+      SWIG_fail;
     } catch (const std::exception& e) {
       SWIG_exception(SWIG_RuntimeError, e.what());
+    } catch (...) {
+      // Anything not derived from std::exception (a raw type, a
+      // third-party exception hierarchy that doesn't inherit
+      // std::exception, etc.) would otherwise propagate across the
+      // extern "C" boundary into CPython -- undefined behavior, in
+      // practice a process abort rather than a clean Python exception.
+      SWIG_exception(SWIG_RuntimeError, "unknown C++ exception");
     }
   }
   resultobj = swig::from(static_cast< std::vector< std::vector< int,std::allocator< int > >,std::allocator< std::vector< int,std::allocator< int > > > > >(*result));
@@ -14878,12 +15914,19 @@ SWIGINTERN PyObject *_wrap_DirectorExampleUser_set_vec_vec_int(PyObject *self, P
     try {
       (arg1)->set_vec_vec_int((std::vector< std::vector< int,std::allocator< int > >,std::allocator< std::vector< int,std::allocator< int > > > > const &)*arg2);
     } catch (Swig::DirectorException &e) {
-      SWIG_fail; 
+      SWIG_fail;
     } catch (const PythonException& e) {
       e.restore_python_exception();
-      SWIG_fail; 
+      SWIG_fail;
     } catch (const std::exception& e) {
       SWIG_exception(SWIG_RuntimeError, e.what());
+    } catch (...) {
+      // Anything not derived from std::exception (a raw type, a
+      // third-party exception hierarchy that doesn't inherit
+      // std::exception, etc.) would otherwise propagate across the
+      // extern "C" boundary into CPython -- undefined behavior, in
+      // practice a process abort rather than a clean Python exception.
+      SWIG_exception(SWIG_RuntimeError, "unknown C++ exception");
     }
   }
   resultobj = SWIG_Py_Void();
@@ -14952,12 +15995,19 @@ SWIGINTERN PyObject *_wrap_DirectorExampleUser_set_value(PyObject *self, PyObjec
     try {
       (arg1)->set_value((boost::shared_ptr< Skeleton::DirectorExample > const &)*arg2);
     } catch (Swig::DirectorException &e) {
-      SWIG_fail; 
+      SWIG_fail;
     } catch (const PythonException& e) {
       e.restore_python_exception();
-      SWIG_fail; 
+      SWIG_fail;
     } catch (const std::exception& e) {
       SWIG_exception(SWIG_RuntimeError, e.what());
+    } catch (...) {
+      // Anything not derived from std::exception (a raw type, a
+      // third-party exception hierarchy that doesn't inherit
+      // std::exception, etc.) would otherwise propagate across the
+      // extern "C" boundary into CPython -- undefined behavior, in
+      // practice a process abort rather than a clean Python exception.
+      SWIG_exception(SWIG_RuntimeError, "unknown C++ exception");
     }
   }
   resultobj = SWIG_Py_Void();
@@ -15005,12 +16055,19 @@ SWIGINTERN PyObject *_wrap_DirectorExampleUser_apply_func__SWIG_0(PyObject *self
     try {
       result = (int)((Skeleton::DirectorExampleUser const *)arg1)->apply_func(arg2);
     } catch (Swig::DirectorException &e) {
-      SWIG_fail; 
+      SWIG_fail;
     } catch (const PythonException& e) {
       e.restore_python_exception();
-      SWIG_fail; 
+      SWIG_fail;
     } catch (const std::exception& e) {
       SWIG_exception(SWIG_RuntimeError, e.what());
+    } catch (...) {
+      // Anything not derived from std::exception (a raw type, a
+      // third-party exception hierarchy that doesn't inherit
+      // std::exception, etc.) would otherwise propagate across the
+      // extern "C" boundary into CPython -- undefined behavior, in
+      // practice a process abort rather than a clean Python exception.
+      SWIG_exception(SWIG_RuntimeError, "unknown C++ exception");
     }
   }
   resultobj = SWIG_From_int(static_cast< int >(result));
@@ -15066,12 +16123,19 @@ SWIGINTERN PyObject *_wrap_DirectorExampleUser_apply_func__SWIG_1(PyObject *self
     try {
       result = (int)((Skeleton::DirectorExampleUser const *)arg1)->apply_func(arg2,arg3);
     } catch (Swig::DirectorException &e) {
-      SWIG_fail; 
+      SWIG_fail;
     } catch (const PythonException& e) {
       e.restore_python_exception();
-      SWIG_fail; 
+      SWIG_fail;
     } catch (const std::exception& e) {
       SWIG_exception(SWIG_RuntimeError, e.what());
+    } catch (...) {
+      // Anything not derived from std::exception (a raw type, a
+      // third-party exception hierarchy that doesn't inherit
+      // std::exception, etc.) would otherwise propagate across the
+      // extern "C" boundary into CPython -- undefined behavior, in
+      // practice a process abort rather than a clean Python exception.
+      SWIG_exception(SWIG_RuntimeError, "unknown C++ exception");
     }
   }
   resultobj = SWIG_From_int(static_cast< int >(result));
@@ -15135,12 +16199,19 @@ SWIGINTERN PyObject *_wrap_DirectorExampleUser_apply_func__SWIG_2(PyObject *self
     try {
       result = (int)((Skeleton::DirectorExampleUser const *)arg1)->apply_func(arg2,arg3,arg4);
     } catch (Swig::DirectorException &e) {
-      SWIG_fail; 
+      SWIG_fail;
     } catch (const PythonException& e) {
       e.restore_python_exception();
-      SWIG_fail; 
+      SWIG_fail;
     } catch (const std::exception& e) {
       SWIG_exception(SWIG_RuntimeError, e.what());
+    } catch (...) {
+      // Anything not derived from std::exception (a raw type, a
+      // third-party exception hierarchy that doesn't inherit
+      // std::exception, etc.) would otherwise propagate across the
+      // extern "C" boundary into CPython -- undefined behavior, in
+      // practice a process abort rather than a clean Python exception.
+      SWIG_exception(SWIG_RuntimeError, "unknown C++ exception");
     }
   }
   resultobj = SWIG_From_int(static_cast< int >(result));
@@ -15215,12 +16286,19 @@ SWIGINTERN PyObject *_wrap_delete_DirectorExampleUser(PyObject *self, PyObject *
     try {
       (void)arg1; delete smartarg1;
     } catch (Swig::DirectorException &e) {
-      SWIG_fail; 
+      SWIG_fail;
     } catch (const PythonException& e) {
       e.restore_python_exception();
-      SWIG_fail; 
+      SWIG_fail;
     } catch (const std::exception& e) {
       SWIG_exception(SWIG_RuntimeError, e.what());
+    } catch (...) {
+      // Anything not derived from std::exception (a raw type, a
+      // third-party exception hierarchy that doesn't inherit
+      // std::exception, etc.) would otherwise propagate across the
+      // extern "C" boundary into CPython -- undefined behavior, in
+      // practice a process abort rather than a clean Python exception.
+      SWIG_exception(SWIG_RuntimeError, "unknown C++ exception");
     }
   }
   resultobj = SWIG_Py_Void();

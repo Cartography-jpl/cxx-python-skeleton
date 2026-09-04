@@ -4758,12 +4758,18 @@ struct ArrayConversionException : public std::exception
 // "asarray" fails. 
 //--------------------------------------------------------------
 
+inline PyObject* asarray_name()
+{
+  static PyObject* name = PyUnicode_FromString("asarray");
+  return name;
+}
+
 template<class T> PyObject* to_numpy(PyObject* obj);
 
 template<> inline PyObject* to_numpy<double>(PyObject* obj)
 {
   PyObject* res = PyObject_CallMethodObjArgs(numpy_module(), 
-                                             PyUnicode_FromString("asarray"), 
+                                             asarray_name(), 
                                              obj, numpy_dot_float64(), NULL);
   // Don't worry about errors , since we just return a null
   PyErr_Clear();
@@ -4773,7 +4779,7 @@ template<> inline PyObject* to_numpy<double>(PyObject* obj)
 template<> inline PyObject* to_numpy<float>(PyObject* obj)
 {
   PyObject* res = PyObject_CallMethodObjArgs(numpy_module(), 
-                                             PyUnicode_FromString("asarray"), 
+                                             asarray_name(), 
                                              obj, numpy_dot_float32(), NULL);
   // Don't worry about errors , since we just return a null
   PyErr_Clear();
@@ -4783,7 +4789,7 @@ template<> inline PyObject* to_numpy<float>(PyObject* obj)
 template<> inline PyObject* to_numpy<bool>(PyObject* obj)
 {
   PyObject* res = PyObject_CallMethodObjArgs(numpy_module(), 
-                                    PyUnicode_FromString("asarray"), 
+                                    asarray_name(), 
                                     obj, numpy_dot_bool(), NULL);
   PyErr_Clear();
   return res;
@@ -4792,7 +4798,7 @@ template<> inline PyObject* to_numpy<bool>(PyObject* obj)
 template<> inline PyObject* to_numpy<int>(PyObject* obj)
 {
   PyObject* res = PyObject_CallMethodObjArgs(numpy_module(), 
-                                    PyUnicode_FromString("asarray"), 
+                                    asarray_name(), 
                                     obj, numpy_dot_int32(), NULL);
   PyErr_Clear();
   return res;
@@ -4801,7 +4807,7 @@ template<> inline PyObject* to_numpy<int>(PyObject* obj)
 template<> inline PyObject* to_numpy<unsigned int>(PyObject* obj)
 {
   PyObject* res = PyObject_CallMethodObjArgs(numpy_module(), 
-                                    PyUnicode_FromString("asarray"), 
+                                    asarray_name(), 
                                     obj, numpy_dot_uint32(), NULL);
   PyErr_Clear();
   return res;
@@ -4810,7 +4816,7 @@ template<> inline PyObject* to_numpy<unsigned int>(PyObject* obj)
 template<> inline PyObject* to_numpy<short int>(PyObject* obj)
 {
   PyObject* res = PyObject_CallMethodObjArgs(numpy_module(), 
-                                    PyUnicode_FromString("asarray"), 
+                                    asarray_name(), 
                                     obj, numpy_dot_int16(), NULL);
   PyErr_Clear();
   return res;
@@ -4819,7 +4825,7 @@ template<> inline PyObject* to_numpy<short int>(PyObject* obj)
 template<> inline PyObject* to_numpy<unsigned short int>(PyObject* obj)
 {
   PyObject* res = PyObject_CallMethodObjArgs(numpy_module(), 
-                                    PyUnicode_FromString("asarray"), 
+                                    asarray_name(), 
                                     obj, numpy_dot_uint16(), NULL);
   PyErr_Clear();
   return res;
@@ -4828,7 +4834,7 @@ template<> inline PyObject* to_numpy<unsigned short int>(PyObject* obj)
 template<> inline PyObject* to_numpy<char>(PyObject* obj)
 {
   PyObject* res = PyObject_CallMethodObjArgs(numpy_module(), 
-                                    PyUnicode_FromString("asarray"), 
+                                    asarray_name(), 
                                     obj, numpy_dot_int8(), NULL);
   PyErr_Clear();
   return res;
@@ -4837,7 +4843,7 @@ template<> inline PyObject* to_numpy<char>(PyObject* obj)
 template<> inline PyObject* to_numpy<unsigned char>(PyObject* obj)
 {
   PyObject* res = PyObject_CallMethodObjArgs(numpy_module(), 
-                                    PyUnicode_FromString("asarray"), 
+                                    asarray_name(), 
                                     obj, numpy_dot_uint8(), NULL);
   PyErr_Clear();
   return res;
@@ -4914,11 +4920,15 @@ inline void iter_to_vector_of_arrays(PyObject *sequence, std::vector<blitz::Arra
     if(!numpy.obj) {
       std::stringstream err_msg;
       err_msg << "iter_to_vector_of_arrays: object is not a numpy object at index: " << iter_index;
+      Py_DECREF(item);
+      Py_DECREF(iterator);
       throw ArrayConversionException(err_msg.str());
     }
     if(PyArray_NDIM((PyArrayObject*) numpy.obj) != DIM) {
       std::stringstream err_msg;
       err_msg << "iter_to_vector_of_arrays: incorrect dimension of numpy object at index: " << iter_index << ", expected dimension: " << DIM;
+      Py_DECREF(item);
+      Py_DECREF(iterator);
       throw ArrayConversionException(err_msg.str());
     }
 
@@ -5427,6 +5437,14 @@ namespace swig {
 	  Swig::Director* dp = dynamic_cast<Swig::Director*>(p->get());
 	  if(dp) {
 	    boost::shared_ptr<T> *p2 = new boost::shared_ptr<T>(p->get(), PythonRefPtrCleanup(dp->swig_get_self()));
+	    // If p was itself a heap allocation from the cast above (newmem
+	    // & SWIG_CAST_NEW_MEMORY), we're about to replace it with p2 --
+	    // free it first rather than leaking it. If newmem wasn't set, p
+	    // points at a shared_ptr swig still owns elsewhere, so leave it
+	    // alone.
+	    if (newmem & SWIG_CAST_NEW_MEMORY) {
+	      delete p;
+	    }
 	    p = p2;
             res |= SWIG_NEWOBJMASK;
 	  }
@@ -6805,12 +6823,19 @@ SWIGINTERN PyObject *_wrap_new_GenericObjectMap(PyObject *self, PyObject *args) 
     try {
       result = (Skeleton::GenericObjectMap *)new Skeleton::GenericObjectMap();
     } catch (Swig::DirectorException &e) {
-      SWIG_fail; 
+      SWIG_fail;
     } catch (const PythonException& e) {
       e.restore_python_exception();
-      SWIG_fail; 
+      SWIG_fail;
     } catch (const std::exception& e) {
       SWIG_exception(SWIG_RuntimeError, e.what());
+    } catch (...) {
+      // Anything not derived from std::exception (a raw type, a
+      // third-party exception hierarchy that doesn't inherit
+      // std::exception, etc.) would otherwise propagate across the
+      // extern "C" boundary into CPython -- undefined behavior, in
+      // practice a process abort rather than a clean Python exception.
+      SWIG_exception(SWIG_RuntimeError, "unknown C++ exception");
     }
   }
   {
@@ -6855,12 +6880,19 @@ SWIGINTERN PyObject *_wrap_GenericObjectMap_keys(PyObject *self, PyObject *args)
     try {
       result = (arg1)->keys();
     } catch (Swig::DirectorException &e) {
-      SWIG_fail; 
+      SWIG_fail;
     } catch (const PythonException& e) {
       e.restore_python_exception();
-      SWIG_fail; 
+      SWIG_fail;
     } catch (const std::exception& e) {
       SWIG_exception(SWIG_RuntimeError, e.what());
+    } catch (...) {
+      // Anything not derived from std::exception (a raw type, a
+      // third-party exception hierarchy that doesn't inherit
+      // std::exception, etc.) would otherwise propagate across the
+      // extern "C" boundary into CPython -- undefined behavior, in
+      // practice a process abort rather than a clean Python exception.
+      SWIG_exception(SWIG_RuntimeError, "unknown C++ exception");
     }
   }
   resultobj = swig::from(static_cast< std::vector< std::string,std::allocator< std::string > > >(result));
@@ -6940,12 +6972,19 @@ SWIGINTERN PyObject *_wrap_GenericObjectMap_set_generic(PyObject *self, PyObject
     try {
       (arg1)->set_generic((std::string const &)*arg2,(boost::shared_ptr< Skeleton::GenericObject > const &)*arg3);
     } catch (Swig::DirectorException &e) {
-      SWIG_fail; 
+      SWIG_fail;
     } catch (const PythonException& e) {
       e.restore_python_exception();
-      SWIG_fail; 
+      SWIG_fail;
     } catch (const std::exception& e) {
       SWIG_exception(SWIG_RuntimeError, e.what());
+    } catch (...) {
+      // Anything not derived from std::exception (a raw type, a
+      // third-party exception hierarchy that doesn't inherit
+      // std::exception, etc.) would otherwise propagate across the
+      // extern "C" boundary into CPython -- undefined behavior, in
+      // practice a process abort rather than a clean Python exception.
+      SWIG_exception(SWIG_RuntimeError, "unknown C++ exception");
     }
   }
   resultobj = SWIG_Py_Void();
@@ -7001,12 +7040,19 @@ SWIGINTERN PyObject *_wrap_GenericObjectMap_get_generic(PyObject *self, PyObject
     try {
       result = ((Skeleton::GenericObjectMap const *)arg1)->get_generic((std::string const &)*arg2);
     } catch (Swig::DirectorException &e) {
-      SWIG_fail; 
+      SWIG_fail;
     } catch (const PythonException& e) {
       e.restore_python_exception();
-      SWIG_fail; 
+      SWIG_fail;
     } catch (const std::exception& e) {
       SWIG_exception(SWIG_RuntimeError, e.what());
+    } catch (...) {
+      // Anything not derived from std::exception (a raw type, a
+      // third-party exception hierarchy that doesn't inherit
+      // std::exception, etc.) would otherwise propagate across the
+      // extern "C" boundary into CPython -- undefined behavior, in
+      // practice a process abort rather than a clean Python exception.
+      SWIG_exception(SWIG_RuntimeError, "unknown C++ exception");
     }
   }
   {
@@ -7052,12 +7098,19 @@ SWIGINTERN PyObject *_wrap_GenericObjectMap___str__(PyObject *self, PyObject *ar
     try {
       result = ((Skeleton::GenericObjectMap const *)arg1)->print_to_string();
     } catch (Swig::DirectorException &e) {
-      SWIG_fail; 
+      SWIG_fail;
     } catch (const PythonException& e) {
       e.restore_python_exception();
-      SWIG_fail; 
+      SWIG_fail;
     } catch (const std::exception& e) {
       SWIG_exception(SWIG_RuntimeError, e.what());
+    } catch (...) {
+      // Anything not derived from std::exception (a raw type, a
+      // third-party exception hierarchy that doesn't inherit
+      // std::exception, etc.) would otherwise propagate across the
+      // extern "C" boundary into CPython -- undefined behavior, in
+      // practice a process abort rather than a clean Python exception.
+      SWIG_exception(SWIG_RuntimeError, "unknown C++ exception");
     }
   }
   resultobj = SWIG_From_std_string(static_cast< std::string >(result));
@@ -7098,12 +7151,19 @@ SWIGINTERN PyObject *_wrap_delete_GenericObjectMap(PyObject *self, PyObject *arg
     try {
       (void)arg1; delete smartarg1;
     } catch (Swig::DirectorException &e) {
-      SWIG_fail; 
+      SWIG_fail;
     } catch (const PythonException& e) {
       e.restore_python_exception();
-      SWIG_fail; 
+      SWIG_fail;
     } catch (const std::exception& e) {
       SWIG_exception(SWIG_RuntimeError, e.what());
+    } catch (...) {
+      // Anything not derived from std::exception (a raw type, a
+      // third-party exception hierarchy that doesn't inherit
+      // std::exception, etc.) would otherwise propagate across the
+      // extern "C" boundary into CPython -- undefined behavior, in
+      // practice a process abort rather than a clean Python exception.
+      SWIG_exception(SWIG_RuntimeError, "unknown C++ exception");
     }
   }
   resultobj = SWIG_Py_Void();
