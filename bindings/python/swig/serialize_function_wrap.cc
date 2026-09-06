@@ -6645,6 +6645,69 @@ fail:
 }
 
 
+SWIGINTERN PyObject *_wrap_serialize_write_pickle(PyObject *self, PyObject *args) {
+  PyObject *resultobj = 0;
+  boost::shared_ptr< Skeleton::GenericObject > *arg1 = 0 ;
+  void *argp1 ;
+  int res1 = 0 ;
+  boost::shared_ptr< Skeleton::GenericObject > tempshared1 ;
+  boost::shared_ptr< Skeleton::GenericObject > temp2shared1 ;
+  PyObject *swig_obj[1] ;
+  std::string result;
+  
+  (void)self;
+  if (!args) SWIG_fail;
+  swig_obj[0] = args;
+  {
+    int newmem = 0;
+    res1 = SWIG_ConvertPtrAndOwn(swig_obj[0], &argp1, SWIGTYPE_p_boost__shared_ptrT_Skeleton__GenericObject_t,  0 , &newmem);
+    if (!SWIG_IsOK(res1)) {
+      SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "serialize_write_pickle" "', argument " "1"" of type '" "boost::shared_ptr< Skeleton::GenericObject > const &""'");
+    }
+    if (newmem & SWIG_CAST_NEW_MEMORY) {
+      if (argp1) tempshared1 = *reinterpret_cast< boost::shared_ptr< Skeleton::GenericObject > * >(argp1);
+      delete reinterpret_cast< boost::shared_ptr< Skeleton::GenericObject > * >(argp1);
+      arg1 = &tempshared1;
+    } else {
+      arg1 = (argp1) ? reinterpret_cast< boost::shared_ptr< Skeleton::GenericObject > * >(argp1) : &tempshared1;
+    }
+    // Added mms
+    // Special handling if this is a director class.
+    // See DirectorNotes.md for discussion of this.
+    Swig::Director* dp = dynamic_cast<Swig::Director*>(arg1->get());
+    if(dp) {
+      temp2shared1.reset(arg1->get(), PythonRefPtrCleanup(dp->swig_get_self()));
+      arg1 = &temp2shared1;
+    }
+  }
+  {
+    try {
+      result = Skeleton::serialize_write_pickle((boost::shared_ptr< Skeleton::GenericObject > const &)*arg1);
+    } catch (Swig::DirectorException &e) {
+      SWIG_fail;
+    } catch (const PythonException& e) {
+      e.restore_python_exception();
+      SWIG_fail;
+    } catch (const std::exception& e) {
+      SWIG_exception(SWIG_RuntimeError, e.what());
+    } catch (...) {
+      // Anything not derived from std::exception (a raw type, a
+      // third-party exception hierarchy that doesn't inherit
+      // std::exception, etc.) would otherwise propagate across the
+      // extern "C" boundary into CPython -- undefined behavior, in
+      // practice a process abort rather than a clean Python exception.
+      SWIG_exception(SWIG_RuntimeError, "unknown C++ exception");
+    }
+  }
+  {
+    resultobj = PyByteArray_FromStringAndSize((&result)->data(), (&result)->size());
+  }
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
 SWIGINTERN PyObject *_wrap_serialize_read_binary(PyObject *self, PyObject *args) {
   PyObject *resultobj = 0;
   std::string *arg1 = 0 ;
@@ -6665,6 +6728,57 @@ SWIGINTERN PyObject *_wrap_serialize_read_binary(PyObject *self, PyObject *args)
   {
     try {
       result = Skeleton::serialize_read_binary((std::string const &)*arg1);
+    } catch (Swig::DirectorException &e) {
+      SWIG_fail;
+    } catch (const PythonException& e) {
+      e.restore_python_exception();
+      SWIG_fail;
+    } catch (const std::exception& e) {
+      SWIG_exception(SWIG_RuntimeError, e.what());
+    } catch (...) {
+      // Anything not derived from std::exception (a raw type, a
+      // third-party exception hierarchy that doesn't inherit
+      // std::exception, etc.) would otherwise propagate across the
+      // extern "C" boundary into CPython -- undefined behavior, in
+      // practice a process abort rather than a clean Python exception.
+      SWIG_exception(SWIG_RuntimeError, "unknown C++ exception");
+    }
+  }
+  {
+    resultobj = Skeleton::swig_to_python_or_none(result);
+  }
+  {
+    delete arg1;
+  }
+  return resultobj;
+fail:
+  {
+    delete arg1;
+  }
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_serialize_read_pickle(PyObject *self, PyObject *args) {
+  PyObject *resultobj = 0;
+  std::string *arg1 = 0 ;
+  PyObject *swig_obj[1] ;
+  boost::shared_ptr< Skeleton::GenericObject > result;
+  
+  (void)self;
+  if (!args) SWIG_fail;
+  swig_obj[0] = args;
+  {
+    if(!PyByteArray_Check(swig_obj[0])) {
+      PyErr_Clear();
+      PyErr_SetString(PyExc_TypeError,"not a bytearray");
+      return NULL;
+    }
+    arg1 = new std::string(PyByteArray_AS_STRING(swig_obj[0]), PyByteArray_GET_SIZE(swig_obj[0]));
+  }
+  {
+    try {
+      result = Skeleton::serialize_read_pickle((std::string const &)*arg1);
     } catch (Swig::DirectorException &e) {
       SWIG_fail;
     } catch (const PythonException& e) {
@@ -6722,7 +6836,9 @@ static PyMethodDef SwigMethods[] = {
 	 { "serialize_read_generic", _wrap_serialize_read_generic, METH_O, NULL},
 	 { "serialize_read_generic_string", _wrap_serialize_read_generic_string, METH_O, NULL},
 	 { "serialize_write_binary", _wrap_serialize_write_binary, METH_O, NULL},
+	 { "serialize_write_pickle", _wrap_serialize_write_pickle, METH_O, NULL},
 	 { "serialize_read_binary", _wrap_serialize_read_binary, METH_O, NULL},
+	 { "serialize_read_pickle", _wrap_serialize_read_pickle, METH_O, NULL},
 	 { NULL, NULL, 0, NULL }
 };
 
@@ -6752,7 +6868,9 @@ static PyMethodDef SwigMethods_proxydocs[] = {
 	 { "serialize_read_generic", _wrap_serialize_read_generic, METH_O, NULL},
 	 { "serialize_read_generic_string", _wrap_serialize_read_generic_string, METH_O, NULL},
 	 { "serialize_write_binary", _wrap_serialize_write_binary, METH_O, NULL},
+	 { "serialize_write_pickle", _wrap_serialize_write_pickle, METH_O, NULL},
 	 { "serialize_read_binary", _wrap_serialize_read_binary, METH_O, NULL},
+	 { "serialize_read_pickle", _wrap_serialize_read_pickle, METH_O, NULL},
 	 { NULL, NULL, 0, NULL }
 };
 

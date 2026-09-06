@@ -2,6 +2,7 @@
 #include "serialize_function.h"
 #include "serialize_shared_ptr.h"
 #include "weak_ptr_serialize_support.h"
+#include "swig_serialization_context.h"
 #include <boost/regex.hpp>
 #include <boost/iostreams/filtering_stream.hpp>
 #include <boost/iostreams/filter/gzip.hpp>
@@ -255,7 +256,7 @@ void SWIG_MAPPER_NAMESPACE::serialize_write(const std::string& Fname,
 			     const boost::shared_ptr<GenericObject>& Obj)
 {
 #ifdef SWIG_HAVE_BOOST_SERIALIZATION
-  PtrSerializeLock lock;
+  SwigSerializationContextWrapper w;
   mark_pointer(Obj);
   OstreamCompress os(Fname.c_str());
   boost::archive::polymorphic_xml_oarchive oa(os);
@@ -269,6 +270,7 @@ void SWIG_MAPPER_NAMESPACE::serialize_write_binary(const std::string& Fname,
 			     const boost::shared_ptr<GenericObject>& Obj)
 {
 #ifdef SWIG_HAVE_BOOST_SERIALIZATION
+  SwigSerializationContextWrapper w;
   PtrSerializeLock lock;
   mark_pointer(Obj);
   OstreamCompress os(Fname.c_str());
@@ -287,6 +289,7 @@ std::string SWIG_MAPPER_NAMESPACE::serialize_write_string
 (const boost::shared_ptr<GenericObject>& Obj)
 {
 #ifdef SWIG_HAVE_BOOST_SERIALIZATION
+  SwigSerializationContextWrapper w;
   PtrSerializeLock lock;
   mark_pointer(Obj);
   std::ostringstream os;
@@ -306,6 +309,24 @@ std::string SWIG_MAPPER_NAMESPACE::serialize_write_string
 //-----------------------------------------------------------------------
 
 std::string SWIG_MAPPER_NAMESPACE::serialize_write_binary
+(const boost::shared_ptr<GenericObject>& Obj)
+{
+#ifdef SWIG_HAVE_BOOST_SERIALIZATION
+  SwigSerializationContextWrapper w;
+  PtrSerializeLock lock;
+  mark_pointer(Obj);
+  std::ostringstream os;
+  {
+    boost::archive::polymorphic_binary_oarchive oa(os);
+    oa << boost::serialization::make_nvp("geocal_object", Obj);
+  }
+  return os.str();
+#else
+  throw std::runtime_error("SWIG_MAPPER_NAMESPACE was not built with boost::serialization support");
+#endif
+}
+
+std::string SWIG_MAPPER_NAMESPACE::serialize_write_pickle
 (const boost::shared_ptr<GenericObject>& Obj)
 {
 #ifdef SWIG_HAVE_BOOST_SERIALIZATION
@@ -331,6 +352,22 @@ boost::shared_ptr<GenericObject>
 SWIG_MAPPER_NAMESPACE::serialize_read_binary(const std::string& Data)
 {
 #ifdef SWIG_HAVE_BOOST_SERIALIZATION
+  SwigSerializationContextWrapper w;
+  std::istringstream is(Data);
+  boost::archive::polymorphic_binary_iarchive ia(is);
+  boost::shared_ptr<GenericObject> obj;
+  ia >> boost::serialization::make_nvp("geocal_object", obj);
+  return obj;
+#else
+  throw std::runtime_error("SWIG_MAPPER_NAMESPACE was not built with boost::serialization support");
+#endif
+}
+
+boost::shared_ptr<GenericObject> 
+SWIG_MAPPER_NAMESPACE::serialize_read_pickle(const std::string& Data)
+{
+#ifdef SWIG_HAVE_BOOST_SERIALIZATION
+  SwigSerializationContextWrapper w;
   std::istringstream is(Data);
   boost::archive::polymorphic_binary_iarchive ia(is);
   boost::shared_ptr<GenericObject> obj;
@@ -363,6 +400,7 @@ boost::shared_ptr<GenericObject>
 SWIG_MAPPER_NAMESPACE::serialize_read_generic(const std::string& Fname)
 {
 #ifdef SWIG_HAVE_BOOST_SERIALIZATION
+  SwigSerializationContextWrapper w;
   IstreamCompress is(Fname.c_str());
   if(!is)
     throw std::runtime_error("Trouble opening file " + Fname);
@@ -384,6 +422,7 @@ boost::shared_ptr<GenericObject>
 SWIG_MAPPER_NAMESPACE::serialize_read_binary_generic(const std::string& Fname)
 {
 #ifdef SWIG_HAVE_BOOST_SERIALIZATION
+  SwigSerializationContextWrapper w;
   IstreamCompress is(Fname.c_str());
   if(!is)
     throw std::runtime_error("Trouble opening file " + Fname);
@@ -410,6 +449,7 @@ boost::shared_ptr<GenericObject>
 SWIG_MAPPER_NAMESPACE::serialize_read_generic_string(const std::string& Data)
 {
 #ifdef SWIG_HAVE_BOOST_SERIALIZATION
+  SwigSerializationContextWrapper w;
   std::istringstream is(Data);
   boost::archive::polymorphic_xml_iarchive ia(is);
   boost::shared_ptr<GenericObject> obj;

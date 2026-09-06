@@ -40,8 +40,14 @@ serialize_read_generic_string(const std::string& Data);
 namespace Skeleton {
 std::string serialize_write_binary(const boost::shared_ptr<GenericObject>& Obj);
 
+std::string serialize_write_pickle(const boost::shared_ptr<GenericObject>& Obj);
+  
 boost::shared_ptr<GenericObject> 
 serialize_read_binary(const std::string& Data);
+
+boost::shared_ptr<GenericObject> 
+serialize_read_pickle(const std::string& Data);
+  
 }
 
 // List of things "import *" will include

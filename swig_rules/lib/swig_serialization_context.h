@@ -1,6 +1,7 @@
 #ifndef SWIG_SERIALIZATION_CONTEXT_H
 #define SWIG_SERIALIZATION_CONTEXT_H
 #include <boost/shared_ptr.hpp>
+#include <mutex>
 
 namespace SWIG_MAPPER_NAMESPACE {
 
@@ -30,6 +31,19 @@ public:
   static void destroy_singleton();
 private:
   static boost::shared_ptr<SwigSerializationContext> instance;
+  static std::mutex instance_mutex;
 };
+
+/****************************************************************//**
+  Simple C++ wrapper for creating a SwigSerializationContext on
+  creation and deleting on destruction.
+*******************************************************************/
+
+class SwigSerializationContextWrapper {
+public:
+  SwigSerializationContextWrapper() { SwigSerializationContext::create_singleton(); }
+  virtual ~SwigSerializationContextWrapper() { SwigSerializationContext::destroy_singleton(); }
+};
+  
 }
 #endif

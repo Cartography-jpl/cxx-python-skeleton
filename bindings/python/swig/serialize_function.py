@@ -91,13 +91,13 @@ def _new_from_init(cls, version, *args):
     return inst
 
 def _new_from_serialization(data):
-    return skeleton_swig.serialize_function.serialize_read_binary(data)
+    return skeleton_swig.serialize_function.serialize_read_pickle(data)
 
 def _new_from_serialization_dir(dir, data):
     curdir = os.getcwd()
     try:
       os.chdir(dir)
-      return skeleton_swig.serialize_function.serialize_read_binary(data)
+      return skeleton_swig.serialize_function.serialize_read_pickle(data)
     finally:
       os.chdir(curdir)
 
@@ -128,7 +128,9 @@ serialize_write_string = _serialize_function.serialize_write_string
 serialize_read_generic = _serialize_function.serialize_read_generic
 serialize_read_generic_string = _serialize_function.serialize_read_generic_string
 serialize_write_binary = _serialize_function.serialize_write_binary
+serialize_write_pickle = _serialize_function.serialize_write_pickle
 serialize_read_binary = _serialize_function.serialize_read_binary
+serialize_read_pickle = _serialize_function.serialize_read_pickle
 
 __all__ = ["have_serialize_supported","serialize_write","serialize_write_string","serialize_read_generic","serialize_read_generic_string","serialize_write_binary","serialize_read_binary"]
 
