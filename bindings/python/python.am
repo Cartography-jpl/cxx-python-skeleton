@@ -25,6 +25,8 @@ skeletoninc_HEADERS+= @swigrules@/lib/swig_to_python.h
 skeletoninc_HEADERS+= @swigrules@/lib/serialize_function.h
 libskeleton_la_SOURCES+= @swigrules@/lib/serialize_function.cc
 skeletoninc_HEADERS+= @swigrules@/lib/serialize_shared_ptr.h
+skeletoninc_HEADERS+= @swigrules@/lib/swig_serialization_context.h
+libskeleton_la_SOURCES+= @swigrules@/lib/swig_serialization_context.cc
 skeletoninc_HEADERS+= @swigrules@/lib/weak_ptr_serialize_support.h
 libskeleton_la_SOURCES+= @swigrules@/lib/weak_ptr_serialize_support.cc
 libskeleton_la_CPPFLAGS+= -DSWIG_MAPPER_NAMESPACE=Skeleton
