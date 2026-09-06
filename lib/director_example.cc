@@ -19,6 +19,13 @@ void DirectorExample::serialize(Archive & ar, const unsigned int )
 }
 
 template<class Archive>
+void DirectorExampleNested::serialize(Archive & ar, const unsigned int )
+{
+  ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(DirectorExample)
+    & SKELETON_NVP_(obj);
+}
+
+template<class Archive>
 void DirectorExampleUser::serialize(Archive & ar, const unsigned int )
 {
   SKELETON_GENERIC_BASE(DirectorExampleUser);
@@ -34,6 +41,7 @@ void DirectorExampleWeakPtr::serialize(Archive & ar, const unsigned int )
 }
 
 SKELETON_IMPLEMENT(DirectorExample);
+SKELETON_IMPLEMENT(DirectorExampleNested);
 SKELETON_IMPLEMENT(DirectorExampleUser);
 SKELETON_IMPLEMENT(DirectorExampleWeakPtr);
 

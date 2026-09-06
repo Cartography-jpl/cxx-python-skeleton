@@ -256,6 +256,7 @@ class DirectorExample(skeleton_swig.generic_object.GenericObject):
     func = _swig_new_instance_method(_director_example.DirectorExample_func)
     value_to_add = _swig_new_instance_method(_director_example.DirectorExample_value_to_add)
     name = _swig_new_instance_method(_director_example.DirectorExample_name)
+    same_object = _swig_new_instance_method(_director_example.DirectorExample_same_object)
 
     def __reduce__(self):
     #Special handling for when we are doing boost serialization, we set
@@ -286,6 +287,45 @@ class DirectorExample(skeleton_swig.generic_object.GenericObject):
 
 # Register DirectorExample in _director_example:
 _director_example.DirectorExample_swigregister(DirectorExample)
+class DirectorExampleNested(DirectorExample):
+    r"""
+
+    A version used for nesting DirectorExample.
+
+    C++ includes: director_example.h 
+    """
+
+    thisown = property(lambda x: x.this.own(), lambda x, v: x.this.own(v), doc="The membership flag")
+    __repr__ = _swig_repr
+
+    def __init__(self, value_to_add, name, Obj):
+        r"""
+
+        Skeleton::DirectorExampleNested::DirectorExampleNested(int value_to_add, const std::string &name, const boost::shared_ptr<
+        DirectorExample > Obj)
+        Skeleton::DirectorExampleNested::DirectorExampleNested
+        Constructor.
+
+        """
+        _director_example.DirectorExampleNested_swiginit(self, _director_example.new_DirectorExampleNested(value_to_add, name, Obj))
+    _v_obj = _swig_new_instance_method(_director_example.DirectorExampleNested__v_obj)
+
+    @property
+    def obj(self):
+        return self._v_obj()
+
+
+    def __reduce__(self):
+    #Special handling for when we are doing boost serialization, we set
+    #"this" to None
+      if(self.this is None):
+        return super().__reduce__()
+      return _new_from_serialization, (skeleton_swig.serialize_function.serialize_write_binary(self),)
+
+    __swig_destroy__ = _director_example.delete_DirectorExampleNested
+
+# Register DirectorExampleNested in _director_example:
+_director_example.DirectorExampleNested_swigregister(DirectorExampleNested)
 class DirectorExampleWeakPtr(skeleton_swig.generic_object.GenericObject):
     r"""
 
@@ -365,6 +405,6 @@ class DirectorExampleUser(skeleton_swig.generic_object.GenericObject):
 # Register DirectorExampleUser in _director_example:
 _director_example.DirectorExampleUser_swigregister(DirectorExampleUser)
 
-__all__ = ["DirectorExample","DirectorExampleUser","DirectorExampleWeakPtr","Vector_DirectorExample","Vector_Vector_DirectorExample","Vector_Vector_int"]
+__all__ = ["DirectorExample","DirectorExampleUser","DirectorExampleNested","DirectorExampleWeakPtr","Vector_DirectorExample","Vector_Vector_DirectorExample","Vector_Vector_int"]
 
 

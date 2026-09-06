@@ -33,6 +33,8 @@ public:
   int value_to_add() const { return value_to_add_;}
   void value_to_add(int v) { value_to_add_ = v;}
   const std::string& name() const { return name_;}
+  bool same_object(const DirectorExample& obj2) const
+  { return this == &obj2; }
 protected:
   // Directors with swig seems to need to have this available
   DirectorExample() {}
@@ -44,6 +46,33 @@ private:
   void serialize(Archive & ar, const unsigned int version);
 };
 
+/****************************************************************//**
+  A version used for nesting DirectorExample. 
+*******************************************************************/
+
+class DirectorExampleNested : public DirectorExample {
+public:
+//-----------------------------------------------------------------------
+/// Constructor
+//-----------------------------------------------------------------------
+
+  DirectorExampleNested(int value_to_add, const std::string& name, const boost::shared_ptr<DirectorExample> Obj)
+    : DirectorExample(value_to_add, name),
+      obj_(Obj)
+  {
+  }
+  virtual ~DirectorExampleNested() {}
+
+  const boost::shared_ptr<DirectorExample>& obj() const { return obj_;}
+protected:
+  DirectorExampleNested() {}
+private:
+  boost::shared_ptr<DirectorExample> obj_;
+  friend class boost::serialization::access;
+  template<class Archive>
+  void serialize(Archive & ar, const unsigned int version);
+};
+  
 /****************************************************************//**
   A weak pointer to a DirectorExample, used to test proper handling of
   weak pointers and also pointer tracking in the serialization code.
@@ -126,6 +155,7 @@ private:
   
 }
 SKELETON_EXPORT_KEY(DirectorExample);
+SKELETON_EXPORT_KEY(DirectorExampleNested);
 SKELETON_EXPORT_KEY(DirectorExampleWeakPtr);
 SKELETON_EXPORT_KEY(DirectorExampleUser);
 #endif

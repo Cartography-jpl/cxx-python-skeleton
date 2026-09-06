@@ -62,7 +62,30 @@ class DirectorPythonExampleWithException(DirectorPythonExample):
     def func(self, v):
         raise RuntimeError("Error, check if propagate")
         return super().func(v) + 2 * self.v2
-            
+
+class DirectorPythonExampleNest(DirectorPythonExample):
+    def __init__(self, v1, v2, obj1, obname):
+        super().__init__(v1, v2, obname)
+        self.v2 = v2
+        self.obj1 = obj1
+        self.obj1_dup = obj1
+        print(f"Creating Python {self.name()}", flush=True)
+
+class DirectorPythonExampleNest2(DirectorPythonExample):
+    def __init__(self, v1, v2, obj1, obj2, obname):
+        super().__init__(v1, v2, obname)
+        self.v2 = v2
+        self.obj1 = obj1
+        self.obj2 = obj2
+        print(f"Creating Python {self.name()}", flush=True)
+        
+class PythonObjExample:
+    def __init__(self, objname):
+        self.objname = objname
+
+    def same_object(self, obj2):
+        return id(self) == id(obj2)
+    
 class DirectorPythonExampleBadPickle(DirectorPythonExample):
     '''We have had an issue with serialization where problems get reported as
     a generic "Python error that I can't parse". We will first have a error case that
@@ -287,6 +310,45 @@ def test_director_lifetime_shelve(isolated_dir, serial):
     DirectorPythonExample.deleted_list.clear()
     print("All done with euser_s")
 
+def test_director_example_object_tracking(isolated_dir, serial):
+    '''Check that both the C++ objects and python objects correctly handle
+    duplicates in pickling and shelving'''
+    # Check C++
+    e1 = DirectorExample(5, "e1")
+    e1_2 = DirectorExampleNested(5, "e1_2", e1)
+    e1_3 = DirectorExampleNested(5, "e1_3", e1)
+    e1_nest = DirectorPythonExampleNest2(5,6,e1_2,e1_3,"e1_nest")
+    assert e1_nest.obj1.obj.same_object(e1_nest.obj2.obj)
+    # Check python
+    p = PythonObjExample("e2_python")
+    e2_1 = DirectorPythonExampleNest(5,6, p, "e2_1")
+    e2_2 = DirectorPythonExampleNest(5,6, p, "e2_2")
+    e2_nest = DirectorPythonExampleNest2(5,6,e2_1, e2_2, "e2_nest")
+    assert not e2_nest.obj1.same_object(e2_nest.obj2)
+    assert e2_nest.obj1.obj1.same_object(e2_nest.obj2.obj1)
+    
+    # Test pickle C++
+    pickle.dump(e1_nest, open("e1_nest.pkl", "wb"))
+    e1_nest_p = pickle.load(open("e1_nest.pkl", "rb"))
+    assert e1_nest_p.obj1.obj.same_object(e1_nest_p.obj2.obj)
+    
+    # Test pickle python
+    pickle.dump(e2_nest, open("e2_nest.pkl", "wb"))
+    e2_nest_p = pickle.load(open("e2_nest.pkl", "rb"))
+    assert not e2_nest_p.obj1.same_object(e2_nest_p.obj2)
+    assert e2_nest_p.obj1.obj1.same_object(e2_nest_p.obj2.obj1)
+
+    # Test shelve C++
+    write_shelve("e1_nest.xml", e1_nest)
+    e1_nest_s = read_shelve("e1_nest.xml")
+    assert e1_nest_s.obj1.obj.same_object(e1_nest_s.obj2.obj)
+    
+    # Test shelve python
+    write_shelve("e2_nest.xml", e2_nest)
+    e2_nest_s = read_shelve("e2_nest.xml")
+    assert not e2_nest_s.obj1.same_object(e2_nest_s.obj2)
+    assert e2_nest_s.obj1.obj1.same_object(e2_nest_s.obj2.obj1)
+    
 @skip    
 def test_director_example_weak_ptr(isolated_dir, serial):
     m = GenericObjectMap()

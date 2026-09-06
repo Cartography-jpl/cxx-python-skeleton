@@ -17,6 +17,7 @@
 // We also need the shared ptr after the templates, so we override the
 // output type maps for std::vector<boost::shared_ptr<T> >
 %skeleton_shared_ptr(Skeleton::DirectorExample);
+%skeleton_shared_ptr(Skeleton::DirectorExampleNested);
 %skeleton_shared_ptr(Skeleton::DirectorExampleUser);
 %skeleton_shared_ptr(Skeleton::DirectorExampleWeakPtr);
 
@@ -32,12 +33,21 @@ public:
   int value_to_add() const;
   void value_to_add(int v);
   const std::string& name() const;
+  bool same_object(const DirectorExample& obj2) const
+  { return this == &obj2; }
   %pickle_serialization();
 protected:  
   // Only meant for swig serialization
   DirectorExample();
 };
 
+class DirectorExampleNested : public DirectorExample {
+public:
+  DirectorExampleNested(int value_to_add, const std::string& name, const boost::shared_ptr<DirectorExample> Obj);
+  %python_attribute(obj, boost::shared_ptr<DirectorExample>);
+  %pickle_serialization();
+};
+  
 class DirectorExampleWeakPtr : public GenericObject {
 public:
   // See DirectorNotes.md on the used of SHARED_PTR_NO_OWN
@@ -81,6 +91,7 @@ public:
   
 // List of things "import *" will include
 %python_export("DirectorExample", "DirectorExampleUser",
+	       "DirectorExampleNested",
 	       "DirectorExampleWeakPtr",
 	       "Vector_DirectorExample", "Vector_Vector_DirectorExample",
 	       "Vector_Vector_int");
