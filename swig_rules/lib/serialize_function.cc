@@ -256,7 +256,7 @@ void SWIG_MAPPER_NAMESPACE::serialize_write(const std::string& Fname,
 			     const boost::shared_ptr<GenericObject>& Obj)
 {
 #ifdef SWIG_HAVE_BOOST_SERIALIZATION
-  SwigSerializationContextWrapper w;
+  SerializeSessionLock lock;
   mark_pointer(Obj);
   OstreamCompress os(Fname.c_str());
   boost::archive::polymorphic_xml_oarchive oa(os);
@@ -270,8 +270,7 @@ void SWIG_MAPPER_NAMESPACE::serialize_write_binary(const std::string& Fname,
 			     const boost::shared_ptr<GenericObject>& Obj)
 {
 #ifdef SWIG_HAVE_BOOST_SERIALIZATION
-  SwigSerializationContextWrapper w;
-  PtrSerializeLock lock;
+  SerializeSessionLock lock;
   mark_pointer(Obj);
   OstreamCompress os(Fname.c_str());
   boost::archive::polymorphic_binary_oarchive oa(os);
@@ -289,8 +288,7 @@ std::string SWIG_MAPPER_NAMESPACE::serialize_write_string
 (const boost::shared_ptr<GenericObject>& Obj)
 {
 #ifdef SWIG_HAVE_BOOST_SERIALIZATION
-  SwigSerializationContextWrapper w;
-  PtrSerializeLock lock;
+  SerializeSessionLock lock;
   mark_pointer(Obj);
   std::ostringstream os;
   {
@@ -312,8 +310,7 @@ std::string SWIG_MAPPER_NAMESPACE::serialize_write_binary
 (const boost::shared_ptr<GenericObject>& Obj)
 {
 #ifdef SWIG_HAVE_BOOST_SERIALIZATION
-  SwigSerializationContextWrapper w;
-  PtrSerializeLock lock;
+  SerializeSessionLock lock;
   mark_pointer(Obj);
   std::ostringstream os;
   {
@@ -330,7 +327,7 @@ std::string SWIG_MAPPER_NAMESPACE::serialize_write_pickle
 (const boost::shared_ptr<GenericObject>& Obj)
 {
 #ifdef SWIG_HAVE_BOOST_SERIALIZATION
-  PtrSerializeLock lock;
+  SerializeSessionLock lock(/* Create_context = */ false);
   mark_pointer(Obj);
   std::ostringstream os;
   {
@@ -352,7 +349,7 @@ boost::shared_ptr<GenericObject>
 SWIG_MAPPER_NAMESPACE::serialize_read_binary(const std::string& Data)
 {
 #ifdef SWIG_HAVE_BOOST_SERIALIZATION
-  SwigSerializationContextWrapper w;
+  SerializeSessionLock lock;
   std::istringstream is(Data);
   boost::archive::polymorphic_binary_iarchive ia(is);
   boost::shared_ptr<GenericObject> obj;
@@ -367,7 +364,7 @@ boost::shared_ptr<GenericObject>
 SWIG_MAPPER_NAMESPACE::serialize_read_pickle(const std::string& Data)
 {
 #ifdef SWIG_HAVE_BOOST_SERIALIZATION
-  SwigSerializationContextWrapper w;
+  SerializeSessionLock lock;
   std::istringstream is(Data);
   boost::archive::polymorphic_binary_iarchive ia(is);
   boost::shared_ptr<GenericObject> obj;
@@ -400,7 +397,7 @@ boost::shared_ptr<GenericObject>
 SWIG_MAPPER_NAMESPACE::serialize_read_generic(const std::string& Fname)
 {
 #ifdef SWIG_HAVE_BOOST_SERIALIZATION
-  SwigSerializationContextWrapper w;
+  SerializeSessionLock lock;
   IstreamCompress is(Fname.c_str());
   if(!is)
     throw std::runtime_error("Trouble opening file " + Fname);
@@ -422,7 +419,7 @@ boost::shared_ptr<GenericObject>
 SWIG_MAPPER_NAMESPACE::serialize_read_binary_generic(const std::string& Fname)
 {
 #ifdef SWIG_HAVE_BOOST_SERIALIZATION
-  SwigSerializationContextWrapper w;
+  SerializeSessionLock lock;
   IstreamCompress is(Fname.c_str());
   if(!is)
     throw std::runtime_error("Trouble opening file " + Fname);
@@ -449,7 +446,7 @@ boost::shared_ptr<GenericObject>
 SWIG_MAPPER_NAMESPACE::serialize_read_generic_string(const std::string& Data)
 {
 #ifdef SWIG_HAVE_BOOST_SERIALIZATION
-  SwigSerializationContextWrapper w;
+  SerializeSessionLock lock;
   std::istringstream is(Data);
   boost::archive::polymorphic_xml_iarchive ia(is);
   boost::shared_ptr<GenericObject> obj;

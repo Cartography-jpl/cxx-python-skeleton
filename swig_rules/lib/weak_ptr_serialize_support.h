@@ -1,6 +1,7 @@
 #ifndef WEAK_PTR_SERIALIZED_SUPPORT_H
 #define WEAK_PTR_SERIALIZED_SUPPORT_H
 #include "generic_object.h"
+#include "swig_serialization_context.h"
 #include <boost/shared_ptr.hpp>
 #include <boost/weak_ptr.hpp>
 #include <boost/serialization/nvp.hpp>
@@ -10,7 +11,7 @@
   There is a complication in serializing a boost::weak_ptr. Normally
   when you encounter a boost::shared_ptr you want to serialize the
   object, e.g. object A contains a boost:shared_ptr pointing to object
-  B. 
+  B.
 
   boost::weak_ptr on the other hand is a looser connection. It means
   an object A has a reference to access B, but doesn't really "own"
@@ -27,28 +28,28 @@
      boost::shared_ptr. boost has serialization code that does this
      in boost/serialization/weak_ptr.hpp.
 
-  Often neither of these ways are what you want. For example, in 
+  Often neither of these ways are what you want. For example, in
   ReFRACtor we have Pressure, which is Observerable. For case (1)
   we loose all internal connections in something like a ForwardModel,
   objects which need to know then Pressure changes loose that
   connection when we serialize the ForwardModel. On the other hand,
-  we don't want to serialize just a Pressure object and also get the 
+  we don't want to serialize just a Pressure object and also get the
   entire world through a series of pointers. Also there might be
   observers like a logger writing out when Pressure changes that we
   wouldn't want to serialize.
 
   We supply an alternative to the two where we include all weak_ptr
-  to objects that are otherwise included in a serialization. So 
-  from our example, serializing a single Pressure object would have 
+  to objects that are otherwise included in a serialization. So
+  from our example, serializing a single Pressure object would have
   no weak_ptr serialized, while a ForwardModel would have all weak_ptr
   from Pressure to other objects in the ForwardModel, but not to
   object not in ForwardModel.
 
-  This is accomplished by doing the serialization twice. The first 
+  This is accomplished by doing the serialization twice. The first
   time, we mark all the GenericObject  that get serialized. The second
   time, we keep all weak_ptr that point to one of these objects.
 
-  The serialization code needs to "know" to call the 
+  The serialization code needs to "know" to call the
   add_serialized_reference function in this header. This isn't too
   hard in practice, usually only special objects can have weak_ptr to
   them, e.g Observers of a Observable. There is sample code for this
@@ -61,35 +62,23 @@
   Also note that you are not required to use this particular method if it
   doesn't fit your semantics - you can use one of the others supplied
   by boost or create your own way to handle this.
+
+  The pointer-tracking state used here (the mark set, and the lock
+  that makes a mark+write pass atomic wrt other threads) lives on
+  SwigSerializationContext -- see SerializeSessionLock there. The
+  functions below are thin forwarding wrappers kept here so existing
+  serialize() implementations that call add_ptr_serialized_reference
+  directly (see generic_object_sample.cc, director_example.cc) don't
+  need to change.
 *******************************************************************/
 
 namespace SWIG_MAPPER_NAMESPACE {
-  void clear_ptr_serialized_reference();
-  void add_ptr_serialized_reference(const GenericObject* P);
-  bool is_ptr_serialized(const GenericObject* P);
-
-  /// The pointer-tracking state above is process-global and unguarded.
-  /// A serialize_write* call is really a two-pass sequence -- a mark
-  /// pass that populates this state, followed by the real archive
-  /// write that reads it back -- so it isn't enough to lock each
-  /// individual call above; the whole mark+write sequence for one
-  /// object needs to be atomic with respect to other threads doing the
-  /// same. Construct one of these (and hold it for that whole
-  /// sequence) to make concurrent serialize_write* calls from
-  /// different threads safe. RAII: locks in the constructor, unlocks
-  /// in the destructor. Backed by a recursive_mutex because
-  /// serialize_write* can itself recurse on the same thread (e.g. a
-  /// SWIG director object being pickled can trigger another
-  /// serialize_write_binary call on a framework object it holds
-  /// before the outer call finishes); only the outermost lock clears
-  /// the mark state, see clear_ptr_serialized_reference().
-  class PtrSerializeLock {
-  public:
-    PtrSerializeLock();
-    ~PtrSerializeLock();
-    PtrSerializeLock(const PtrSerializeLock&) = delete;
-    PtrSerializeLock& operator=(const PtrSerializeLock&) = delete;
-  };
+  inline void clear_ptr_serialized_reference()
+  { SwigSerializationContext::clear_ptr_serialized_reference(); }
+  inline void add_ptr_serialized_reference(const GenericObject* P)
+  { SwigSerializationContext::add_ptr_serialized_reference(P); }
+  inline bool is_ptr_serialized(const GenericObject* P)
+  { return SwigSerializationContext::is_ptr_serialized(P); }
 }
 
 namespace boost {
@@ -106,7 +95,7 @@ inline void save
   const SWIG_MAPPER_NAMESPACE::GenericObject* ptr = 0;
   if(sp) {
     ptr = dynamic_cast<const SWIG_MAPPER_NAMESPACE::GenericObject*>(sp.get());
-    if(ptr && !SWIG_MAPPER_NAMESPACE::is_ptr_serialized(ptr))
+    if(ptr && !SWIG_MAPPER_NAMESPACE::SwigSerializationContext::is_ptr_serialized(ptr))
       sp.reset();
   }
   ar << boost::serialization::make_nvp("weak_ptr", sp);

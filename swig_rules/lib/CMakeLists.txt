@@ -3,7 +3,6 @@ list(APPEND SWIG_EXTRA_SOURCE_FILES
   ${CMAKE_CURRENT_SOURCE_DIR}/serialize_function.cc
   ${CMAKE_CURRENT_SOURCE_DIR}/swig_serialization_context.cc
   ${CMAKE_CURRENT_SOURCE_DIR}/swig_type_mapper_base.cc
-  ${CMAKE_CURRENT_SOURCE_DIR}/weak_ptr_serialize_support.cc
   )
 list(APPEND SWIG_EXTRA_HEADER_FILES
   ${CMAKE_CURRENT_SOURCE_DIR}/python_exception.h
