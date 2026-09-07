@@ -59,9 +59,9 @@ ALL RIGHTS RESERVED. U.S. Government Sponsorship acknowledged.])
 # The obscure looking tar-pax here sets automake to allow file names longer
 # than 99 characters to be included in the dist tar. See
 # http://noisebleed.blogetery.com/2010/02/27/tar-file-name-is-too-long-max-99/#howtofixit
-AM_INIT_AUTOMAKE([1.9 tar-pax])
+AM_INIT_AUTOMAKE([tar-pax])
 AM_MAINTAINER_MODE
-AC_PROG_LIBTOOL
+LT_INIT
 AC_PROG_CXX
 AC_PROG_LN_S
 AC_COPY_DIR
