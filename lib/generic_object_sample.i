@@ -1,6 +1,3 @@
-// -*- mode: c++; -*-
-// (Not really c++, but closest emacs mode)
-
 %include "skeleton_common.i"
 %{
 #include "generic_object_sample.h"

@@ -483,6 +483,14 @@ class PicklerWithSerializationSupport(pickle.Pickler):
             buffer_callback=buffer_callback,
         )
 
+    def serialization_dumps(self, obj):
+        try:
+            self.file.file_replace = io.BytesIO()
+            self.dump(obj)
+            return self.file.file_replace.getvalue()
+        finally:
+            self.file.file_replace = None
+
 
 class UnpicklerWithSerializationSupport(pickle.Unpickler):
     def __init__(
@@ -497,6 +505,13 @@ class UnpicklerWithSerializationSupport(pickle.Unpickler):
             buffers=buffers,
         )
 
+    def serialization_loads(self, data):
+        try:
+            self.file.file_replace = io.BytesIO(data)
+            return self.load()
+        finally:
+            self.file.file_replace = None
+        
 
 def dump_with_serialization_support(
     obj, file, protocol=None, fix_imports=True, buffer_callback=None
