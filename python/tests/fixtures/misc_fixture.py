@@ -1,5 +1,8 @@
 # Fixtures that don't really fit in one of the other files.
+import contextlib
 import os
+
+import filelock
 import pytest
 
 
@@ -23,3 +26,21 @@ def isolated_dir(tmpdir):
         yield curdir
     finally:
         os.chdir(curdir)
+
+
+@pytest.fixture(scope="session")
+def lock(tmp_path_factory):
+    base_temp = tmp_path_factory.getbasetemp()
+    lock_file = base_temp.parent / "serial.lock"
+    yield filelock.FileLock(lock_file=str(lock_file))
+    with contextlib.suppress(OSError):
+        os.remove(path=lock_file)
+
+
+# Tests with serial all run in serial, needed for our lifetime tests
+# because we have a class level variable to keep track of the number
+# of objects deleted
+@pytest.fixture()
+def serial(lock):
+    with lock.acquire(poll_interval=0.1):
+        yield
