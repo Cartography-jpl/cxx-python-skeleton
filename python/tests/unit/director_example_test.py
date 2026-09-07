@@ -575,12 +575,12 @@ def loads_with_serialization_support(
     return p.load()
 
 
-class TestClass:
+class SampleClass:
     def __init__(self, val):
         self.val = val
 
 
 def test_pickle_with_serialization_support():
-    t = TestClass(5)
+    t = SampleClass(5)
     tp = loads_with_serialization_support(dumps_with_serialization_support(t))
     assert tp.val == t.val
