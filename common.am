@@ -59,6 +59,9 @@ AM_CPPFLAGS=
 INSTALL_DATA_HOOK=
 install-data-hook: $(INSTALL_DATA_HOOK)
 
+INSTALL_EXEC_HOOK=
+install-exec-hook: $(INSTALL_EXEC_HOOK)
+
 UNINSTALL_HOOK=
 uninstall-hook: $(UNINSTALL_HOOK)
 

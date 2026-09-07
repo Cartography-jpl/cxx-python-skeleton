@@ -1,5 +1,5 @@
 from test_support import *
-from skeleton_swig.all import IostreamSwig
+from skeleton import IostreamSwig
 from io import BytesIO
 
 def test_iostream_write():

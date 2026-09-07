@@ -85,9 +85,19 @@ committing (per the comment header in that file).
 **Python tests** (pytest, run from a directory with the environment sourced):
 ```sh
 python/test.sh [pytest-args]                  # sets PYTHONPATH, runs py.test -rxXs --log-cli-level=info
+# e.g. python/test.sh tests/unit/director_example_test.py
 ```
-`make check` runs the python suite in parallel via `pytest -n $(PYTEST_NJOB)` (default 10 workers; override with
-`PYTEST_NJOB=`, extra flags via `PYTEST_EXTRAFLAGS=` e.g. `--instafail` or `--timeout=20`).
+`make check` runs the python suite in parallel via `pytest -n $(PYTEST_NJOB)` against `python/tests` (default 10
+workers; override with `PYTEST_NJOB=`, extra flags via `PYTEST_EXTRAFLAGS=` e.g. `--instafail` or `--timeout=20`).
+
+The pure-python side of `python/` is laid out like a normal pip package rather than being listed file-by-file
+in `.am` files: source lives in `python/skeleton/` (the importable `skeleton` package — glob-imports its own
+`*.py` siblings plus `from skeleton_swig.all import *`), and tests live in `python/tests/` (`unit/` for the test
+files, `fixtures/` for pytest fixtures wired in via `tests/conftest.py`'s `pytest_plugins`). `python/setup.py` +
+`python/pyproject.toml` make `skeleton` pip-installable (`INSTALL_EXEC_HOOK` in `python.am` runs
+`pip install --prefix=@prefix@ python` as part of `make install`); `python/Makefile` has dev-convenience
+targets (`install`, `check`, `lint`, `format`, `mypy`) for working on the python code directly with pip/pytest
+instead of going through the top-level autotools build.
 
 ## Architecture: how SWIG wrapping is wired up
 
@@ -131,7 +141,7 @@ anything related to directors, shared_ptr, or weak_ptr in SWIG code. Summary:
   shared_ptr hits refcount 0 even though the object is still alive via python). The `SHARED_PTR_NO_OWN`
   typemap trick exists specifically to get the shared_ptr backing a `weak_ptr` without breaking ownership —
   never persist a `SHARED_PTR_NO_OWN` value into a long-lived `shared_ptr` (this can segfault by design).
-- `lib/director_example.{h,cc,i}` and `python/lib/director_example_test.py` are the reference example/test
+- `lib/director_example.{h,cc,i}` and `python/tests/unit/director_example_test.py` are the reference example/test
   for this behavior — look here first when debugging a director lifetime issue.
 - Recent history on this repo (see `git log`) has been about python exception propagation through directors
   (an exception thrown from a python override of a C++ virtual method) — when C++ calls into a director that

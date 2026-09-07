@@ -1,9 +1,12 @@
-skeletonpkgpython_PYTHON = @srcpython@/init/__init__.py
-# Backdoor rule to do a quick install when we are just varying python
-install-python-skeleton: install-skeletonpkgpythonPYTHON install-dist_skeletonpkgpythonDATA install-dist_binSCRIPTS install-pynitf
+# The skeleton python package is installed via pip rather than being
+# listed file by file here - see python/setup.py and python/pyproject.toml.
+python-install:
+	$(PYTHON) -m pip install --prefix=@prefix@ $(srcdir)/@srcpython@
 
-EXTRA_DIST+=@srcpython@/pytest.ini
-EXTRA_DIST+=@srcpython@/conftest.py
+INSTALL_EXEC_HOOK+= python-install
+
+# Backdoor rule to do a quick install when we are just varying python
+install-python-skeleton: python-install
 
 # Make sure we don't have any pyc or pycache files floating around
 DIST_HOOK += dist-clean-up-python
@@ -23,10 +26,8 @@ PYTEST_FLAGS= -q -n $(PYTEST_NJOB)
 
 python-check: script/setup_skeleton.sh
 	source $< && \
-        $(PYTEST) $(PYTEST_FLAGS) $(PYTEST_EXTRAFLAGS) $(srcdir)/@srcpython@ $(EXTRA_PYTHON_TEST)
+        $(PYTEST) $(PYTEST_FLAGS) $(PYTEST_EXTRAFLAGS) $(srcdir)/@srcpython@/tests $(EXTRA_PYTHON_TEST)
 
 INSTALLCHECK_HOOK+= python-check
 
-include python/lib/lib.am
 include python/bin/bin.am
-include python/test_support/test_support.am

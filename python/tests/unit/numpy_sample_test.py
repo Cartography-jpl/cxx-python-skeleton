@@ -1,5 +1,5 @@
 from test_support import *
-from skeleton_swig.all import NumpySample
+from skeleton import NumpySample
 import numpy as np
 
 # Note that these tests should be run with valgrind, otherwise we don't know
@@ -8,7 +8,7 @@ import numpy as np
 # A nice way to run this is with --free-fill=0xff in valgrind, so it forces
 # the tests to fail (since the values get changed). Something like:
 #
-# PYTHONPATH=`pwd`:${PYTHONPATH} valgrind --log-file=valgrind.out --free-fill=0xff python `which py.test` -s lib/numpy_sample_test.py
+# PYTHONPATH=`pwd`:${PYTHONPATH} valgrind --log-file=valgrind.out --free-fill=0xff python `which py.test` -s tests/unit/numpy_sample_test.py
 #
 # Note that python has lots and lots of things that valgrind hates. You should
 # ignore all of this - it is optimization stuff that the python code writers

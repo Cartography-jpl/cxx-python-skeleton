@@ -673,9 +673,7 @@ swigsrc
 pythonswigsrc
 srccython
 srcpythonbin
-srcpythonlib
 srclib
-testsupportsrc
 srcpython
 srcscript
 swigrules
@@ -24852,11 +24850,7 @@ srcscript=script
 
 srcpython=python
 
-testsupportsrc=python/test_support
-
 srclib=lib
-
-srcpythonlib=${srcpython}/lib
 
 srcpythonbin=${srcpython}/bin
 

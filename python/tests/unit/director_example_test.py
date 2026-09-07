@@ -1,4 +1,4 @@
-from .swig_shelve import read_shelve, write_shelve
+from skeleton import read_shelve, write_shelve
 from test_support import *
 import pickle
 import sys
@@ -97,9 +97,15 @@ class DirectorPythonExampleBadPickle(DirectorPythonExample):
         self.fh = tempfile.TemporaryFile()
             
 def test_director_example(serial):
-    print("May want to valgrind this, to make sure we have lifetime etc. ok with memory usage.")
-    print("Do this with PYTHONMALLOC=malloc valgrind $(which python) $(which pytest) -s lib/director_example_test.py")
-    print("(Note PYTHONMALLOC is important, otherwise you get a ton of spurious errors)")
+    print(
+        "May want to valgrind this, to make sure we have lifetime etc. ok with memory usage."
+    )
+    print(
+        "Do this with PYTHONMALLOC=malloc valgrind $(which python) $(which pytest) -s tests/unit/director_example_test.py"
+    )
+    print(
+        "(Note PYTHONMALLOC is important, otherwise you get a ton of spurious errors)"
+    )
     DirectorPythonExample.deleted_list.clear()
     e1 = DirectorExample(5, "e1")
     assert e1.func(10) == 5+10
@@ -174,9 +180,15 @@ def test_director_example(serial):
     print("All Done", flush=True)
 
 def test_director_pickle_shelve(isolated_dir, serial):
-    print("May want to valgrind this, to make sure we have lifetime etc. ok with memory usage.")
-    print("Do this with PYTHONMALLOC=malloc valgrind $(which python) $(which pytest) -s lib/director_example_test.py")
-    print("(Note PYTHONMALLOC is important, otherwise you get a ton of spurious errors)")
+    print(
+        "May want to valgrind this, to make sure we have lifetime etc. ok with memory usage."
+    )
+    print(
+        "Do this with PYTHONMALLOC=malloc valgrind $(which python) $(which pytest) -s tests/unit/director_example_test.py"
+    )
+    print(
+        "(Note PYTHONMALLOC is important, otherwise you get a ton of spurious errors)"
+    )
     e1 = DirectorExample(5, "e1")
     assert e1.func(10) == 5+10
     # This is tiny, but go ahead and compress just to test the interface
