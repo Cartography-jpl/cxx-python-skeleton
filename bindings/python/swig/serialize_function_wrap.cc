@@ -6598,6 +6598,57 @@ fail:
 }
 
 
+SWIGINTERN PyObject *_wrap_serialize_read_binary_generic(PyObject *self, PyObject *args) {
+  PyObject *resultobj = 0;
+  std::string *arg1 = 0 ;
+  int res1 = SWIG_OLDOBJ ;
+  PyObject *swig_obj[1] ;
+  boost::shared_ptr< Skeleton::GenericObject > result;
+  
+  (void)self;
+  if (!args) SWIG_fail;
+  swig_obj[0] = args;
+  {
+    std::string *ptr = (std::string *)0;
+    res1 = SWIG_AsPtr_std_string(swig_obj[0], &ptr);
+    if (!SWIG_IsOK(res1)) {
+      SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "serialize_read_binary_generic" "', argument " "1"" of type '" "std::string const &""'"); 
+    }
+    if (!ptr) {
+      SWIG_exception_fail(SWIG_NullReferenceError, "invalid null reference " "in method '" "serialize_read_binary_generic" "', argument " "1"" of type '" "std::string const &""'"); 
+    }
+    arg1 = ptr;
+  }
+  {
+    try {
+      result = Skeleton::serialize_read_binary_generic((std::string const &)*arg1);
+    } catch (Swig::DirectorException &e) {
+      SWIG_fail;
+    } catch (const PythonException& e) {
+      e.restore_python_exception();
+      SWIG_fail;
+    } catch (const std::exception& e) {
+      SWIG_exception(SWIG_RuntimeError, e.what());
+    } catch (...) {
+      // Anything not derived from std::exception (a raw type, a
+      // third-party exception hierarchy that doesn't inherit
+      // std::exception, etc.) would otherwise propagate across the
+      // extern "C" boundary into CPython -- undefined behavior, in
+      // practice a process abort rather than a clean Python exception.
+      SWIG_exception(SWIG_RuntimeError, "unknown C++ exception");
+    }
+  }
+  {
+    resultobj = Skeleton::swig_to_python_or_none(result);
+  }
+  if (SWIG_IsNewObj(res1)) delete arg1;
+  return resultobj;
+fail:
+  if (SWIG_IsNewObj(res1)) delete arg1;
+  return NULL;
+}
+
+
 SWIGINTERN PyObject *_wrap_serialize_write_binary(PyObject *self, PyObject *args) {
   PyObject *resultobj = 0;
   boost::shared_ptr< Skeleton::GenericObject > *arg1 = 0 ;
@@ -7003,6 +7054,7 @@ static PyMethodDef SwigMethods[] = {
 	 { "serialize_write_string", _wrap_serialize_write_string, METH_O, NULL},
 	 { "serialize_read_generic", _wrap_serialize_read_generic, METH_O, NULL},
 	 { "serialize_read_generic_string", _wrap_serialize_read_generic_string, METH_O, NULL},
+	 { "serialize_read_binary_generic", _wrap_serialize_read_binary_generic, METH_O, NULL},
 	 { "serialize_write_binary", _wrap_serialize_write_binary, METH_O, NULL},
 	 { "serialize_write_pickle", _wrap_serialize_write_pickle, METH_O, NULL},
 	 { "serialize_read_binary", _wrap_serialize_read_binary, METH_O, NULL},
@@ -7040,6 +7092,7 @@ static PyMethodDef SwigMethods_proxydocs[] = {
 	 { "serialize_write_string", _wrap_serialize_write_string, METH_O, NULL},
 	 { "serialize_read_generic", _wrap_serialize_read_generic, METH_O, NULL},
 	 { "serialize_read_generic_string", _wrap_serialize_read_generic_string, METH_O, NULL},
+	 { "serialize_read_binary_generic", _wrap_serialize_read_binary_generic, METH_O, NULL},
 	 { "serialize_write_binary", _wrap_serialize_write_binary, METH_O, NULL},
 	 { "serialize_write_pickle", _wrap_serialize_write_pickle, METH_O, NULL},
 	 { "serialize_read_binary", _wrap_serialize_read_binary, METH_O, NULL},

@@ -127,6 +127,7 @@ serialize_write = _serialize_function.serialize_write
 serialize_write_string = _serialize_function.serialize_write_string
 serialize_read_generic = _serialize_function.serialize_read_generic
 serialize_read_generic_string = _serialize_function.serialize_read_generic_string
+serialize_read_binary_generic = _serialize_function.serialize_read_binary_generic
 serialize_write_binary = _serialize_function.serialize_write_binary
 serialize_write_pickle = _serialize_function.serialize_write_pickle
 serialize_read_binary = _serialize_function.serialize_read_binary
@@ -143,17 +144,239 @@ class SerializeSessionLock(object):
 # Register SerializeSessionLock in _serialize_function:
 _serialize_function.SerializeSessionLock_swigregister(SerializeSessionLock)
 
-class PickleWithSwigSupport:
-    '''Pickle, with extra support for working with Swig objects.'''
-    def __enter__(self):
-       self.lock = SerializeSessionLock()
-       return self
+import pickle
 
-    def __exit__(self, exc_type, exc_val, exc_tb):
-       self.lock.clear()
-       return False
+class FileSwap:
+    """When we do pickling combined with boost serialization, we have
+    different places where the pickle information comes from. There can
+    be a straight file, and then data passed from boost serialization. However
+    pickle.Pickler and pickle.Unpickler isn't set up to tame multiple streams.
+    So we make this look like one stream. We do this by allowing the file
+    handle to be replaced."""
+
+    def __init__(self, file_base):
+        self.file_base = file_base
+        self.file_replace = None
+
+    def read(self, size=-1):
+        if self.file_replace is None:
+            return self.file_base.read(size)
+        return self.file_replace.read(size)
+
+    def readinto(self, b):
+        if self.file_replace is None:
+            return self.file_base.readinto(b)
+        return self.file_replace.readinto(b)
+
+    def readline(self):
+        if self.file_replace is None:
+            return self.file_base.readline()
+        return self.file_replace.readline()
+
+    def write(self, b):
+        if self.file_replace is None:
+            return self.file_base.write(b)
+        return self.file_replace.write(b)
 
 
-__all__ = ["have_serialize_supported","serialize_write","serialize_write_string","serialize_read_generic","serialize_read_generic_string","serialize_write_binary","serialize_read_binary","PickleWithSwigSupport"]
+class PicklerWithSerializationSupport(pickle.Pickler):
+    '''Because we need to pass between C++ and python (e.g., a python
+       object contains a director with C++ code that has been derived
+       in python and has python objects) we need special handling to
+       pass between python pickle and boost serialization. We
+       automatically handle this if you are reading or writing a
+       shelve file (e.g., a pressure.xml or something like that).
+
+       However, we need extra handling for pickling a python object
+       that may contain a Director. We have a specialization of
+       pickle.Pickler called PicklerWithSerializationSupport and
+       pickle.Unpickler called UnpicklerWithSerializationSupport. This
+       is the standard way python has for handling special
+       picklization code. As a convenience, this package also has a
+       version of dump, dumps, load, and loads that used these pickler
+       objects, just like pickle.dump is a shortcut for using
+       pickle.Pickler. You can either use the Pickler classes
+       directly, or through these short cut functions.
+    '''
+
+    def __init__(self, file, protocol=None, fix_imports=True, buffer_callback=None):
+        self.file = FileSwap(file)
+        super().__init__(
+            self.file,
+            protocol=protocol,
+            fix_imports=fix_imports,
+            buffer_callback=buffer_callback,
+        )
+
+    def serialization_dumps(self, obj):
+        import io
+        try:
+            self.file.file_replace = io.BytesIO()
+            self.dump(obj)
+            return self.file.file_replace.getvalue()
+        finally:
+            self.file.file_replace = None
+
+
+class UnpicklerWithSerializationSupport(pickle.Unpickler):
+    '''Because we need to pass between C++ and python (e.g., a python
+       object contains a director with C++ code that has been derived
+       in python and has python objects) we need special handling to
+       pass between python pickle and boost serialization. We
+       automatically handle this if you are reading or writing a
+       shelve file (e.g., a pressure.xml or something like that).
+
+       However, we need extra handling for pickling a python object
+       that may contain a Director. We have a specialization of
+       pickle.Pickler called PicklerWithSerializationSupport and
+       pickle.Unpickler called UnpicklerWithSerializationSupport. This
+       is the standard way python has for handling special
+       picklization code. As a convenience, this package also has a
+       version of dump, dumps, load, and loads that used these pickler
+       objects, just like pickle.dump is a shortcut for using
+       pickle.Pickler. You can either use the Pickler classes
+       directly, or through these short cut functions.
+    '''
+    def __init__(
+        self, file, fix_imports=True, encoding="ASCII", errors="strict", buffers=None
+    ):
+        self.file = FileSwap(file)
+        super().__init__(
+            self.file,
+            fix_imports=fix_imports,
+            encoding=encoding,
+            errors=errors,
+            buffers=buffers,
+        )
+
+    def serialization_loads(self, data):
+        import io
+        try:
+            self.file.file_replace = io.BytesIO(data)
+            return self.load()
+        finally:
+            self.file.file_replace = None
+
+
+def dump(
+    obj, file, protocol=None, fix_imports=True, buffer_callback=None
+):
+    '''Because we need to pass between C++ and python (e.g., a python
+       object contains a director with C++ code that has been derived
+       in python and has python objects) we need special handling to
+       pass between python pickle and boost serialization. We
+       automatically handle this if you are reading or writing a
+       shelve file (e.g., a pressure.xml or something like that).
+
+       However, we need extra handling for pickling a python object
+       that may contain a Director. We have a specialization of
+       pickle.Pickler called PicklerWithSerializationSupport and
+       pickle.Unpickler called UnpicklerWithSerializationSupport. This
+       is the standard way python has for handling special
+       picklization code. As a convenience, this package also has a
+       version of dump, dumps, load, and loads that used these pickler
+       objects, just like pickle.dump is a shortcut for using
+       pickle.Pickler. You can either use the Pickler classes
+       directly, or through these short cut functions.
+    '''
+    p = PicklerWithSerializationSupport(
+        file,
+        protocol=protocol,
+        fix_imports=fix_imports,
+        buffer_callback=buffer_callback,
+    )
+    p.dump(obj)
+
+
+def dumps(
+    obj, protocol=None, fix_imports=True, buffer_callback=None
+):
+    '''Because we need to pass between C++ and python (e.g., a python
+       object contains a director with C++ code that has been derived
+       in python and has python objects) we need special handling to
+       pass between python pickle and boost serialization. We
+       automatically handle this if you are reading or writing a
+       shelve file (e.g., a pressure.xml or something like that).
+
+       However, we need extra handling for pickling a python object
+       that may contain a Director. We have a specialization of
+       pickle.Pickler called PicklerWithSerializationSupport and
+       pickle.Unpickler called UnpicklerWithSerializationSupport. This
+       is the standard way python has for handling special
+       picklization code. As a convenience, this package also has a
+       version of dump, dumps, load, and loads that used these pickler
+       objects, just like pickle.dump is a shortcut for using
+       pickle.Pickler. You can either use the Pickler classes
+       directly, or through these short cut functions.
+    '''
+    import io
+    file = io.BytesIO()
+    p = PicklerWithSerializationSupport(
+        file,
+        protocol=protocol,
+        fix_imports=fix_imports,
+        buffer_callback=buffer_callback,
+    )
+    p.dump(obj)
+    return file.getvalue()
+
+
+def load(
+    file, fix_imports=True, encoding="ASCII", errors="strict", buffers=None
+):
+    '''Because we need to pass between C++ and python (e.g., a python
+       object contains a director with C++ code that has been derived
+       in python and has python objects) we need special handling to
+       pass between python pickle and boost serialization. We
+       automatically handle this if you are reading or writing a
+       shelve file (e.g., a pressure.xml or something like that).
+
+       However, we need extra handling for pickling a python object
+       that may contain a Director. We have a specialization of
+       pickle.Pickler called PicklerWithSerializationSupport and
+       pickle.Unpickler called UnpicklerWithSerializationSupport. This
+       is the standard way python has for handling special
+       picklization code. As a convenience, this package also has a
+       version of dump, dumps, load, and loads that used these pickler
+       objects, just like pickle.dump is a shortcut for using
+       pickle.Pickler. You can either use the Pickler classes
+       directly, or through these short cut functions.
+    '''
+    p = UnpicklerWithSerializationSupport(
+        file, fix_imports=fix_imports, encoding=encoding, errors=errors, buffers=None
+    )
+    return p.load()
+
+
+def loads(
+    data, fix_imports=True, encoding="ASCII", errors="strict", buffers=None
+):
+    '''Because we need to pass between C++ and python (e.g., a python
+       object contains a director with C++ code that has been derived
+       in python and has python objects) we need special handling to
+       pass between python pickle and boost serialization. We
+       automatically handle this if you are reading or writing a
+       shelve file (e.g., a pressure.xml or something like that).
+
+       However, we need extra handling for pickling a python object
+       that may contain a Director. We have a specialization of
+       pickle.Pickler called PicklerWithSerializationSupport and
+       pickle.Unpickler called UnpicklerWithSerializationSupport. This
+       is the standard way python has for handling special
+       picklization code. As a convenience, this package also has a
+       version of dump, dumps, load, and loads that used these pickler
+       objects, just like pickle.dump is a shortcut for using
+       pickle.Pickler. You can either use the Pickler classes
+       directly, or through these short cut functions.
+    '''
+    import io
+    file = io.BytesIO(data)
+    p = UnpicklerWithSerializationSupport(
+        file, fix_imports=fix_imports, encoding=encoding, errors=errors, buffers=None
+    )
+    return p.load()
+
+
+__all__ = ["have_serialize_supported","serialize_write","serialize_write_string","serialize_read_generic","serialize_read_generic_string","serialize_write_binary","serialize_read_binary","serialize_read_binary_generic","PicklerWithSerializationSupport","UnpicklerWithSerializationSupport","dump","dumps","load","loads"]
 
 

@@ -14,11 +14,13 @@ from skeleton import (
     DirectorExampleUser,
     DirectorExampleWeakPtr,
     GenericObjectMap,
-    PickleWithSwigSupport,
+    PicklerWithSerializationSupport,
+    UnpicklerWithSerializationSupport,
     Vector_DirectorExample,
     read_shelve,
     write_shelve,
 )
+import skeleton
 
 # For testing, this calls the low level python c API for decreasing the reference
 # count. Can use to try to sort out issues with lifetime
@@ -456,131 +458,23 @@ def test_director_example_weak_ptr(isolated_dir, serial):
     assert c.use_count() == 0
     assert c.a() is None
 
-
-class FileSwap:
-    """When we do pickling combined with boost serialization, we have
-    different places where the pickle information comes from. There can
-    be a straight file, and then data passed from boost serialization. However
-    pickle.Pickler and pickle.Unpickler isn't set up to tame multiple streams.
-    So we make this look like one stream. We do this by allowing the file
-    handle to be replaced."""
-
-    def __init__(self, file_base):
-        self.file_base = file_base
-        self.file_replace = None
-
-    def read(self, size=-1):
-        if self.file_replace is None:
-            return self.file_base.read(size)
-        return self.file_replace.read(size)
-
-    def readinto(self, b):
-        if self.file_replace is None:
-            return self.file_base.readinto(b)
-        return self.file_replace.readinto(b)
-
-    def readline(self):
-        if self.file_replace is None:
-            return self.file_base.readline()
-        return self.file_replace.readline()
-
-    def write(self, b):
-        if self.file_replace is None:
-            return self.file_base.write(b)
-        return self.file_replace.write(b)
-
-
-class PicklerWithSerializationSupport(pickle.Pickler):
-    def __init__(self, file, protocol=None, fix_imports=True, buffer_callback=None):
-        self.file = FileSwap(file)
-        super().__init__(
-            self.file,
-            protocol=protocol,
-            fix_imports=fix_imports,
-            buffer_callback=buffer_callback,
-        )
-
-    def serialization_dumps(self, obj):
-        try:
-            self.file.file_replace = io.BytesIO()
-            self.dump(obj)
-            return self.file.file_replace.getvalue()
-        finally:
-            self.file.file_replace = None
-
-
-class UnpicklerWithSerializationSupport(pickle.Unpickler):
-    def __init__(
-        self, file, fix_imports=True, encoding="ASCII", errors="strict", buffers=None
-    ):
-        self.file = FileSwap(file)
-        super().__init__(
-            self.file,
-            fix_imports=fix_imports,
-            encoding=encoding,
-            errors=errors,
-            buffers=buffers,
-        )
-
-    def serialization_loads(self, data):
-        try:
-            self.file.file_replace = io.BytesIO(data)
-            return self.load()
-        finally:
-            self.file.file_replace = None
-
-
-def dump_with_serialization_support(
-    obj, file, protocol=None, fix_imports=True, buffer_callback=None
-):
-    p = PicklerWithSerializationSupport(
-        file,
-        protocol=protocol,
-        fix_imports=fix_imports,
-        buffer_callback=buffer_callback,
-    )
-    p.dump(obj)
-
-
-def dumps_with_serialization_support(
-    obj, protocol=None, fix_imports=True, buffer_callback=None
-):
-    file = io.BytesIO()
-    p = PicklerWithSerializationSupport(
-        file,
-        protocol=protocol,
-        fix_imports=fix_imports,
-        buffer_callback=buffer_callback,
-    )
-    p.dump(obj)
-    return file.getvalue()
-
-
-def load_with_serialization_support(
-    file, fix_imports=True, encoding="ASCII", errors="strict", buffers=None
-):
-    p = UnpicklerWithSerializationSupport(
-        file, fix_imports=fix_imports, encoding=encoding, errors=errors, buffers=None
-    )
-    return p.load()
-
-
-def loads_with_serialization_support(
-    data, fix_imports=True, encoding="ASCII", errors="strict", buffers=None
-):
-    file = io.BytesIO(data)
-    p = UnpicklerWithSerializationSupport(
-        file, fix_imports=fix_imports, encoding=encoding, errors=errors, buffers=None
-    )
-    return p.load()
-
-
 class SampleClass:
     def __init__(self, val):
         self.val = val
 
-
-def test_pickle_with_serialization_support():
+def test_pickle_with_serialization_support(isolated_dir):
     t = SampleClass(5)
-    tp = loads_with_serialization_support(dumps_with_serialization_support(t))
+    tp = skeleton.loads(skeleton.dumps(t))
     assert tp.val == t.val
+    with open("sample.pkl", "wb") as fh:
+        p = PicklerWithSerializationSupport(fh)
+        p.dump(t)
+        sdump = p.serialization_dumps(t)
+    with open("sample.pkl", "rb") as fh:
+        up = UnpicklerWithSerializationSupport(fh)
+        tp = up.load()
+        tp2 = up.serialization_loads(sdump)
+    assert tp.val == t.val
+    assert tp2.val == t.val
+    assert id(t) != id(tp)
+    assert id(tp) == id(tp2)
