@@ -327,7 +327,6 @@ std::string SWIG_MAPPER_NAMESPACE::serialize_write_pickle
 (const boost::shared_ptr<GenericObject>& Obj)
 {
 #ifdef SWIG_HAVE_BOOST_SERIALIZATION
-  SerializeSessionLock lock(/* Create_context = */ false);
   mark_pointer(Obj);
   std::ostringstream os;
   {
@@ -364,7 +363,6 @@ boost::shared_ptr<GenericObject>
 SWIG_MAPPER_NAMESPACE::serialize_read_pickle(const std::string& Data)
 {
 #ifdef SWIG_HAVE_BOOST_SERIALIZATION
-  SerializeSessionLock lock;
   std::istringstream is(Data);
   boost::archive::polymorphic_binary_iarchive ia(is);
   boost::shared_ptr<GenericObject> obj;

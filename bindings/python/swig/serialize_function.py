@@ -131,7 +131,29 @@ serialize_write_binary = _serialize_function.serialize_write_binary
 serialize_write_pickle = _serialize_function.serialize_write_pickle
 serialize_read_binary = _serialize_function.serialize_read_binary
 serialize_read_pickle = _serialize_function.serialize_read_pickle
+class SerializeSessionLock(object):
+    thisown = property(lambda x: x.this.own(), lambda x, v: x.this.own(v), doc="The membership flag")
+    __repr__ = _swig_repr
 
-__all__ = ["have_serialize_supported","serialize_write","serialize_write_string","serialize_read_generic","serialize_read_generic_string","serialize_write_binary","serialize_read_binary"]
+    def __init__(self):
+        _serialize_function.SerializeSessionLock_swiginit(self, _serialize_function.new_SerializeSessionLock())
+    clear = _swig_new_instance_method(_serialize_function.SerializeSessionLock_clear)
+    __swig_destroy__ = _serialize_function.delete_SerializeSessionLock
+
+# Register SerializeSessionLock in _serialize_function:
+_serialize_function.SerializeSessionLock_swigregister(SerializeSessionLock)
+
+class PickleWithSwigSupport:
+    '''Pickle, with extra support for working with Swig objects.'''
+    def __enter__(self):
+       self.lock = SerializeSessionLock()
+       return self
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+       self.lock.clear()
+       return False
+
+
+__all__ = ["have_serialize_supported","serialize_write","serialize_write_string","serialize_read_generic","serialize_read_generic_string","serialize_write_binary","serialize_read_binary","PickleWithSwigSupport"]
 
 

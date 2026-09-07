@@ -4,6 +4,7 @@
 %include "skeleton_common.i"
 %{
 #include "serialize_function.h"
+#include "swig_serialization_context.h"  
 %}
 %import "generic_object.i"
 
@@ -37,6 +38,7 @@ serialize_read_generic_string(const std::string& Data);
   delete $1;
 }
 
+%skeleton_shared_ptr(Skeleton::SerializeSessionLock);
 namespace Skeleton {
 std::string serialize_write_binary(const boost::shared_ptr<GenericObject>& Obj);
 
@@ -48,7 +50,24 @@ serialize_read_binary(const std::string& Data);
 boost::shared_ptr<GenericObject> 
 serialize_read_pickle(const std::string& Data);
   
+class SerializeSessionLock : public GenericObject {
+public:
+  SerializeSessionLock();
+  void clear();
+};
 }
 
+%pythoncode %{
+class PickleWithSwigSupport:
+    '''Pickle, with extra support for working with Swig objects.'''
+    def __enter__(self):
+       self.lock = SerializeSessionLock()
+       return self
+  
+    def __exit__(self, exc_type, exc_val, exc_tb):
+       self.lock.clear()
+       return False
+%}
+
 // List of things "import *" will include
-%python_export("have_serialize_supported","serialize_write","serialize_write_string","serialize_read_generic","serialize_read_generic_string","serialize_write_binary","serialize_read_binary")
+%python_export("have_serialize_supported","serialize_write","serialize_write_string","serialize_read_generic","serialize_read_generic_string","serialize_write_binary","serialize_read_binary", "PickleWithSwigSupport")

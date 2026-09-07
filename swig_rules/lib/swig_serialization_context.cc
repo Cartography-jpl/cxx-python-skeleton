@@ -1,12 +1,12 @@
 #include "swig_serialization_context.h"
 #include <boost/make_shared.hpp>
+#include <stdexcept>
 
 using namespace SWIG_MAPPER_NAMESPACE;
 
 boost::shared_ptr<SwigSerializationContext> SwigSerializationContext::instance;
-std::recursive_mutex SwigSerializationContext::mutex_;
+std::mutex SwigSerializationContext::mutex_;
 std::set<const GenericObject*> SwigSerializationContext::ptr_referenced;
-thread_local int SwigSerializationContext::depth = 0;
 
 void SwigSerializationContext::create_singleton()
 {
@@ -54,19 +54,15 @@ bool SwigSerializationContext::is_ptr_serialized(const GenericObject* P)
   return ptr_referenced.find(P) != ptr_referenced.end();
 }
 
-SerializeSessionLock::SerializeSessionLock(bool Create_context)
-  : create_context(Create_context)
+SerializeSessionLock::SerializeSessionLock()
 {
+  if(SwigSerializationContext::have_instance())
+    throw std::runtime_error("Can only have one instance of SerializeSessionLock at a time");
   SwigSerializationContext::mutex_.lock();
-  ++SwigSerializationContext::depth;
-  if (create_context)
-    SwigSerializationContext::create_singleton();
+  SwigSerializationContext::create_singleton();
 }
 
 SerializeSessionLock::~SerializeSessionLock()
 {
-  if (create_context)
-    SwigSerializationContext::destroy_singleton();
-  --SwigSerializationContext::depth;
-  SwigSerializationContext::mutex_.unlock();
+  clear();
 }

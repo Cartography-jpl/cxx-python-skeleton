@@ -42,7 +42,7 @@ public:
   static void clear_ptr_serialized_reference();
   static void add_ptr_serialized_reference(const GenericObject* P);
   static bool is_ptr_serialized(const GenericObject* P);
-
+  static bool have_instance() { return bool(instance); }
 private:
   static void create_singleton();
   static void destroy_singleton();
@@ -51,13 +51,9 @@ private:
   static boost::shared_ptr<SwigSerializationContext> instance;
 
   /// Guards both the singleton pointer above and the pointer-mark
-  /// state below. Recursive because a serialize_write* call can
-  /// recurse on the same thread (e.g. a SWIG director object being
-  /// pickled can trigger another serialize_write_binary call on a
-  /// framework object it holds before the outer call finishes).
-  static std::recursive_mutex mutex_;
+  /// state below.
+  static std::mutex mutex_;
   static std::set<const GenericObject*> ptr_referenced;
-  static thread_local int depth;
 };
 
 /****************************************************************//**
@@ -74,14 +70,18 @@ private:
   context is managed by an outer call already).
 *******************************************************************/
 
-class SerializeSessionLock {
+class SerializeSessionLock : public GenericObject {
 public:
-  explicit SerializeSessionLock(bool Create_context = true);
-  ~SerializeSessionLock();
+  explicit SerializeSessionLock();
+  virtual ~SerializeSessionLock();
+  void clear() {
+    if(SwigSerializationContext::have_instance()) {
+      SwigSerializationContext::destroy_singleton();
+      SwigSerializationContext::mutex_.unlock();
+    }
+  }
   SerializeSessionLock(const SerializeSessionLock&) = delete;
   SerializeSessionLock& operator=(const SerializeSessionLock&) = delete;
-private:
-  bool create_context;
 };
 }
 #endif

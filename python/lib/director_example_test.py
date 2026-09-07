@@ -5,6 +5,7 @@ import sys
 import gc
 import ctypes
 import tempfile
+import io
 
 # For testing, this calls the low level python c API for decreasing the reference
 # count. Can use to try to sort out issues with lifetime
@@ -29,27 +30,29 @@ class DirectorPythonExample(DirectorExample):
     def print_ref_count(self):
         # We have an extra 2 counts because this got passed as an
         # arg to getrefcount, and we got this as a arg.
-        print(f"Ref count {self.name()} {sys.getrefcount(self)-2}")
-        
+        print(f"Ref count {self.name()} {sys.getrefcount(self) - 2}")
+
     def func(self, v):
         return super().func(v) + 2 * self.v2
 
     def desc(self):
-        '''Description to print for this object.'''
-        return f'''DirectorPythonExample:
-   name:                { self.name() }
-   ref_count:           { sys.getrefcount(self)-2 }
-   value_to_add:        { self.value_to_add() }
-   value_to_double_add: {self.v2}'''
+        """Description to print for this object."""
+        return f"""DirectorPythonExample:
+   name:                {self.name()}
+   ref_count:           {sys.getrefcount(self) - 2}
+   value_to_add:        {self.value_to_add()}
+   value_to_double_add: {self.v2}"""
 
     def print_obj():
-        '''Print a list of active DirectorPythonExample, and the first one if it
-        exists. Useful when sorting through lifetimes issues.'''
-        olist = [obj for obj in gc.get_objects() if isinstance(obj, DirectorPythonExample)]
+        """Print a list of active DirectorPythonExample, and the first one if it
+        exists. Useful when sorting through lifetimes issues."""
+        olist = [
+            obj for obj in gc.get_objects() if isinstance(obj, DirectorPythonExample)
+        ]
         print(f"Found in active objects: {olist}", flush=True)
-        if(len(olist) > 0):
+        if len(olist) > 0:
             print("First object in active objects:")
-            if(olist[0].this is not None):
+            if olist[0].this is not None:
                 print(olist[0])
                 print(gc.get_referents(olist[0].this), flush=True)
                 print(sys.getrefcount(olist[0].this))
@@ -58,10 +61,12 @@ class DirectorPythonExample(DirectorExample):
             print("Stuff referring to this:")
             print(gc.get_referents(olist[0]), flush=True)
 
+
 class DirectorPythonExampleWithException(DirectorPythonExample):
     def func(self, v):
         raise RuntimeError("Error, check if propagate")
         return super().func(v) + 2 * self.v2
+
 
 class DirectorPythonExampleNest(DirectorPythonExample):
     def __init__(self, v1, v2, obj1, obname):
@@ -71,6 +76,7 @@ class DirectorPythonExampleNest(DirectorPythonExample):
         self.obj1_dup = obj1
         print(f"Creating Python {self.name()}", flush=True)
 
+
 class DirectorPythonExampleNest2(DirectorPythonExample):
     def __init__(self, v1, v2, obj1, obj2, obname):
         super().__init__(v1, v2, obname)
@@ -78,48 +84,60 @@ class DirectorPythonExampleNest2(DirectorPythonExample):
         self.obj1 = obj1
         self.obj2 = obj2
         print(f"Creating Python {self.name()}", flush=True)
-        
+
+
 class PythonObjExample:
     def __init__(self, objname):
         self.objname = objname
 
     def same_object(self, obj2):
         return id(self) == id(obj2)
-    
+
+
 class DirectorPythonExampleBadPickle(DirectorPythonExample):
-    '''We have had an issue with serialization where problems get reported as
+    """We have had an issue with serialization where problems get reported as
     a generic "Python error that I can't parse". We will first have a error case that
     cleanly triggers this, and then work through how to get more information available
-    here.'''
+    here."""
+
     def __init__(self, v1, v2, name):
         super().__init__(v1, v2, name)
         # A file handle can't be pickled, so this will trigger an error
         self.fh = tempfile.TemporaryFile()
-            
+
+
 def test_director_example(serial):
-    print("May want to valgrind this, to make sure we have lifetime etc. ok with memory usage.")
-    print("Do this with PYTHONMALLOC=malloc valgrind $(which python) $(which pytest) -s lib/director_example_test.py")
-    print("(Note PYTHONMALLOC is important, otherwise you get a ton of spurious errors)")
+    print(
+        "May want to valgrind this, to make sure we have lifetime etc. ok with memory usage."
+    )
+    print(
+        "Do this with PYTHONMALLOC=malloc valgrind $(which python) $(which pytest) -s lib/director_example_test.py"
+    )
+    print(
+        "(Note PYTHONMALLOC is important, otherwise you get a ton of spurious errors)"
+    )
     DirectorPythonExample.deleted_list.clear()
     e1 = DirectorExample(5, "e1")
-    assert e1.func(10) == 5+10
+    assert e1.func(10) == 5 + 10
     e1 = None
-    e2 = DirectorPythonExample(5,6, "e2")
-    assert e2.func(10) == 5+10+2*6
+    e2 = DirectorPythonExample(5, 6, "e2")
+    assert e2.func(10) == 5 + 10 + 2 * 6
     euser = DirectorExampleUser()
     euser.set_value(e2)
     e2 = None
-    assert euser.apply_func(10) == 5+10+2*6
+    assert euser.apply_func(10) == 5 + 10 + 2 * 6
     print(euser.value())
     # Test a simple std::vector
-    euser.set_vec_int([1,2,3])
+    euser.set_vec_int([1, 2, 3])
     print(euser.value_vec_int())
     if True:
         # Test a std::vector of boost::shared_ptr
-        v = [DirectorExample(5, "v1"),
-             DirectorExample(6, "v2"),
-             DirectorPythonExample(5,6, "vp3"),
-             DirectorPythonExample(10,7, "vp4")]
+        v = [
+            DirectorExample(5, "v1"),
+            DirectorExample(6, "v2"),
+            DirectorPythonExample(5, 6, "vp3"),
+            DirectorPythonExample(10, 7, "vp4"),
+        ]
     else:
         # Directly use std::vector. Shouldn't be needed any longer, passing
         # in a list works now. But leave this around in case we run into a
@@ -127,14 +145,14 @@ def test_director_example(serial):
         v = Vector_DirectorExample()
         v.push_back(DirectorExample(5, "v1"))
         v.push_back(DirectorExample(6, "v2"))
-        v.push_back(DirectorPythonExample(5,6, "vp3"))
-        v.push_back(DirectorPythonExample(10,7, "vp4"))
+        v.push_back(DirectorPythonExample(5, 6, "vp3"))
+        v.push_back(DirectorPythonExample(10, 7, "vp4"))
     euser.set_vec(v)
     v = None
-    assert euser.apply_func(10, 0) == 5+10
-    assert euser.apply_func(10, 1) == 6+10
-    assert euser.apply_func(10, 2) == 5+10+2*6
-    assert euser.apply_func(10, 3) == 10+10+2*7
+    assert euser.apply_func(10, 0) == 5 + 10
+    assert euser.apply_func(10, 1) == 6 + 10
+    assert euser.apply_func(10, 2) == 5 + 10 + 2 * 6
+    assert euser.apply_func(10, 3) == 10 + 10 + 2 * 7
     print(euser.value_vec()[0])
     print(euser.value_vec()[1])
     print(euser.value_vec()[2])
@@ -150,9 +168,14 @@ def test_director_example(serial):
     DirectorPythonExample.deleted_list.clear()
     print("All Done", flush=True)
     euser = DirectorExampleUser()
-    v2 = [[DirectorExample(5, "v1"), DirectorPythonExample(5,6, "vp2")],
-          [DirectorExample(6, "v2"), DirectorPythonExample(10,7, "vp4"),
-           DirectorPythonExample(11,7, "vp5")]]
+    v2 = [
+        [DirectorExample(5, "v1"), DirectorPythonExample(5, 6, "vp2")],
+        [
+            DirectorExample(6, "v2"),
+            DirectorPythonExample(10, 7, "vp4"),
+            DirectorPythonExample(11, 7, "vp5"),
+        ],
+    ]
     euser.set_vec_vec(v2)
     v2 = None
     print(euser.value_vec_vec())
@@ -161,11 +184,11 @@ def test_director_example(serial):
     assert euser.value_vec_vec()[1][0].__class__ == DirectorExample
     assert euser.value_vec_vec()[1][1].__class__ == DirectorPythonExample
     assert euser.value_vec_vec()[1][2].__class__ == DirectorPythonExample
-    assert euser.apply_func(10, 0, 0) == 5+10
-    assert euser.apply_func(10, 1, 0) == 6+10
-    assert euser.apply_func(10, 0, 1) == 5+10+2*6
-    assert euser.apply_func(10, 1, 1) == 10+10+2*7
-    assert euser.apply_func(10, 1, 2) == 10+11+2*7
+    assert euser.apply_func(10, 0, 0) == 5 + 10
+    assert euser.apply_func(10, 1, 0) == 6 + 10
+    assert euser.apply_func(10, 0, 1) == 5 + 10 + 2 * 6
+    assert euser.apply_func(10, 1, 1) == 10 + 10 + 2 * 7
+    assert euser.apply_func(10, 1, 2) == 10 + 11 + 2 * 7
     print("Should see v1 through vp5 deleted", flush=True)
     assert len(DirectorPythonExample.deleted_list) == 0
     euser = None
@@ -173,26 +196,33 @@ def test_director_example(serial):
     DirectorPythonExample.deleted_list.clear()
     print("All Done", flush=True)
 
+
 def test_director_pickle_shelve(isolated_dir, serial):
-    print("May want to valgrind this, to make sure we have lifetime etc. ok with memory usage.")
-    print("Do this with PYTHONMALLOC=malloc valgrind $(which python) $(which pytest) -s lib/director_example_test.py")
-    print("(Note PYTHONMALLOC is important, otherwise you get a ton of spurious errors)")
+    print(
+        "May want to valgrind this, to make sure we have lifetime etc. ok with memory usage."
+    )
+    print(
+        "Do this with PYTHONMALLOC=malloc valgrind $(which python) $(which pytest) -s lib/director_example_test.py"
+    )
+    print(
+        "(Note PYTHONMALLOC is important, otherwise you get a ton of spurious errors)"
+    )
     e1 = DirectorExample(5, "e1")
-    assert e1.func(10) == 5+10
+    assert e1.func(10) == 5 + 10
     # This is tiny, but go ahead and compress just to test the interface
     write_shelve("e1.xml.gz", e1)
     e1_s = read_shelve("e1.xml.gz")
     pickle.dump(e1, open("e1.pkl", "wb"))
     e1_p = pickle.load(open("e1.pkl", "rb"))
     e1 = None
-    assert e1_s.func(10) == 5+10
-    assert e1_p.func(10) == 5+10
+    assert e1_s.func(10) == 5 + 10
+    assert e1_p.func(10) == 5 + 10
     print(e1_s)
     print(e1_p)
     e1_s = None
     e1_p = None
-    e2 = DirectorPythonExample(5,6, "e2")
-    assert e2.func(10) == 5+10+2*6
+    e2 = DirectorPythonExample(5, 6, "e2")
+    assert e2.func(10) == 5 + 10 + 2 * 6
     write_shelve("e2.xml", e2)
     e2_s = read_shelve("e2.xml")
     pickle.dump(e2, open("e2.pkl", "wb"))
@@ -201,8 +231,8 @@ def test_director_pickle_shelve(isolated_dir, serial):
     e2 = None
     assert len(DirectorPythonExample.deleted_list) == 1
     DirectorPythonExample.deleted_list.clear()
-    assert e2_s.func(10) == 5+10+2*6
-    assert e2_p.func(10) == 5+10+2*6
+    assert e2_s.func(10) == 5 + 10 + 2 * 6
+    assert e2_p.func(10) == 5 + 10 + 2 * 6
     print(e2_s)
     print(e2_p)
     assert len(DirectorPythonExample.deleted_list) == 0
@@ -210,12 +240,14 @@ def test_director_pickle_shelve(isolated_dir, serial):
     e2_p = None
     assert len(DirectorPythonExample.deleted_list) == 2
     DirectorPythonExample.deleted_list.clear()
-    
+
     euser = DirectorExampleUser()
-    v = [DirectorExample(5, "v1"),
-         DirectorExample(6, "v2"),
-         DirectorPythonExample(5,6, "vp3"),
-         DirectorPythonExample(10,7, "vp4")]
+    v = [
+        DirectorExample(5, "v1"),
+        DirectorExample(6, "v2"),
+        DirectorPythonExample(5, 6, "vp3"),
+        DirectorPythonExample(10, 7, "vp4"),
+    ]
     euser.set_vec(v)
     v = None
     write_shelve("euser.xml", euser)
@@ -226,14 +258,14 @@ def test_director_pickle_shelve(isolated_dir, serial):
     euser = None
     assert len(DirectorPythonExample.deleted_list) == 2
     DirectorPythonExample.deleted_list.clear()
-    assert euser_s.apply_func(10, 0) == 5+10
-    assert euser_s.apply_func(10, 1) == 6+10
-    assert euser_s.apply_func(10, 2) == 5+10+2*6
-    assert euser_s.apply_func(10, 3) == 10+10+2*7
-    assert euser_p.apply_func(10, 0) == 5+10
-    assert euser_p.apply_func(10, 1) == 6+10
-    assert euser_p.apply_func(10, 2) == 5+10+2*6
-    assert euser_p.apply_func(10, 3) == 10+10+2*7
+    assert euser_s.apply_func(10, 0) == 5 + 10
+    assert euser_s.apply_func(10, 1) == 6 + 10
+    assert euser_s.apply_func(10, 2) == 5 + 10 + 2 * 6
+    assert euser_s.apply_func(10, 3) == 10 + 10 + 2 * 7
+    assert euser_p.apply_func(10, 0) == 5 + 10
+    assert euser_p.apply_func(10, 1) == 6 + 10
+    assert euser_p.apply_func(10, 2) == 5 + 10 + 2 * 6
+    assert euser_p.apply_func(10, 3) == 10 + 10 + 2 * 7
     print(euser_s.value_vec()[0])
     print(euser_s.value_vec()[1])
     print(euser_s.value_vec()[2])
@@ -249,27 +281,30 @@ def test_director_pickle_shelve(isolated_dir, serial):
     DirectorPythonExample.deleted_list.clear()
     print("All done", flush=True)
 
+
 def test_director_pickle_error(isolated_dir, serial):
-    e1 = DirectorPythonExampleBadPickle(5,6, "e2")
-    assert e1.func(10) == 5+10+2*6
+    e1 = DirectorPythonExampleBadPickle(5, 6, "e2")
+    assert e1.func(10) == 5 + 10 + 2 * 6
     with pytest.raises(BaseException) as e_info:
         pickle.dump(e1, open("e1.pkl", "wb"))
     print(e_info.value)
 
+
 def test_exception_propagate():
     # Check that when we throw an exception in python called by other code
     # through a director, we get back the original exception
-    e2 = DirectorPythonExampleWithException(5,6, "e2")
+    e2 = DirectorPythonExampleWithException(5, 6, "e2")
     euser = DirectorExampleUser()
     euser.set_value(e2)
     with pytest.raises(RuntimeError) as e_info:
         euser.apply_func(10)
     assert str(e_info.value) == "Error, check if propagate"
-    
+
+
 def test_director_lifetime_shelve(isolated_dir, serial):
     DirectorPythonExample.deleted_list.clear()
     print("Should see creation message", flush=True)
-    e1 = DirectorPythonExample(5,6, "e1")
+    e1 = DirectorPythonExample(5, 6, "e1")
     e1_id = id(e1)
     write_shelve("e1.xml", e1)
     print("Should see deletion message", flush=True)
@@ -289,11 +324,15 @@ def test_director_lifetime_shelve(isolated_dir, serial):
     print("All done with e1_s", flush=True)
     print("Should see creation message", flush=True)
     euser = DirectorExampleUser()
-    euser.set_vec([DirectorPythonExample(5,6, "e2"),])
+    euser.set_vec(
+        [
+            DirectorPythonExample(5, 6, "e2"),
+        ]
+    )
     # We can't easily get the id DirectorPythonExample, because it
     # gets copied when we return it. So just count the number of
-    # items in the deletion set, that should be pretty accurate 
-    #e2_vec_id = id(euser.value_vec()[0])
+    # items in the deletion set, that should be pretty accurate
+    # e2_vec_id = id(euser.value_vec()[0])
     write_shelve("euser.xml", euser)
     print("Should see deletion message", flush=True)
     assert len(DirectorPythonExample.deleted_list) == 0
@@ -310,79 +349,85 @@ def test_director_lifetime_shelve(isolated_dir, serial):
     DirectorPythonExample.deleted_list.clear()
     print("All done with euser_s")
 
+
 def test_director_example_object_tracking(isolated_dir, serial):
-    '''Check that both the C++ objects and python objects correctly handle
-    duplicates in pickling and shelving'''
+    """Check that both the C++ objects and python objects correctly handle
+    duplicates in pickling and shelving"""
     # Check C++
     e1 = DirectorExample(5, "e1")
     e1_2 = DirectorExampleNested(5, "e1_2", e1)
     e1_3 = DirectorExampleNested(5, "e1_3", e1)
-    e1_nest = DirectorPythonExampleNest2(5,6,e1_2,e1_3,"e1_nest")
+    e1_nest = DirectorPythonExampleNest2(5, 6, e1_2, e1_3, "e1_nest")
     assert e1_nest.obj1.obj.same_object(e1_nest.obj2.obj)
     # Check python
     p = PythonObjExample("e2_python")
-    e2_1 = DirectorPythonExampleNest(5,6, p, "e2_1")
-    e2_2 = DirectorPythonExampleNest(5,6, p, "e2_2")
-    e2_nest = DirectorPythonExampleNest2(5,6,e2_1, e2_2, "e2_nest")
+    e2_1 = DirectorPythonExampleNest(5, 6, p, "e2_1")
+    e2_2 = DirectorPythonExampleNest(5, 6, p, "e2_2")
+    e2_nest = DirectorPythonExampleNest2(5, 6, e2_1, e2_2, "e2_nest")
     assert not e2_nest.obj1.same_object(e2_nest.obj2)
     assert e2_nest.obj1.obj1.same_object(e2_nest.obj2.obj1)
-    
+
     # Test pickle C++
-    pickle.dump(e1_nest, open("e1_nest.pkl", "wb"))
-    e1_nest_p = pickle.load(open("e1_nest.pkl", "rb"))
-    #assert e1_nest_p.obj1.obj.same_object(e1_nest_p.obj2.obj)
-    
+    with PickleWithSwigSupport() as p:
+        pickle.dump(e1_nest, open("e1_nest.pkl", "wb"))
+    with PickleWithSwigSupport() as p:
+        e1_nest_p = pickle.load(open("e1_nest.pkl", "rb"))
+    # assert e1_nest_p.obj1.obj.same_object(e1_nest_p.obj2.obj)
+
     # Test pickle python
-    pickle.dump(e2_nest, open("e2_nest.pkl", "wb"))
-    e2_nest_p = pickle.load(open("e2_nest.pkl", "rb"))
+    with PickleWithSwigSupport() as p:
+        pickle.dump(e2_nest, open("e2_nest.pkl", "wb"))
+    with PickleWithSwigSupport() as p:
+        e2_nest_p = pickle.load(open("e2_nest.pkl", "rb"))
     assert not e2_nest_p.obj1.same_object(e2_nest_p.obj2)
-    #assert e2_nest_p.obj1.obj1.same_object(e2_nest_p.obj2.obj1)
+    # assert e2_nest_p.obj1.obj1.same_object(e2_nest_p.obj2.obj1)
 
     # Test shelve C++
     write_shelve("e1_nest.xml", e1_nest)
     e1_nest_s = read_shelve("e1_nest.xml")
-    #assert e1_nest_s.obj1.obj.same_object(e1_nest_s.obj2.obj)
-    
+    # assert e1_nest_s.obj1.obj.same_object(e1_nest_s.obj2.obj)
+
     # Test shelve python
     write_shelve("e2_nest.xml", e2_nest)
     e2_nest_s = read_shelve("e2_nest.xml")
     assert not e2_nest_s.obj1.same_object(e2_nest_s.obj2)
-    #assert e2_nest_s.obj1.obj1.same_object(e2_nest_s.obj2.obj1)
-    
-@skip    
+    # assert e2_nest_s.obj1.obj1.same_object(e2_nest_s.obj2.obj1)
+
+
+@skip
 def test_director_example_weak_ptr(isolated_dir, serial):
     m = GenericObjectMap()
-    m["e1"] = DirectorPythonExample(5,6, "e1")
+    m["e1"] = DirectorPythonExample(5, 6, "e1")
     m["e1_weak"] = DirectorExampleWeakPtr(m.e1)
     print(m.e1)
     print(m.e1_weak)
-    assert m.e1.func(10) == 5+10+2*6
-    assert m.e1_weak.a().func(10) == 5+10+2*6
+    assert m.e1.func(10) == 5 + 10 + 2 * 6
+    assert m.e1_weak.a().func(10) == 5 + 10 + 2 * 6
     write_shelve("e1.xml", m)
     m_s = read_shelve("e1.xml")
-    assert m_s.e1.func(10) == 5+10+2*6
-    assert m_s.e1_weak.a().func(10) == 5+10+2*6
-    
+    assert m_s.e1.func(10) == 5 + 10 + 2 * 6
+    assert m_s.e1_weak.a().func(10) == 5 + 10 + 2 * 6
+
     # Check that m_s.b.a and m_s.a are the same. We can't directly compare, python
     # has two different shared ptr so the are "different". But we can verify
     # that the underlying C++ object is the same by changing one and making
     # sure the other is changed also
     m_s.e1.value_to_add(3)
-    assert m_s.e1.func(10) == 3+10+2*6
-    assert m_s.e1_weak.a().func(10) == 3+10+2*6
+    assert m_s.e1.func(10) == 3 + 10 + 2 * 6
+    assert m_s.e1_weak.a().func(10) == 3 + 10 + 2 * 6
     m_s.e1.v2 = 7
-    assert m_s.e1.func(10) == 3+10+2*7
-    assert m_s.e1_weak.a().func(10) == 3+10+2*7
+    assert m_s.e1.func(10) == 3 + 10 + 2 * 7
+    assert m_s.e1_weak.a().func(10) == 3 + 10 + 2 * 7
 
-    # Do the same, but without using a GenericObjectMap. In this case, 
+    # Do the same, but without using a GenericObjectMap. In this case,
     # the weak_ptr in C should be set to None.
-    a = DirectorPythonExample(5,6, "e1")
+    a = DirectorPythonExample(5, 6, "e1")
     c = DirectorExampleWeakPtr(a)
     write_shelve("a.xml", a)
     a2 = read_shelve("a.xml")
     write_shelve("c.xml", c)
     c2 = read_shelve("c.xml")
-    assert a2.func(10) == 5+10+2*6
+    assert a2.func(10) == 5 + 10 + 2 * 6
     assert c2.a() is None
 
     # Also check handling of weak_ptr
@@ -393,6 +438,117 @@ def test_director_example_weak_ptr(isolated_dir, serial):
     assert c.expired()
     assert c.use_count() == 0
     assert c.a() is None
-    
 
-    
+
+class FileSwap:
+    """When we do pickling combined with boost serialization, we have
+    different places where the pickle information comes from. There can
+    be a straight file, and then data passed from boost serialization. However
+    pickle.Pickler and pickle.Unpickler isn't set up to tame multiple streams.
+    So we make this look like one stream. We do this by allowing the file
+    handle to be replaced."""
+
+    def __init__(self, file_base):
+        self.file_base = file_base
+        self.file_replace = None
+
+    def read(self, size=-1):
+        if self.file_replace is None:
+            return self.file_base.read(size)
+        return self.file_replace.read(size)
+
+    def readinto(self, b):
+        if self.file_replace is None:
+            return self.file_base.readinto(b)
+        return self.file_replace.readinto(b)
+
+    def readline(self):
+        if self.file_replace is None:
+            return self.file_base.readline()
+        return self.file_replace.readline()
+
+    def write(self, b):
+        if self.file_replace is None:
+            return self.file_base.write(b)
+        return self.file_replace.write(b)
+
+
+class PicklerWithSerializationSupport(pickle.Pickler):
+    def __init__(self, file, protocol=None, fix_imports=True, buffer_callback=None):
+        self.file = FileSwap(file)
+        super().__init__(
+            self.file,
+            protocol=protocol,
+            fix_imports=fix_imports,
+            buffer_callback=buffer_callback,
+        )
+
+
+class UnpicklerWithSerializationSupport(pickle.Unpickler):
+    def __init__(
+        self, file, fix_imports=True, encoding="ASCII", errors="strict", buffers=None
+    ):
+        self.file = FileSwap(file)
+        super().__init__(
+            self.file,
+            fix_imports=fix_imports,
+            encoding=encoding,
+            errors=errors,
+            buffers=buffers,
+        )
+
+
+def dump_with_serialization_support(
+    obj, file, protocol=None, fix_imports=True, buffer_callback=None
+):
+    p = PicklerWithSerializationSupport(
+        file,
+        protocol=protocol,
+        fix_imports=fix_imports,
+        buffer_callback=buffer_callback,
+    )
+    p.dump(obj)
+
+
+def dumps_with_serialization_support(
+    obj, protocol=None, fix_imports=True, buffer_callback=None
+):
+    file = io.BytesIO()
+    p = PicklerWithSerializationSupport(
+        file,
+        protocol=protocol,
+        fix_imports=fix_imports,
+        buffer_callback=buffer_callback,
+    )
+    p.dump(obj)
+    return file.getvalue()
+
+
+def load_with_serialization_support(
+    file, fix_imports=True, encoding="ASCII", errors="strict", buffers=None
+):
+    p = UnpicklerWithSerializationSupport(
+        file, fix_imports=fix_imports, encoding=encoding, errors=errors, buffers=None
+    )
+    return p.load()
+
+
+def loads_with_serialization_support(
+    data, fix_imports=True, encoding="ASCII", errors="strict", buffers=None
+):
+    file = io.BytesIO(data)
+    p = UnpicklerWithSerializationSupport(
+        file, fix_imports=fix_imports, encoding=encoding, errors=errors, buffers=None
+    )
+    return p.load()
+
+
+class TestClass:
+    def __init__(self, val):
+        self.val = val
+
+
+def test_pickle_with_serialization_support():
+    t = TestClass(5)
+    tp = loads_with_serialization_support(dumps_with_serialization_support(t))
+    assert tp.val == t.val
