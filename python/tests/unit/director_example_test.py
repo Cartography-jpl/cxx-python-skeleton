@@ -1,4 +1,4 @@
-from .swig_shelve import read_shelve, write_shelve
+from skeleton import read_shelve, write_shelve
 from test_support import *
 import pickle
 import sys
@@ -111,7 +111,7 @@ def test_director_example(serial):
         "May want to valgrind this, to make sure we have lifetime etc. ok with memory usage."
     )
     print(
-        "Do this with PYTHONMALLOC=malloc valgrind $(which python) $(which pytest) -s lib/director_example_test.py"
+        "Do this with PYTHONMALLOC=malloc valgrind $(which python) $(which pytest) -s tests/unit/director_example_test.py"
     )
     print(
         "(Note PYTHONMALLOC is important, otherwise you get a ton of spurious errors)"
@@ -202,7 +202,7 @@ def test_director_pickle_shelve(isolated_dir, serial):
         "May want to valgrind this, to make sure we have lifetime etc. ok with memory usage."
     )
     print(
-        "Do this with PYTHONMALLOC=malloc valgrind $(which python) $(which pytest) -s lib/director_example_test.py"
+        "Do this with PYTHONMALLOC=malloc valgrind $(which python) $(which pytest) -s tests/unit/director_example_test.py"
     )
     print(
         "(Note PYTHONMALLOC is important, otherwise you get a ton of spurious errors)"

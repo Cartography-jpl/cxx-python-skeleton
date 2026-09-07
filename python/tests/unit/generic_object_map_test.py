@@ -1,5 +1,5 @@
 from test_support import *
-from skeleton_swig.all import *
+from skeleton import *
 import pickle
 
 def test_generic_object_map():
