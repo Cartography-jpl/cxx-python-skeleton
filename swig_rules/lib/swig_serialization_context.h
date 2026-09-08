@@ -36,19 +36,27 @@ private:
     explicit ConstructorKey() = default;
   };
 public:
-  SwigSerializationContext(ConstructorKey) {}
+  SwigSerializationContext(ConstructorKey, void* pickler, void* unpickler)
+    : pickler_(pickler), unpickler_(unpickler) {}
   virtual ~SwigSerializationContext() {}
 
   static void clear_ptr_serialized_reference();
   static void add_ptr_serialized_reference(const GenericObject* P);
   static bool is_ptr_serialized(const GenericObject* P);
-  static bool have_instance() { return bool(instance); }
+  static bool have_instance() { return bool(instance_); }
+  static boost::shared_ptr<SwigSerializationContext> instance();
+
+  void* pickler() const { return pickler_; }
+  void pickler(void *V) {pickler_ = V; }
+  void* unpickler() const { return unpickler_; }
+  void unpickler(void *V) {unpickler_ = V; }
 private:
-  static void create_singleton();
+  static void create_singleton(void* pickler, void* unpickler);
   static void destroy_singleton();
   friend class SerializeSessionLock;
 
-  static boost::shared_ptr<SwigSerializationContext> instance;
+  static boost::shared_ptr<SwigSerializationContext> instance_;
+  void *pickler_, *unpickler_;
 
   /// Guards both the singleton pointer above and the pointer-mark
   /// state below.
@@ -72,7 +80,7 @@ private:
 
 class SerializeSessionLock : public GenericObject {
 public:
-  explicit SerializeSessionLock();
+  explicit SerializeSessionLock(void* pickler=0, void* unpickler=0);
   virtual ~SerializeSessionLock();
   void clear() {
     if(SwigSerializationContext::have_instance()) {

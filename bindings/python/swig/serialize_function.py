@@ -136,8 +136,8 @@ class SerializeSessionLock(object):
     thisown = property(lambda x: x.this.own(), lambda x, v: x.this.own(v), doc="The membership flag")
     __repr__ = _swig_repr
 
-    def __init__(self):
-        _serialize_function.SerializeSessionLock_swiginit(self, _serialize_function.new_SerializeSessionLock())
+    def __init__(self, Pickler=None, Unpickler=None):
+        _serialize_function.SerializeSessionLock_swiginit(self, _serialize_function.new_SerializeSessionLock(Pickler, Unpickler))
     clear = _swig_new_instance_method(_serialize_function.SerializeSessionLock_clear)
     __swig_destroy__ = _serialize_function.delete_SerializeSessionLock
 
@@ -285,7 +285,13 @@ def dump(
         fix_imports=fix_imports,
         buffer_callback=buffer_callback,
     )
-    p.dump(obj)
+    s = None
+    try:
+       s = SerializeSessionLock(p, None)
+       p.dump(obj)
+    finally:
+       if s is not None:
+          s.clear()
 
 
 def dumps(
@@ -342,10 +348,16 @@ def load(
        pickle.Pickler. You can either use the Pickler classes
        directly, or through these short cut functions.
     '''
-    p = UnpicklerWithSerializationSupport(
+    up = UnpicklerWithSerializationSupport(
         file, fix_imports=fix_imports, encoding=encoding, errors=errors, buffers=None
     )
-    return p.load()
+    s = None
+    try:
+       s = SerializeSessionLock(None, up)
+       return up.load()
+    finally:
+       if s is not None:
+          s.clear()
 
 
 def loads(
@@ -377,6 +389,6 @@ def loads(
     return p.load()
 
 
-__all__ = ["have_serialize_supported","serialize_write","serialize_write_string","serialize_read_generic","serialize_read_generic_string","serialize_write_binary","serialize_read_binary","serialize_read_binary_generic","PicklerWithSerializationSupport","UnpicklerWithSerializationSupport","dump","dumps","load","loads"]
+__all__ = ["have_serialize_supported","serialize_write","serialize_write_string","serialize_read_generic","serialize_read_generic_string","serialize_write_binary","serialize_read_binary","serialize_read_binary_generic","PicklerWithSerializationSupport","UnpicklerWithSerializationSupport","dump","dumps","load","loads","SerializeSessionLock"]
 
 

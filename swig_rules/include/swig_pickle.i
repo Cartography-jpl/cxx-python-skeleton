@@ -52,6 +52,18 @@ inline PyObject* cpickle_loads(const std::string& S)
   return res;
 }
 
+inline std::string serialize_dumps(PyObject* obj)
+{
+  std::cerr << "In dumps\n";
+  return cpickle_dumps(obj);
+}
+
+inline PyObject* serialize_loads(const std::string& S)
+{
+  std::cerr << "In load";
+  return cpickle_loads(S);
+}
+
 %}
 //--------------------------------------------------------------
 // Code to support the python side.

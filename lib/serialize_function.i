@@ -52,7 +52,7 @@ serialize_read_pickle(const std::string& Data);
   
 class SerializeSessionLock : public GenericObject {
 public:
-  SerializeSessionLock();
+  SerializeSessionLock(PyObject *Pickler=0, PyObject *Unpickler=0);
   void clear();
 };
 }
@@ -199,7 +199,13 @@ def dump(
         fix_imports=fix_imports,
         buffer_callback=buffer_callback,
     )
-    p.dump(obj)
+    s = None
+    try:
+       s = SerializeSessionLock(p, None)
+       p.dump(obj)
+    finally:
+       if s is not None:
+          s.clear()
 
 
 def dumps(
@@ -256,10 +262,16 @@ def load(
        pickle.Pickler. You can either use the Pickler classes
        directly, or through these short cut functions.
     '''
-    p = UnpicklerWithSerializationSupport(
+    up = UnpicklerWithSerializationSupport(
         file, fix_imports=fix_imports, encoding=encoding, errors=errors, buffers=None
     )
-    return p.load()
+    s = None
+    try:
+       s = SerializeSessionLock(None, up)
+       return up.load()
+    finally:
+       if s is not None:
+          s.clear()
 
 
 def loads(
@@ -292,4 +304,4 @@ def loads(
 %}
 
 // List of things "import *" will include
-%python_export("have_serialize_supported","serialize_write","serialize_write_string","serialize_read_generic","serialize_read_generic_string","serialize_write_binary","serialize_read_binary", "serialize_read_binary_generic", "PicklerWithSerializationSupport", "UnpicklerWithSerializationSupport", "dump", "dumps", "load", "loads")
+%python_export("have_serialize_supported","serialize_write","serialize_write_string","serialize_read_generic","serialize_read_generic_string","serialize_write_binary","serialize_read_binary", "serialize_read_binary_generic", "PicklerWithSerializationSupport", "UnpicklerWithSerializationSupport", "dump", "dumps", "load", "loads", "SerializeSessionLock")

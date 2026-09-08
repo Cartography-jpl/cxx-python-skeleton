@@ -15,6 +15,7 @@ from skeleton import (
     DirectorExampleWeakPtr,
     GenericObjectMap,
     PicklerWithSerializationSupport,
+    SerializeSessionLock,
     UnpicklerWithSerializationSupport,
     Vector_DirectorExample,
     read_shelve,
@@ -468,13 +469,54 @@ def test_pickle_with_serialization_support(isolated_dir):
     assert tp.val == t.val
     with open("sample.pkl", "wb") as fh:
         p = PicklerWithSerializationSupport(fh)
-        p.dump(t)
-        sdump = p.serialization_dumps(t)
+        s = None
+        try:
+            s = SerializeSessionLock(p, None)
+            p.dump(t)
+            sdump = p.serialization_dumps(t)
+        finally:
+            if s is not None:
+                s.clear()
     with open("sample.pkl", "rb") as fh:
         up = UnpicklerWithSerializationSupport(fh)
-        tp = up.load()
-        tp2 = up.serialization_loads(sdump)
+        s = None
+        try:
+            s = SerializeSessionLock(None, up)
+            tp = up.load()
+            tp2 = up.serialization_loads(sdump)
+        finally:
+            if s is not None:
+                s.clear()
     assert tp.val == t.val
     assert tp2.val == t.val
     assert id(t) != id(tp)
     assert id(tp) == id(tp2)
+
+    p = PythonObjExample("e2_python")
+    e2_1 = DirectorPythonExampleNest(5, 6, p, "e2_1")
+    e2_2 = DirectorPythonExampleNest(5, 6, p, "e2_2")
+    e2_nest = DirectorPythonExampleNest2(5, 6, e2_1, e2_2, "e2_nest")
+    assert not e2_nest.obj1.same_object(e2_nest.obj2)
+    assert e2_nest.obj1.obj1.same_object(e2_nest.obj2.obj1)
+    with open("e2_nest.pkl", "wb") as fh:
+        p = PicklerWithSerializationSupport(fh)
+        s = None
+        try:
+            s = SerializeSessionLock(p, None)
+            p.dump(e2_nest)
+        finally:
+            if s is not None:
+                s.clear()
+    
+    with open("e2_nest.pkl", "rb") as fh:
+        up = UnpicklerWithSerializationSupport(fh)
+        s = None
+        try:
+            s = SerializeSessionLock(None, up)
+            e2_nest_p = up.load()
+        finally:
+            if s is not None:
+                s.clear()
+    assert not e2_nest_p.obj1.same_object(e2_nest_p.obj2)
+    assert e2_nest_p.obj1.obj1.same_object(e2_nest_p.obj2.obj1)
+    

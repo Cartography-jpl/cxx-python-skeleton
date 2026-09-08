@@ -4573,6 +4573,18 @@ inline PyObject* cpickle_loads(const std::string& S)
   return res;
 }
 
+inline std::string serialize_dumps(PyObject* obj)
+{
+  std::cerr << "In dumps\n";
+  return cpickle_dumps(obj);
+}
+
+inline PyObject* serialize_loads(const std::string& S)
+{
+  std::cerr << "In load";
+  return cpickle_loads(S);
+}
+
 
 
 // Don't want to use threads with ruby
@@ -6877,12 +6889,88 @@ fail:
 }
 
 
-SWIGINTERN PyObject *_wrap_new_SerializeSessionLock(PyObject *self, PyObject *args) {
+SWIGINTERN PyObject *_wrap_new_SerializeSessionLock__SWIG_0(PyObject *self, Py_ssize_t nobjs, PyObject **swig_obj) {
+  PyObject *resultobj = 0;
+  PyObject *arg1 = 0 ;
+  PyObject *arg2 = 0 ;
+  Skeleton::SerializeSessionLock *result = 0 ;
+  
+  (void)self;
+  if ((nobjs < 2) || (nobjs > 2)) SWIG_fail;
+  arg1 = swig_obj[0];
+  arg2 = swig_obj[1];
+  {
+    try {
+      result = (Skeleton::SerializeSessionLock *)new Skeleton::SerializeSessionLock(arg1,arg2);
+    } catch (Swig::DirectorException &e) {
+      SWIG_fail;
+    } catch (const PythonException& e) {
+      e.restore_python_exception();
+      SWIG_fail;
+    } catch (const std::exception& e) {
+      SWIG_exception(SWIG_RuntimeError, e.what());
+    } catch (...) {
+      // Anything not derived from std::exception (a raw type, a
+      // third-party exception hierarchy that doesn't inherit
+      // std::exception, etc.) would otherwise propagate across the
+      // extern "C" boundary into CPython -- undefined behavior, in
+      // practice a process abort rather than a clean Python exception.
+      SWIG_exception(SWIG_RuntimeError, "unknown C++ exception");
+    }
+  }
+  {
+    boost::shared_ptr<  Skeleton::SerializeSessionLock > *smartresult = result ? new boost::shared_ptr<  Skeleton::SerializeSessionLock >(result SWIG_NO_NULL_DELETER_SWIG_POINTER_NEW) : 0;
+    resultobj = SWIG_NewPointerObj(SWIG_as_voidptr(smartresult), SWIGTYPE_p_boost__shared_ptrT_Skeleton__SerializeSessionLock_t, SWIG_POINTER_NEW | SWIG_POINTER_OWN);
+  }
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_new_SerializeSessionLock__SWIG_1(PyObject *self, Py_ssize_t nobjs, PyObject **swig_obj) {
+  PyObject *resultobj = 0;
+  PyObject *arg1 = 0 ;
+  Skeleton::SerializeSessionLock *result = 0 ;
+  
+  (void)self;
+  if ((nobjs < 1) || (nobjs > 1)) SWIG_fail;
+  arg1 = swig_obj[0];
+  {
+    try {
+      result = (Skeleton::SerializeSessionLock *)new Skeleton::SerializeSessionLock(arg1);
+    } catch (Swig::DirectorException &e) {
+      SWIG_fail;
+    } catch (const PythonException& e) {
+      e.restore_python_exception();
+      SWIG_fail;
+    } catch (const std::exception& e) {
+      SWIG_exception(SWIG_RuntimeError, e.what());
+    } catch (...) {
+      // Anything not derived from std::exception (a raw type, a
+      // third-party exception hierarchy that doesn't inherit
+      // std::exception, etc.) would otherwise propagate across the
+      // extern "C" boundary into CPython -- undefined behavior, in
+      // practice a process abort rather than a clean Python exception.
+      SWIG_exception(SWIG_RuntimeError, "unknown C++ exception");
+    }
+  }
+  {
+    boost::shared_ptr<  Skeleton::SerializeSessionLock > *smartresult = result ? new boost::shared_ptr<  Skeleton::SerializeSessionLock >(result SWIG_NO_NULL_DELETER_SWIG_POINTER_NEW) : 0;
+    resultobj = SWIG_NewPointerObj(SWIG_as_voidptr(smartresult), SWIGTYPE_p_boost__shared_ptrT_Skeleton__SerializeSessionLock_t, SWIG_POINTER_NEW | SWIG_POINTER_OWN);
+  }
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_new_SerializeSessionLock__SWIG_2(PyObject *self, Py_ssize_t nobjs, PyObject **SWIGUNUSEDPARM(swig_obj)) {
   PyObject *resultobj = 0;
   Skeleton::SerializeSessionLock *result = 0 ;
   
   (void)self;
-  if (!SWIG_Python_UnpackTuple(args, "new_SerializeSessionLock", 0, 0, 0)) SWIG_fail;
+  if ((nobjs < 0) || (nobjs > 0)) SWIG_fail;
   {
     try {
       result = (Skeleton::SerializeSessionLock *)new Skeleton::SerializeSessionLock();
@@ -6909,6 +6997,40 @@ SWIGINTERN PyObject *_wrap_new_SerializeSessionLock(PyObject *self, PyObject *ar
   return resultobj;
 fail:
   return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_new_SerializeSessionLock(PyObject *self, PyObject *args) {
+  Py_ssize_t argc;
+  PyObject *argv[3] = {
+    0
+  };
+  
+  if (!(argc = SWIG_Python_UnpackTuple(args, "new_SerializeSessionLock", 0, 2, argv))) SWIG_fail;
+  --argc;
+  if (argc == 0) {
+    PyObject *retobj = _wrap_new_SerializeSessionLock__SWIG_2(self, argc, argv);
+    if (!SWIG_Python_TypeErrorOccurred(retobj)) return retobj;
+    SWIG_fail;
+  }
+  if (argc == 1) {
+    PyObject *retobj = _wrap_new_SerializeSessionLock__SWIG_1(self, argc, argv);
+    if (!SWIG_Python_TypeErrorOccurred(retobj)) return retobj;
+    SWIG_fail;
+  }
+  if (argc == 2) {
+    PyObject *retobj = _wrap_new_SerializeSessionLock__SWIG_0(self, argc, argv);
+    if (!SWIG_Python_TypeErrorOccurred(retobj)) return retobj;
+    SWIG_fail;
+  }
+  
+fail:
+  SWIG_Python_RaiseOrModifyTypeError("Wrong number or type of arguments for overloaded function 'new_SerializeSessionLock'.\n"
+    "  Possible C/C++ prototypes are:\n"
+    "    Skeleton::SerializeSessionLock::SerializeSessionLock(PyObject *,PyObject *)\n"
+    "    Skeleton::SerializeSessionLock::SerializeSessionLock(PyObject *)\n"
+    "    Skeleton::SerializeSessionLock::SerializeSessionLock()\n");
+  return 0;
 }
 
 
@@ -7059,7 +7181,7 @@ static PyMethodDef SwigMethods[] = {
 	 { "serialize_write_pickle", _wrap_serialize_write_pickle, METH_O, NULL},
 	 { "serialize_read_binary", _wrap_serialize_read_binary, METH_O, NULL},
 	 { "serialize_read_pickle", _wrap_serialize_read_pickle, METH_O, NULL},
-	 { "new_SerializeSessionLock", _wrap_new_SerializeSessionLock, METH_NOARGS, NULL},
+	 { "new_SerializeSessionLock", _wrap_new_SerializeSessionLock, METH_VARARGS, NULL},
 	 { "SerializeSessionLock_clear", _wrap_SerializeSessionLock_clear, METH_O, NULL},
 	 { "delete_SerializeSessionLock", _wrap_delete_SerializeSessionLock, METH_O, NULL},
 	 { "SerializeSessionLock_swigregister", SerializeSessionLock_swigregister, METH_O, NULL},
@@ -7097,7 +7219,7 @@ static PyMethodDef SwigMethods_proxydocs[] = {
 	 { "serialize_write_pickle", _wrap_serialize_write_pickle, METH_O, NULL},
 	 { "serialize_read_binary", _wrap_serialize_read_binary, METH_O, NULL},
 	 { "serialize_read_pickle", _wrap_serialize_read_pickle, METH_O, NULL},
-	 { "new_SerializeSessionLock", _wrap_new_SerializeSessionLock, METH_NOARGS, NULL},
+	 { "new_SerializeSessionLock", _wrap_new_SerializeSessionLock, METH_VARARGS, NULL},
 	 { "SerializeSessionLock_clear", _wrap_SerializeSessionLock_clear, METH_O, NULL},
 	 { "delete_SerializeSessionLock", _wrap_delete_SerializeSessionLock, METH_O, NULL},
 	 { "SerializeSessionLock_swigregister", SerializeSessionLock_swigregister, METH_O, NULL},

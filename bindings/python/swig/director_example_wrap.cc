@@ -4588,6 +4588,18 @@ inline PyObject* cpickle_loads(const std::string& S)
   return res;
 }
 
+inline std::string serialize_dumps(PyObject* obj)
+{
+  std::cerr << "In dumps\n";
+  return cpickle_dumps(obj);
+}
+
+inline PyObject* serialize_loads(const std::string& S)
+{
+  std::cerr << "In load";
+  return cpickle_loads(S);
+}
+
 
 
 // Don't want to use threads with ruby
@@ -6758,13 +6770,13 @@ SWIG_From_std_string  (const std::string& s)
        PyObject* pobj = d->swig_get_self();
        PyObject* this_save = PyObject_GetAttr(pobj, swig_this_name);
        PyObject_SetAttr(pobj, swig_this_name, Py_None);
-       // If cpickle_dumps or the archive write throws (e.g., the python
+       // If serialize_dumps or the archive write throws (e.g., the python
        // object has an unpicklable attribute), we still need to restore
        // "this" before letting the exception propagate. Otherwise pobj is
        // left permanently with this=None, breaking it for the rest of its
        // lifetime.
        try {
-         std::string python_object = cpickle_dumps(pobj);
+         std::string python_object = serialize_dumps(pobj);
          ar & BOOST_SERIALIZATION_NVP(python_object);
        } catch (...) {
          PyObject_SetAttr(pobj, swig_this_name, this_save);
@@ -6780,7 +6792,7 @@ SWIG_From_std_string  (const std::string& s)
      {
        std::string python_object;
        ar & BOOST_SERIALIZATION_NVP(python_object);
-       PyObject* pobj = cpickle_loads(python_object);
+       PyObject* pobj = serialize_loads(python_object);
        try {
          ::new(d)SwigDirector_DirectorExample(pobj);
          boost::shared_ptr<Skeleton::DirectorExample> *smartresult = d ? new boost::shared_ptr<Skeleton::DirectorExample>(d) : 0;
@@ -6790,7 +6802,7 @@ SWIG_From_std_string  (const std::string& s)
          Py_DECREF(thisobj);
        } catch (...) {
          // Construction never completed, so pobj's new reference (from
-         // cpickle_loads) was never handed off to anything -- release it
+         // serialize_loads) was never handed off to anything -- release it
          // before propagating the exception.
          Py_DECREF(pobj);
          throw;

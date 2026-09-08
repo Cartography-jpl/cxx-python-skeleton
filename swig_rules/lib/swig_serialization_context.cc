@@ -4,20 +4,28 @@
 
 using namespace SWIG_MAPPER_NAMESPACE;
 
-boost::shared_ptr<SwigSerializationContext> SwigSerializationContext::instance;
+boost::shared_ptr<SwigSerializationContext> SwigSerializationContext::instance_;
 std::mutex SwigSerializationContext::mutex_;
 std::set<const GenericObject*> SwigSerializationContext::ptr_referenced;
 
-void SwigSerializationContext::create_singleton()
+void SwigSerializationContext::create_singleton(void* pickler, void* unpickler)
 {
-  if (!instance) {
-    instance = boost::make_shared<SwigSerializationContext>(ConstructorKey{});
+  if (!instance_) {
+    instance_ = boost::make_shared<SwigSerializationContext>(ConstructorKey{}, pickler, unpickler);
   }
+}
+
+boost::shared_ptr<SwigSerializationContext> SwigSerializationContext::instance()
+{
+  if (!instance_) {
+    throw std::runtime_error("We don't have a SwigSerializationContext. Are use using PicklerWithSerializationSupport or UnpicklerWithSerializationSupport? This is needed for the additional support working with Directors");
+  }
+  return instance_;
 }
 
 void SwigSerializationContext::destroy_singleton()
 {
-  instance.reset();
+  instance_.reset();
 }
 
 void SwigSerializationContext::clear_ptr_serialized_reference()
@@ -54,12 +62,12 @@ bool SwigSerializationContext::is_ptr_serialized(const GenericObject* P)
   return ptr_referenced.find(P) != ptr_referenced.end();
 }
 
-SerializeSessionLock::SerializeSessionLock()
+SerializeSessionLock::SerializeSessionLock(void* pickler, void* unpickler)
 {
   if(SwigSerializationContext::have_instance())
     throw std::runtime_error("Can only have one instance of SerializeSessionLock at a time");
   SwigSerializationContext::mutex_.lock();
-  SwigSerializationContext::create_singleton();
+  SwigSerializationContext::create_singleton(pickler, unpickler);
 }
 
 SerializeSessionLock::~SerializeSessionLock()
