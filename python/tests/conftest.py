@@ -1,7 +1,8 @@
-import pytest
-from pathlib import Path
 import os
 import sys
+from pathlib import Path
+
+import pytest
 
 # Add source to path. For some reason pytest can miss this even if we
 # have this installed editable with a --prefix pip install (probably

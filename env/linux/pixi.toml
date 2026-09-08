@@ -28,3 +28,9 @@ pkg-config="*"
 pytest-xdist = "*"
 pytest-sugar = "*"
 filelock = "*"
+ruff = "*"
+mypy = "*"
+jsonpickle = "*"
+
+[pypi-dependencies]
+mkinit = "*"

@@ -11,6 +11,9 @@ install:
 install2:
 	pip install .
 
+update-init:
+	cd skeleton && mkinit . -w --black --nomods --relative
+
 # ------------------------------------------------------------------
 # It is *not* considered an error to fail ruff/mypy - these are just
 # useful extra checks, not something we require to pass. See
@@ -27,7 +30,16 @@ format:
 	ruff format skeleton tests
 
 mypy:
-	mypy skeleton
+	mypy --disallow-untyped-defs skeleton
+
+# Mypy does caching from previous runs, which is usually what we
+# want. Every once in a while though something get out of sync (e.g., update to pyproject.toml
+# which is doesn't automatically read). This adds the
+# option to run everything fresh. Takes longer, but clears up any stale cache
+# issues
+mypy-clear-cache:
+	mypy --no-incremental --disallow-untyped-defs skeleton
+
 
 check:
 	pytest tests
