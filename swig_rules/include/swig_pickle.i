@@ -4,7 +4,8 @@
 
 %{
 #include "serialize_function.h"
-#include "python_exception.h"  
+#include "python_exception.h"
+#include "swig_serialization_context.h"
 #include <stdexcept>
 %}
 
@@ -52,16 +53,39 @@ inline PyObject* cpickle_loads(const std::string& S)
   return res;
 }
 
-inline std::string serialize_dumps(PyObject* obj)
+inline std::string serialization_dumps(PyObject* obj)
 {
   std::cerr << "In dumps\n";
-  return cpickle_dumps(obj);
+  auto i = SWIG_MAPPER_NAMESPACE::SwigSerializationContext::instance();
+  static PyObject* dumps_name = 0;
+  if(!dumps_name)
+    dumps_name = PyUnicode_FromString("serialization_dumps");
+  PyObject* res = PyObject_CallMethodObjArgs((PyObject*)i->pickler(), dumps_name, obj, NULL);
+  if(PyErr_Occurred()) {
+    throw PythonException();
+  }
+  char *buf;
+  Py_ssize_t len;
+  PyBytes_AsStringAndSize(res, &buf, &len);
+  std::string result(buf, len);
+  Py_DECREF(res);
+  return result;
 }
 
-inline PyObject* serialize_loads(const std::string& S)
+inline PyObject* serialization_loads(const std::string& S)
 {
   std::cerr << "In load";
-  return cpickle_loads(S);
+  auto i = SWIG_MAPPER_NAMESPACE::SwigSerializationContext::instance();
+  static PyObject* loads_name = 0;
+  if(!loads_name)
+    loads_name = PyUnicode_FromString("serialization_loads");
+  PyObject* data = PyBytes_FromStringAndSize(S.c_str(), S.size());
+  PyObject* res = PyObject_CallMethodObjArgs((PyObject *)i->unpickler(), loads_name, data, NULL);
+  Py_DECREF(data);
+  if(PyErr_Occurred()) {
+    throw PythonException();
+  }
+  return res;
 }
 
 %}

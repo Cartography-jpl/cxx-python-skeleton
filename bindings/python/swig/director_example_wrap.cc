@@ -4541,7 +4541,8 @@ SWIG_AsVal_ptrdiff_t (PyObject * obj, ptrdiff_t *val)
 
 
 #include "serialize_function.h"
-#include "python_exception.h"  
+#include "python_exception.h"
+#include "swig_serialization_context.h"
 #include <stdexcept>
 
 
@@ -4588,16 +4589,39 @@ inline PyObject* cpickle_loads(const std::string& S)
   return res;
 }
 
-inline std::string serialize_dumps(PyObject* obj)
+inline std::string serialization_dumps(PyObject* obj)
 {
   std::cerr << "In dumps\n";
-  return cpickle_dumps(obj);
+  auto i = SWIG_MAPPER_NAMESPACE::SwigSerializationContext::instance();
+  static PyObject* dumps_name = 0;
+  if(!dumps_name)
+    dumps_name = PyUnicode_FromString("serialization_dumps");
+  PyObject* res = PyObject_CallMethodObjArgs((PyObject*)i->pickler(), dumps_name, obj, NULL);
+  if(PyErr_Occurred()) {
+    throw PythonException();
+  }
+  char *buf;
+  Py_ssize_t len;
+  PyBytes_AsStringAndSize(res, &buf, &len);
+  std::string result(buf, len);
+  Py_DECREF(res);
+  return result;
 }
 
-inline PyObject* serialize_loads(const std::string& S)
+inline PyObject* serialization_loads(const std::string& S)
 {
   std::cerr << "In load";
-  return cpickle_loads(S);
+  auto i = SWIG_MAPPER_NAMESPACE::SwigSerializationContext::instance();
+  static PyObject* loads_name = 0;
+  if(!loads_name)
+    loads_name = PyUnicode_FromString("serialization_loads");
+  PyObject* data = PyBytes_FromStringAndSize(S.c_str(), S.size());
+  PyObject* res = PyObject_CallMethodObjArgs((PyObject *)i->unpickler(), loads_name, data, NULL);
+  Py_DECREF(data);
+  if(PyErr_Occurred()) {
+    throw PythonException();
+  }
+  return res;
 }
 
 
@@ -6770,13 +6794,13 @@ SWIG_From_std_string  (const std::string& s)
        PyObject* pobj = d->swig_get_self();
        PyObject* this_save = PyObject_GetAttr(pobj, swig_this_name);
        PyObject_SetAttr(pobj, swig_this_name, Py_None);
-       // If serialize_dumps or the archive write throws (e.g., the python
+       // If serialization_dumps or the archive write throws (e.g., the python
        // object has an unpicklable attribute), we still need to restore
        // "this" before letting the exception propagate. Otherwise pobj is
        // left permanently with this=None, breaking it for the rest of its
        // lifetime.
        try {
-         std::string python_object = serialize_dumps(pobj);
+         std::string python_object = serialization_dumps(pobj);
          ar & BOOST_SERIALIZATION_NVP(python_object);
        } catch (...) {
          PyObject_SetAttr(pobj, swig_this_name, this_save);
@@ -6792,7 +6816,7 @@ SWIG_From_std_string  (const std::string& s)
      {
        std::string python_object;
        ar & BOOST_SERIALIZATION_NVP(python_object);
-       PyObject* pobj = serialize_loads(python_object);
+       PyObject* pobj = serialization_loads(python_object);
        try {
          ::new(d)SwigDirector_DirectorExample(pobj);
          boost::shared_ptr<Skeleton::DirectorExample> *smartresult = d ? new boost::shared_ptr<Skeleton::DirectorExample>(d) : 0;
@@ -6802,7 +6826,7 @@ SWIG_From_std_string  (const std::string& s)
          Py_DECREF(thisobj);
        } catch (...) {
          // Construction never completed, so pobj's new reference (from
-         // serialize_loads) was never handed off to anything -- release it
+         // serialization_loads) was never handed off to anything -- release it
          // before propagating the exception.
          Py_DECREF(pobj);
          throw;
