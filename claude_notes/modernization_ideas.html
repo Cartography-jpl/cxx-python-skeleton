@@ -1,0 +1,1478 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+<title>modernization_ideas.html</title>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8"/>
+
+</head>
+
+<body>
+
+<h1 id="modernization-ideas-for-the-skeleton-c-library">Modernization
+ideas for the skeleton C++ library</h1>
+<p>Status: <strong>ideas only, no code changes.</strong> Section 10 adds
+what the two real consumers (geocal and framework) change about the
+conclusions below; where it contradicts an earlier section, section 10
+wins. Based on a read of <code>lib/</code>, <code>python/</code>,
+<code>swig_rules/</code>, the <code>.am</code>/<code>configure.ac</code>
+build, and <code>env/linux/pixi.toml</code>. Statements about
+third-party tools (nanobind, litgen, xtensor, …) come from my knowledge
+of those projects, not from trying them here. Verify version-specific
+claims before committing to a plan.</p>
+<h2 id="where-the-code-is-today">1. Where the code is today</h2>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr>
+<th>Area</th>
+<th>Current state</th>
+<th>Size / notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Language level</td>
+<td>Already <code>-std=gnu++17</code>
+(<code>AX_CXX_COMPILE_STDCXX([17],[ext],[mandatory])</code>), but the
+code style is C++03</td>
+<td>The standard is ahead of the code.</td>
+</tr>
+<tr>
+<td>Smart pointers</td>
+<td><code>boost::shared_ptr</code> / <code>weak_ptr</code> /
+<code>make_shared</code> everywhere (about 60 uses in
+<code>lib/</code>)</td>
+<td><code>swig_rules/</code> has a 547-line forked
+<code>my_shared_ptr.i</code> and custom deleters.</td>
+</tr>
+<tr>
+<td>Arrays</td>
+<td><code>blitz::Array&lt;T,N&gt;</code>, N = 1..5, in
+<code>numpy_sample.h</code> and
+<code>blitz_array_serialize_support.*</code> (391 lines of
+<code>.cc</code>)</td>
+<td>The SWIG side is ~900 lines (<code>swig_array.i</code>,
+<code>swig_array_inc.i</code>). <code>swig_array_inc.i</code> subclasses
+<code>blitz::MemoryBlock</code> and <code>#define</code>s
+<code>blockLength()</code> to inject a <code>friend</code>.</td>
+</tr>
+<tr>
+<td>Bindings</td>
+<td>SWIG 4.x, 9 <code>.i</code> files in <code>lib/</code> plus 17
+shared in <code>swig_rules/include/</code></td>
+<td>Doxygen to <code>doxy2swig.py</code> to docstrings. Everything is
+linked into one <code>_swig_wrap.so</code>.</td>
+</tr>
+<tr>
+<td>Serialization/pickle</td>
+<td><code>boost::serialization</code> with polymorphic archives, bridged
+to python <code>pickle</code></td>
+<td>The most intricate part: <code>serialize_function.cc</code> (456
+lines), <code>serialization_context.*</code>,
+<code>weak_ptr_serialize_support.h</code>,
+<code>serialize_shared_ptr.h</code>.</td>
+</tr>
+<tr>
+<td>Tests</td>
+<td>Boost.Test (C++), pytest (python)</td>
+<td>Fine, but Boost.Test is heavy.</td>
+</tr>
+<tr>
+<td>Build</td>
+<td>autotools plus <code>m4</code> macros from a subtree,
+<code>make check</code></td>
+<td>A pip <code>setup.py</code> and <code>pyproject.toml</code> already
+exist for the pure-python part.</td>
+</tr>
+<tr>
+<td>Typing</td>
+<td>Python package has type hints in places (per recent commit), but
+SWIG output has no <code>.pyi</code></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<p>The code is small, so migration is cheap here. The real cost is in
+the generic machinery in <code>swig_rules/</code>, which downstream
+projects such as geocal depend on. That machinery is also where most of
+the benefit is.</p>
+<h2
+id="plain-c-modernization-low-risk-independent-of-any-binding-choice">2.
+Plain C++ modernization (low risk, independent of any binding
+choice)</h2>
+<p>These can be done first and make later steps easier. None of them
+need new dependencies.</p>
+<ol type="1">
+<li><strong><code>boost::shared_ptr</code> to
+<code>std::shared_ptr</code></strong> (also <code>weak_ptr</code>,
+<code>make_shared</code>, <code>dynamic_pointer_cast</code>).
+<ul>
+<li>Mechanical in <code>lib/</code>, but it touches
+<code>serialize_shared_ptr.h</code>,
+<code>weak_ptr_serialize_support.h</code>, <code>my_shared_ptr.i</code>
+and <code>shared_ptr_type_mapper.i</code>.</li>
+<li><code>boost::serialization</code> supports
+<code>std::shared_ptr</code>
+(<code>&lt;boost/serialization/shared_ptr.hpp&gt;</code>). The repo’s
+own <code>serialize_shared_ptr.h</code> /
+<code>weak_ptr_serialize_support.h</code> exist because of tracking and
+weak_ptr gaps, so check whether they still do what is needed.</li>
+<li>Do this <em>before</em> the binding migration: nanobind has
+first-class <code>std::shared_ptr</code> support and no
+<code>boost::shared_ptr</code> support (see 4).</li>
+</ul></li>
+<li><strong><code>boost::optional</code> to
+<code>std::optional</code></strong>. Used in <code>numpy_sample.h</code>
+and the <code>swig_boost_optional.i</code> typemaps.</li>
+<li><strong><code>boost::array</code> to
+<code>std::array</code></strong>, <code>boost::assign</code> removed
+(<code>generic_object_map.h</code> includes it, apparently unused),
+<code>boost::range</code> adaptors to a plain loop or C++20
+<code>std::views::keys</code>.</li>
+<li><strong>Rule of zero and
+<code>override</code>/<code>= default</code></strong>:
+<ul>
+<li>Empty <code>virtual ~X() {}</code> can become
+<code>= default</code>.</li>
+<li>Add <code>override</code> on <code>print</code>, <code>func</code>
+and <code>desc</code>.</li>
+<li><code>throw()</code> on <code>Exception::~Exception</code> is a
+deprecated exception specification. Use <code>noexcept</code>.</li>
+</ul></li>
+<li><strong><code>Printable&lt;T&gt;</code> CRTP</strong>:
+<ul>
+<li>It uses C-style <code>((T*) this)</code> casts, virtual inheritance
+from <code>GenericObject</code>, and a 20-year-old “Mac 10.4.11 double
+free” workaround
+(<code>std::string buf("blah"); buf.reserve(1000)</code>), which is also
+copy-pasted into <code>skeleton_exception.h</code>. The workaround can
+almost certainly be deleted.</li>
+<li>Use <code>static_cast&lt;const T*&gt;(this)</code>.</li>
+<li>Consider a C++20 <code>concept</code> for “has
+<code>print(std::ostream&amp;)</code>”.</li>
+<li>Longer term, <code>std::formatter</code> specializations (C++20/23
+<code>std::format</code>) could replace ostream printing. Python
+<code>__str__</code> only needs a string, so this is optional.</li>
+</ul></li>
+<li><strong><code>Skeleton::Exception</code></strong>: it stores an
+<code>ostringstream</code> and hand-writes a copy constructor with
+<code>catch(...)</code>. Storing a <code>std::string</code> plus a
+streaming helper would be simpler, copyable, and safer for exception
+objects. Also check <code>what()</code> lifetime.</li>
+<li><strong><code>GenericObjectMap : public std::map&lt;...&gt;</code></strong>:
+publicly inheriting from a standard container is a known smell. Use
+composition and expose <code>keys()</code>, <code>get</code>,
+<code>set</code> explicitly. The python <code>__getitem__</code> /
+<code>__contains__</code> / <code>__getattr__</code> shims in the
+<code>.i</code> file would then be written against a clean
+interface.</li>
+<li><strong>Pass-by-value-and-move</strong> for the shared_ptr and
+<code>std::string</code> constructor arguments. Replace
+<code>const shared_ptr&lt;T&gt;&amp;</code> where ownership is
+taken.</li>
+<li><strong><code>std::vector&lt;std::vector&lt;shared_ptr&lt;...&gt;&gt;&gt;</code>
+and <code>GenericObjectB(const shared_ptr&amp;) : a_(V) {}</code> in
+<code>.i</code> files</strong>: the <code>.i</code> file contains inline
+C++ initializers that are copied header code. This goes away under
+nanobind because there is no second hand-maintained declaration.</li>
+<li><strong>Hygiene</strong>: <code>.h~</code>, <code>.cc~</code>,
+<code>.i~</code> backup files in <code>lib/</code> and
+<code>python/</code>, <code>configure~</code>, <code>README.git~</code>,
+untracked <code>python/test*.xml</code>. Add them to
+<code>.gitignore</code>.</li>
+<li><strong>Later, C++20</strong>: <code>std::span</code> for array
+arguments, <code>&lt;concepts&gt;</code>, <code>std::format</code>.
+Requires bumping <code>AX_CXX_COMPILE_STDCXX</code> from 17 to 20 (the
+pixi compilers are surely new enough).</li>
+</ol>
+<h2 id="array-library-replacing-blitz">3. Array library: replacing
+blitz</h2>
+<h3 id="what-blitz-is-actually-providing-here">What blitz is actually
+providing here</h3>
+<ul>
+<li>N-d array (1 to 5 dims), sharing storage, with <strong>arbitrary
+base index, strides and storage order</strong> and slicing that creates
+views (<code>blitz::Range</code>).</li>
+<li>Expression templates (<code>data_ = 1, 2, 3, 4;</code>, array
+math).</li>
+<li>A mature python bridge <strong>written by this project</strong>
+(<code>PythonMemoryBlock</code>, a <code>blitz::MemoryBlock</code>
+subclass that holds a reference to a numpy object). It depends on a
+<code>#define</code> hack to reach a private member.</li>
+<li>Boost serialization support
+(<code>blitz_array_serialize_support.cc</code>), instantiated per type
+and rank.</li>
+</ul>
+<p>In the skeleton only <code>NumpySample</code> uses arrays, so
+replacement is easy here. In a real downstream project, array use is
+probably pervasive, and this is the hard part of the modernization. Note
+that blitz is largely unmaintained, and the conda-forge
+<code>libblitz</code> package is the only reason it is easy to install
+here.</p>
+<h3 id="candidates">Candidates</h3>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr>
+<th>Option</th>
+<th>Pros</th>
+<th>Cons / questions</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>xtensor</strong> (+ <code>xtensor-python</code>)</td>
+<td>Closest to blitz and numpy in spirit: N-d, expression templates,
+views (<code>xt::view</code>, <code>xt::range</code>), row-major and
+column-major, broadcasting, active development.</td>
+<td><code>xtensor-python</code> is <strong>pybind11-only</strong> (as
+far as I know). There is no official nanobind bridge, so you would write
+a type caster (not hard, see below). It also has heavy compile times and
+a custom 3-library dependency stack (<code>xtl</code>,
+<code>xtensor</code>, <code>xtensor-python</code>).</td>
+</tr>
+<tr>
+<td><strong>Eigen</strong> (+ nanobind’s Eigen support)</td>
+<td>Ubiquitous, header-only, nanobind has built-in
+<code>Eigen::Matrix</code>/<code>Map</code> casters. Best-in-class
+linear algebra.</td>
+<td>Only 1-D and 2-D in the core library. Higher ranks need
+<code>Eigen::Tensor</code> (unsupported module). No arbitrary base
+index.</td>
+</tr>
+<tr>
+<td><strong><code>nb::ndarray&lt;T, nb::ndim&lt;N&gt;&gt;</code>
+(nanobind) as the interface type, with plain storage
+internally</strong></td>
+<td>The binding layer <em>is</em> the numpy bridge. It is zero-copy,
+handles lifetime (see below), and supports numpy, PyTorch, JAX and CuPy
+through DLPack/buffer protocol.</td>
+<td>It is only a non-owning view. C++ code that wants arithmetic or
+slicing needs a library underneath.</td>
+</tr>
+<tr>
+<td><strong>C++23 <code>std::mdspan</code></strong> (or the Kokkos
+reference implementation <code>mdspan</code> for C++17/20)</td>
+<td>Standard. Zero dependencies. Non-owning N-d view with layouts (left,
+right, stride), which is the natural mate for <code>nb::ndarray</code>.
+Very cheap to adopt.</td>
+<td>No arithmetic or expression templates. Owning storage is a
+<code>std::vector</code> or <code>std::unique_ptr&lt;T[]&gt;</code> plus
+an mdspan.</td>
+</tr>
+<tr>
+<td><strong>Keep blitz</strong> and only change the python bridge</td>
+<td>No C++ churn in downstream code.</td>
+<td>Keeps the unmaintained dependency. With nanobind there is no SWIG
+typemap so the <code>PythonMemoryBlock</code> bridge has to be rewritten
+as a nanobind caster anyway.</td>
+</tr>
+<tr>
+<td><strong>Armadillo / Boost.MultiArray / Boost.uBLAS</strong></td>
+<td></td>
+<td>Not recommended: weaker rank support, weaker python story, or
+stagnant.</td>
+</tr>
+</tbody>
+</table>
+<h3 id="recommendation-for-discussion">Recommendation (for
+discussion)</h3>
+<ul>
+<li>For the <strong>skeleton</strong>, a two-step demonstration is
+enough: (a) <code>NumpySample</code> stores a small owning container
+(xtensor <code>xt::xtensor&lt;double,2&gt;</code> or a
+<code>std::vector</code> + <code>mdspan</code>), and (b) the python
+boundary uses <code>nb::ndarray</code>.</li>
+<li>For <strong>real projects</strong> (geocal-like) that lean on blitz
+expression syntax, <strong>xtensor is the closest drop-in</strong>.
+Budget for the compile-time cost, and for writing the nanobind caster
+(xtensor to <code>nb::ndarray</code> and back, mirroring what
+<code>xtensor-python</code> does for pybind11).</li>
+<li>If most array usage turns out to be just “pass an N-d block of
+doubles around”, <strong><code>mdspan</code> +
+<code>nb::ndarray</code></strong> has the least dependency risk and is
+where the standard is heading.</li>
+<li><strong>Behavioral differences to test explicitly</strong> (the
+existing <code>numpy_sample_test.py</code> lifetime tests are good
+seeds):
+<ul>
+<li>Blitz arrays can be non-zero-based and the test suite exercises
+<code>blitz::Range</code>. xtensor and Eigen do not support arbitrary
+bases.</li>
+<li>Storage order: blitz defaults to row-major, but supports Fortran
+order and mixed order.</li>
+<li>Lifetime: the three existing lifetime tests (return, pass,
+round-trip) map directly onto nanobind’s <code>ndarray</code> ownership
+rules (<code>nb::rv_policy</code>, capsule-owner). They stay valuable
+under any option.</li>
+<li>Const correctness: returning <code>const blitz::Array&amp;</code> of
+internal storage and having python mutate it. nanobind’s
+<code>nb::ndarray&lt;const double&gt;</code> makes the read-only flag
+explicit.</li>
+</ul></li>
+<li><strong><code>blitz::Range</code> to python</strong> (via
+<code>boost::optional&lt;blitz::Range&gt;</code>): there is no
+equivalent in the numpy world. Replace with
+<code>std::optional&lt;std::pair&lt;...&gt;&gt;</code>, a plain
+<code>slice</code>, or drop it.</li>
+</ul>
+<h3 id="serialization-of-arrays">Serialization of arrays</h3>
+<p><code>boost::serialization</code> of a flat buffer plus shape works
+for any of the above. The 391-line blitz serializer, instantiated for 5
+ranks times 5 types, would be replaced by one template over rank or
+<code>std::span</code> of the data plus shape. With xtensor,
+<code>xtensor</code> has no built-in boost::serialization support, so
+write one function. The <code>boost::serialization::make_array</code>
+approach in the current code carries over.</p>
+<h2 id="binding-layer-swig-vs-nanobind-and-litgen-pybind11-others">4.
+Binding layer: SWIG vs nanobind (and litgen, pybind11, others)</h2>
+<h3 id="options">Options</h3>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr>
+<th>Option</th>
+<th>What it is</th>
+<th>Fit to this repo</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>SWIG (status quo)</strong></td>
+<td>Interface files, typemaps, doxygen-fed docstrings.</td>
+<td>Works, supports many languages (not needed: Ruby support was
+dropped, only python is used). The maintenance burden is the 5,900 lines
+in <code>swig_rules/</code> (typemaps, forked
+<code>boost_shared_ptr.i</code>, patched <code>moduleimport</code>,
+<code>PYTHON_SILENT_MEMLEAK</code> workaround, etc.). SWIG&lt;4.4 is
+pinned in the pixi file. Generates no type stubs. Slow compile of
+<code>*_wrap.cc</code>.</td>
+</tr>
+<tr>
+<td><strong>pybind11</strong></td>
+<td>Header-only, macros-free C++ API, widest ecosystem (xtensor-python,
+Eigen, many examples).</td>
+<td>Fine, but nanobind is the same author’s successor and is
+smaller/faster. Only choose pybind11 if you need
+<code>xtensor-python</code> or a library with only pybind11
+support.</td>
+</tr>
+<tr>
+<td><strong>nanobind</strong></td>
+<td>Same API as pybind11 (mostly), compiles faster, smaller binaries,
+lower runtime overhead, requires C++17 and CPython &gt;= 3.9 (check
+current floor). Supports stable ABI (<code>abi3</code>) builds on newer
+Pythons, free-threading, <code>ndarray</code> for
+numpy/PyTorch/JAX/CuPy, <code>std::shared_ptr</code> /
+<code>unique_ptr</code>, <code>std::optional</code>,
+<code>std::variant</code>, STL containers via
+<code>nanobind/stl/*.h</code>, trampolines for virtual overrides
+(<code>NB_TRAMPOLINE</code> / <code>NB_OVERRIDE</code>), and
+<strong>generates <code>.pyi</code> stubs</strong>
+(<code>nanobind.stubgen</code>).</td>
+<td>Good fit overall. Details below.</td>
+</tr>
+<tr>
+<td><strong>litgen</strong></td>
+<td><em>Not a binding library</em>. It is a <strong>generator</strong>:
+parses C++ headers (using srcML) and emits pybind11 <strong>or
+nanobind</strong> binding code plus <code>.pyi</code> stubs,
+<strong>carrying C++ doc comments into python docstrings</strong>.</td>
+<td>Replaces the <code>.i</code> files and the entire doxygen -&gt;
+<code>doxy2swig.py</code> pipeline. It targets exactly this repo’s pain
+point (hand-maintained <code>.i</code> mirrors of headers). See below
+for caveats.</td>
+</tr>
+<tr>
+<td><strong>cppyy / cffi / Cython / Boost.Python</strong></td>
+<td>Different philosophy (JIT reflection / C ABI / C-like DSL / legacy
+Boost).</td>
+<td>Not good fits for a C++ class library with inheritance and
+directors. Boost.Python is effectively the legacy predecessor of
+pybind11.</td>
+</tr>
+<tr>
+<td><strong>Python’s <code>nanobind</code> + manual
+bindings</strong></td>
+<td>Hand-write about 10 lines per class.</td>
+<td>For a library of this size (about 15 classes), hand-writing bindings
+is very likely less code than the <code>.i</code> files and
+typemaps.</td>
+</tr>
+</tbody>
+</table>
+<h3 id="how-nanobind-maps-onto-what-the-repo-does-today">How nanobind
+maps onto what the repo does today</h3>
+<table>
+<colgroup>
+<col style="width: 50%" />
+<col style="width: 50%" />
+</colgroup>
+<thead>
+<tr>
+<th>Current SWIG feature</th>
+<th>nanobind equivalent / note</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>%skeleton_shared_ptr(T)</code> plus auto-downcast via
+<code>GenericObject</code> RTTI
+(<code>shared_ptr_type_mapper.i</code>)</td>
+<td>nanobind does polymorphic downcasting automatically for types with a
+virtual method (<code>nb::class_&lt;Derived, Base&gt;</code>), so the
+RTTI trick shouldn’t be needed.</td>
+</tr>
+<tr>
+<td>Forked <code>my_shared_ptr.i</code> with
+<code>PythonRefPtrCleanup</code> deleter,
+<code>SHARED_PTR_NO_OWN</code></td>
+<td>nanobind’s <code>std::shared_ptr</code> caster ties the C++
+<code>shared_ptr</code> to the python object’s lifetime (the shared_ptr
+from python holds a reference to the python object). This is
+conceptually the same design as <code>DirectorNotes.md</code> describes,
+but supported by the library. <code>weak_ptr</code> is <strong>the main
+unknown</strong> and should be prototyped first (does it behave when a
+distinct shared_ptr is handed out? is there a
+<code>nanobind/stl/weak_ptr.h</code> in the version in use?). Consider
+<code>nb::intrusive_ptr</code> if objects exist mostly to be shared
+between python and C++.</td>
+</tr>
+<tr>
+<td><code>%feature("director")</code></td>
+<td>Trampoline classes
+(<code>struct PyDirectorExample : DirectorExample { NB_TRAMPOLINE(DirectorExample, 2); ... }</code>).
+One small class per director base. <code>DirectorExampleUser</code> and
+<code>director_example_test.py</code> are a ready-made regression test
+for this.</td>
+</tr>
+<tr>
+<td>Exception propagation from python overrides (recent commits,
+<code>python_exception.h</code>)</td>
+<td>nanobind propagates python exceptions through the trampoline as
+<code>nb::python_error</code> and re-raises the original. Needs testing
+but likely simpler than the SWIG-director version.</td>
+</tr>
+<tr>
+<td><code>%python_attribute</code>,
+<code>%python_attribute_with_set</code></td>
+<td><code>.def_prop_ro(...)</code> /
+<code>.def_prop_rw(...)</code>.</td>
+</tr>
+<tr>
+<td><code>Printable::print_to_string</code> as <code>__str__</code></td>
+<td><code>.def("__str__", &amp;T::print_to_string)</code> or a generic
+helper template used with every <code>Printable</code>.</td>
+</tr>
+<tr>
+<td><code>%template(Vector_...)</code> and
+<code>std_vector.i</code></td>
+<td><code>#include &lt;nanobind/stl/vector.h&gt;</code> (copying) or
+<code>nb::bind_vector</code> for reference semantics.</td>
+</tr>
+<tr>
+<td>One shared library <code>_swig_wrap.so</code></td>
+<td>One <code>NB_MODULE</code>, with sub-registration functions per
+header group. Simpler than the SWIG 4 <code>moduleimport</code>
+override.</td>
+</tr>
+<tr>
+<td><code>%pickle_serialization</code>,
+<code>serialize_function.i</code></td>
+<td>See section 5.</td>
+</tr>
+<tr>
+<td><code>iostream_swig</code> (<code>swig_iostream.i</code>)</td>
+<td>Python file-like object &lt;-&gt; <code>std::ostream</code> needs a
+custom <code>streambuf</code>. nanobind has no ready-made equivalent.
+This is a small hand-written piece.</td>
+</tr>
+<tr>
+<td><code>boost::rational</code></td>
+<td>Map to python <code>fractions.Fraction</code> with a small custom
+caster, or drop it.</td>
+</tr>
+<tr>
+<td>Generated docs</td>
+<td><code>nb::class_</code> docstrings written by hand (or litgen).
+Sphinx autodoc works with the generated stubs.</td>
+</tr>
+</tbody>
+</table>
+<h3 id="where-litgen-would-fit">Where litgen would fit</h3>
+<ul>
+<li>Use <strong>litgen + nanobind</strong> to generate the bindings from
+the C++ headers. Comments become docstrings, and <code>.pyi</code> is
+produced.</li>
+<li>Caveats to evaluate in a spike:
+<ul>
+<li>litgen’s generated code expects reasonably standard C++. Heavy CRTP
+(<code>Printable&lt;T&gt;</code>), <code>boost::shared_ptr</code>, and
+virtual inheritance from <code>GenericObject</code> may need
+preprocessing options or manual overrides. Doing the plain C++ cleanup
+in section 2 first makes this much easier.</li>
+<li>It needs <code>srcML</code> as a build-time tool (conda-forge has
+it), but only for <em>generating</em> the bindings, so generated files
+can be committed, or regenerated in a dev-only step.</li>
+<li>For directors and custom shared_ptr/serialization pieces you still
+hand-write nanobind code alongside the generated code. litgen is
+designed for that mix. Verify how it handles virtual classes that need
+trampolines.</li>
+<li>Compare its output with hand-written nanobind for <em>this</em>
+small a library; the benefit grows with the number of classes, so for
+the skeleton it is mostly a demonstration.</li>
+</ul></li>
+</ul>
+<h3 id="migration-costrisk">Migration cost/risk</h3>
+<ul>
+<li>The <code>.i</code> files are small (about 450 lines in
+<code>lib/</code>). The 5,900 lines under <code>swig_rules/</code> are
+the “real” framework and many of them have no counterpart because
+nanobind has them built in. The result would likely be <strong>a few
+hundred lines of C++ plus an automake stanza</strong> instead of a
+templated typemap framework. That is the strongest argument for the
+move.</li>
+<li><strong>Coexistence is awkward</strong>: SWIG and nanobind each keep
+their own type registry, so an object can’t cross between SWIG modules
+and nanobind modules. A hybrid migration is only practical at the level
+of whole libraries (whole python modules), not per-class. For a large
+downstream project (geocal) that implies either a big-bang port or a
+split by library boundary.</li>
+<li>The skeleton is the right place to prototype: it is small, has real
+tests for the hard cases (directors, weak_ptr, array lifetime, pickle
+with shared state), and can keep the SWIG version on <code>master</code>
+while a <code>nanobind</code> branch is developed for comparison.</li>
+</ul>
+<h2 id="serialization-and-pickle">5. Serialization and pickle</h2>
+<p>This is the piece with no drop-in replacement, and it is where most
+of the design work is.</p>
+<ul>
+<li>Today: <code>boost::serialization</code> (XML/binary polymorphic
+archives) to support C++ persistence and python <code>pickle</code>,
+with <code>SerializationContext</code> managing the case where C++ and
+python objects reference each other, so object identity is preserved
+(the <code>handle_duplicate_object</code> branch and
+<code>GenericObjectMap</code> are about this).</li>
+<li>Options:
+<ol type="1">
+<li><strong>Keep boost::serialization</strong> and expose it through
+nanobind’s pickle protocol
+(<code>__getstate__</code>/<code>__setstate__</code>, which nanobind
+supports by letting <code>__setstate__</code> construct in place).
+Smallest change, preserves file formats. The
+<code>SerializationContext</code> logic is binding-independent C++ and
+could be ported largely as-is. Note the code includes the python
+<code>Pickler</code> in the C++ library; check that nothing relies on
+SWIG internals there.</li>
+<li><strong>cereal</strong>: header-only, supports
+<code>std::shared_ptr</code>, polymorphic types,
+<code>std::optional</code>, JSON/XML/binary, simpler API than Boost.
+Change is mechanical but touches every <code>serialize()</code> and
+removes the <code>BOOST_CLASS_EXPORT</code> macros in favor of
+<code>CEREAL_REGISTER_TYPE</code>. It breaks existing archived files,
+and I’m not sure about weak_ptr support.</li>
+<li><strong>nlohmann::json / hand-written
+<code>to_dict</code>/<code>from_dict</code></strong> plus python
+<code>__reduce__</code>: easy to read, human-debuggable, very little
+machinery, but loses automatic object-graph tracking and polymorphism.
+You would need to design identity tracking yourself.</li>
+<li><strong>No C++ serialization</strong>: pickle at the python level
+only (<code>__reduce__</code> built from constructor args). Simplest and
+enough if C++ persistence is not required. Depends on whether the
+downstream project needs the XML/binary C++ files.</li>
+</ol></li>
+<li>Suggested: keep (1) for the first port, because it isolates the
+binding migration from a format change, and revisit cereal later if
+boost::serialization becomes a build-time or maintenance burden.</li>
+<li>Regardless: keep the existing round-trip tests
+(<code>generic_object_map_test.cc</code>,
+<code>director_example_test.py</code>) as the acceptance suite.</li>
+</ul>
+<h2 id="build-system-and-packaging">6. Build system and packaging</h2>
+<ul>
+<li><strong>Decision (from you): stay on autotools.</strong> CMake’s
+main advantage is Windows support, which you don’t need, and it adds a
+second build language for little gain. Nothing in the nanobind plan
+requires CMake.
+<ul>
+<li>nanobind’s documented path is CMake, but it also ships a
+pre-combined source file (<code>src/nb_combined.cpp</code>, meant for
+custom build systems <strong>(verify in the version you
+install)</strong>) plus its header include dir and the vendored
+<code>robin_map</code> headers. An automake rule can compile that into
+the module with the usual flags (C++17,
+<code>-fvisibility=hidden</code>, <code>-fPIC</code>). The conda/pip
+<code>nanobind</code> package exposes
+<code>nanobind.include_dir()</code> and
+<code>nanobind.source_dir()</code>, which a small
+<code>configure.ac</code> macro (like the existing
+<code>AFIDS_PYTHON</code>) can query, replacing the SWIG/doxygen
+checks.</li>
+<li><code>.pyi</code> stubs come from
+<code>python -m nanobind.stubgen</code>, which can run as a
+<code>make</code> rule after the module is built.</li>
+<li>The existing <code>python/pyproject.toml</code> /
+<code>setup.py</code> pip install hook in <code>python.am</code> stays
+as it is.</li>
+<li>The autotools pieces that go away anyway under nanobind are the
+SWIG/doxygen/<code>doxy2swig</code> rules,
+<code>create_python_init.py</code> and <code>swig_wrap.tmpl</code>. The
+<code>config/m4</code> distutils fixes still matter for
+<code>configure</code>.</li>
+<li>Cost: you hand-maintain the module’s compile rule, instead of
+getting <code>nanobind_add_module()</code> for free. That is one
+automake stanza, so it is small.</li>
+</ul></li>
+<li><strong>Dependency management</strong>: <code>pixi.toml</code> is a
+good base. Add <code>nanobind</code>, <code>scikit-build-core</code>,
+<code>cmake</code>, <code>ninja</code>, <code>xtensor</code> (if
+chosen), <code>catch2</code> or <code>doctest</code>, and drop
+<code>swig</code>, <code>doxygen</code> and <code>libblitz</code>.</li>
+<li><strong>Tests</strong>: see section 9. Short version: the framework
+can be swapped later via a compatibility header, and parallel runs are
+possible without swapping.</li>
+<li><strong>Python</strong>: add <code>.pyi</code> stubs (nanobind
+<code>stubgen</code>), run mypy against them (mypy is already in the
+pixi env), and keep ruff. The <code>mkinit</code>-driven
+<code>from skeleton_swig.all import *</code> glob imports can become
+explicit imports from the single nanobind module.</li>
+<li><strong>CI/wheels</strong>: with scikit-build-core,
+<code>cibuildwheel</code> becomes available. Nanobind’s stable-ABI
+option (abi3, Python 3.12+) can reduce the wheel matrix.</li>
+</ul>
+<h2 id="suggested-order-of-work">7. Suggested order of work</h2>
+<ol type="1">
+<li><strong>Plain C++ cleanup</strong> (section 2):
+<code>std::shared_ptr</code>/<code>optional</code>/<code>array</code>,
+<code>override</code>/<code>= default</code>, drop dead hacks. Keep SWIG
+working. Gives an immediate win and de-risks everything else. Update
+<code>swig_rules</code> typemaps in the same step.</li>
+<li><strong>Spike: nanobind for the three hardest cases</strong>, on a
+branch, in a scratch pixi env:
+<ol type="a">
+<li><code>DirectorExample</code> + <code>DirectorExampleUser</code> +
+<code>weak_ptr</code> lifetime (the contents of
+<code>director_example_test.py</code>).</li>
+<li><code>NumpySample</code> with <code>nb::ndarray</code> and the
+lifetime tests.</li>
+<li>Pickle round-trip of <code>GenericObjectMap</code> holding shared
+objects. If a, b and c pass, the migration is clearly feasible. If
+weak_ptr or directors are awkward, find out here.</li>
+</ol></li>
+<li><strong>Array library decision</strong> using the result of 2b and
+what downstream code needs (xtensor vs mdspan vs Eigen).</li>
+<li><strong>litgen evaluation</strong> on the headers after cleanup.
+Decide between generated and hand-written bindings.</li>
+<li><strong>Build-system change within autotools</strong> (nanobind
+module rule, drop SWIG/doxygen rules), once the binding choice is
+made.</li>
+<li>Revisit serialization format (cereal vs boost) and C++20 only if
+there’s a concrete reason.</li>
+</ol>
+<h2 id="open-questions-for-you">8. Open questions for you</h2>
+<ul>
+<li>How much must stay compatible with the downstream projects (geocal
+and others)? Is a “big-bang” port acceptable for them, or must SWIG keep
+working for some time?</li>
+<li>Are existing boost XML/binary archive files a compatibility
+requirement, or is python pickle the only persistence that matters?</li>
+<li>Is blitz’s arbitrary base index / non-row-major storage actually
+used downstream, or is it effectively always zero-based row-major?</li>
+<li><del>Are other target languages (Ruby) still relevant?</del>
+<strong>Answered: no.</strong> Ruby was an old requirement, so SWIG’s
+multi-language advantage no longer applies and python-only tools
+(nanobind) are fine. The Ruby-era comments in <code>Printable</code> /
+<code>Exception</code> (the Mac 10.4.11 workaround) are dead and can
+go.</li>
+<li>Is the goal to explore (this repo is a test bed), or to produce a
+template that downstream projects will follow?</li>
+</ul>
+<h2 id="unit-testing-c">9. Unit testing (C++)</h2>
+<p>Counts below are from the skeleton, geocal
+(<code>/home/smyth/Local/geocal-repo</code>) and framework
+(<code>/home/smyth/Local/framework</code>). They are grep counts of
+macro tokens, not a semantic analysis.</p>
+<h3 id="what-the-existing-tests-use">What the existing tests use</h3>
+<table>
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+</colgroup>
+<thead>
+<tr>
+<th></th>
+<th>skeleton</th>
+<th>geocal</th>
+<th>framework</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>BOOST_AUTO_TEST_CASE</code></td>
+<td>7</td>
+<td>583</td>
+<td>562</td>
+</tr>
+<tr>
+<td><code>BOOST_FIXTURE_TEST_SUITE</code> (one per test file)</td>
+<td>3</td>
+<td>184</td>
+<td>200</td>
+</tr>
+<tr>
+<td><code>BOOST_CHECK_EQUAL</code></td>
+<td>few</td>
+<td>763</td>
+<td>1,561</td>
+</tr>
+<tr>
+<td><code>BOOST_CHECK_CLOSE</code></td>
+<td>0</td>
+<td>1,420</td>
+<td>1,034</td>
+</tr>
+<tr>
+<td><code>BOOST_CHECK</code></td>
+<td>few</td>
+<td>669</td>
+<td>620</td>
+</tr>
+<tr>
+<td><code>BOOST_CHECK_MATRIX_CLOSE[_TOL]</code> (custom)</td>
+<td>2</td>
+<td>123</td>
+<td>746</td>
+</tr>
+<tr>
+<td><code>BOOST_CHECK_THROW</code></td>
+<td>0</td>
+<td>6</td>
+<td>21</td>
+</tr>
+<tr>
+<td><code>BOOST_WARN_MESSAGE</code></td>
+<td>0</td>
+<td>52</td>
+<td>4</td>
+</tr>
+<tr>
+<td><code>BOOST_REQUIRE*</code>, <code>BOOST_FAIL</code>,
+<code>BOOST_ERROR</code>, <code>BOOST_CHECK_LT</code>,
+<code>..._SMALL</code></td>
+<td>0</td>
+<td>~16</td>
+<td>~35</td>
+</tr>
+<tr>
+<td><code>BOOST_CHECK_ARRAYAD_CLOSE[_TOL]</code> (custom)</td>
+<td>0</td>
+<td>0</td>
+<td>3</td>
+</tr>
+</tbody>
+</table>
+<p>So the usage is shallow: basically auto test cases, one fixture suite
+per file, and a handful of check macros. There are no data-driven tests,
+no custom test-tree manipulation, and no Boost.Test-specific plugins.
+Both big repos build all tests into a single binary
+(<code>geocal_test_all</code>, <code>skeleton_test_all</code>) driven by
+a <code>test_all.sh</code> with <code>--run_test=&lt;filter&gt;</code>.
+The matrix macros are defined in one place per repo
+(<code>unit_test_support.h</code>) as
+<code>BOOST_CHECK_LT(max(abs(A - B)), tol)</code>. That is a blitz
+expression, so these macros have to be touched when blitz is replaced,
+whatever test framework is used.</p>
+<h3 id="parallelism-no-framework-change-needed">Parallelism: no
+framework change needed</h3>
+<p>Boost.Test has no built-in parallel execution, but it does have
+<code>--run_test=&lt;suite&gt;</code> and <code>--list_content</code>.
+Because the tests are already one suite per file (about 180 to 200
+suites per repo), a thin wrapper can fan out suites: -
+<strong>Automake’s parallel test harness</strong> (the default in modern
+automake): list one <code>TESTS</code> entry per suite, each running
+<code>./test_all --run_test=&lt;suite&gt;</code>, and then
+<code>make -j N check</code> runs them concurrently. The suite list can
+be generated at build time from <code>--list_content</code>. - Or the
+same loop with <code>xargs -P</code> / GNU <code>parallel</code> in
+<code>test_all.sh</code>. - Watch for tests that <strong>share
+state</strong>: temporary output files with fixed names, the
+<code>unit_test_data</code> directory (211 MB in geocal),
+working-directory changes, and global singletons. A process per suite
+isolates singletons (in-process state) but not files. Expect some tests
+to need unique temp paths before running all in parallel. - Python tests
+already run in parallel with <code>pytest -n</code>. - A bonus:
+per-suite processes make <code>valgrind</code> runs and failure triage
+easier.</p>
+<h3 id="should-the-framework-change">Should the framework change?</h3>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr>
+<th>Option</th>
+<th>For</th>
+<th>Against</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Stay on Boost.Test</strong></td>
+<td>Zero migration work, already works, still maintained. Boost is
+staying anyway if Boost.Serialization is kept. The newer
+<code>BOOST_TEST(a == b)</code> gives expression-decomposition output,
+and <code>tolerance()</code> for floats.</td>
+<td>Heavy template compile times, error output of the older
+<code>BOOST_CHECK_*</code> macros is plain, no sharding of its own.</td>
+</tr>
+<tr>
+<td><strong>Catch2 v3</strong></td>
+<td>Expression-decomposing <code>CHECK(a == b)</code>, readable output,
+<code>REQUIRE</code>/<code>CHECK</code> split, matchers, built-in
+sharding (<code>--shard-count</code> / <code>--shard-index</code>)
+<strong>(verify)</strong>, tags. In wide use, packaged on
+conda-forge.</td>
+<td>v3 is a compiled library, not single-header. Fixtures are per test
+case (<code>TEST_CASE_METHOD</code>), not per suite.</td>
+</tr>
+<tr>
+<td><strong>GoogleTest</strong></td>
+<td><code>TEST_F(Suite, name)</code> is the closest model to
+<code>BOOST_FIXTURE_TEST_SUITE</code>, sharding by env variables,
+<code>--gtest_filter</code>/<code>--gtest_list_tests</code>,
+ubiquitous.</td>
+<td>No relative-percent comparison, so <code>BOOST_CHECK_CLOSE</code>
+needs a helper. A little more verbose than Catch2.</td>
+</tr>
+<tr>
+<td><strong>doctest</strong></td>
+<td>Very light, fast to compile, Catch-like syntax.</td>
+<td>Smaller ecosystem, less sharding/matcher support.</td>
+</tr>
+</tbody>
+</table>
+<p>Gotchas that matter for any migration: -
+<code>BOOST_CHECK_CLOSE(a, b, pct)</code> takes the tolerance <strong>in
+percent</strong>, and (by default) checks the relative difference
+against <em>both</em> values (a “strong” check). Catch2’s
+<code>Approx</code> and gtest’s <code>EXPECT_NEAR</code> do not behave
+the same way, and this macro is used about 2,450 times across geocal and
+framework. A compat helper that reproduces the Boost semantics exactly
+avoids silently loosening or tightening about two thousand checks. Do
+not just map it to <code>Approx(...)</code>. - Fixture lifetime: Boost
+constructs the suite fixture fresh for each test case, which matches
+gtest <code>TEST_F</code> and Catch2 <code>TEST_CASE_METHOD</code>. -
+<code>BOOST_WARN_MESSAGE</code> (52 uses in geocal) has no direct
+equivalent in the others. Map to <code>WARN</code>/<code>INFO</code> or
+a log call.</p>
+<h3 id="a-path-that-brings-the-existing-tests-along">A path that brings
+the existing tests along</h3>
+<p>Write a <strong>compatibility header</strong> (it can live in
+<code>unit_test_support.h</code>, which each repo already has) that
+defines the handful of macros above, plus
+<code>BOOST_FIXTURE_TEST_SUITE</code> /
+<code>BOOST_AUTO_TEST_CASE</code> /
+<code>BOOST_AUTO_TEST_SUITE_END</code>, on top of the new framework. For
+example, the suite macro can open a namespace and record the fixture
+type, and the test-case macro can expand to
+<code>TEST_CASE_METHOD(fixture, name)</code> (Catch2) or
+<code>TEST_F</code> (gtest) <strong>(verify the expansion in a
+prototype)</strong>. The existing ~580 test cases per repo then compile
+unchanged, which lets you: 1. switch the runner without touching test
+files, 2. change the macro spellings gradually (or never), and 3. keep
+Boost.Test and the new framework side by side during the transition.
+This is the part I would prototype first on the skeleton: its 7 test
+cases are enough to prove the pattern.</p>
+<h3 id="recommendation">Recommendation</h3>
+<ul>
+<li><strong>Do parallelism now with suite fan-out</strong>, independent
+of any framework decision.</li>
+<li><strong>Keep Boost.Test for now.</strong> Decide on a switch only
+together with the Boost-dependency decision (serialization, section 5 of
+<code>serialization_options.md</code>). If Boost stays for
+serialization, there is little to gain from leaving Boost.Test; if Boost
+is being removed, choose Catch2 v3 or GoogleTest then.</li>
+<li><strong>Centralize the array-dependent checks now.</strong> The
+matrix and AutoDerivative macros are the only tests that depend on the
+array library. Putting them behind one function (for example
+<code>check_close(A, B, tol)</code>) lets the array migration and the
+framework migration proceed independently.</li>
+</ul>
+<h2 id="the-two-real-consumers-geocal-and-framework">10. The two real
+consumers: geocal and framework</h2>
+<p>The skeleton is a toy; <code>/home/smyth/Local/geocal-repo</code> and
+<code>/home/smyth/Local/framework</code> are what would actually use
+anything developed here. Both were surveyed read-only (grep and wc
+counts, token occurrences not semantic analysis, excluding generated
+wrappers, build output and <code>thirdparty/</code>). Numbers are
+approximate; the survey notes where something could not be
+determined.</p>
+<h3 id="side-by-side">10.1 Side by side</h3>
+<table>
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+</colgroup>
+<thead>
+<tr>
+<th></th>
+<th>skeleton</th>
+<th>geocal</th>
+<th>framework</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>C++ (non-generated)</td>
+<td>~2.4k lines</td>
+<td>412 <code>.cc</code> / 330 <code>.h</code>, ~125k lines (incl. 182
+test files, thirdparty)</td>
+<td>494 <code>.cc</code> / 368 <code>.h</code>, ~124k lines</td>
+</tr>
+<tr>
+<td>Other languages</td>
+<td></td>
+<td>thirdparty libraw, libsdbx</td>
+<td><strong>~360k lines of Fortran</strong> (LIDORT, 2stream), Lua +
+luabind (~221 files mention Lua)</td>
+</tr>
+<tr>
+<td>SWIG</td>
+<td>9 <code>.i</code></td>
+<td>247 <code>.i</code>, 14.6k lines, ~310-330 exposed classes</td>
+<td>324 <code>.i</code>, 20k lines, ~400-424 exposed classes</td>
+</tr>
+<tr>
+<td>Python</td>
+<td>small</td>
+<td>17k lib + 10k tests</td>
+<td>8k lib + 4k tests</td>
+</tr>
+<tr>
+<td>Build</td>
+<td>autotools</td>
+<td><strong>autotools</strong> (29 <code>.am</code>)</td>
+<td><strong>CMake</strong> (16 <code>CMakeLists.txt</code>, since 2017;
+no autotools)</td>
+</tr>
+<tr>
+<td>C++ standard</td>
+<td>17</td>
+<td>17</td>
+<td><strong>14</strong></td>
+</tr>
+<tr>
+<td>SWIG / Python pins</td>
+<td>any</td>
+<td>any</td>
+<td><code>swig&lt;4</code>, <code>python&lt;3.9</code> in
+<code>environment.yml</code></td>
+</tr>
+<tr>
+<td><code>boost::shared_ptr</code></td>
+<td>~60</td>
+<td>~3,900 (+295 <code>make_shared</code>)</td>
+<td>~3,700 (+204 <code>make_shared</code>)</td>
+</tr>
+<tr>
+<td><code>std::shared_ptr</code></td>
+<td>0</td>
+<td>2</td>
+<td>0</td>
+</tr>
+<tr>
+<td><code>weak_ptr</code></td>
+<td>2</td>
+<td>15</td>
+<td>13 (the Observer pattern)</td>
+</tr>
+<tr>
+<td>blitz <code>Array&lt;T,N&gt;</code> uses</td>
+<td>~10</td>
+<td>~2,400 (rank 1-2: ~86%, up to rank 7)</td>
+<td>~6,200 (rank 1-3 dominate, max rank 5)</td>
+</tr>
+<tr>
+<td>Classes with <code>serialize()</code></td>
+<td>8</td>
+<td>~190 files</td>
+<td>~290 methods in ~274 files</td>
+</tr>
+<tr>
+<td>Export macros</td>
+<td>8</td>
+<td>~290 <code>GEOCAL_EXPORT_KEY</code></td>
+<td>~325 <code>FP_EXPORT_KEY</code></td>
+</tr>
+<tr>
+<td><code>%feature("director")</code></td>
+<td>1</td>
+<td>9</td>
+<td><strong>47</strong> (incl. 6 <code>Observer&lt;...&gt;</code>
+template instances)</td>
+</tr>
+<tr>
+<td><code>%python_attribute</code></td>
+<td>~5</td>
+<td>~960</td>
+<td>~1,270</td>
+</tr>
+<tr>
+<td>C++ tests</td>
+<td>7 cases</td>
+<td>583 cases in one binary</td>
+<td>562 cases in one binary</td>
+</tr>
+<tr>
+<td>Test data</td>
+<td>tiny</td>
+<td>211 MB</td>
+<td>304 MB (+ multi-GB ABSCO tables)</td>
+</tr>
+</tbody>
+</table>
+<p>Both repos share the <code>swig_rules</code> heritage
+(<code>GenericObject</code>, <code>%python_attribute</code>,
+<code>my_shared_ptr.i</code>, the <code>SerializationContext</code>
+machinery), so they are “the same problem twice”, but they differ in
+build system and in how deep the blitz and autodiff usage goes.</p>
+<h3 id="what-this-changes-in-the-conclusions">10.2 What this changes in
+the conclusions</h3>
+<ol type="1">
+<li><strong>The scale is ~700 exposed classes and &gt;2,200
+<code>%python_attribute</code> uses.</strong> Hand-porting
+<code>.i</code> files is not realistic; a tool is. The <code>.i</code>
+files are very regular (class declaration, a few constructors,
+<code>%python_attribute(name, type)</code>, a list of methods). That
+makes the <code>.i</code> the <em>specification of the Python API</em>
+(which members are exposed and which are properties), whereas the C++
+header is not. <strong>A converter script that reads the <code>.i</code>
+and emits nanobind code</strong> preserves the existing Python API
+exactly. litgen works from the header, and so does not know which
+members the <code>.i</code> turned into properties or hid. That reverses
+part of my earlier lean toward litgen: it is still worth testing for
+docstrings and stubs, but it is probably not the primary migration route
+for these two repos. Keeping the Python API stable matters, because
+there are ~27k lines of Python library code (geocal) and ~8k (framework)
+plus user scripts.</li>
+<li><strong>Blitz replacement is the dominant cost and risk, bigger than
+I implied in section 3.</strong>
+<ul>
+<li>framework: ~6,200 array uses, ~1,200 <code>.reference()</code>
+rebinds, ~850 <code>.dataFirst</code>, ~650
+<code>ColumnMajorArray</code> (Fortran layout used for zero-copy Fortran
+interop), ~600 <code>Range::all</code> slicing, ~215 tensor
+index-notation uses (<code>firstIndex</code>, <code>secondIndex</code>,
+<code>thirdIndex</code>), and <strong>autodiff built on blitz</strong>:
+<code>AutoDerivative&lt;T&gt;</code> (126 files) and
+<code>ArrayAd&lt;T,D&gt;</code> (a value array plus a rank D+1 Jacobian,
+mentioned in ~313 files).</li>
+<li>geocal: ~2,400 uses, mostly rank 1-2 <code>double</code>, with ~320
+<code>Range::all</code>, ~100 <code>Range(</code>, ~85
+<code>.reference()</code>. <code>setBase</code>, Fortran storage and
+<code>GeneralArrayStorage</code> are unused.</li>
+<li>In both, <strong>non-zero base is essentially unused</strong>
+(<code>setBase</code> 0; <code>lbound</code>/<code>ubound</code> in 3
+files for geocal and 8 for framework), which removes one of the main
+blitz-vs-xtensor worries.</li>
+<li><code>.reference()</code> (rebinding an array handle to other
+storage) has <strong>no clean equivalent in
+xtensor/Eigen/mdspan</strong> for owning containers. Those 1,300 uses
+would need a shared-buffer handle type or a rewrite to value/view
+semantics.</li>
+<li><strong>Conclusion: decouple the array migration from the binding
+migration.</strong> nanobind can bridge blitz with a custom
+<code>nb::ndarray</code> caster, so the first port can keep blitz
+internally (the same way the SWIG typemaps do now, but ~900 lines of
+macro kludge replaced by one caster that supports ColumnMajor and
+non-contiguous strides). Then replace blitz later, one library at a
+time, only if there is a payoff. This also means <code>libblitz</code>
+stays a dependency for a while, which is fine: the framework repo
+already vendors a blitz tarball and a conda recipe. In my first version
+I treated the array library change as part of the same migration, and
+that now looks like the wrong plan for repositories of this size. Blitz
+is also the <em>least urgent</em> thing to replace: it is unmaintained
+but stable.</li>
+<li>If blitz is eventually replaced, framework’s autodiff makes
+<strong>xtensor’s expression templates + views</strong> (needed for a
+rank D+1 Jacobian slice) the closest fit, and any choice must support
+Fortran order. Prototype <code>ArrayAd</code> first, since it is the
+hardest case.</li>
+</ul></li>
+<li><strong><code>std::shared_ptr</code> conversion is confirmed as the
+right first step, and it is mechanical.</strong> ~7,600 uses, with
+essentially zero <code>std::</code> smart pointers today, and
+<strong>no</strong> <code>enable_shared_from_this</code> /
+<code>shared_from_this</code> / <code>intrusive_ptr</code> in either
+repo, which removes the usual hard cases. It can be scripted (a textual
+replacement of <code>boost::shared_ptr</code> / <code>weak_ptr</code> /
+<code>make_shared</code> / <code>dynamic_pointer_cast</code> followed by
+compile-driven fixes) and done while SWIG still works. It does require
+<code>swig_rules</code> to work with <code>std::shared_ptr</code> first
+(<code>my_shared_ptr.i</code> is a fork of the <em>boost</em> SWIG
+header; SWIG’s <code>std_shared_ptr.i</code> is the starting point for a
+new fork), and both repos have to move together because
+<code>swig_rules</code> is shared. One oddity to understand first:
+framework’s <code>Observer&lt;T&gt;</code> holds a private
+<code>shared_ptr&lt;Observer&gt; this_obj</code> (built with
+<code>to_ptr(*this)</code>), a self-referencing pattern that the
+conversion and the nanobind lifetime rules both have to respect.</li>
+<li><strong>Virtual inheritance from <code>GenericObject</code> is now a
+first-class issue.</strong> <code>public virtual GenericObject</code>
+(via <code>Printable</code>) appears ~153 times in framework, and ~18 of
+its <code>.i</code> classes have multiple bases. As I understand it,
+nanobind supports only single inheritance for bound class hierarchies,
+and downcasting through virtual bases needs care <strong>(verify both in
+the spike)</strong>. If so, the
+<code>Printable&lt;T&gt;</code>/<code>GenericObject</code> design (a
+virtual base used as a marker/mixin) should be reworked first, in plain
+C++, so each class has one primary bound base and <code>Printable</code>
+is a non-virtual mixin or free function.</li>
+<li><strong>Directors are a bigger piece of the work in framework (47 vs
+9).</strong> 10+ core interfaces (<code>Pressure</code>,
+<code>Altitude</code>, <code>Absorber</code>, <code>ForwardModel</code>,
+<code>StateMapping</code>, <code>Level1b</code>, …), the
+<code>*ImpBase</code> classes, template <code>Observer&lt;...&gt;</code>
+instances, and <code>LuaCallback</code>. Each needs a trampoline class
+(a mechanical pattern, and also generatable from the <code>.i</code>
+files’ <code>%feature("director")</code> list). The Observer instances
+are the unusual ones.</li>
+<li><strong>Boost cannot be dropped from these repos, so “remove Boost”
+is not a goal.</strong> Besides serialization (below), they use
+<code>boost::math</code> (~560 uses in geocal),
+<code>lexical_cast</code>, <code>format</code>,
+<code>spirit</code>/<code>phoenix</code>/<code>fusion</code>/<code>geometry</code>
+(single uses in framework), <code>iostreams</code> gzip,
+<code>date_time</code>, and <code>rational</code>. The trivially
+replaceable part (<code>shared_ptr</code>, <code>array</code>,
+<code>optional</code>, <code>foreach</code> (~110 uses each),
+<code>filesystem</code>, <code>regex</code>, <code>noncopyable</code>,
+<code>bind</code>/<code>function</code>) is worth doing for its own
+sake, but the remaining Boost dependency is real. That undercuts the
+main argument for switching test and serialization frameworks purely to
+shed Boost.</li>
+<li><strong>Build systems differ, which matters given your autotools
+preference.</strong>
+<ul>
+<li>geocal is autotools, so the “stay on autotools, compile nanobind via
+<code>nb_combined.cpp</code>” plan applies directly.</li>
+<li><strong>framework is CMake</strong>, not autotools, and has Fortran
+(<code>enable_language(Fortran)</code>), <code>ExternalProject</code>
+for <code>thirdparty/</code>, and Findxxx modules for Eigen, NumPy,
+Luabind, Gperftools, plus a conda-recipe set. Moving it to autotools
+would be a project in its own right (Fortran + libtool is workable but
+not trivial) and is <em>not</em> needed for the nanobind migration,
+since nanobind’s own CMake support is the best-documented path. Decision
+needed (see 10.4).</li>
+<li><code>swig_rules</code> already ships both an <code>.am</code> and a
+<code>CMakeLists.txt</code>, so whichever replaces it should keep both
+flavors; the nanobind-side glue is small in either.</li>
+<li>framework also pins <code>swig&lt;4</code>,
+<code>python&lt;3.9</code> and C++14. Those need to move forward in any
+case; C++17 is the precondition for nanobind (and for
+<code>std::optional</code>, <code>std::filesystem</code>, etc.).</li>
+</ul></li>
+<li><strong>Testing</strong> (section 9) was already framed with these
+numbers; the survey confirms Boost.Test is used in the same shallow way
+in all three repos. With Boost staying, the case for changing frameworks
+is weak. Parallelism by suite fan-out helps most for geocal (581 cases)
+and framework (562 cases, 304 MB data).</li>
+<li><strong>Serialization: see <code>serialization_options.md</code>
+section 7.</strong> In short, the two repos make a per-class rewrite
+(cereal or pickle-native) much more expensive than I assumed, and make
+the weak_ptr/Observer scheme a real feature rather than a corner
+case.</li>
+</ol>
+<h3
+id="revised-order-of-work-superseded-by-10.7-which-adds-the-archive-corpus-and-your-build-and-schedule-decisions">10.3
+Revised order of work (superseded by 10.7, which adds the archive corpus
+and your build and schedule decisions)</h3>
+<ol type="1">
+<li><strong>Plain C++ cleanup in the skeleton</strong>, then roll the
+same scripted changes into both repos: <code>boost::</code> to
+<code>std::</code> smart pointers (with the <code>swig_rules</code>
+typemaps updated to match), <code>foreach</code> to range-for,
+<code>boost::array/optional/filesystem/regex/noncopyable/bind/function</code>
+to <code>std::</code>, framework to C++17. Rework the
+<code>Printable</code>/<code>GenericObject</code> virtual-base structure
+at this point (item 4 above).</li>
+<li><strong>Skeleton nanobind spike</strong>, extended with what the two
+repos actually stress:
+<ul>
+<li>a director class that is also a template instance
+(<code>Observer&lt;T&gt;</code>),</li>
+<li>a class with a virtual/multiple base,</li>
+<li>a blitz array through a custom <code>nb::ndarray</code> caster
+including <code>ColumnMajor</code>,</li>
+<li>the Observer/<code>weak_ptr</code> two-pass serialization, and
+pickling a Python subclass.</li>
+<li>Decide whether a <code>.i</code> to nanobind converter is feasible
+by writing it for the skeleton’s 9 <code>.i</code> files first.</li>
+</ul></li>
+<li><strong>Pilot port: geocal first.</strong> It is autotools (matching
+your preference), has fewer directors (9) and no autodiff arrays, and
+mostly rank 1-2 <code>double</code> arrays. It is the realistic test of
+the converter and of the pickle path.</li>
+<li><strong>Then framework</strong>, which adds directors (47), autodiff
+(<code>AutoDerivative</code>, <code>ArrayAd</code>), Fortran-layout
+arrays, the Observer pattern, Lua bindings and the CMake question.</li>
+<li><strong>Blitz replacement</strong>: only after the binding layer has
+moved, only if wanted, and with the <code>ArrayAd</code> prototype
+first.</li>
+<li><strong>Serialization and test framework</strong>: leave on Boost
+unless a concrete need appears (see the other document).</li>
+</ol>
+<h3 id="decisions-from-you-and-what-follows-from-them">10.4 Decisions
+from you, and what follows from them</h3>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr>
+<th>Question</th>
+<th>Your answer</th>
+<th>Consequence</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>framework’s build system</td>
+<td><strong>Keep CMake for framework, autotools for geocal.</strong>
+Different maintainers, not worth forcing to match. Supporting both is
+easy.</td>
+<td>No build-system conversion in scope. The shared pieces
+(<code>swig_rules</code>, and its nanobind replacement) ship
+<strong>both</strong> an <code>.am</code> fragment and a CMake file, as
+<code>swig_rules</code> does today. nanobind’s native CMake support is
+used for framework; geocal uses the autotools rule (compiling
+<code>nb_combined.cpp</code>). Both flavors should be exercised by the
+skeleton, which can carry a small CMake file alongside its autotools
+build as the reference for framework.</td>
+</tr>
+<tr>
+<td>Lua/luabind</td>
+<td><strong>Old, not needed, clean up at some point, low
+priority.</strong></td>
+<td>Out of scope for the migration. Do not port <code>LuaCallback</code>
+or the Lua bindings; leave them behind (or delete) so they are not
+carried into nanobind. It also removes a director class and a chunk of
+framework’s <code>.i</code> surface. Cleanup can happen before or after,
+but doing it <em>before</em> the binding port avoids converting code
+that will be thrown away.</td>
+</tr>
+<tr>
+<td>Same schedule?</td>
+<td><strong>No.</strong> Different schedules, but they should not drift
+too far apart.</td>
+<td>Treat <code>swig_rules</code> (and its replacement) as the shared
+contract, versioned and developed in the skeleton. Each repo adopts
+changes when ready, as it does today with the subtree. The risk to
+manage is the shared subtree diverging: keep the C++ cleanup steps
+(<code>std::shared_ptr</code>, etc.) in lock-step enough that the same
+<code>swig_rules</code> works for both, and keep SWIG working until both
+have moved or one has a stable fallback.</td>
+</tr>
+<tr>
+<td>Long-lived pickles/archives</td>
+<td><strong>Some long-term archives exist. Backward compatibility is not
+strict, but is a definite nice-to-have.</strong></td>
+<td>See 10.5. This pushes the serialization decision firmly toward
+staying on Boost.Serialization, and makes an archive-compatibility test
+suite a priority deliverable.</td>
+</tr>
+<tr>
+<td>Python API changes</td>
+<td>Not yet answered.</td>
+<td>Still open (below).</td>
+</tr>
+</tbody>
+</table>
+<h3 id="compatibility-with-existing-archives">10.5 Compatibility with
+existing archives</h3>
+<p>Because long-term archives exist and compatibility is wanted but not
+mandatory: 1. <strong>Staying on Boost.Serialization is the lowest-risk
+path.</strong> Class layouts and <code>serialize()</code> methods are
+unchanged, so old archives keep loading. 2. <strong>The
+<code>std::shared_ptr</code> conversion is the main compatibility risk,
+and needs to be tested rather than assumed.</strong> The repo’s own
+<code>serialize_shared_ptr.h</code> writes a <code>shared_ptr</code> as
+its raw pointer (<code>"px"</code>) with class version 1 and
+<code>track_never</code>. If the converted <code>std::shared_ptr</code>
+save/load keeps the <strong>same element name, version and tracking
+traits</strong>, the on-disk form should be unchanged. Whether Boost’s
+built-in <code>std::shared_ptr</code> support (if used instead of the
+repo’s copy) writes the same thing is <strong>not verified</strong>; I
+would keep the repo’s own save/load and only change the type. 3.
+<strong>Build a golden-archive corpus now, before changing
+anything.</strong> Collect archives written by the <em>current</em>
+code: framework’s ~10 <code>.bin.gz</code> and the XML fixtures,
+geocal’s <code>.xml</code> fixtures, plus any real long-term archives
+you are willing to share or regenerate. Add a test (C++ and via pickle)
+that loads every file and checks key values. Run it before and after
+each step (<code>std::shared_ptr</code> conversion,
+<code>Printable</code>/<code>GenericObject</code> rework, Boost upgrade,
+nanobind). Each step either keeps it green or knowingly breaks it. This
+corpus is what turns “nice to have” into something enforceable. 4.
+<strong><code>Printable</code>/<code>GenericObject</code> rework is the
+second compatibility risk.</strong> If <code>GenericObject</code> is a
+polymorphic base registered with <code>void_cast_register</code> /
+<code>base_object</code>, changing the hierarchy (dropping
+<code>virtual</code> inheritance, changing which class is the registered
+base) can change the class-id or the base-object records in the archive.
+The golden corpus will say so. Where it does, the options are a Boost
+class-version bump with a <code>load()</code> that accepts both forms,
+or a one-off converter. 5. <strong>Python pickles:</strong> pickles
+embed the Boost binary blob, so they follow the same rule as archives,
+plus the pickled <em>Python class path</em> (module and class name).
+nanobind’s module layout (<code>geocal_swig.*</code> vs a single module)
+changes the module name a pickle refers to. A <code>copyreg</code>/alias
+shim for old names could keep old pickles loading, and should be tested
+with a pickle taken from the SWIG version. 6. <strong>If a format change
+is ever chosen</strong> (cereal, or anything else), the safe way to keep
+old archives readable is a <strong>one-time converter</strong>: a
+program built against the old code that reads the old archive and writes
+the new one, kept in the repo or released with the format change.
+Without it, backward compatibility is lost for the existing
+archives.</p>
+<h3
+id="a-refinement-the-archives-that-matter-are-boost-xml-files-pickle-is-secondary">10.5a
+Refinement: the archives that matter are Boost XML files; pickle is
+secondary</h3>
+<p>You said the long-term archives are Boost XML files, and pickle
+compatibility matters less. That sharpens 10.5: - <strong>Corpus
+focus</strong>: XML only. Framework’s 9 <code>*.bin.gz</code> fixtures
+are test data, not long-term archives, so they can be regenerated (or
+converted to XML) rather than preserved. The XML files already in the
+test trees (framework <code>omi_underlying_forward_model.xml</code> and
+similar, geocal <code>image_coordinate_test.xml</code> and similar) plus
+the real long-term files form the corpus. - <strong>What an XML archive
+depends on</strong> (this is the checklist for “will old files still
+load”): 1. the element names (<code>SKELETON_NVP_</code> /
+<code>*_NVP_</code> names, so renaming a member’s NVP breaks old files),
+2. the <code>class_id</code>/<code>class_name</code> and export-key
+strings from <code>X_EXPORT_KEY</code>/<code>X_EXPORT_KEY2</code>
+(renaming or moving a class without keeping its key breaks it; geocal’s
+CLAUDE.md notes this already happened once), 3. class
+<code>version</code> numbers and
+<code>tracking</code>/<code>object_id</code> attributes for pointers
+(affected by changes to <code>shared_ptr</code> save/load traits, 10.5
+item 2), 4. the base-object / <code>void_cast</code> records (affected
+by the <code>GenericObject</code>/<code>Printable</code> rework, item
+4), 5. the array element names and shape (<code>rows</code>,
+<code>cols</code>, <code>data</code>, …). <strong>If blitz is ever
+replaced, the array save/load must keep these exact names and
+ordering</strong>, or old files with arrays stop loading. 6. the archive
+header version
+(<code>&lt;boost_serialization ... version="N"&gt;</code>). A newer
+Boost reads older archives, but not the reverse, so upgrading Boost is
+safe for old files and old Boost cannot read files written by new Boost.
+Nanobind, the build system, and the module layout are not on this list,
+so they cannot affect XML files. - <strong>A converter is cheap for
+XML.</strong> Because the files are text, a format fix-up (a renamed
+tag, a moved class key, a bumped version) can be done with an XSLT
+stylesheet or a short Python/lxml script, with no C++ converter needed.
+That lowers the cost of any future rename or class move, which is the
+realistic source of breakage here, much more than a library change
+would. - <strong>Pickle</strong> compatibility is now optional: no alias
+shim is required for the module-name change. It is still worth one smoke
+test (pickle round-trip under the new build), but old SWIG-era pickles
+are allowed to break.</p>
+<h3
+id="b-compatibility-policy-from-your-answer-on-file-age-and-acceptable-breakage">10.5b
+Compatibility policy (from your answer on file age and acceptable
+breakage)</h3>
+<p>The XML files that matter are recent (about the last year); older
+ones matter less the older they are; <strong>some breakage is
+acceptable, particularly if it is clearly identified.</strong> That
+suggests a light policy, not a heavy guarantee: 1. <strong>Compatibility
+window</strong>: files written by releases from roughly the last year
+must keep loading. Older files are best-effort. 2. <strong>Corpus stays
+small</strong>: one or two representative archives per class family from
+the last year (the real files you have, plus the XML test fixtures
+already in the repos), refreshed as releases are made. Rolling snapshot
+rule: “archives written by release N must load under release N+1”. 3.
+<strong>Breakage must be loud and attributable.</strong> A load failure
+should name the class, member or version at fault rather than produce
+wrong values. Boost XML archives generally throw on a missing or
+misnamed element or unregistered class <strong>(verify the message
+quality for the common cases: renamed member, unknown export key, newer
+class version)</strong>. Where messages are poor, wrap the
+<code>serialize_read*</code> entry point to add the file name and a
+hint. Also make sure no <code>serialize()</code> silently defaults a
+missing member. 4. <strong>Intentional breaks are recorded</strong>: a
+short list (e.g. <code>ChangeLog</code> or a
+<code>claude_notes</code>/<code>doc</code> page) of format-breaking
+changes, with the class version bumped (<code>X_CLASS_VERSION</code>)
+and, where cheap, a <code>load()</code> that accepts N-1. The geocal
+CLAUDE.md note about Ecostress objects is an example of an unrecorded
+break; this makes those explicit. 5. <strong>A small XSLT or Python
+script</strong> can upgrade older files for a deliberate rename, if one
+is ever wanted.</p>
+<p>This lowers the stakes of the serialization work: a format change is
+no longer ruled out by old data. It remains unattractive for cost
+reasons (section 7 of <code>serialization_options.md</code>), but if one
+ever becomes worthwhile, a year’s worth of XML files can be converted in
+one pass rather than supported indefinitely.</p>
+<h3 id="remaining-open-questions">10.6 Remaining open questions</h3>
+<ul>
+<li><strong>How much of the Python API can change?</strong> An
+<code>.i</code>-based converter preserves it; litgen-style generation
+would not. Pickled class/module paths (10.5 item 5) are part of
+this.</li>
+<li><del>Which long-term archives matter most?</del> <strong>Answered:
+Boost XML files; pickle is less important.</strong> <strong>Age
+answered: recent, about the last year; older files matter less and some
+breakage is acceptable if clearly identified</strong> (10.5b). Still
+useful to know which classes the real files contain, so the corpus
+covers them.</li>
+<li><strong>Is a dual-flavor build (autotools + CMake) of the skeleton
+wanted as the reference?</strong> It is easy but is an extra maintenance
+item.</li>
+</ul>
+<h3 id="updated-order-of-work-reflecting-10.4">10.7 Updated order of
+work (reflecting 10.4)</h3>
+<ol type="1">
+<li><strong>Golden-archive corpus of XML files</strong> from the current
+code in geocal and framework (10.5 item 3 and 10.5a). Do this
+first.</li>
+<li><strong>Lua/luabind cleanup in framework</strong> if you want it,
+before porting (optional, low priority).</li>
+<li><strong>Plain C++ cleanup</strong> in the skeleton, then each repo
+on its own schedule: <code>std::shared_ptr</code>, <code>std::</code>
+replacements, framework to C++17,
+<code>Printable</code>/<code>GenericObject</code> rework. Re-run the
+corpus after each step.</li>
+<li><strong>Skeleton nanobind spike</strong> (both build flavors), then
+the <code>.i</code> converter.</li>
+<li><strong>geocal pilot port</strong>, <strong>framework port</strong>
+on its own timeline.</li>
+<li><strong>Blitz replacement</strong> only if wanted, afterward.</li>
+</ol>
+
+</body>
+</html>

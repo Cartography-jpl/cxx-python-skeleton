@@ -1,0 +1,13 @@
+[workspace]
+authors = ["Mike Smyth <Mike.M.Smyth@jpl.nasa.gov>"]
+channels = ["conda-forge"]
+name = "nbtest"
+platforms = ["linux-64"]
+version = "0.1.0"
+
+[tasks]
+
+[dependencies]
+python = "3.13.*"
+nanobind = ">=3.1.0,<4"
+gxx_linux-64 = "15.*"

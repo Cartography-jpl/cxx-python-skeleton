@@ -2,6 +2,22 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+## Current work: modernization (read first)
+
+A modernization of this repository is in progress. It rehearses the steps planned for geocal (and later framework):
+C++20, Boost → std, `std::shared_ptr`, and replacing SWIG with nanobind.
+- **Plan of record and handoff notes: `claude_notes/implementation_plan.md`.** Start with its §0 ("Handoff: where
+  to pick up"), which has the current status, the progress log, the next step, and the locations of related repos
+  and build areas. Update the progress log there as steps complete.
+- Work on the **`modernize`** branch. Don't modify `master`.
+- **Stage changes with `git add`; never commit or push.** The maintainer reviews and commits.
+- Don't `git subtree push` to `swig-rules-repo`; this repo's `swig_rules/` is allowed to drift from it.
+- From phase S4 until phase S6 the Python bindings are expected to be broken (build with `--without-swig`, run the
+  C++ tests with `make skeleton-check`). This is intentional; see plan §8.
+- Code work starts only when the maintainer says so.
+- If the bindings move to nanobind, the names `swig-rules-skeleton`, `swig_rules/` and `skeleton_swig` are kept
+  for historical reasons.
+
 ## What this repo is
 
 This is a skeleton/example repository demonstrating use of the
@@ -35,7 +51,7 @@ Building requires: boost (>=1.46.0), blitz, SWIG (maintainer mode + `HAVE_SWIG`)
 wrappers, doxygen. `configure` (via `AFIDS_PYTHON`, `config/m4/afids_python.m4`) also requires numpy, scipy,
 matplotlib, sphinx, and sqlite3 to be importable by the configured Python, plus a `pytest`/`py.test` program
 on `PATH`. A pixi-based dev environment is provided at `env/linux/pixi.toml` (python, boost, blitz, compilers,
-doxygen, swig<4.4.0, packaging, numpy, scipy, matplotlib, sphinx, pytest) as a convenient way to get a working
+doxygen, swig, packaging, numpy, scipy, matplotlib, sphinx, pytest) as a convenient way to get a working
 toolchain, e.g. for testing against a different SWIG version.
 
 ### Python version compatibility note
