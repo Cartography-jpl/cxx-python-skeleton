@@ -6,7 +6,4 @@
 # stuff that might be needed when you change something up stream (like 
 # configure.in)
 
-aclocal -I config/m4 -I config/m4_local \
-&& libtoolize \
-&& automake --gnu --add-missing \
-&& autoconf
+autoreconf --verbose --install

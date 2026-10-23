@@ -38,7 +38,8 @@ fi
 # Make sure we have perl module Data::Dumper which is used by some
 # installed programs. This is actually a separate install on centos 7,
 # so make sure it is there.
-AC_PERL_MODULE(Data::Dumper)
+AX_PROG_PERL_MODULES([Data::Dumper], ,
+   [AC_MSG_ERROR([Could not find perl module Data::Dumper, which is required for install])])
 
 
 # We need to have csh to run things like vicarb
@@ -104,7 +105,7 @@ AM_CONDITIONAL([HAVE_GCC], [test "$GCC" = yes])
 
 PKG_PROG_PKG_CONFIG
 
-if test "x$THIRDPARTY" = x -o "$THIRDPARTY" = "build" -o "$THIRDPARTY" = "build_needed"; then
+if test "x$THIRDPARTY" = x; then
   pkg_extra_path=${prefix}/lib/pkgconfig:/opt/afids_support/lib/pkgconfig
   geocal_support_path=${prefix}
 else

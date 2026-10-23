@@ -1,36 +1,22 @@
 # SYNOPSIS
 #
-#   AC_VICAR_GDALPLUGIN([required], [can_build], [default_build])
+#   AC_VICAR_GDALPLUGIN([required])
 #
 # DESCRIPTION
 #
 # This looks for the VICAR GDAL plugin. If we find it, we set the Makefile
 # conditional HAVE_VICAR_GDALPLUGIN and VICAR_GDALPLUGIN_HOME.
-# 
-# To allow users to build there own copy of VICAR GDAL plugin, we also define
-# BUILD_VICAR_GDALPLUGIN.
-#
-# A particular package might not have the library source code, so you
-# can supply the "can_build" argument as "can_build". Empty string means we
-# can't build this, and various help messages etc. are adjusted for this.
 #
 # Not finding this library might or might not indicate an error. If you
 # want an error to occur if we don't find the library, then specify
 # "required". Otherwise, leave it as empty and we'll just silently
 # return if we don't find the library.
-# 
-# If the user doesn't otherwise specify the "with" argument for this
-# library, we can either have a default behavior of searching for the
-# library on the system or of building our own copy of it. You can
-# specify "default_build" if this should build, otherwise we just look
-# for this on the system.
-
 
 AC_DEFUN([AC_VICAR_GDALPLUGIN],
 [
 # Guard against running twice
 if test "x$done_vicar_gdalplugin" = "x"; then
-AC_HANDLE_WITH_ARG([vicar_gdalplugin], [vicar-gdalplugin], [VICAR GDAL Plugin], $2, $3, $1)
+AC_HANDLE_WITH_ARG([vicar_gdalplugin], [vicar-gdalplugin], [VICAR GDAL Plugin], $1)
 
 if test "x$want_vicar_gdalplugin" = "xyes"; then
         AC_MSG_CHECKING([for GDAL VICAR Plugin])
@@ -47,12 +33,6 @@ if test "x$want_vicar_gdalplugin" = "xyes"; then
              fi
            done
         fi
-	if test "$succeeded" != "yes" -a "x$build_needed_vicar_gdalplugin" == "xyes" ; then
-            build_vicar_gdalplugin="yes"
-            ac_vicar_gdalplugin_path="\${prefix}"
-            VICAR_GDALPLUGIN_HOME="$ac_vicar_gdalplugin_path/lib/gdalplugins"
-            succeeded=yes
-        fi
 
         if test "$succeeded" != "yes" ; then
                 AC_MSG_RESULT([no])
@@ -67,9 +47,8 @@ if test "x$want_vicar_gdalplugin" = "xyes"; then
         fi
 fi
 AM_CONDITIONAL([HAVE_VICAR_GDALPLUGIN], [test "$have_vicar_gdalplugin" = "yes"])
-AM_CONDITIONAL([BUILD_VICAR_GDALPLUGIN], [test "$build_vicar_gdalplugin" = "yes"])
 
-AC_CHECK_FOUND([vicar_gdalplugin], [vicar-gdalplugin],[VICAR GDAL Plugin],$1,$2)
+AC_CHECK_FOUND([vicar_gdalplugin], [vicar-gdalplugin],[VICAR GDAL Plugin],$1)
 
 done_vicar_gdalplugin="yes"
 fi

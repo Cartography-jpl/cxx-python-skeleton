@@ -1,5 +1,6 @@
 dnl Process this file with autoconf to produce a configure script.
 
+AC_PREREQ([2.71])
 AC_INIT([swig-rules-skeleton],[0.10])
 AC_CONFIG_AUX_DIR([config])
 AC_CONFIG_MACRO_DIRS([config/m4 config/m4_local])
@@ -23,14 +24,14 @@ SKELETON_COMMON
 
 original_ld_library_path="${LD_LIBRARY_PATH}"
 export LD_LIBRARY_PATH="${afidsdir}/lib64:${afidsdir}/lib:${LD_LIBRARY_PATH}"
-AFIDS_PYTHON(required, cannot_build, default_search)
+AFIDS_PYTHON(required)
 LD_LIBRARY_PATH="${original_ld_library_path}"
 
 #=================================================================
 # Various thirdparty libraries.
-AC_DOXYGEN(optional, cannot_build, default_search)
-AC_BOOST(required, can_build, default_search, 1.46.0)
-AC_BLITZ(required, cannot_build, default_search)
+AC_DOXYGEN(optional)
+AC_BOOST(required, 1.46.0)
+AC_BLITZ(required)
 
 #=================================================================
 # Location of all the source code directories
@@ -47,9 +48,13 @@ AC_ARG_WITH([swig],
            [SWIG=/fake_so_fail],
            [])
 
-AC_PROG_SWIG()
-SWIG_ENABLE_CXX
-SWIG_PYTHON
+have_swig=no
+AX_PKG_SWIG([], [have_swig=yes], [AC_MSG_WARN([cannot find 'swig' program. You should look at http://www.swig.org])])
+AM_CONDITIONAL([HAVE_SWIG], [test "$have_swig" = "yes"])
+AX_SWIG_ENABLE_CXX
+AX_SWIG_PYTHON
+# swig_rules.am uses the older name for this variable
+AC_SUBST([SWIG_PYTHON_OPT], [$AX_SWIG_PYTHON_OPT])
 
 #=================================================================
 # Turn off use of boost serialization of desired. Don't have a use

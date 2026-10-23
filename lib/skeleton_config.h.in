@@ -6,12 +6,30 @@
 /* Defined if we have Blitz */
 #undef HAVE_BLITZ
 
-/* Defined if we have BOOST */
+/* define if the Boost library is available */
 #undef HAVE_BOOST
+
+/* define if the Boost::Date_Time library is available */
+#undef HAVE_BOOST_DATE_TIME
+
+/* define if the Boost::Filesystem library is available */
+#undef HAVE_BOOST_FILESYSTEM
+
+/* define if the Boost::IOStreams library is available */
+#undef HAVE_BOOST_IOSTREAMS
+
+/* define if the Boost::Regex library is available */
+#undef HAVE_BOOST_REGEX
+
+/* define if the Boost::Serialization library is available */
+#undef HAVE_BOOST_SERIALIZATION
 
 /* Define to 1 if you have the <boost/serialization/boost_array.hpp> header
    file. */
 #undef HAVE_BOOST_SERIALIZATION_BOOST_ARRAY_HPP
+
+/* define if the Boost::System library is available */
+#undef HAVE_BOOST_SYSTEM
 
 /* define if the compiler supports basic C++17 syntax */
 #undef HAVE_CXX17
@@ -27,6 +45,9 @@
 
 /* Have PTHREAD_PRIO_INHERIT. */
 #undef HAVE_PTHREAD_PRIO_INHERIT
+
+/* If available, contains the Python version number currently in use. */
+#undef HAVE_PYTHON
 
 /* Define to 1 if you have the <stdint.h> header file. */
 #undef HAVE_STDINT_H

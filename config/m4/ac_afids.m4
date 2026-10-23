@@ -17,14 +17,11 @@ AC_DEFUN([AC_AFIDS],
 [
 # Guard against running twice
 if test "x$done_afids" = "x"; then
-AC_HANDLE_WITH_ARG([afids], [afids], [AFIDS], [cannot_build], [default_search], $1)
+AC_HANDLE_WITH_ARG([afids], [afids], [AFIDS], $1)
 if test "x$want_afids" = "xyes"; then
         AC_MSG_CHECKING([for AFIDS programs])
         succeeded=no
-        if test "$build_afids" == "yes"; then
-	    AFIDS_PREFIX="\${prefix}"
-            succeeded=yes
-        elif test "$ac_afids_path" != ""; then
+        if test "$ac_afids_path" != ""; then
 	    AFIDS_PREFIX="$ac_afids_path"
             succeeded=yes
         else
@@ -39,12 +36,6 @@ if test "x$want_afids" = "xyes"; then
                   fi
             done
         fi
-	if test "$succeeded" != "yes" -a "x$build_needed_afids" == "xyes" ; then
-            build_afids="yes"
-            ac_afids_path="\${prefix}"
-	    AFIDS_PREFIX="\${prefix}"
-            succeeded=yes
-        fi
 
         if test "$succeeded" != "yes" ; then
                 AC_MSG_RESULT([no])
@@ -56,7 +47,7 @@ if test "x$want_afids" = "xyes"; then
 fi
 
 AM_CONDITIONAL([HAVE_AFIDS], [test "$have_afids" = "yes"])
-AC_CHECK_FOUND([afids], [afids],[AFIDS],$1,[cannot_build])
+AC_CHECK_FOUND([afids], [afids],[AFIDS],$1)
 done_afids="yes"
 fi
 ])

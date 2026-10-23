@@ -1,6 +1,6 @@
 # SYNOPSIS
 #
-#   AC_SPICE([required], [can_build], [default_build])
+#   AC_SPICE([required])
 #
 # DESCRIPTION
 #
@@ -8,38 +8,21 @@
 # Makefile conditional HAVE_SPICE. We also set SPICE_CFLAGS and
 # SPICE_LIBS
 #
-# To allow users to build there own copy of SPICE, we also define
-# BUILD_SPICE.
-#
-# A particular package might not have the library source code, so you
-# can supply the "can_build" argument as "can_build". Empty string means we
-# can't build this, and various help messages etc. are adjusted for this.
-#
 # Not finding this library might or might not indicate an error. If you
 # want an error to occur if we don't find the library, then specify
 # "required". Otherwise, leave it as empty and we'll just silently
 # return if we don't find the library.
-# 
-# If the user doesn't otherwise specify the "with" argument for this
-# library, we can either have a default behavior of searching for the
-# library on the system or of building our own copy of it. You can
-# specify "default_build" if this should build, otherwise we just look
-# for this on the system.
 
 AC_DEFUN([AC_SPICE],
 [
 # Guard against running twice
 if test "x$done_spice" = "x"; then
-AC_HANDLE_WITH_ARG([spice], [spice], [SPICE], $2, $3, $1)
+AC_HANDLE_WITH_ARG([spice], [spice], [SPICE], $1)
 
 if test "x$want_spice" = "xyes"; then
         AC_MSG_CHECKING([for SPICE library])
         succeeded=no
-        if test "$build_spice" == "yes"; then
-            SPICE_LIBS="-R$ac_spice_path/lib -L$ac_spice_path/lib -lcspice"
-            SPICE_CFLAGS="-I$srcdir/spice/cspice/incude"
-            succeeded=yes
-        elif test "$ac_spice_path" != ""; then
+        if test "$ac_spice_path" != ""; then
             SPICE_LIBS="-R$ac_spice_path/lib -L$ac_spice_path/lib -lcspice"
             SPICE_CFLAGS="-I$ac_spice_path/include"
             succeeded=yes
@@ -60,13 +43,6 @@ if test "x$want_spice" = "xyes"; then
                             [libcspice], [-lcspice])
             fi
         fi
-	if test "$succeeded" != "yes" -a "x$build_needed_spice" == "xyes" ; then
-            build_spice="yes"
-            ac_spice_path="\${prefix}"
-            SPICE_LIBS="-R$ac_spice_path/lib -L$ac_spice_path/lib -lcspice"
-            SPICE_CFLAGS="-I$srcdir/spice/cspice/incude"
-            succeeded=yes
-        fi
 
         if test "$succeeded" != "yes" ; then
                 AC_MSG_RESULT([no])
@@ -79,9 +55,8 @@ if test "x$want_spice" = "xyes"; then
         fi
 fi
 AM_CONDITIONAL([HAVE_SPICE], [test "$have_spice" = "yes"])
-AM_CONDITIONAL([BUILD_SPICE], [test "$build_spice" = "yes"])
 
-AC_CHECK_FOUND([spice], [spice],[SPICE],$1,$2)
+AC_CHECK_FOUND([spice], [spice],[SPICE],$1)
 done_spice="yes"
 fi
 ])

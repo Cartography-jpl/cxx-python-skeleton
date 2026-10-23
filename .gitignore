@@ -10,3 +10,4 @@ create_delta.bundle
 .cache
 .tramp_history
 python/skeleton.egg-info
+python/build

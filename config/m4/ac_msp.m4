@@ -11,18 +11,23 @@
 # want an error to occur if we don't find the library, then specify
 # "required". Otherwise, leave it as empty and we'll just silently
 # return if we don't find the library.
+#
+# Note that the library uses a very old (4.85) version of gcc. We have flags to
+# link using the old ABI - but this should just be used in small wrapper type libraries
+# (e.g., we don't want all of geocal to use the old flag, just the small swig wrappers
+# we have for using the MSP library).
 
 AC_DEFUN([AC_MSP],
 [
 # Guard against running twice
 if test "x$done_msp" = "x"; then
-AC_HANDLE_WITH_ARG_DEFAULT_NO([msp], [msp], [MSP], [cannot_build], [default_search], $1)
+AC_HANDLE_WITH_ARG_DEFAULT_NO([msp], [msp], [MSP], $1)
 have_msp="no"
 if test "x$want_msp" = "xyes"; then
         AC_MSG_CHECKING([for MSP library])
         succeeded=no
         if test "$ac_msp_path" != ""; then
-            MSP_LIBS="-R$ac_msp_path/lib -L$ac_msp_path/lib  -ldl -R$ac_msp_path/lib -L$ac_msp_path/lib -lMSPCoordinateConversionService -lMSPCovarianceService -lMSPImagingGeometryService -lMSPMensurationService -lMSPMensurationSessionRecordService -lMSPPointExtractionService -lMSPOutputMethodService -lMSPSensorModelService -lMSPSensorSpecificService -lMSPSupportDataService -lMSPTerrainService -lMSPlunar -lMSPasdetre -lMSPCCSUtils -lMSPcoordconverter -lMSPcsisd -lMSPcsm -lMSPcsmutil -lMSPDEIUtil -lMSPgeometry -lMSPjson -lMSPlas -lMSPmath -lMSPnitf -lMSPntmtre -lMSPRsmGeneratorService -lMSPRageServiceUtils -lMSPrsmg -lMSPrsme -lMSPdei -lMSPmens -lMSPrutil -lMSPrage -lMSPRageServiceUtils -lMSPrageutilities -lMSPSScovmodel -lMSPSSrutil -lMSPutilities -lMSPmiisd"
+            MSP_LIBS="-R$ac_msp_path/lib -L$ac_msp_path/lib  -ldl -R$ac_msp_path/lib -L$ac_msp_path/lib -lMSPCoordinateConversionService -lMSPCovarianceService -lMSPImagingGeometryService -lMSPMensurationService -lMSPMensurationSessionRecordService -lMSPPointExtractionService -lMSPOutputMethodService -lMSPSensorModelService -lMSPSensorSpecificService -lMSPSupportDataService -lMSPTerrainService -lMSPlunar -lMSPasdetre -lMSPCCSUtils -lMSPcoordconverter -lMSPcsisd -lMSPcsm -lMSPcsmutil -lMSPDEIUtil -lMSPgeometry -lMSPjson -lMSPlas -lMSPmath -lMSPnitf -lMSPntmtre -lMSPRsmGeneratorService -lMSPRageServiceUtils -lMSPrsmg -lMSPrsme -lMSPdei -lMSPmens -lMSPrutil -lMSPrage -lMSPRageServiceUtils -lMSPrageutilities -lMSPSScovmodel -lMSPSSrutil -lMSPutilities -lMSPmiisd -lMSPCoordinateConversionService"
             MSP_CFLAGS="-D_GLIBCXX_USE_CXX11_ABI=0 -I$ac_msp_path/include -I$ac_msp_path/include/CCSUtils -I$ac_msp_path/include/CoordinateConversion -I$ac_msp_path/include/Covariance -I$ac_msp_path/include/PointExtraction -I$ac_msp_path/include/ImagingGeometry -I$ac_msp_path/include/Mensuration -I$ac_msp_path/include/MensurationSessionRecord -I$ac_msp_path/include/OutputMethod -I$ac_msp_path/include/SensorModel -I$ac_msp_path/include/SupportData -I$ac_msp_path/include/Terrain -I$ac_msp_path/include/common -I$ac_msp_path/include/common/csm -I$ac_msp_path/include/common/csmutil -I$ac_msp_path/include/common/dtcc -I$ac_msp_path/include/common/geometry -I$ac_msp_path/include/common/math -I$ac_msp_path/include/common/ntmtre -I$ac_msp_path/include/common/miisd -I$ac_msp_path/include/common/nitf -I$ac_msp_path/include/common/utilities -I$ac_msp_path/include/RsmGenerator"
 	    MSP_PREFIX=$ac_msp_path
             succeeded=yes
@@ -53,9 +58,8 @@ if test "x$want_msp" = "xyes"; then
 fi
 AC_SUBST(have_msp)
 AM_CONDITIONAL([HAVE_MSP], [test "$have_msp" = "yes"])
-AM_CONDITIONAL([BUILD_MSP], [test "$build_msp" = "yes"])
 
-AC_CHECK_FOUND([msp], [msp],[MSP],$1,[cannot_build])
+AC_CHECK_FOUND([msp], [msp],[MSP],$1)
 
 done_msp="yes"
 fi

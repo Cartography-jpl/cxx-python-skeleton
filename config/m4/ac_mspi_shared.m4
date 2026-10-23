@@ -18,7 +18,7 @@ AC_DEFUN([AC_MSPI_SHARED],
 [
 # Guard against running twice
 if test "x$done_mspi_shared" = "x"; then
-AC_HANDLE_WITH_ARG([mspi_shared], [mspi-shared], [MSPI-Shared], [cannot_build], [default_search], $1)
+AC_HANDLE_WITH_ARG([mspi_shared], [mspi-shared], [MSPI-Shared], $1)
 
 if test "x$want_mspi_shared" = "xyes"; then
         AC_MSG_CHECKING([for MSPI-Shared library])
@@ -61,9 +61,8 @@ if test "x$want_mspi_shared" = "xyes"; then
 fi
 
 AM_CONDITIONAL([HAVE_MSPI_SHARED], [test "$have_mspi_shared" = "yes"])
-AM_CONDITIONAL([BUILD_MSPI_SHARED], [test "$build_mspi_shared" = "yes"])
 
-AC_CHECK_FOUND([mspi_shared], [mspi-shared],[MSPI-Shared],$1,$2)
+AC_CHECK_FOUND([mspi_shared], [mspi-shared],[MSPI-Shared],$1)
 done_mspi_shared="yes"
 fi
 ])
