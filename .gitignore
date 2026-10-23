@@ -9,3 +9,4 @@ create_delta.bundle
 *.lo
 .cache
 .tramp_history
+python/skeleton.egg-info
