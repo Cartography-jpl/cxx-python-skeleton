@@ -1,7 +1,7 @@
 # swig-rules-skeleton: implementation plan for the modernization
 
 **Date:** 2026-10-23
-**Status:** Plan only. No code in this repository has been changed.
+**Status:** In progress. Phase S0 is done; see §0 for the current step.
 **Purpose:** Work through every modernization step planned for geocal (and later framework) on this small repository
 first, so the problems are found and solved here before touching the large repositories.
 
@@ -66,7 +66,8 @@ the maintainer commits and can tag each phase boundary (for example `phase0-base
 
 **swig-rules repository.** Leave `swig-rules-repo` (the upstream of the `swig_rules/` subtree) alone for now. All
 changes are made only in this repository's copy of `swig_rules/`, and it is understood that it will drift from
-`swig-rules-repo`. No `git subtree push` until a decision is made later.
+`swig-rules-repo`. No `git subtree push`. **geocal copies `swig_rules/` (and changed `config/m4/` files) directly from
+this repository** (§13 item 9), so keep them self-contained and copyable.
 
 **S0 phase-end checklist (repeat at the end of each phase):** (1) gcc 15 env (`build-pixi`): `make check`, `make install`,
 `make installcheck`; (2) gcc 14 env (`build-pixi-gcc14`): the same; (3) `--without-boost-serialization --without-swig
@@ -86,7 +87,9 @@ interpreter's own allocations at exit). The C++ run can keep leak detection on.
 
 ---
 
-## 1. Where the skeleton stands today (measured 2026-10-23)
+## 1. Where the skeleton stood before S0 (measured 2026-10-23)
+
+*(Snapshot taken before Phase S0. Several items below were fixed in S0; the progress log in §0 has the current state.)*
 
 | Item | State |
 |---|---|
@@ -152,7 +155,7 @@ What this means:
   2. **Root of a small type-mapper registry**, used by the forked caster and by the "pass to a `GenericObject`
      parameter" helper. This is the same role `swig_type_mapper` has today, in a much smaller form.
 * **The rules library owns a fork of nanobind's `shared_ptr` caster**, just as it owns `my_shared_ptr.i` today.
-  Document the diff and re-check it on each nanobind upgrade (§6.8).
+  Document the diff and re-check it on each nanobind upgrade (S6.2).
 * **`enable_shared_from_this` conflicts with `to_ptr`/`this_obj`, and the fix is small (tested 2026-10-23).**
   * *The problem:* geocal's and framework's `Observer` build a non-owning `shared_ptr` (null deleter) to themselves in
     their constructor (`this_obj = to_ptr(*this)`). With `enable_shared_from_this`, that non-owning pointer becomes the
@@ -288,10 +291,10 @@ passing (or explicitly `xfail`ed with a reason), the golden-archive test green, 
 | **S2** | Boost → std (not in the API) | 2 |
 | — | GSL / libsdbx / FFTW (geocal only) | 3 |
 | **S3** | `std::optional`, `std::array` (touch SWIG typemaps and serialization) | 4 |
-| **S4** | `std::shared_ptr` under SWIG (tag `swig-final`) | 5 |
+| **S4** | `std::shared_ptr` in C++ and serialization; Python bindings broken until S6 (the state just before S4 is `swig-final`) | 5 |
 | **S5** | New samples for consumer patterns (Observer, multiple/virtual inheritance, template director, arrays). **Do all of S5 before S4**: S4 breaks the Python bindings until S6, so SWIG reference results for the new samples' Python tests can only be recorded before S4. Order of work: S0 → S1 → S2 → S3 → S5 → S4 → S6 | (prerequisite for 4 and 6) |
-| **S6** | nanobind: rules library, bindings, build, stubs/docstrings, SWIG removal | 6 |
-| **S7** | Later: `mdspan` interop sample, C++23, CMake reference expansion | 7 |
+| **S6** | nanobind: rules library, bindings (numpy ↔ Blitz through `mdspan` views), build, stubs/docstrings, SWIG removal | 6 |
+| **S7** | Later: `mdspan` for raw pointer-plus-size interfaces, C++23, CMake reference expansion | 7 |
 
 ---
 
@@ -318,7 +321,8 @@ passing (or explicitly `xfail`ed with a reason), the golden-archive test green, 
      files can be regenerated deliberately, with a README saying when they were made.
    * A C++ test that loads every file and checks values, plus a Python test doing the same through `read_shelve`.
 4. **Tooling in `env/linux/pixi.toml`** (and the build-pixi env): `clang-tools` (not `bear`: it doesn't run on this host, see the progress log) (pin builds at least a week
-   old), `nanobind` (for later), `mdspan` (pinned snapshot, later), `eigen` not needed here.
+   old), `nanobind` (for later), `eigen` not needed here. `mdspan` (pinned `0.6.1.dev20260223` snapshot) is added at
+   the start of S6 (S6.1 item 7); it was not added in S0.
 5. **Minimum-compiler build env**: a second scratch pixi env pinned to `gxx_linux-64 14.*` (the 2.0 minimum), used at
    each phase end.
 6. **Fix `--without-boost-serialization`** (the 4 files listed in §1) and add a build with it to the phase-end checklist
@@ -481,7 +485,8 @@ Add golden archives for the new serializable samples (S0 step 3 style).
 
 ## 10. Phase S6: nanobind
 
-Work in small steps on `master`. SWIG stays buildable until 6.6 (tag `swig-final` is the reference).
+Work in small steps on `modernize`. The SWIG bindings are already broken (since S4); the reference is the
+`swig-final` state and its recorded Python results (progress log). SWIG files are removed in 6.6.
 
 ### 6.1 Design spike (turn the `/tmp/nbtest` probes into real tests)
 
@@ -523,9 +528,22 @@ Decide and test each of these, in this order:
      should give for free.
 6. **Exceptions**: a translator for the C++ `Exception` hierarchy (`nb::register_exception_translator`) and for Python
    exceptions raised in overrides (works already, keep the tests).
-7. **numpy ↔ Blitz**: an `nb::ndarray` caster for `blitz::Array<T,N>` (C and Fortran order, strided), with ownership
-   (return a view that keeps the C++ owner alive vs. copy). The existing three lifetime tests in
-   `numpy_sample_test.py` are the acceptance tests. Optionally go through `mdspan` (S7).
+7. **numpy ↔ Blitz through `mdspan`** (matches the geocal plan §3.3.1, which adds `mdspan` together with the nanobind
+   pilot):
+   * Add the conda-forge `mdspan` package, **pinned to the `0.6.1.dev20260223` snapshot** (not `0.6.0`, which
+     hard-codes `std::experimental`), to `env/linux/pixi.toml` and both scratch envs.
+   * Add the namespace-alias header (S6.2), so a later switch to `std::mdspan` is one line.
+   * Build the bridge in two small layers:
+     * `nb::ndarray` (pointer, shape, strides) ↔ `mdspan` view (`layout_right`, `layout_left` for Fortran order,
+       `layout_stride` for non-contiguous);
+     * `mdspan` view ↔ `blitz::Array<T,N>` sharing the same memory (Blitz's `extent()`/`stride()`/`data()`; for
+       numpy → Blitz, a Blitz array over external memory that keeps the Python owner alive).
+   * Ownership: returning a Blitz array to Python gives a view that keeps the C++ owner alive, or a copy; decide
+     per case.
+   * Acceptance tests: the existing three lifetime tests in `numpy_sample_test.py`; the S5 `ArraySample` column-major
+     and strided cases; read-only returns; and a clear error for a wrong dtype or rank. Run them under ASan.
+   * C++ tests for the `mdspan` ↔ Blitz layer on its own (no Python): contiguous, strided slice, column-major.
+     These are the cases already shown to work in a probe on 2026-10-22.
 8. **iostream**: Python file object ↔ `std::istream`/`std::ostream` via a small `streambuf` (no nanobind equivalent).
    The existing `iostream_swig_test.py` is the acceptance test.
 9. **STL containers**: SWIG's `%template(Vector_DirectorExample)` gives a reference-semantics proxy type that the
@@ -539,7 +557,11 @@ Decide and test each of these, in this order:
 
 Keep the directory name `swig_rules/` (historical, documented). Add `swig_rules/nanobind/` with:
 * `gc_shared_ptr.h` (forked caster, with a header comment giving the nanobind version it was forked from and the diff);
-* `type_mapper.h/.cc`, `python_exception.h` (translator), `ndarray_blitz.h`, `iostream.h`;
+* `type_mapper.h/.cc`, `python_exception.h` (translator), `ndarray_blitz.h` (the `nb::ndarray` ↔ `mdspan` ↔ Blitz
+  bridge), `iostream.h`;
+* the `mdspan` namespace-alias header (for example `skeleton_mdspan.h` in `lib/`, mirroring the planned
+  `geocal_mdspan.h`). This one is **not** Python-specific, so it belongs to the C++ library side, not the extension
+  module;
 * `pickle.h` (`__reduce__` helpers), `printable.h` (`__str__` from `print_to_string`, `std::formatter` reuse);
 * `nanobind.am` (automake rule compiling `nb_combined.cpp` once into the extension) and `CMakeLists.txt`
   (for framework).
@@ -605,9 +627,9 @@ Tag `nanobind-1`.
 
 ## 11. Phase S7: later
 
-* `mdspan` interop sample (pinned conda-forge `mdspan` snapshot): views over Blitz storage (contiguous, `layout_stride`
-  for slices, `layout_left` for column-major), conversion from `nb::ndarray`. Tested OK in a throwaway env on
-  2026-10-22.
+* `mdspan` for C++ interfaces that today pass a raw pointer plus sizes (in geocal: raster tiles, GDAL/VICAR buffers, FFT
+  input/output). The skeleton has few such interfaces, so add a small sample only if geocal wants a worked example
+  first. The Python boundary already uses `mdspan` from S6.
 * C++23 once SWIG is gone (deducing `this` for `Printable`, `std::expected`, `views::enumerate`/`zip`).
 * Expand the CMake reference if framework wants more from it.
 
@@ -627,10 +649,12 @@ Tag `nanobind-1`.
       `shared_ptr<GenericObject>` (S5)
 * [ ] `shared_from_this()` never yields a non-owning pointer after the aliasing `this_obj`/`to_ptr` change (S4)
 * [ ] Observer notification for stack, member and `shared_ptr`-owned observers; constructor and `load()` registration (S5)
+* [ ] `mdspan` ↔ Blitz views: contiguous, strided slice, column-major; writes visible both ways (S6)
 * [ ] All of the above under AddressSanitizer at the end of S4 and S6
 
 **Python (pytest)**
-* [ ] S0: fix the `PickleWithSwigSupport` `NameError`; explained `xfail(strict=True)` instead of `skip`/commented asserts
+* [x] S0: explained `xfail(strict=True)` instead of `skip`/commented asserts (done; there was no `NameError`, and
+      `test_director_example_weak_ptr` passes, so it is a normal test now)
 * [ ] Golden archives load via `read_shelve` (S0)
 * [ ] `str()` and exception text unchanged vs. baseline (S1)
 * [ ] Array property round trip (S3)
@@ -638,7 +662,8 @@ Tag `nanobind-1`.
       `GenericObject` → most-derived type **and a method call** (the crash case) (S5/S6)
 * [ ] Parameter matrix: pass a derived object to parameters typed as each of those bases (S5/S6)
 * [ ] Identity: same C++ object returned twice; record SWIG (different wrapper) vs nanobind (same object) (S6)
-* [ ] `weak_ptr` matrix (creator × owner, §6.1 item 4), including directors (replaces the skipped test) (S6)
+* [ ] `weak_ptr` matrix (creator × owner, S6.1 item 4), including directors; `test_director_example_weak_ptr` (passes
+      under SWIG since S0) must keep passing, or record why not (S6)
 * [ ] Director lifetime: existing exact `__del__` count tests, plus "C++ keeps Python subclass alive after Python drops
       it" (S6)
 * [ ] Exception propagation from Python overrides (existing) and C++ exceptions mapped to the right Python type (S6)
@@ -647,8 +672,8 @@ Tag `nanobind-1`.
       pickle; the nested C++→Python→C++ identity tests from S0 now passing (S6)
 * [ ] **`multiprocessing.Pool` round trip** of C++ objects and director objects (geocal production use) (S6)
 * [ ] shelve (sqlite) round trip (existing, keep)
-* [ ] numpy: existing three lifetime tests, plus Fortran-order input, non-contiguous input, read-only returns, wrong
-      dtype/rank gives a clear error (S5/S6)
+* [ ] numpy (through the `mdspan` bridge in S6): existing three lifetime tests, plus Fortran-order input,
+      non-contiguous input, read-only returns, wrong dtype/rank gives a clear error (S5/S6)
 * [ ] iostream tests (existing, keep)
 * [ ] Cross-module: the downstream test module creates, receives and returns main-module types (S6)
 * [ ] `help()` shows docstrings; `mypy` passes against generated stubs (S6)
@@ -674,9 +699,16 @@ Tag `nanobind-1`.
    object. Revisit only if a real (non-test) case appears.
 
 7. **S4 does not port the SWIG layer**: the Python bindings may be broken from S4 until S6 (§8). The SWIG
-   `std::shared_ptr` re-fork is skipped. (For geocal this is a separate decision; geocal may still want a working SWIG
-   build with `std::shared_ptr` if it ships a release between its Phases 5 and 6.)
+   `std::shared_ptr` re-fork is skipped. geocal does the same in its Phase 5 (item 10).
 8. **Commit policy:** stage with `git add`, never commit (the maintainer commits and tags).
+
+9. **geocal (and later framework) copies this repository's `swig_rules/`** (and the changed `config/m4/` files, such as
+   the S0.6 `ac_boost.m4` fix) **directly from the skeleton.** Don't worry about the upstream repositories
+   (`swig-rules-repo`, `autoconf-repo`) for now. Merging back can be looked at later; with nanobind,
+   `swig-rules-repo` may end up not existing at all. So keep `swig_rules/` and `config/m4/` here self-contained and
+   in a state that can be copied as a whole.
+10. **geocal may also break its Python bindings in its Phase 5** (`std::shared_ptr`) until Phase 6 (nanobind), the
+    same as S4 here. So geocal won't need a SWIG `std::shared_ptr` port either.
 
 **Open:**
 * Final module name (item 2).
