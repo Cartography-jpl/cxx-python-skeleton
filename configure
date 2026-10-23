@@ -25988,11 +25988,7 @@ fi
         boost_missing=yes
     elif test "x$BOOST_FILESYSTEM_LIB" = "x" \
        -o "x$BOOST_REGEX_LIB" = "x" -o "x$BOOST_DATE_TIME_LIB" = "x" \
-       -o "x$BOOST_IOSTREAMS_LIB" = "x"; then
-        boost_missing=yes
-    elif test "x$BOOST_SERIALIZATION_LIB" = "x" -a "x$with_boost_serialization" != "xno"; then
-        # AX_BOOST_SERIALIZATION skips looking for the library if the user
-        # gave --without-boost-serialization, so it is fine if it is missing.
+       -o "x$BOOST_IOSTREAMS_LIB" = "x" -o "x$BOOST_SERIALIZATION_LIB" = "x"; then
         boost_missing=yes
     fi
     if test "$boost_missing" = "yes"; then
@@ -26267,8 +26263,8 @@ printf %s "checking for Blitz library... " >&6; }
 
 
 pkg_failed=no
-{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for BLITZ" >&5
-printf %s "checking for BLITZ... " >&6; }
+{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for blitz" >&5
+printf %s "checking for blitz... " >&6; }
 
 if test -n "$BLITZ_CFLAGS"; then
     pkg_cv_BLITZ_CFLAGS="$BLITZ_CFLAGS"
@@ -26304,23 +26300,6 @@ fi
  else
     pkg_failed=untried
 fi
-if test -n "$BLITZ_VERSION"; then
-    pkg_cv_BLITZ_VERSION="$BLITZ_VERSION"
- elif test -n "$PKG_CONFIG"; then
-    if test -n "$PKG_CONFIG" && \
-    { { printf "%s\n" "$as_me:${as_lineno-$LINENO}: \$PKG_CONFIG --exists --print-errors \"blitz\""; } >&5
-  ($PKG_CONFIG --exists --print-errors "blitz") 2>&5
-  ac_status=$?
-  printf "%s\n" "$as_me:${as_lineno-$LINENO}: \$? = $ac_status" >&5
-  test $ac_status = 0; }; then
-  pkg_cv_BLITZ_VERSION=`$PKG_CONFIG --modversion "blitz" 2>/dev/null`
-		      test "x$?" != "x0" && pkg_failed=yes
-else
-  pkg_failed=yes
-fi
- else
-    pkg_failed=untried
-fi
 
 
 
@@ -26334,25 +26313,24 @@ else
         _pkg_short_errors_supported=no
 fi
         if test $_pkg_short_errors_supported = yes; then
-                BLITZ_PKG_ERRORS=`$PKG_CONFIG --short-errors --print-errors --cflags --libs "blitz" 2>&1`
+	        BLITZ_PKG_ERRORS=`$PKG_CONFIG --short-errors --print-errors --cflags --libs "blitz" 2>&1`
         else
-                BLITZ_PKG_ERRORS=`$PKG_CONFIG --print-errors --cflags --libs "blitz" 2>&1`
+	        BLITZ_PKG_ERRORS=`$PKG_CONFIG --print-errors --cflags --libs "blitz" 2>&1`
         fi
-        # Put the nasty error message in config.log where it belongs
-        echo "$BLITZ_PKG_ERRORS" >&5
+	# Put the nasty error message in config.log where it belongs
+	echo "$BLITZ_PKG_ERRORS" >&5
 
-        succeeded=no
+	succeeded=no
 elif test $pkg_failed = untried; then
         { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no" >&5
 printf "%s\n" "no" >&6; }
-        succeeded=no
+	succeeded=no
 else
-        BLITZ_CFLAGS=$pkg_cv_BLITZ_CFLAGS
-        BLITZ_LIBS=$pkg_cv_BLITZ_LIBS
-        BLITZ_VERSION=$pkg_cv_BLITZ_VERSION
+	BLITZ_CFLAGS=$pkg_cv_BLITZ_CFLAGS
+	BLITZ_LIBS=$pkg_cv_BLITZ_LIBS
         { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: yes" >&5
 printf "%s\n" "yes" >&6; }
-        succeeded=yes
+	succeeded=yes
 fi
   if test "$succeeded" = "yes"; then
      if test -z "$BLITZ_PREFIX"; then
