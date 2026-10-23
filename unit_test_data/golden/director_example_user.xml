@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<!DOCTYPE boost_serialization>
+<boost_serialization signature="serialization::archive" version="20">
+<geocal_object class_id="0" tracking_level="0" version="1">
+	<px class_id="2" class_name="Skeleton::DirectorExampleUser" tracking_level="1" version="0" object_id="_0">
+		<value_vec class_id="3" tracking_level="0" version="0">
+			<count>2</count>
+			<item_version>1</item_version>
+			<item class_id="4" tracking_level="0" version="1">
+				<px class_id="5" tracking_level="1" version="0" object_id="_1">
+					<value_to_add>5</value_to_add>
+					<name>e1</name>
+				</px>
+			</item>
+			<item>
+				<px class_id="6" class_name="Skeleton::DirectorExampleNested" tracking_level="1" version="0" object_id="_2">
+					<DirectorExample object_id="_3">
+						<value_to_add>6</value_to_add>
+						<name>e2</name>
+					</DirectorExample>
+					<obj>
+						<px class_id_reference="5" object_id_reference="_1"></px>
+					</obj>
+				</px>
+			</item>
+		</value_vec>
+		<value_vec2 class_id="7" tracking_level="0" version="0">
+			<count>2</count>
+			<item_version>0</item_version>
+			<item>
+				<count>1</count>
+				<item_version>1</item_version>
+				<item>
+					<px class_id_reference="5" object_id_reference="_1"></px>
+				</item>
+			</item>
+			<item>
+				<count>2</count>
+				<item_version>1</item_version>
+				<item>
+					<px class_id_reference="6" object_id_reference="_2"></px>
+				</item>
+				<item>
+					<px class_id_reference="5" object_id_reference="_1"></px>
+				</item>
+			</item>
+		</value_vec2>
+		<value>
+			<px class_id_reference="5" object_id_reference="_1"></px>
+		</value>
+		<t>
+			<count>3</count>
+			<item_version>0</item_version>
+			<item>1</item>
+			<item>2</item>
+			<item>3</item>
+		</t>
+		<t2 class_id="9" tracking_level="0" version="0">
+			<count>2</count>
+			<item_version>0</item_version>
+			<item>
+				<count>1</count>
+				<item_version>0</item_version>
+				<item>4</item>
+			</item>
+			<item>
+				<count>2</count>
+				<item_version>0</item_version>
+				<item>5</item>
+				<item>6</item>
+			</item>
+		</t2>
+	</px>
+</geocal_object>
+</boost_serialization>
+

@@ -6,6 +6,7 @@
 #include <boost/archive/polymorphic_oarchive.hpp>
 #endif
 
+#ifdef SWIG_HAVE_BOOST_SERIALIZATION
 //-----------------------------------------------------------------------
 /// This is largely a duplicate of boost/serialization/shared_ptr.hpp.
 /// We need to have our own copy to add support for handling SWIG
@@ -131,3 +132,4 @@ inline void serialize(
     
   }
 }
+#endif

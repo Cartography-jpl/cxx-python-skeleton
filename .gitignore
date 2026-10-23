@@ -11,3 +11,9 @@ create_delta.bundle
 .tramp_history
 python/skeleton.egg-info
 python/build
+python/*.egg-info
+python/pytest_tmp
+python/test*.xml
+!config/m4/lt~obsolete.m4
+pytest_tmp
+claude_notes/*.html

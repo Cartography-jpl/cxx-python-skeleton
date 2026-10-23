@@ -69,6 +69,7 @@ AC_ARG_WITH([boost-serialization],
 if test "$with_boost_serialization" = "yes"; then
     AC_DEFINE(SKELETON_HAVE_BOOST_SERIALIZATION,,[Defined if we have boost serialization])
 fi
+AM_CONDITIONAL([HAVE_BOOST_SERIALIZATION], [test "$with_boost_serialization" = "yes"])
 
 #=================================================================
 # Option to bypass running doxygen to update documentation. This is useful

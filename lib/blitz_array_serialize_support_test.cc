@@ -1,6 +1,7 @@
 #include <blitz/array.h>
 #include "unit_test_support.h"
-#ifdef GEOCAL_HAVE_BOOST_SERIALIZATION
+#include "skeleton_serialize_support.h"
+#ifdef SKELETON_HAVE_BOOST_SERIALIZATION
 #include <boost/archive/polymorphic_xml_iarchive.hpp>
 #include <boost/archive/polymorphic_xml_oarchive.hpp>
 #endif
@@ -14,11 +15,11 @@ BOOST_AUTO_TEST_CASE(serialization)
     return;
   blitz::Array<double, 1> d(3);
   d = 1, 2, 3;
-#ifdef GEOCAL_HAVE_BOOST_SERIALIZATION
+#ifdef SKELETON_HAVE_BOOST_SERIALIZATION
   std::ostringstream os;
   {
     boost::archive::polymorphic_xml_oarchive oa(os);
-    oa << GEOCAL_NVP(d);
+    oa << SKELETON_NVP(d);
   }
   if(false)
     std::cerr << os.str();
@@ -26,7 +27,7 @@ BOOST_AUTO_TEST_CASE(serialization)
   std::istringstream is(os.str());
   boost::archive::polymorphic_xml_iarchive ia(is);
   blitz::Array<double, 1> dr;
-  ia >> GEOCAL_NVP(dr);
+  ia >> SKELETON_NVP(dr);
   BOOST_CHECK_EQUAL(d.rows(), dr.rows());
   BOOST_CHECK_MATRIX_CLOSE(d, dr);
 #endif

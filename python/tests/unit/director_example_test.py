@@ -365,6 +365,9 @@ def test_director_lifetime_shelve(isolated_dir, serial):
     print("All done with euser_s")
 
 
+@pytest.mark.xfail(
+    strict=True, reason="nested C++/Python identity: redesigned in S6"
+)
 def test_director_example_object_tracking(isolated_dir, serial):
     """Check that both the C++ objects and python objects correctly handle
     duplicates in pickling and shelving"""
@@ -385,32 +388,26 @@ def test_director_example_object_tracking(isolated_dir, serial):
     # Test pickle C++
     pickle.dump(e1_nest, open("e1_nest.pkl", "wb"))
     e1_nest_p = pickle.load(open("e1_nest.pkl", "rb"))
-    # TODO Not currently working, but illustrates the problem
-    # assert e1_nest_p.obj1.obj.same_object(e1_nest_p.obj2.obj)
+    assert e1_nest_p.obj1.obj.same_object(e1_nest_p.obj2.obj)
 
     # Test pickle python
     pickle.dump(e2_nest, open("e2_nest.pkl", "wb"))
     e2_nest_p = pickle.load(open("e2_nest.pkl", "rb"))
     assert not e2_nest_p.obj1.same_object(e2_nest_p.obj2)
-    # TODO Not currently working, but illustrates the problem
-    # assert e2_nest_p.obj1.obj1.same_object(e2_nest_p.obj2.obj1)
+    assert e2_nest_p.obj1.obj1.same_object(e2_nest_p.obj2.obj1)
 
     # Test shelve C++
     write_shelve("e1_nest.xml", e1_nest)
     e1_nest_s = read_shelve("e1_nest.xml")
-    # TODO Not currently working, but illustrates the problem
-    # assert e1_nest_s.obj1.obj.same_object(e1_nest_s.obj2.obj)
+    assert e1_nest_s.obj1.obj.same_object(e1_nest_s.obj2.obj)
 
     # Test shelve python
     write_shelve("e2_nest.xml", e2_nest)
     e2_nest_s = read_shelve("e2_nest.xml")
     assert not e2_nest_s.obj1.same_object(e2_nest_s.obj2)
-    # TODO Not currently working, but illustrates the problem
-    #
-    # assert e2_nest_s.obj1.obj1.same_object(e2_nest_s.obj2.obj1)
+    assert e2_nest_s.obj1.obj1.same_object(e2_nest_s.obj2.obj1)
 
 
-@pytest.mark.skip
 def test_director_example_weak_ptr(isolated_dir, serial):
     m = GenericObjectMap()
     m["e1"] = DirectorPythonExample(5, 6, "e1")

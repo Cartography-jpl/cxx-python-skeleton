@@ -3,6 +3,7 @@
 
 using namespace Skeleton;
 
+#ifdef SKELETON_HAVE_BOOST_SERIALIZATION
 template<class Archive>
 void DirectorExample::serialize(Archive & ar, const unsigned int )
 {
@@ -44,6 +45,7 @@ SKELETON_IMPLEMENT(DirectorExample);
 SKELETON_IMPLEMENT(DirectorExampleNested);
 SKELETON_IMPLEMENT(DirectorExampleUser);
 SKELETON_IMPLEMENT(DirectorExampleWeakPtr);
+#endif
 
 void DirectorExample::print(std::ostream& Os) const
 {

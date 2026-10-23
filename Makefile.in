@@ -151,7 +151,9 @@ bin_PROGRAMS =
 @HAVE_SWIG_TRUE@@MAINTAINER_MODE_TRUE@	$(addprefix $(srcdir)/, \
 @HAVE_SWIG_TRUE@@MAINTAINER_MODE_TRUE@	$(ADDITONAL_SWIG_SRC)) \
 @HAVE_SWIG_TRUE@@MAINTAINER_MODE_TRUE@	$(srcdir)/$(swigsrc)/swig_wrap.cc
-check_PROGRAMS = skeleton_test_all$(EXEEXT)
+@HAVE_BOOST_SERIALIZATION_TRUE@am__append_2 = -DSWIG_HAVE_BOOST_SERIALIZATION
+check_PROGRAMS = skeleton_test_all$(EXEEXT) \
+	golden_archive_generator$(EXEEXT)
 subdir = .
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps =  \
@@ -281,13 +283,22 @@ libskeleton_la_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CXX \
 	$(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=link $(CXXLD) \
 	$(AM_CXXFLAGS) $(CXXFLAGS) $(libskeleton_la_LDFLAGS) \
 	$(LDFLAGS) -o $@
+am_golden_archive_generator_OBJECTS = @srclib@/golden_archive_generator-golden_archive_generator.$(OBJEXT)
+golden_archive_generator_OBJECTS =  \
+	$(am_golden_archive_generator_OBJECTS)
+golden_archive_generator_DEPENDENCIES = libskeleton.la
+golden_archive_generator_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CXX \
+	$(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=link $(CXXLD) \
+	$(AM_CXXFLAGS) $(CXXFLAGS) $(golden_archive_generator_LDFLAGS) \
+	$(LDFLAGS) -o $@
 am_skeleton_test_all_OBJECTS =  \
 	@srclib@/skeleton_test_all-test_all.$(OBJEXT) \
 	@srclib@/skeleton_test_all-global_fixture.$(OBJEXT) \
 	@srclib@/skeleton_test_all-global_fixture_default.$(OBJEXT) \
 	@srclib@/skeleton_test_all-generic_object_map_test.$(OBJEXT) \
 	@srclib@/skeleton_test_all-printable_test.$(OBJEXT) \
-	@srclib@/skeleton_test_all-blitz_array_serialize_support_test.$(OBJEXT)
+	@srclib@/skeleton_test_all-blitz_array_serialize_support_test.$(OBJEXT) \
+	@srclib@/skeleton_test_all-golden_archive_test.$(OBJEXT)
 skeleton_test_all_OBJECTS = $(am_skeleton_test_all_OBJECTS)
 skeleton_test_all_DEPENDENCIES = libskeleton.la
 skeleton_test_all_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CXX \
@@ -310,7 +321,8 @@ am__v_at_1 =
 DEFAULT_INCLUDES = 
 depcomp = $(SHELL) $(top_srcdir)/config/depcomp
 am__maybe_remake_depfiles = depfiles
-am__depfiles_remade = @srclib@/$(DEPDIR)/libskeleton_la-blitz_array_serialize_support.Plo \
+am__depfiles_remade = @srclib@/$(DEPDIR)/golden_archive_generator-golden_archive_generator.Po \
+	@srclib@/$(DEPDIR)/libskeleton_la-blitz_array_serialize_support.Plo \
 	@srclib@/$(DEPDIR)/libskeleton_la-director_example.Plo \
 	@srclib@/$(DEPDIR)/libskeleton_la-generic_object.Plo \
 	@srclib@/$(DEPDIR)/libskeleton_la-generic_object_map.Plo \
@@ -320,6 +332,7 @@ am__depfiles_remade = @srclib@/$(DEPDIR)/libskeleton_la-blitz_array_serialize_su
 	@srclib@/$(DEPDIR)/skeleton_test_all-generic_object_map_test.Po \
 	@srclib@/$(DEPDIR)/skeleton_test_all-global_fixture.Po \
 	@srclib@/$(DEPDIR)/skeleton_test_all-global_fixture_default.Po \
+	@srclib@/$(DEPDIR)/skeleton_test_all-golden_archive_test.Po \
 	@srclib@/$(DEPDIR)/skeleton_test_all-printable_test.Po \
 	@srclib@/$(DEPDIR)/skeleton_test_all-test_all.Po \
 	@swigrules@/lib/$(DEPDIR)/libskeleton_la-serialize_function.Plo \
@@ -357,8 +370,10 @@ am__v_CXXLD_ = $(am__v_CXXLD_@AM_DEFAULT_V@)
 am__v_CXXLD_0 = @echo "  CXXLD   " $@;
 am__v_CXXLD_1 = 
 SOURCES = $(_swig_wrap_la_SOURCES) $(libskeleton_la_SOURCES) \
+	$(golden_archive_generator_SOURCES) \
 	$(skeleton_test_all_SOURCES)
 DIST_SOURCES = $(_swig_wrap_la_SOURCES) $(libskeleton_la_SOURCES) \
+	$(golden_archive_generator_SOURCES) \
 	$(skeleton_test_all_SOURCES)
 am__can_run_installinfo = \
   case $$AM_UPDATE_INFO_DIR in \
@@ -827,7 +842,9 @@ include_HEADERS =
 
 # Test files
 EXTRA_DIST = README.md bootstrap config/m4_local/README config/m4 \
-	@swigrules@/doxy2swig.py @swigrules@/create_python_init.py \
+	@srcscript@/make_compile_commands.py \
+	@srcscript@/run_clang_tidy.sh @swigrules@/doxy2swig.py \
+	@swigrules@/create_python_init.py \
 	@swigrules@/doxygen_single.cfg @swigrules@/README.md \
 	@swigrules@/swig_wrap.tmpl \
 	@swigrules@/lib/generic_object.cc.sample \
@@ -934,7 +951,8 @@ skeletonswiginc_HEADERS = @srclib@/skeleton_common.i \
 skeleton_test_all_SOURCES = @srclib@/test_all.cc \
 	@srclib@/global_fixture.cc @srclib@/global_fixture_default.cc \
 	@srclib@/generic_object_map_test.cc @srclib@/printable_test.cc \
-	@srclib@/blitz_array_serialize_support_test.cc
+	@srclib@/blitz_array_serialize_support_test.cc \
+	@srclib@/golden_archive_test.cc
 dist_installskeleton_SCRIPTS = 
 SWIG_FLAG = -O
 
@@ -942,7 +960,7 @@ SWIG_FLAG = -O
 DIST_HOOK = dist-clean-up-python
 libskeleton_la_CPPFLAGS = $(AM_CPPFLAGS) $(BOOST_CPPFLAGS) \
 	$(BLITZ_CFLAGS) -DSWIG_MAPPER_NAMESPACE=Skeleton \
-	-DSWIG_HAVE_BOOST_SERIALIZATION=@SKELETON_HAVE_BOOST_SERIALIZATION@
+	$(am__append_2)
 installskeleton_DATA = @srcscript@/setup_skeleton.csh @srcscript@/setup_skeleton.sh
 
 # Number of jobs to run at once. Default is to automatically determine this,
@@ -994,6 +1012,11 @@ SWIG_LIBADD = libskeleton.la
 skeleton_test_all_LDADD = libskeleton.la 
 skeleton_test_all_LDFLAGS = -no-install 
 skeleton_test_all_CPPFLAGS = $(AM_CPPFLAGS)
+golden_archive_generator_SOURCES = @srclib@/golden_archive_generator.cc
+golden_archive_generator_LDADD = libskeleton.la
+golden_archive_generator_LDFLAGS = -no-install
+golden_archive_generator_CPPFLAGS = $(AM_CPPFLAGS) $(BOOST_CPPFLAGS) \
+	$(BLITZ_CFLAGS) -DSWIG_MAPPER_NAMESPACE=Skeleton
 all: $(BUILT_SOURCES)
 	$(MAKE) $(AM_MAKEFLAGS) all-am
 
@@ -1246,6 +1269,12 @@ _swig_wrap.la: $(_swig_wrap_la_OBJECTS) $(_swig_wrap_la_DEPENDENCIES) $(EXTRA__s
 
 libskeleton.la: $(libskeleton_la_OBJECTS) $(libskeleton_la_DEPENDENCIES) $(EXTRA_libskeleton_la_DEPENDENCIES) 
 	$(AM_V_CXXLD)$(libskeleton_la_LINK) -rpath $(libdir) $(libskeleton_la_OBJECTS) $(libskeleton_la_LIBADD) $(LIBS)
+@srclib@/golden_archive_generator-golden_archive_generator.$(OBJEXT):  \
+	@srclib@/$(am__dirstamp) @srclib@/$(DEPDIR)/$(am__dirstamp)
+
+golden_archive_generator$(EXEEXT): $(golden_archive_generator_OBJECTS) $(golden_archive_generator_DEPENDENCIES) $(EXTRA_golden_archive_generator_DEPENDENCIES) 
+	@rm -f golden_archive_generator$(EXEEXT)
+	$(AM_V_CXXLD)$(golden_archive_generator_LINK) $(golden_archive_generator_OBJECTS) $(golden_archive_generator_LDADD) $(LIBS)
 @srclib@/skeleton_test_all-test_all.$(OBJEXT):  \
 	@srclib@/$(am__dirstamp) @srclib@/$(DEPDIR)/$(am__dirstamp)
 @srclib@/skeleton_test_all-global_fixture.$(OBJEXT):  \
@@ -1257,6 +1286,8 @@ libskeleton.la: $(libskeleton_la_OBJECTS) $(libskeleton_la_DEPENDENCIES) $(EXTRA
 @srclib@/skeleton_test_all-printable_test.$(OBJEXT):  \
 	@srclib@/$(am__dirstamp) @srclib@/$(DEPDIR)/$(am__dirstamp)
 @srclib@/skeleton_test_all-blitz_array_serialize_support_test.$(OBJEXT):  \
+	@srclib@/$(am__dirstamp) @srclib@/$(DEPDIR)/$(am__dirstamp)
+@srclib@/skeleton_test_all-golden_archive_test.$(OBJEXT):  \
 	@srclib@/$(am__dirstamp) @srclib@/$(DEPDIR)/$(am__dirstamp)
 
 skeleton_test_all$(EXEEXT): $(skeleton_test_all_OBJECTS) $(skeleton_test_all_DEPENDENCIES) $(EXTRA_skeleton_test_all_DEPENDENCIES) 
@@ -1345,6 +1376,7 @@ mostlyclean-compile:
 distclean-compile:
 	-rm -f *.tab.c
 
+@AMDEP_TRUE@@am__include@ @am__quote@@srclib@/$(DEPDIR)/golden_archive_generator-golden_archive_generator.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@@srclib@/$(DEPDIR)/libskeleton_la-blitz_array_serialize_support.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@@srclib@/$(DEPDIR)/libskeleton_la-director_example.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@@srclib@/$(DEPDIR)/libskeleton_la-generic_object.Plo@am__quote@ # am--include-marker
@@ -1355,6 +1387,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@@srclib@/$(DEPDIR)/skeleton_test_all-generic_object_map_test.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@@srclib@/$(DEPDIR)/skeleton_test_all-global_fixture.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@@srclib@/$(DEPDIR)/skeleton_test_all-global_fixture_default.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@@srclib@/$(DEPDIR)/skeleton_test_all-golden_archive_test.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@@srclib@/$(DEPDIR)/skeleton_test_all-printable_test.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@@srclib@/$(DEPDIR)/skeleton_test_all-test_all.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@@swigrules@/lib/$(DEPDIR)/libskeleton_la-serialize_function.Plo@am__quote@ # am--include-marker
@@ -1550,6 +1583,20 @@ am--depfiles: $(am__depfiles_remade)
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libskeleton_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o @srclib@/libskeleton_la-blitz_array_serialize_support.lo `test -f '@srclib@/blitz_array_serialize_support.cc' || echo '$(srcdir)/'`@srclib@/blitz_array_serialize_support.cc
 
+@srclib@/golden_archive_generator-golden_archive_generator.o: @srclib@/golden_archive_generator.cc
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(golden_archive_generator_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT @srclib@/golden_archive_generator-golden_archive_generator.o -MD -MP -MF @srclib@/$(DEPDIR)/golden_archive_generator-golden_archive_generator.Tpo -c -o @srclib@/golden_archive_generator-golden_archive_generator.o `test -f '@srclib@/golden_archive_generator.cc' || echo '$(srcdir)/'`@srclib@/golden_archive_generator.cc
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) @srclib@/$(DEPDIR)/golden_archive_generator-golden_archive_generator.Tpo @srclib@/$(DEPDIR)/golden_archive_generator-golden_archive_generator.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='@srclib@/golden_archive_generator.cc' object='@srclib@/golden_archive_generator-golden_archive_generator.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(golden_archive_generator_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o @srclib@/golden_archive_generator-golden_archive_generator.o `test -f '@srclib@/golden_archive_generator.cc' || echo '$(srcdir)/'`@srclib@/golden_archive_generator.cc
+
+@srclib@/golden_archive_generator-golden_archive_generator.obj: @srclib@/golden_archive_generator.cc
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(golden_archive_generator_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT @srclib@/golden_archive_generator-golden_archive_generator.obj -MD -MP -MF @srclib@/$(DEPDIR)/golden_archive_generator-golden_archive_generator.Tpo -c -o @srclib@/golden_archive_generator-golden_archive_generator.obj `if test -f '@srclib@/golden_archive_generator.cc'; then $(CYGPATH_W) '@srclib@/golden_archive_generator.cc'; else $(CYGPATH_W) '$(srcdir)/@srclib@/golden_archive_generator.cc'; fi`
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) @srclib@/$(DEPDIR)/golden_archive_generator-golden_archive_generator.Tpo @srclib@/$(DEPDIR)/golden_archive_generator-golden_archive_generator.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='@srclib@/golden_archive_generator.cc' object='@srclib@/golden_archive_generator-golden_archive_generator.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(golden_archive_generator_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o @srclib@/golden_archive_generator-golden_archive_generator.obj `if test -f '@srclib@/golden_archive_generator.cc'; then $(CYGPATH_W) '@srclib@/golden_archive_generator.cc'; else $(CYGPATH_W) '$(srcdir)/@srclib@/golden_archive_generator.cc'; fi`
+
 @srclib@/skeleton_test_all-test_all.o: @srclib@/test_all.cc
 @am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(skeleton_test_all_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT @srclib@/skeleton_test_all-test_all.o -MD -MP -MF @srclib@/$(DEPDIR)/skeleton_test_all-test_all.Tpo -c -o @srclib@/skeleton_test_all-test_all.o `test -f '@srclib@/test_all.cc' || echo '$(srcdir)/'`@srclib@/test_all.cc
 @am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) @srclib@/$(DEPDIR)/skeleton_test_all-test_all.Tpo @srclib@/$(DEPDIR)/skeleton_test_all-test_all.Po
@@ -1633,6 +1680,20 @@ am--depfiles: $(am__depfiles_remade)
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='@srclib@/blitz_array_serialize_support_test.cc' object='@srclib@/skeleton_test_all-blitz_array_serialize_support_test.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(skeleton_test_all_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o @srclib@/skeleton_test_all-blitz_array_serialize_support_test.obj `if test -f '@srclib@/blitz_array_serialize_support_test.cc'; then $(CYGPATH_W) '@srclib@/blitz_array_serialize_support_test.cc'; else $(CYGPATH_W) '$(srcdir)/@srclib@/blitz_array_serialize_support_test.cc'; fi`
+
+@srclib@/skeleton_test_all-golden_archive_test.o: @srclib@/golden_archive_test.cc
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(skeleton_test_all_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT @srclib@/skeleton_test_all-golden_archive_test.o -MD -MP -MF @srclib@/$(DEPDIR)/skeleton_test_all-golden_archive_test.Tpo -c -o @srclib@/skeleton_test_all-golden_archive_test.o `test -f '@srclib@/golden_archive_test.cc' || echo '$(srcdir)/'`@srclib@/golden_archive_test.cc
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) @srclib@/$(DEPDIR)/skeleton_test_all-golden_archive_test.Tpo @srclib@/$(DEPDIR)/skeleton_test_all-golden_archive_test.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='@srclib@/golden_archive_test.cc' object='@srclib@/skeleton_test_all-golden_archive_test.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(skeleton_test_all_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o @srclib@/skeleton_test_all-golden_archive_test.o `test -f '@srclib@/golden_archive_test.cc' || echo '$(srcdir)/'`@srclib@/golden_archive_test.cc
+
+@srclib@/skeleton_test_all-golden_archive_test.obj: @srclib@/golden_archive_test.cc
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(skeleton_test_all_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT @srclib@/skeleton_test_all-golden_archive_test.obj -MD -MP -MF @srclib@/$(DEPDIR)/skeleton_test_all-golden_archive_test.Tpo -c -o @srclib@/skeleton_test_all-golden_archive_test.obj `if test -f '@srclib@/golden_archive_test.cc'; then $(CYGPATH_W) '@srclib@/golden_archive_test.cc'; else $(CYGPATH_W) '$(srcdir)/@srclib@/golden_archive_test.cc'; fi`
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) @srclib@/$(DEPDIR)/skeleton_test_all-golden_archive_test.Tpo @srclib@/$(DEPDIR)/skeleton_test_all-golden_archive_test.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='@srclib@/golden_archive_test.cc' object='@srclib@/skeleton_test_all-golden_archive_test.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(skeleton_test_all_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o @srclib@/skeleton_test_all-golden_archive_test.obj `if test -f '@srclib@/golden_archive_test.cc'; then $(CYGPATH_W) '@srclib@/golden_archive_test.cc'; else $(CYGPATH_W) '$(srcdir)/@srclib@/golden_archive_test.cc'; fi`
 
 mostlyclean-libtool:
 	-rm -f *.lo
@@ -2299,6 +2360,7 @@ clean-am: clean-binPROGRAMS clean-checkPROGRAMS clean-generic \
 
 distclean: distclean-am
 	-rm -f $(am__CONFIG_DISTCLEAN_FILES)
+	-rm -f @srclib@/$(DEPDIR)/golden_archive_generator-golden_archive_generator.Po
 	-rm -f @srclib@/$(DEPDIR)/libskeleton_la-blitz_array_serialize_support.Plo
 	-rm -f @srclib@/$(DEPDIR)/libskeleton_la-director_example.Plo
 	-rm -f @srclib@/$(DEPDIR)/libskeleton_la-generic_object.Plo
@@ -2309,6 +2371,7 @@ distclean: distclean-am
 	-rm -f @srclib@/$(DEPDIR)/skeleton_test_all-generic_object_map_test.Po
 	-rm -f @srclib@/$(DEPDIR)/skeleton_test_all-global_fixture.Po
 	-rm -f @srclib@/$(DEPDIR)/skeleton_test_all-global_fixture_default.Po
+	-rm -f @srclib@/$(DEPDIR)/skeleton_test_all-golden_archive_test.Po
 	-rm -f @srclib@/$(DEPDIR)/skeleton_test_all-printable_test.Po
 	-rm -f @srclib@/$(DEPDIR)/skeleton_test_all-test_all.Po
 	-rm -f @swigrules@/lib/$(DEPDIR)/libskeleton_la-serialize_function.Plo
@@ -2380,6 +2443,7 @@ installcheck-am: installcheck-local
 maintainer-clean: maintainer-clean-am
 	-rm -f $(am__CONFIG_DISTCLEAN_FILES)
 	-rm -rf $(top_srcdir)/autom4te.cache
+	-rm -f @srclib@/$(DEPDIR)/golden_archive_generator-golden_archive_generator.Po
 	-rm -f @srclib@/$(DEPDIR)/libskeleton_la-blitz_array_serialize_support.Plo
 	-rm -f @srclib@/$(DEPDIR)/libskeleton_la-director_example.Plo
 	-rm -f @srclib@/$(DEPDIR)/libskeleton_la-generic_object.Plo
@@ -2390,6 +2454,7 @@ maintainer-clean: maintainer-clean-am
 	-rm -f @srclib@/$(DEPDIR)/skeleton_test_all-generic_object_map_test.Po
 	-rm -f @srclib@/$(DEPDIR)/skeleton_test_all-global_fixture.Po
 	-rm -f @srclib@/$(DEPDIR)/skeleton_test_all-global_fixture_default.Po
+	-rm -f @srclib@/$(DEPDIR)/skeleton_test_all-golden_archive_test.Po
 	-rm -f @srclib@/$(DEPDIR)/skeleton_test_all-printable_test.Po
 	-rm -f @srclib@/$(DEPDIR)/skeleton_test_all-test_all.Po
 	-rm -f @swigrules@/lib/$(DEPDIR)/libskeleton_la-serialize_function.Plo
@@ -2570,6 +2635,10 @@ install-python-2: install-libLTLIBRARIES install-python-skeleton install-pkgpyth
 
 install-python: all
 	$(MAKE) -j 1 install-python-2 
+
+golden-archives: golden_archive_generator
+	source script/setup_skeleton.sh && \
+	./golden_archive_generator $(abs_top_srcdir)/@unittestdata@/golden
 
 # Variables used in testing
 export abs_top_srcdir 

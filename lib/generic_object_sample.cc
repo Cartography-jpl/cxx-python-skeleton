@@ -3,6 +3,7 @@
 
 using namespace Skeleton;
 
+#ifdef SKELETON_HAVE_BOOST_SERIALIZATION
 template<class Archive>
 void GenericObjectA::serialize(Archive & ar, const unsigned int )
 {
@@ -36,3 +37,4 @@ SKELETON_IMPLEMENT(GenericObjectA);
 SKELETON_IMPLEMENT(GenericObjectB);
 SKELETON_IMPLEMENT(GenericObjectB2);
 SKELETON_IMPLEMENT(GenericObjectC);
+#endif

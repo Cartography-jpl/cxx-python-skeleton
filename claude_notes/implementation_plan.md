@@ -15,8 +15,10 @@ Related documents:
 
 ## 0. Handoff: where to pick up (read this first)
 
-**Status (2026-10-23):** planning is complete; **no code has been changed yet**. The next step is **Phase S0, step 1**
-(baseline build and test run). The maintainer has to say "go" before code work starts in a new session; if unsure, ask.
+**Status (2026-10-23):** **Phase S0 is done** (all 8 steps; see the progress log). The maintainer reviews and commits it, then
+may tag `phase0-baseline`. The next step is **Phase S1** (C++20, tooling, hygiene), which includes the clang-format
+trial (S1.6, using `claude_notes/clang_format_trial.clang-format`). The maintainer has to say "go" before S1 starts; if
+unsure, ask.
 
 **Rules for working in this repository** (maintainer decisions):
 * Work on the **`modernize`** branch (already checked out). Don't touch `master` (it keeps the set-aside pickling work).
@@ -41,7 +43,14 @@ Related documents:
 | Phase / step | State | Notes |
 |---|---|---|
 | Planning | done | 2026-10-23 |
-| S0.1 baseline | **next** | |
+| S0.1 baseline | done | 2026-10-23. C++: 1 test program (`skeleton_test_all`) passes. Python: 16 passed, 1 skipped (`test_director_example_weak_ptr`). `test_director_example_object_tracking` passed (no `NameError`; its identity asserts were commented out). Env: gcc 15.3, Boost 1.90, SWIG 4.5.0. |
+| S0.2 set aside pickling | done | Asserts uncommented; `object_tracking` is `xfail(strict=True)` (the `e1_nest_p` identity assert fails). `test_director_example_weak_ptr` **passes when unskipped** (5 of 5 runs), so it is now a normal test, not an `xfail`. |
+| S0.3 golden archives | done | `unit_test_data/golden/` (52 files), `make golden-archives`, `lib/golden_archive_test.cc`, `python/tests/unit/golden_archive_test.py`. Findings: (a) `serialize_function.i` lacks `serialize_read_binary_generic` (the sample has it), so `.bin` through `read_shelve` fails: 5 strict `xfail`s, fix when convenient. (b) `blitz::Array<float/short/unsigned/ushort>` are instantiated in the `.cc` but lack `BOOST_SERIALIZATION_SPLIT_FREE` in the header, so can't be serialized; left alone. |
+| S0.4 tooling in pixi | done | `clang-tools` and `nanobind` in `env/linux/pixi.toml` (+ lock) and in both scratch envs. `clang-format`/`clang-tidy` 22.1.8 and `nanobind` 3.1.0 work. **`bear` and `intercept-build` do not run on this host, so `bear` was removed from all three pixi setups** (glibc 2.28; the conda `bear-driver` needs 2.39 and the `intercept-build` preload crashes). This is a host problem, not a gcc version one, so a gcc 16 env would not help and the gcc 14 env is no different. Workaround, tested: `script/make_compile_commands.py` (builds `compile_commands.json` from `make -n`, run in the build dir) and `script/run_clang_tidy.sh` (adds the conda sysroot and gcc builtin headers, and a shim `blitz/llvm/bzconfig.h` -> `gnu`, because the conda blitz has no llvm config and clang can't parse blitz otherwise). Use these for S1.3 instead of `bear -- make`. First look: `modernize-use-nullptr` finds 3 hits in `swig_rules/lib` headers, `modernize-use-override` finds the `virtual` functions in `director_example.h`. |
+| S0.5 min-compiler env | done | `/home/smyth/Local/swig-rules-skeleton-build/build-pixi-gcc14` (gcc/g++ 14.4.0, SWIG 4.5.0). Configure with `--prefix=$CONDA_PREFIX --enable-maintainer-mode --enable-debug`, `make`, `make check` (1/1), `make install`, `make installcheck` (21 passed, 6 xfailed): same as the gcc 15 results. Run `pixi run` from inside that directory (it warns about `PIXI_PROJECT_MANIFEST` pointing at `build-pixi`; the local manifest is the one used). |
+| S0.6 `--without-boost-serialization` | done | Builds and C++ tests pass (`--without-swig --without-documentation`). Fixed: 3 `.cc` files guarded, `swig_rules/lib/serialize_shared_ptr.h` body guarded, `-DSWIG_HAVE_BOOST_SERIALIZATION` only when serialization is on (new `HAVE_BOOST_SERIALIZATION` conditional), map tests skip, a stale `GEOCAL_` macro in the blitz test, `ac_boost.m4` no longer requires `libboost_serialization` in that case. Geocal reference: the same pattern. |
+| S0.7 housekeeping | done | No `*~` files were tracked. `.gitignore` extended (egg-info, pytest_tmp, test xml). |
+| S0.8 sanitizer | done | See "Sanitizer builds" below. |
 
 ---
 
@@ -58,6 +67,22 @@ the maintainer commits and can tag each phase boundary (for example `phase0-base
 **swig-rules repository.** Leave `swig-rules-repo` (the upstream of the `swig_rules/` subtree) alone for now. All
 changes are made only in this repository's copy of `swig_rules/`, and it is understood that it will drift from
 `swig-rules-repo`. No `git subtree push` until a decision is made later.
+
+**S0 phase-end checklist (repeat at the end of each phase):** (1) gcc 15 env (`build-pixi`): `make check`, `make install`,
+`make installcheck`; (2) gcc 14 env (`build-pixi-gcc14`): the same; (3) `--without-boost-serialization --without-swig
+--without-documentation` build with `make skeleton-check`; (4) ASan build (below); (5) golden archives load (part of 1-2).
+Expected at the end of S0: C++ 1/1, Python 21 passed + 6 xfailed.
+
+**Sanitizer builds (S0.8).** No configure option was needed; this works:
+
+    configure --enable-maintainer-mode --enable-debug --prefix=/tmp/asan_inst \
+        CXXFLAGS="-g -O1 -fsanitize=address -fno-omit-frame-pointer" LDFLAGS="-fsanitize=address"
+    make -j && make install && make skeleton-check          # C++ tests under ASan: clean
+    source script/setup_skeleton.sh
+    LD_PRELOAD=$(g++ -print-file-name=libasan.so) ASAN_OPTIONS=detect_leaks=0 pytest python/tests
+
+Python tests under ASan: 21 passed, 6 xfailed, no errors. `detect_leaks=0` is needed for Python (it reports the
+interpreter's own allocations at exit). The C++ run can keep leak detection on.
 
 ---
 
@@ -292,7 +317,7 @@ passing (or explicitly `xfail`ed with a reason), the golden-archive test green, 
    * A small generator (`lib/golden_archive_generator.cc` built as a `check_PROGRAMS`, or a Python script) so the
      files can be regenerated deliberately, with a README saying when they were made.
    * A C++ test that loads every file and checks values, plus a Python test doing the same through `read_shelve`.
-4. **Tooling in `env/linux/pixi.toml`** (and the build-pixi env): `clang-tools` and `bear` (pin builds at least a week
+4. **Tooling in `env/linux/pixi.toml`** (and the build-pixi env): `clang-tools` (not `bear`: it doesn't run on this host, see the progress log) (pin builds at least a week
    old), `nanobind` (for later), `mdspan` (pinned snapshot, later), `eigen` not needed here.
 5. **Minimum-compiler build env**: a second scratch pixi env pinned to `gxx_linux-64 14.*` (the 2.0 minimum), used at
    each phase end.
@@ -316,7 +341,8 @@ passing (or explicitly `xfail`ed with a reason), the golden-archive test green, 
    change it there only in coordination with geocal (or keep the setting project-local, as the skeleton already does).
 2. **Warnings**: third-party include paths as `-isystem` (Boost already is via `BOOST_CPPFLAGS`; do the same for Blitz).
    Add `-Wall -Wextra -Wdeprecated` to the debug build.
-3. **clang-tidy** with `compile_commands.json` from `bear -- make`. Apply, one check per commit:
+3. **clang-tidy** with `compile_commands.json` (not from `bear`: it doesn't run on this host; use `script/make_compile_commands.py` and
+   `script/run_clang_tidy.sh`, see the S0.4 note). Apply, one check per commit:
    `modernize-use-override`, `modernize-use-nullptr`, `modernize-use-noexcept` (`throw()` in `skeleton_exception.h`),
    `modernize-use-equals-default`, `modernize-make-shared` (configured for `boost::make_shared` until S4),
    `modernize-loop-convert`, `modernize-deprecated-headers`. This is the dry run of the geocal §8 cleanup: record which
@@ -337,7 +363,13 @@ passing (or explicitly `xfail`ed with a reason), the golden-archive test green, 
    These are the patterns geocal and framework will copy, so get the details right here: the constructor-overload
    trick for `source_location` with variadic arguments, the cost of capturing a stacktrace on every throw, and the
    SWIG-visible interface.
-6. **Mechanical tests** (C++): formatter output equals `operator<<` output; the format-string constructor produces the
+6. **clang-format trial** (maintainer is considering it as a routine tool, like `ruff format`): use
+   `claude_notes/clang_format_trial.clang-format` (tuned to geocal's style; measured impact on geocal in the geocal plan
+   §8.5). Format the skeleton with it after the clang-tidy passes, review the result with the maintainer, and adjust the
+   config: function-signature layout, `{ body }` after signatures, `// clang-format off` around serialization `&` chains.
+   If adopted, add the file as `.clang-format` at the repo root and record the reformat commit for
+   `.git-blame-ignore-revs`.
+7. **Mechanical tests** (C++): formatter output equals `operator<<` output; the format-string constructor produces the
    expected message and file/line; copying an exception keeps the message; stacktrace is non-empty in a debug build.
    Python: `str()` of each class unchanged (compare with S0 output), exception message text unchanged.
 

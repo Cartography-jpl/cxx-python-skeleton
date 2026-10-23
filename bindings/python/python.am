@@ -28,7 +28,9 @@ skeletoninc_HEADERS+= @swigrules@/lib/serialize_shared_ptr.h
 skeletoninc_HEADERS+= @swigrules@/lib/weak_ptr_serialize_support.h
 libskeleton_la_SOURCES+= @swigrules@/lib/weak_ptr_serialize_support.cc
 libskeleton_la_CPPFLAGS+= -DSWIG_MAPPER_NAMESPACE=Skeleton
-libskeleton_la_CPPFLAGS+= -DSWIG_HAVE_BOOST_SERIALIZATION=@SKELETON_HAVE_BOOST_SERIALIZATION@
+if HAVE_BOOST_SERIALIZATION
+libskeleton_la_CPPFLAGS+= -DSWIG_HAVE_BOOST_SERIALIZATION
+endif
 
 
 

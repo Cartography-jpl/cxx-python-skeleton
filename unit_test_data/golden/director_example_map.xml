@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<!DOCTYPE boost_serialization>
+<boost_serialization signature="serialization::archive" version="20">
+<geocal_object class_id="0" tracking_level="0" version="1">
+	<px class_id="2" class_name="Skeleton::GenericObjectMap" tracking_level="1" version="0" object_id="_0">
+		<MapGenericObject class_id="3" tracking_level="0" version="0">
+			<count>3</count>
+			<item_version>0</item_version>
+			<item class_id="4" tracking_level="0" version="0">
+				<first>e1</first>
+				<second>
+					<px class_id="5" class_name="Skeleton::DirectorExample" tracking_level="1" version="0" object_id="_1">
+						<value_to_add>5</value_to_add>
+						<name>e1</name>
+					</px>
+				</second>
+			</item>
+			<item>
+				<first>e2</first>
+				<second>
+					<px class_id="6" class_name="Skeleton::DirectorExampleNested" tracking_level="1" version="0" object_id="_2">
+						<DirectorExample object_id="_3">
+							<value_to_add>6</value_to_add>
+							<name>e2</name>
+						</DirectorExample>
+						<obj class_id="7" tracking_level="0" version="1">
+							<px class_id_reference="5" object_id_reference="_1"></px>
+						</obj>
+					</px>
+				</second>
+			</item>
+			<item>
+				<first>weak</first>
+				<second>
+					<px class_id="8" class_name="Skeleton::DirectorExampleWeakPtr" tracking_level="1" version="0" object_id="_4">
+						<a class_id="9" tracking_level="0" version="0">
+							<weak_ptr>
+								<px class_id_reference="5" object_id_reference="_1"></px>
+							</weak_ptr>
+						</a>
+					</px>
+				</second>
+			</item>
+		</MapGenericObject>
+	</px>
+</geocal_object>
+</boost_serialization>
+

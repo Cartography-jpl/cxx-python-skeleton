@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<!DOCTYPE boost_serialization>
+<boost_serialization signature="serialization::archive" version="20">
+<array class_id="0" tracking_level="0" version="0">
+	<size>3</size>
+	<data>
+		<item>0.00000000000000000e+00</item>
+		<item>-1.00000000000000000e+00</item>
+		<item>2.00000000000000000e+00</item>
+	</data>
+</array>
+</boost_serialization>
+

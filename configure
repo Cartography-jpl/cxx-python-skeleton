@@ -658,6 +658,8 @@ LTLIBOBJS
 LIBOBJS
 WITH_DOCUMENTATION_FALSE
 WITH_DOCUMENTATION_TRUE
+HAVE_BOOST_SERIALIZATION_FALSE
+HAVE_BOOST_SERIALIZATION_TRUE
 SWIG_PYTHON_OPT
 AX_SWIG_PYTHON_CPPFLAGS
 AX_SWIG_PYTHON_OPT
@@ -25986,7 +25988,11 @@ fi
         boost_missing=yes
     elif test "x$BOOST_FILESYSTEM_LIB" = "x" \
        -o "x$BOOST_REGEX_LIB" = "x" -o "x$BOOST_DATE_TIME_LIB" = "x" \
-       -o "x$BOOST_IOSTREAMS_LIB" = "x" -o "x$BOOST_SERIALIZATION_LIB" = "x"; then
+       -o "x$BOOST_IOSTREAMS_LIB" = "x"; then
+        boost_missing=yes
+    elif test "x$BOOST_SERIALIZATION_LIB" = "x" -a "x$with_boost_serialization" != "xno"; then
+        # AX_BOOST_SERIALIZATION skips looking for the library if the user
+        # gave --without-boost-serialization, so it is fine if it is missing.
         boost_missing=yes
     fi
     if test "$boost_missing" = "yes"; then
@@ -26640,6 +26646,14 @@ if test "$with_boost_serialization" = "yes"; then
 printf "%s\n" "#define SKELETON_HAVE_BOOST_SERIALIZATION /**/" >>confdefs.h
 
 fi
+ if test "$with_boost_serialization" = "yes"; then
+  HAVE_BOOST_SERIALIZATION_TRUE=
+  HAVE_BOOST_SERIALIZATION_FALSE='#'
+else
+  HAVE_BOOST_SERIALIZATION_TRUE='#'
+  HAVE_BOOST_SERIALIZATION_FALSE=
+fi
+
 
 #=================================================================
 # Option to bypass running doxygen to update documentation. This is useful
@@ -26870,6 +26884,10 @@ Usually this means the macro was only invoked conditionally." "$LINENO" 5
 fi
 if test -z "${HAVE_SWIG_TRUE}" && test -z "${HAVE_SWIG_FALSE}"; then
   as_fn_error $? "conditional \"HAVE_SWIG\" was never defined.
+Usually this means the macro was only invoked conditionally." "$LINENO" 5
+fi
+if test -z "${HAVE_BOOST_SERIALIZATION_TRUE}" && test -z "${HAVE_BOOST_SERIALIZATION_FALSE}"; then
+  as_fn_error $? "conditional \"HAVE_BOOST_SERIALIZATION\" was never defined.
 Usually this means the macro was only invoked conditionally." "$LINENO" 5
 fi
 if test -z "${WITH_DOCUMENTATION_TRUE}" && test -z "${WITH_DOCUMENTATION_FALSE}"; then

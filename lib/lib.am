@@ -58,6 +58,21 @@ skeleton_test_all_SOURCES+= @srclib@/global_fixture_default.cc
 skeleton_test_all_SOURCES+= @srclib@/generic_object_map_test.cc
 skeleton_test_all_SOURCES+= @srclib@/printable_test.cc
 skeleton_test_all_SOURCES+= @srclib@/blitz_array_serialize_support_test.cc
+skeleton_test_all_SOURCES+= @srclib@/golden_archive_test.cc
+
+# Generator for the golden archives in unit_test_data/golden. These are
+# committed, so only regenerate deliberately, see
+# unit_test_data/golden/README.md.
+check_PROGRAMS+= golden_archive_generator
+golden_archive_generator_SOURCES = @srclib@/golden_archive_generator.cc
+golden_archive_generator_LDADD = libskeleton.la
+golden_archive_generator_LDFLAGS = -no-install
+golden_archive_generator_CPPFLAGS = $(AM_CPPFLAGS) $(BOOST_CPPFLAGS) $(BLITZ_CFLAGS)
+golden_archive_generator_CPPFLAGS+= -DSWIG_MAPPER_NAMESPACE=Skeleton
+
+golden-archives: golden_archive_generator
+	source script/setup_skeleton.sh && \
+	./golden_archive_generator $(abs_top_srcdir)/@unittestdata@/golden
 
 # Variables used in testing
 export abs_top_srcdir 

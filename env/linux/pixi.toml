@@ -31,6 +31,12 @@ filelock = "*"
 ruff = "*"
 mypy = "*"
 jsonpickle = "*"
+ptpython = "*"
+ipython = "*"
+
+# Tooling for the modernization (see claude_notes/implementation_plan.md S0.4)
+clang-tools = "*"
+nanobind = "*"
 
 [pypi-dependencies]
 mkinit = "*"

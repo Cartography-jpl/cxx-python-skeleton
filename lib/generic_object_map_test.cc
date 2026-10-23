@@ -9,6 +9,8 @@ BOOST_FIXTURE_TEST_SUITE(generic_object_array, GlobalFixture)
 
 BOOST_AUTO_TEST_CASE(serialization1)
 {
+  if(!have_serialize_supported())
+    return;
   // Serialize GenericObjectA and GenericObjectB separately,
   // should end up with two copies of GenericObjectA.
   boost::shared_ptr<GenericObjectA> a = boost::make_shared<GenericObjectA>(1);
@@ -29,6 +31,8 @@ BOOST_AUTO_TEST_CASE(serialization1)
 
 BOOST_AUTO_TEST_CASE(serialization1_weakptr)
 {
+  if(!have_serialize_supported())
+    return;
   // Serialize GenericObjectA and GenericObjectC separately,
   // GenericObjectC has a weak ptr to A, which shouldn't get serialized
   boost::shared_ptr<GenericObjectA> a = boost::make_shared<GenericObjectA>(1);
@@ -48,6 +52,8 @@ BOOST_AUTO_TEST_CASE(serialization1_weakptr)
 
 BOOST_AUTO_TEST_CASE(serialization2)
 {
+  if(!have_serialize_supported())
+    return;
   // Serialize GenericObjectA and GenericObjectB together, should
   // end up with one copy GenericObjectA.
   boost::shared_ptr<GenericObjectMap> m =
@@ -68,6 +74,8 @@ BOOST_AUTO_TEST_CASE(serialization2)
 
 BOOST_AUTO_TEST_CASE(serialization2_weak)
 {
+  if(!have_serialize_supported())
+    return;
   // Serialize GenericObjectA and GenericObjectC together, should
   // end up with one copy GenericObjectA, and C should keep the
   // weak_ptr to a
