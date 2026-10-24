@@ -667,6 +667,7 @@ HAVE_SWIG_FALSE
 HAVE_SWIG_TRUE
 SWIG_LIB
 SWIG
+python_editable_mode_default
 unittestdata
 skeletonpkgpythondir
 swigincdir
@@ -892,6 +893,7 @@ with_boost_date_time
 with_boost_iostreams
 with_boost_serialization
 with_blitz
+enable_python_editable_mode
 with_swig
 with_documentation
 '
@@ -1566,6 +1568,9 @@ Optional Features:
                           provide on AIX, [default=aix].
   --disable-libtool-lock  avoid locking (might break parallel builds)
   --enable-debug          Enable compiler debugging flags
+  --enable-python-editable-mode
+                          install the python code in editable mode (pip
+                          install -e) in make install
 
 Optional Packages:
   --with-PACKAGE[=ARG]    use PACKAGE [ARG=yes]
@@ -26431,6 +26436,27 @@ skeletonpkgpythondir=\${prefix}/${pythondir}/skeleton
 
 unittestdata=unit_test_data
 
+
+
+#=================================================================
+# Install the python code in editable mode (pip install -e) when doing
+# "make install". Can also be selected for a single run with
+# "make install PYTHON_EDITABLE_MODE=t".
+
+# Check whether --enable-python-editable-mode was given.
+if test ${enable_python_editable_mode+y}
+then :
+  enableval=$enable_python_editable_mode; enable_python_editable_mode=$enableval
+else case e in #(
+  e) enable_python_editable_mode=no ;;
+esac
+fi
+
+if test "$enable_python_editable_mode" = "yes"; then
+   python_editable_mode_default=t
+else
+   python_editable_mode_default=
+fi
 
 
 #=================================================================

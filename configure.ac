@@ -38,6 +38,23 @@ AC_BLITZ(required)
 SKELETON_SOURCE_DIRECTORY
 
 #=================================================================
+# Install the python code in editable mode (pip install -e) when doing
+# "make install". Can also be selected for a single run with
+# "make install PYTHON_EDITABLE_MODE=t".
+
+AC_ARG_ENABLE([python-editable-mode],
+	      [AS_HELP_STRING([--enable-python-editable-mode],
+	      [install the python code in editable mode (pip install -e) in make install])],
+	      [enable_python_editable_mode=$enableval],
+	      [enable_python_editable_mode=no])
+if test "$enable_python_editable_mode" = "yes"; then
+   python_editable_mode_default=t
+else
+   python_editable_mode_default=
+fi
+AC_SUBST([python_editable_mode_default])
+
+#=================================================================
 # Option to bypass running SWIG to update SWIG wrappers. The SWIG
 # wrappers can take a bit of time to create and compile, so if you
 # aren't working directly with them it can be useful to turn off during

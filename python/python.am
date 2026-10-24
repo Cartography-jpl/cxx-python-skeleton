@@ -1,7 +1,18 @@
 # The skeleton python package is installed via pip rather than being
 # listed file by file here - see python/setup.py and python/pyproject.toml.
+# Set to a non-empty value to install the python code in editable mode.
+# Default comes from configure (--enable-python-editable-mode), and can be
+# overridden for a single run with "make install PYTHON_EDITABLE_MODE=t"
+# (or "PYTHON_EDITABLE_MODE=" to force a normal install).
+# --force-reinstall is so switching modes really replaces the existing install.
+PYTHON_EDITABLE_MODE = @python_editable_mode_default@
+
 python-install:
-	$(PYTHON) -m pip install --prefix=@prefix@ $(srcdir)/@srcpython@
+	if test -n "$(PYTHON_EDITABLE_MODE)"; then \
+	  $(PYTHON) -m pip install --prefix=@prefix@ --force-reinstall --no-deps -e $(abs_top_srcdir)/@srcpython@; \
+	else \
+	  $(PYTHON) -m pip install --prefix=@prefix@ --force-reinstall --no-deps $(srcdir)/@srcpython@; \
+	fi
 
 INSTALL_EXEC_HOOK+= python-install
 

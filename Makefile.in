@@ -795,6 +795,7 @@ platpythondir = @platpythondir@
 prefix = @prefix@
 program_transform_name = @program_transform_name@
 psdir = @psdir@
+python_editable_mode_default = @python_editable_mode_default@
 pythondir = @pythondir@
 pythonswigsrc = @pythonswigsrc@
 runstatedir = @runstatedir@
@@ -962,6 +963,15 @@ libskeleton_la_CPPFLAGS = $(AM_CPPFLAGS) $(BOOST_CPPFLAGS) \
 	$(BLITZ_CFLAGS) -DSWIG_MAPPER_NAMESPACE=Skeleton \
 	$(am__append_2)
 installskeleton_DATA = @srcscript@/setup_skeleton.csh @srcscript@/setup_skeleton.sh
+
+# The skeleton python package is installed via pip rather than being
+# listed file by file here - see python/setup.py and python/pyproject.toml.
+# Set to a non-empty value to install the python code in editable mode.
+# Default comes from configure (--enable-python-editable-mode), and can be
+# overridden for a single run with "make install PYTHON_EDITABLE_MODE=t"
+# (or "PYTHON_EDITABLE_MODE=" to force a normal install).
+# --force-reinstall is so switching modes really replaces the existing install.
+PYTHON_EDITABLE_MODE = @python_editable_mode_default@
 
 # Number of jobs to run at once. Default is to automatically determine this,
 # but you can specify a different number.
@@ -2558,10 +2568,12 @@ complain_if_afids:
           exit 1; \
         fi
 
-# The skeleton python package is installed via pip rather than being
-# listed file by file here - see python/setup.py and python/pyproject.toml.
 python-install:
-	$(PYTHON) -m pip install --prefix=@prefix@ $(srcdir)/@srcpython@
+	if test -n "$(PYTHON_EDITABLE_MODE)"; then \
+	  $(PYTHON) -m pip install --prefix=@prefix@ --force-reinstall --no-deps -e $(abs_top_srcdir)/@srcpython@; \
+	else \
+	  $(PYTHON) -m pip install --prefix=@prefix@ --force-reinstall --no-deps $(srcdir)/@srcpython@; \
+	fi
 
 # Backdoor rule to do a quick install when we are just varying python
 install-python-skeleton: python-install
