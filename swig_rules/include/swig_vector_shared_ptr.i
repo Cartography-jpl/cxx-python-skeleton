@@ -142,3 +142,61 @@ namespace swig {
 #endif  
 %}
 
+
+//--------------------------------------------------------------
+/// Types that are wrapped with %shared_ptr, but that are also used
+/// by value in a std::vector (e.g., std::vector<Time>). The default
+/// SWIG conversion of the elements looks for the python type
+/// "TYPE *", but the python objects are actually
+/// "boost::shared_ptr< TYPE > *". So converting a python list to the
+/// std::vector fails, and iterating over the std::vector returns
+/// untyped (and leaked) "TYPE *" objects. This replaces the SWIG
+/// traits for TYPE so the elements are converted through the
+/// shared_ptr type.
+///
+/// This needs to be used before the %template for the std::vector, and
+/// TYPE needs to be written the same way SWIG writes it (e.g.,
+/// "GeoCal::AutoDerivative< double >").
+//--------------------------------------------------------------
+
+%define %shared_ptr_value_traits(TYPE...)
+%fragment(SWIG_Traits_frag(TYPE), "header", fragment="StdTraits") {
+namespace swig {
+  template <>  struct traits< TYPE > {
+    typedef pointer_category category;
+    static const char* type_name() { return #TYPE; }
+  };
+
+  template <> struct traits_asptr< TYPE > {
+    static int asptr(PyObject *obj, TYPE **val) {
+      static swig_type_info *descriptor =
+	SWIG_TypeQuery("boost::shared_ptr< " #TYPE " > *");
+      if(!descriptor)
+	return SWIG_ERROR;
+      boost::shared_ptr< TYPE > *p = 0;
+      int newmem = 0;
+      int res = SWIG_ConvertPtrAndOwn(obj, (void **)&p, descriptor, 0,
+				      &newmem);
+      if(!SWIG_IsOK(res))
+	return res;
+      if(!p || !*p)
+	res = SWIG_ERROR;
+      else if(val) {
+	*val = new TYPE(**p);
+	res = SWIG_NEWOBJ;
+      } else
+	res = SWIG_OK;
+      if(newmem & SWIG_CAST_NEW_MEMORY)
+	delete p;
+      return res;
+    }
+  };
+
+  template <> struct traits_from< TYPE > {
+    static PyObject *from(const TYPE& v) {
+      return SWIG_MAPPER_NAMESPACE::swig_to_python(boost::shared_ptr< TYPE >(new TYPE(v)));
+    }
+  };
+}
+}
+%enddef

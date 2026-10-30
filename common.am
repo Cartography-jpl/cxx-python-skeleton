@@ -38,6 +38,9 @@ include_HEADERS =
 EXTRA_DIST =
 CYTHON_SRC =
 pkgconfig_DATA =
+MOSTLYCLEANFILES =
+# Hand-written .pyi stubs for SWIG modules (see swig_rules/swig_rules.am)
+SWIG_PYI =
 
 AM_CPPFLAGS=
 

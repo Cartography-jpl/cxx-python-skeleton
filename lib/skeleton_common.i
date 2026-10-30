@@ -64,6 +64,9 @@
 // Map std::string to and from the native string type
 %naturalvar std::string;
 
+// Add type information to python documentation
+%feature("autodoc", 1);
+
 %include <std_vector.i>
 
 // Include our own rules and common imports here.

@@ -18,7 +18,15 @@
 //--------------------------------------------------------------
 
 %init {
+%#if SWIG_VERSION >= 0x040400
+    // SWIG 4.4 uses multi-phase initialization, where this code is in a
+    // function that returns an int (-1 for failure). import_array
+    // returns NULL on failure, which would look like success, so use
+    // import_array1 to return -1.
+    import_array1(-1);
+%#else
     import_array();
+%#endif
 }
 
 %{

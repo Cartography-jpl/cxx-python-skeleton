@@ -55,6 +55,8 @@
 # CONDITIONAL_SWIG_SRC list of swig source files, with conditionals included
 #       so for example $(SWIG_SRC) HAVE_HDF5 $(SWIG_SRC_HDF5). If you
 #       don't have any conditional code, this can just be set to FULL_SWIG_SRC
+# SWIG_PYI list of .pyi files to include for typing
+# MOSTLYCLEANFILES should already be defined (we add to it)
 # SWIG_CPPFLAGS the flags we should use when compiling swig code,
 #       so a list of -I options.
 # PYTHON_CPPFLAGS flags needed to compile against python
@@ -210,8 +212,10 @@ am__installdirs = "$(DESTDIR)$(bindir)" "$(DESTDIR)$(libdir)" \
 	"$(DESTDIR)$(pkgpythonswigdir)" "$(DESTDIR)$(bindir)" \
 	"$(DESTDIR)$(installskeletondir)" \
 	"$(DESTDIR)$(pkgpythonswigdir)" \
-	"$(DESTDIR)$(installskeletondir)" "$(DESTDIR)$(pkgconfigdir)" \
-	"$(DESTDIR)$(includedir)" "$(DESTDIR)$(skeletonincdir)" \
+	"$(DESTDIR)$(installskeletondir)" \
+	"$(DESTDIR)$(pkgpythonswigdir)" "$(DESTDIR)$(pkgconfigdir)" \
+	"$(DESTDIR)$(pkgpythonswigdir)" "$(DESTDIR)$(includedir)" \
+	"$(DESTDIR)$(skeletonincdir)" \
 	"$(DESTDIR)$(skeletonswigincdir)" "$(DESTDIR)$(swigincdir)"
 PROGRAMS = $(bin_PROGRAMS)
 am__vpath_adj_setup = srcdirstrip=`echo "$(srcdir)" | sed 's|.|.|g'`;
@@ -384,7 +388,8 @@ am__py_compile = PYTHON=$(PYTHON) $(SHELL) $(py_compile)
 am__pep3147_tweak = \
   sed -e 's|\.py$$||' -e 's|[^/]*$$|__pycache__/&.*.pyc __pycache__/&.*.pyo|'
 py_compile = $(top_srcdir)/config/py-compile
-DATA = $(installskeleton_DATA) $(pkgconfig_DATA)
+DATA = $(installskeleton_DATA) $(nodist_pkgpythonswig_DATA) \
+	$(pkgconfig_DATA) $(pkgpythonswig_DATA)
 HEADERS = $(include_HEADERS) $(skeletoninc_HEADERS) \
 	$(skeletonswiginc_HEADERS) $(swiginc_HEADERS)
 am__tagged_files = $(HEADERS) $(SOURCES) $(TAGS_FILES) $(LISP)
@@ -865,10 +870,13 @@ EXTRA_DIST = README.md bootstrap config/m4_local/README config/m4 \
 	@swigrules@/python/swig_shelve_test.py.sample $(patsubst \
 	%_wrap.cc, %.py, $(FULL_SWIG_SRC)) $(patsubst %_wrap.cc, %.py, \
 	$(ADDITONAL_SWIG_SRC)) $(FULL_SWIG_SRC) $(ADDITONAL_SWIG_SRC) \
-	$(srcdir)/$(swigsrc)/*_wrap.h @srclib@/test_all.sh \
+	$(SWIG_PYI) $(srcdir)/$(swigsrc)/*_wrap.h @srclib@/test_all.sh \
 	@srclib@/unit_test_support.h @srclib@/global_fixture.h
 CYTHON_SRC = 
 pkgconfig_DATA = 
+MOSTLYCLEANFILES = swig_pyi/__init__.pyi
+# Hand-written .pyi stubs for SWIG modules (see swig_rules/swig_rules.am)
+SWIG_PYI = 
 
 # Allow files to be include in other directories
 # To pick up generated skeleton_config.h file
@@ -1004,6 +1012,15 @@ pkgpythonswig_PYTHON = @swigrules@/__init__.py @swigrules@/all.py \
 	$(patsubst %_wrap.cc, %.py, $(COMPILE_SWIG_SRC)) $(patsubst \
 	%_wrap.cc, %.py, $(ADDITONAL_SWIG_SRC))
 pkgpythonswig_LTLIBRARIES = _swig_wrap.la
+pkgpythonswig_DATA = $(SWIG_PYI) @swigrules@/py.typed
+
+# __init__.py pulls in every module with exec, which mypy can't
+# follow. Generate a __init__.pyi stub that explicitly star imports each
+# module we install, so type checkers see all the classes. This is
+# generated from the same lists used to install the .py files, so it
+# stays in sync.
+SWIG_INIT_PYI_MODULES = $(notdir $(patsubst %_wrap.cc,%,$(COMPILE_SWIG_SRC) $(ADDITONAL_SWIG_SRC)))
+nodist_pkgpythonswig_DATA = swig_pyi/__init__.pyi
 _swig_wrap_la_CPPFLAGS = $(PYTHON_CPPFLAGS) $(PYTHON_NUMPY_CPPFLAGS) \
 	$(SWIG_CPPFLAGS) -DSWIG_TYPE_TABLE=$(SWIG_TYPE_TABLE_NAME)
 _swig_wrap_la_CXXFLAGS = $(AM_CXXFLAGS)
@@ -1778,6 +1795,27 @@ uninstall-installskeletonDATA:
 	@list='$(installskeleton_DATA)'; test -n "$(installskeletondir)" || list=; \
 	files=`for p in $$list; do echo $$p; done | sed -e 's|^.*/||'`; \
 	dir='$(DESTDIR)$(installskeletondir)'; $(am__uninstall_files_from_dir)
+install-nodist_pkgpythonswigDATA: $(nodist_pkgpythonswig_DATA)
+	@$(NORMAL_INSTALL)
+	@list='$(nodist_pkgpythonswig_DATA)'; test -n "$(pkgpythonswigdir)" || list=; \
+	if test -n "$$list"; then \
+	  echo " $(MKDIR_P) '$(DESTDIR)$(pkgpythonswigdir)'"; \
+	  $(MKDIR_P) "$(DESTDIR)$(pkgpythonswigdir)" || exit 1; \
+	fi; \
+	for p in $$list; do \
+	  if test -f "$$p"; then d=; else d="$(srcdir)/"; fi; \
+	  echo "$$d$$p"; \
+	done | $(am__base_list) | \
+	while read files; do \
+	  echo " $(INSTALL_DATA) $$files '$(DESTDIR)$(pkgpythonswigdir)'"; \
+	  $(INSTALL_DATA) $$files "$(DESTDIR)$(pkgpythonswigdir)" || exit $$?; \
+	done
+
+uninstall-nodist_pkgpythonswigDATA:
+	@$(NORMAL_UNINSTALL)
+	@list='$(nodist_pkgpythonswig_DATA)'; test -n "$(pkgpythonswigdir)" || list=; \
+	files=`for p in $$list; do echo $$p; done | sed -e 's|^.*/||'`; \
+	dir='$(DESTDIR)$(pkgpythonswigdir)'; $(am__uninstall_files_from_dir)
 install-pkgconfigDATA: $(pkgconfig_DATA)
 	@$(NORMAL_INSTALL)
 	@list='$(pkgconfig_DATA)'; test -n "$(pkgconfigdir)" || list=; \
@@ -1799,6 +1837,27 @@ uninstall-pkgconfigDATA:
 	@list='$(pkgconfig_DATA)'; test -n "$(pkgconfigdir)" || list=; \
 	files=`for p in $$list; do echo $$p; done | sed -e 's|^.*/||'`; \
 	dir='$(DESTDIR)$(pkgconfigdir)'; $(am__uninstall_files_from_dir)
+install-pkgpythonswigDATA: $(pkgpythonswig_DATA)
+	@$(NORMAL_INSTALL)
+	@list='$(pkgpythonswig_DATA)'; test -n "$(pkgpythonswigdir)" || list=; \
+	if test -n "$$list"; then \
+	  echo " $(MKDIR_P) '$(DESTDIR)$(pkgpythonswigdir)'"; \
+	  $(MKDIR_P) "$(DESTDIR)$(pkgpythonswigdir)" || exit 1; \
+	fi; \
+	for p in $$list; do \
+	  if test -f "$$p"; then d=; else d="$(srcdir)/"; fi; \
+	  echo "$$d$$p"; \
+	done | $(am__base_list) | \
+	while read files; do \
+	  echo " $(INSTALL_DATA) $$files '$(DESTDIR)$(pkgpythonswigdir)'"; \
+	  $(INSTALL_DATA) $$files "$(DESTDIR)$(pkgpythonswigdir)" || exit $$?; \
+	done
+
+uninstall-pkgpythonswigDATA:
+	@$(NORMAL_UNINSTALL)
+	@list='$(pkgpythonswig_DATA)'; test -n "$(pkgpythonswigdir)" || list=; \
+	files=`for p in $$list; do echo $$p; done | sed -e 's|^.*/||'`; \
+	dir='$(DESTDIR)$(pkgpythonswigdir)'; $(am__uninstall_files_from_dir)
 install-includeHEADERS: $(include_HEADERS)
 	@$(NORMAL_INSTALL)
 	@list='$(include_HEADERS)'; test -n "$(includedir)" || list=; \
@@ -2316,7 +2375,7 @@ install-checkPROGRAMS: install-libLTLIBRARIES
 install-pkgpythonswigLTLIBRARIES: install-libLTLIBRARIES
 
 installdirs:
-	for dir in "$(DESTDIR)$(bindir)" "$(DESTDIR)$(libdir)" "$(DESTDIR)$(pkgpythonswigdir)" "$(DESTDIR)$(bindir)" "$(DESTDIR)$(installskeletondir)" "$(DESTDIR)$(pkgpythonswigdir)" "$(DESTDIR)$(installskeletondir)" "$(DESTDIR)$(pkgconfigdir)" "$(DESTDIR)$(includedir)" "$(DESTDIR)$(skeletonincdir)" "$(DESTDIR)$(skeletonswigincdir)" "$(DESTDIR)$(swigincdir)"; do \
+	for dir in "$(DESTDIR)$(bindir)" "$(DESTDIR)$(libdir)" "$(DESTDIR)$(pkgpythonswigdir)" "$(DESTDIR)$(bindir)" "$(DESTDIR)$(installskeletondir)" "$(DESTDIR)$(pkgpythonswigdir)" "$(DESTDIR)$(installskeletondir)" "$(DESTDIR)$(pkgpythonswigdir)" "$(DESTDIR)$(pkgconfigdir)" "$(DESTDIR)$(pkgpythonswigdir)" "$(DESTDIR)$(includedir)" "$(DESTDIR)$(skeletonincdir)" "$(DESTDIR)$(skeletonswigincdir)" "$(DESTDIR)$(swigincdir)"; do \
 	  test -z "$$dir" || $(MKDIR_P) "$$dir"; \
 	done
 install: $(BUILT_SOURCES)
@@ -2341,6 +2400,7 @@ install-strip:
 	    "INSTALL_PROGRAM_ENV=STRIPPROG='$(STRIP)'" install; \
 	fi
 mostlyclean-generic:
+	-$(am__rm_f) $(MOSTLYCLEANFILES)
 	-$(am__rm_f) $(TEST_LOGS)
 	-$(am__rm_f) $(TEST_LOGS:.log=.trs)
 	-$(am__rm_f) $(TEST_SUITE_LOG)
@@ -2417,7 +2477,8 @@ info-am:
 
 install-data-am: install-dist_installskeletonSCRIPTS \
 	install-includeHEADERS install-installskeletonDATA \
-	install-pkgconfigDATA install-pkgpythonswigLTLIBRARIES \
+	install-nodist_pkgpythonswigDATA install-pkgconfigDATA \
+	install-pkgpythonswigDATA install-pkgpythonswigLTLIBRARIES \
 	install-pkgpythonswigPYTHON install-skeletonincHEADERS \
 	install-skeletonswigincHEADERS install-swigincHEADERS
 	@$(NORMAL_INSTALL)
@@ -2501,7 +2562,8 @@ ps-am:
 uninstall-am: uninstall-binPROGRAMS uninstall-dist_binSCRIPTS \
 	uninstall-dist_installskeletonSCRIPTS uninstall-includeHEADERS \
 	uninstall-installskeletonDATA uninstall-libLTLIBRARIES \
-	uninstall-pkgconfigDATA uninstall-pkgpythonswigLTLIBRARIES \
+	uninstall-nodist_pkgpythonswigDATA uninstall-pkgconfigDATA \
+	uninstall-pkgpythonswigDATA uninstall-pkgpythonswigLTLIBRARIES \
 	uninstall-pkgpythonswigPYTHON uninstall-skeletonincHEADERS \
 	uninstall-skeletonswigincHEADERS uninstall-swigincHEADERS
 	@$(NORMAL_INSTALL)
@@ -2526,19 +2588,22 @@ uninstall-am: uninstall-binPROGRAMS uninstall-dist_binSCRIPTS \
 	install-exec install-exec-am install-exec-hook install-html \
 	install-html-am install-includeHEADERS install-info \
 	install-info-am install-installskeletonDATA \
-	install-libLTLIBRARIES install-man install-pdf install-pdf-am \
-	install-pkgconfigDATA install-pkgpythonswigLTLIBRARIES \
-	install-pkgpythonswigPYTHON install-ps install-ps-am \
-	install-skeletonincHEADERS install-skeletonswigincHEADERS \
-	install-strip install-swigincHEADERS installcheck \
-	installcheck-am installcheck-local installdirs \
-	maintainer-clean maintainer-clean-generic mostlyclean \
-	mostlyclean-compile mostlyclean-generic mostlyclean-libtool \
-	pdf pdf-am ps ps-am recheck tags tags-am uninstall \
-	uninstall-am uninstall-binPROGRAMS uninstall-dist_binSCRIPTS \
+	install-libLTLIBRARIES install-man \
+	install-nodist_pkgpythonswigDATA install-pdf install-pdf-am \
+	install-pkgconfigDATA install-pkgpythonswigDATA \
+	install-pkgpythonswigLTLIBRARIES install-pkgpythonswigPYTHON \
+	install-ps install-ps-am install-skeletonincHEADERS \
+	install-skeletonswigincHEADERS install-strip \
+	install-swigincHEADERS installcheck installcheck-am \
+	installcheck-local installdirs maintainer-clean \
+	maintainer-clean-generic mostlyclean mostlyclean-compile \
+	mostlyclean-generic mostlyclean-libtool pdf pdf-am ps ps-am \
+	recheck tags tags-am uninstall uninstall-am \
+	uninstall-binPROGRAMS uninstall-dist_binSCRIPTS \
 	uninstall-dist_installskeletonSCRIPTS uninstall-hook \
 	uninstall-includeHEADERS uninstall-installskeletonDATA \
-	uninstall-libLTLIBRARIES uninstall-pkgconfigDATA \
+	uninstall-libLTLIBRARIES uninstall-nodist_pkgpythonswigDATA \
+	uninstall-pkgconfigDATA uninstall-pkgpythonswigDATA \
 	uninstall-pkgpythonswigLTLIBRARIES \
 	uninstall-pkgpythonswigPYTHON uninstall-skeletonincHEADERS \
 	uninstall-skeletonswigincHEADERS uninstall-swigincHEADERS
@@ -2589,6 +2654,11 @@ python-check: script/setup_skeleton.sh
 # Allow searchs for .i in this directory
 vpath %.i $(srcdir)/@swigrules@/include
 vpath %.i $(srcdir)/@swigrules@/lib
+swig_pyi/__init__.pyi: Makefile
+	$(MKDIR_P) swig_pyi
+	{ echo "# Generated by make from the list of swig modules, do not edit."; \
+	  for m in $(SWIG_INIT_PYI_MODULES); do echo "from .$$m import *"; done; } > $@.tmp
+	mv $@.tmp $@
 
 # Only generate these files in maintainer mode, otherwise consider them
 # as input.
