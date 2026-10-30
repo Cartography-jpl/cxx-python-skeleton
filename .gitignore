@@ -17,3 +17,4 @@ python/test*.xml
 !config/m4/lt~obsolete.m4
 pytest_tmp
 claude_notes/*.html
+coverage/

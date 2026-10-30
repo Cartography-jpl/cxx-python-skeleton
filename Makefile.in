@@ -970,6 +970,17 @@ DIST_HOOK = dist-clean-up-python
 libskeleton_la_CPPFLAGS = $(AM_CPPFLAGS) $(BOOST_CPPFLAGS) \
 	$(BLITZ_CFLAGS) -DSWIG_MAPPER_NAMESPACE=Skeleton \
 	$(am__append_2)
+
+#=================================================================
+# Test coverage report. This needs a build configured with
+#   CXXFLAGS="-O0 -g --coverage" LDFLAGS="--coverage"
+# followed by "make install" (use PYTHON_EDITABLE_MODE=t so the python
+# coverage is of the source tree). This then runs the C++ and python
+# tests and writes a report to coverage/ (index.html for the C++, and
+# python/index.html for the python). Needs gcovr and pytest-cov. This
+# isn't part of "make check". See claude_notes/implementation_plan.md
+# section 4a.
+GCOVR = gcovr
 installskeleton_DATA = @srcscript@/setup_skeleton.csh @srcscript@/setup_skeleton.sh
 
 # The skeleton python package is installed via pip rather than being
@@ -2632,6 +2643,24 @@ complain_if_afids:
           echo "sourcing setup_afids_env.sh or setup_afids_env.csh${default}"; \
           exit 1; \
         fi
+coverage:
+	find . -name '*.gcda' -delete
+	rm -rf coverage
+	$(MKDIR_P) coverage/python
+	$(MAKE) $(AM_MAKEFLAGS) skeleton-check
+	source script/setup_skeleton.sh && \
+	  cd $(srcdir)/@srcpython@ && \
+	  COVERAGE_FILE=$(abs_builddir)/coverage/.coverage $(PYTEST) -q \
+	  -p no:cacheprovider --cov=skeleton --cov-report=term \
+	  --cov-report=html:$(abs_builddir)/coverage/python tests
+	$(GCOVR) -r $(realpath $(abs_top_srcdir)) . \
+	  --filter '$(realpath $(abs_top_srcdir))/(lib|swig_rules/lib)/' \
+	  --exclude '.*_test\.cc' --exclude '.*golden_archive_generator.*' \
+	  --exclude '.*(global_fixture|test_all).*' \
+	  --print-summary --html-details coverage/index.html
+	@echo "Coverage report in coverage/index.html and coverage/python/index.html"
+
+.PHONY: coverage
 
 python-install:
 	if test -n "$(PYTHON_EDITABLE_MODE)"; then \
