@@ -14,7 +14,10 @@ libboost-devel = "*"
 libblitz = "*"
 compilers = "*"
 doxygen = "*"
-swig = "*"
+# The committed SWIG wrappers in bindings/python/swig are generated with
+# SWIG 4.5. Keep this matched, so regenerated wrappers use the same
+# version. Short term, until SWIG is replaced by nanobind.
+swig = "4.5.*"
 packaging = "*"
 numpy = "*"
 scipy = "*"

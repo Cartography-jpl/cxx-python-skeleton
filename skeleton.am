@@ -30,8 +30,9 @@ EXTRA_DIST+= config/m4
 #=================================================================
 # Test coverage report. This needs a build configured with
 #   CXXFLAGS="-O0 -g --coverage" LDFLAGS="--coverage"
-# followed by "make install" (use PYTHON_EDITABLE_MODE=t so the python
-# coverage is of the source tree). This then runs the C++ and python
+# followed by "make install". The python tests are run against the
+# python source tree (put first on PYTHONPATH, so another installed copy
+# can't shadow it). This then runs the C++ and python
 # tests and writes a report to coverage/ (index.html for the C++, and
 # python/index.html for the python). Needs gcovr and pytest-cov. This
 # isn't part of "make check". See claude_notes/implementation_plan.md
@@ -44,6 +45,7 @@ coverage:
 	$(MAKE) $(AM_MAKEFLAGS) skeleton-check
 	source script/setup_skeleton.sh && \
 	  cd $(srcdir)/@srcpython@ && \
+	  PYTHONPATH=$(abs_top_srcdir)/@srcpython@:$$PYTHONPATH \
 	  COVERAGE_FILE=$(abs_builddir)/coverage/.coverage $(PYTEST) -q \
 	  -p no:cacheprovider --cov=skeleton --cov-report=term \
 	  --cov-report=html:$(abs_builddir)/coverage/python tests

@@ -983,8 +983,9 @@ libskeleton_la_CPPFLAGS = $(AM_CPPFLAGS) $(BOOST_CPPFLAGS) \
 #=================================================================
 # Test coverage report. This needs a build configured with
 #   CXXFLAGS="-O0 -g --coverage" LDFLAGS="--coverage"
-# followed by "make install" (use PYTHON_EDITABLE_MODE=t so the python
-# coverage is of the source tree). This then runs the C++ and python
+# followed by "make install". The python tests are run against the
+# python source tree (put first on PYTHONPATH, so another installed copy
+# can't shadow it). This then runs the C++ and python
 # tests and writes a report to coverage/ (index.html for the C++, and
 # python/index.html for the python). Needs gcovr and pytest-cov. This
 # isn't part of "make check". See claude_notes/implementation_plan.md
@@ -998,7 +999,6 @@ installskeleton_DATA = @srcscript@/setup_skeleton.csh @srcscript@/setup_skeleton
 # Default comes from configure (--enable-python-editable-mode), and can be
 # overridden for a single run with "make install PYTHON_EDITABLE_MODE=t"
 # (or "PYTHON_EDITABLE_MODE=" to force a normal install).
-# --force-reinstall is so switching modes really replaces the existing install.
 PYTHON_EDITABLE_MODE = @python_editable_mode_default@
 
 # Number of jobs to run at once. Default is to automatically determine this,
@@ -2709,6 +2709,7 @@ coverage:
 	$(MAKE) $(AM_MAKEFLAGS) skeleton-check
 	source script/setup_skeleton.sh && \
 	  cd $(srcdir)/@srcpython@ && \
+	  PYTHONPATH=$(abs_top_srcdir)/@srcpython@:$$PYTHONPATH \
 	  COVERAGE_FILE=$(abs_builddir)/coverage/.coverage $(PYTEST) -q \
 	  -p no:cacheprovider --cov=skeleton --cov-report=term \
 	  --cov-report=html:$(abs_builddir)/coverage/python tests
@@ -2721,11 +2722,26 @@ coverage:
 
 .PHONY: coverage
 
+# We uninstall any existing install in the prefix first. pip install
+# --force-reinstall doesn't do this reliably: it doesn't remove the files
+# of a normal install when switching to editable mode (the left over copy
+# in site-packages then shadows the editable install), and it uninstalls
+# "skeleton" from whatever python environment pip sees, not just from
+# the prefix (e.g. a configure --prefix=/tmp/x build removed the copy in
+# the conda environment). So uninstall explicitly from the prefix, then
+# install with --ignore-installed, which leaves everything else alone.
+# pip uninstall has no --prefix, so point PYTHONPATH at the prefix's
+# site-packages so it finds the install there first. Only do this if there is an install in the prefix: otherwise pip
+# would go on to find (and remove) one somewhere else on sys.path, e.g.
+# the python environment's own site-packages.
 python-install:
+	if ls -d @prefix@/@pythondir@/skeleton-*.dist-info > /dev/null 2>&1; then \
+	  PYTHONPATH=@prefix@/@pythondir@ $(PYTHON) -m pip uninstall -y -q skeleton; \
+	fi
 	if test -n "$(PYTHON_EDITABLE_MODE)"; then \
-	  $(PYTHON) -m pip install --prefix=@prefix@ --force-reinstall --no-deps -e $(abs_top_srcdir)/@srcpython@; \
+	  $(PYTHON) -m pip install --prefix=@prefix@ --ignore-installed --no-deps -e $(abs_top_srcdir)/@srcpython@; \
 	else \
-	  $(PYTHON) -m pip install --prefix=@prefix@ --force-reinstall --no-deps $(srcdir)/@srcpython@; \
+	  $(PYTHON) -m pip install --prefix=@prefix@ --ignore-installed --no-deps $(srcdir)/@srcpython@; \
 	fi
 
 # Backdoor rule to do a quick install when we are just varying python
