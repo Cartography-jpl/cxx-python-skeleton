@@ -14,6 +14,7 @@ extern "C" {
   INIT_TYPE INIT_FUNC(_iostream_swig)(void);
   INIT_TYPE INIT_FUNC(_serialize_function)(void);
   INIT_TYPE INIT_FUNC(_numpy_sample)(void);
+  INIT_TYPE INIT_FUNC(_exception_sample)(void);
 }
 
 static void module_init(PyObject* module)
@@ -29,6 +30,7 @@ static void module_init(PyObject* module)
   INIT_MODULE(module, "_iostream_swig", INIT_FUNC(_iostream_swig));
   INIT_MODULE(module, "_serialize_function", INIT_FUNC(_serialize_function));
   INIT_MODULE(module, "_numpy_sample", INIT_FUNC(_numpy_sample));
+  INIT_MODULE(module, "_exception_sample", INIT_FUNC(_exception_sample));
 }
 
 

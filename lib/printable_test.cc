@@ -1,5 +1,8 @@
 #include "unit_test_support.h"
 #include "printable.h"
+#include "generic_object_sample.h"
+#include "director_example.h"
+#include "generic_object_map.h"
 
 using namespace Skeleton;
 
@@ -10,13 +13,77 @@ public:
   void print(std::ostream& Os) const {Os << "Test";}
 };
 
+// Output shorter than 4 characters. print_to_string used to start
+// from a "blah" seed string and write over it, so this came out as
+// "Alah".
+class ShortTest : public Printable<ShortTest> {
+public:
+  void print(std::ostream& Os) const {Os << "A";}
+};
+
+class EmptyTest : public Printable<EmptyTest> {
+public:
+  void print(std::ostream&) const {}
+};
+
+// desc() overrides print, which is how python subclasses change
+// printing.
+class DescTest : public Printable<DescTest> {
+public:
+  void print(std::ostream& Os) const {Os << "print";}
+  virtual std::string desc() const { return "desc"; }
+};
+
+template<class T> std::string stream_string(const T& V)
+{
+  std::ostringstream os;
+  os << V;
+  return os.str();
+}
+
 BOOST_AUTO_TEST_CASE(basic_test)
 {
   Test t;
-  std::ostringstream os;
-  os << t;
-  BOOST_CHECK_EQUAL(os.str(), "Test");
+  BOOST_CHECK_EQUAL(stream_string(t), "Test");
   BOOST_CHECK_EQUAL(t.print_to_string(), "Test");
+}
+
+BOOST_AUTO_TEST_CASE(short_output)
+{
+  ShortTest t;
+  BOOST_CHECK_EQUAL(stream_string(t), "A");
+  BOOST_CHECK_EQUAL(t.print_to_string(), "A");
+  EmptyTest t2;
+  BOOST_CHECK_EQUAL(stream_string(t2), "");
+  BOOST_CHECK_EQUAL(t2.print_to_string(), "");
+}
+
+BOOST_AUTO_TEST_CASE(desc_override)
+{
+  DescTest t;
+  BOOST_CHECK_EQUAL(stream_string(t), "desc");
+  BOOST_CHECK_EQUAL(t.print_to_string(), "desc");
+}
+
+BOOST_AUTO_TEST_CASE(sample_classes)
+{
+  // operator<< and print_to_string agree, with the exact text. These
+  // are the strings python's str() gives too (see printing_test.py).
+  auto a = boost::make_shared<GenericObjectA>(1);
+  BOOST_CHECK_EQUAL(a->print_to_string(), "A");
+  BOOST_CHECK_EQUAL(stream_string(*a), "A");
+  GenericObjectB b(a);
+  BOOST_CHECK_EQUAL(b.print_to_string(), "B");
+  BOOST_CHECK_EQUAL(stream_string(b), "B");
+  GenericObjectB2 b2(*a);
+  BOOST_CHECK_EQUAL(b2.print_to_string(), "B2");
+  BOOST_CHECK_EQUAL(stream_string(b2), "B2");
+  GenericObjectC c(a);
+  BOOST_CHECK_EQUAL(c.print_to_string(), "C");
+  BOOST_CHECK_EQUAL(stream_string(c), "C");
+  GenericObjectMap m;
+  BOOST_CHECK_EQUAL(m.print_to_string(), "GenericObjectMap");
+  BOOST_CHECK_EQUAL(stream_string(m), "GenericObjectMap");
 }
 
 BOOST_AUTO_TEST_SUITE_END()
