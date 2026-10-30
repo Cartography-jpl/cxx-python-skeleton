@@ -6582,19 +6582,141 @@ fail:
 }
 
 
-SWIGINTERN PyObject *_wrap_serialize_write_binary(PyObject *self, PyObject *args) {
+SWIGINTERN PyObject *_wrap_serialize_write_binary__SWIG_0(PyObject *self, Py_ssize_t nobjs, PyObject **swig_obj) {
+  PyObject *resultobj = 0;
+  std::string *arg1 = 0 ;
+  boost::shared_ptr< Skeleton::GenericObject > *arg2 = 0 ;
+  int res1 = SWIG_OLDOBJ ;
+  void *argp2 ;
+  int res2 = 0 ;
+  boost::shared_ptr< Skeleton::GenericObject > tempshared2 ;
+  boost::shared_ptr< Skeleton::GenericObject > temp2shared2 ;
+  
+  (void)self;
+  if ((nobjs < 2) || (nobjs > 2)) SWIG_fail;
+  {
+    std::string *ptr = (std::string *)0;
+    res1 = SWIG_AsPtr_std_string(swig_obj[0], &ptr);
+    if (!SWIG_IsOK(res1)) {
+      SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "serialize_write_binary" "', argument " "1"" of type '" "std::string const &""'"); 
+    }
+    if (!ptr) {
+      SWIG_exception_fail(SWIG_NullReferenceError, "invalid null reference " "in method '" "serialize_write_binary" "', argument " "1"" of type '" "std::string const &""'"); 
+    }
+    arg1 = ptr;
+  }
+  {
+    int newmem = 0;
+    res2 = SWIG_ConvertPtrAndOwn(swig_obj[1], &argp2, SWIGTYPE_p_boost__shared_ptrT_Skeleton__GenericObject_t,  0 , &newmem);
+    if (!SWIG_IsOK(res2)) {
+      SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "serialize_write_binary" "', argument " "2"" of type '" "boost::shared_ptr< Skeleton::GenericObject > const &""'");
+    }
+    if (newmem & SWIG_CAST_NEW_MEMORY) {
+      if (argp2) tempshared2 = *reinterpret_cast< boost::shared_ptr< Skeleton::GenericObject > * >(argp2);
+      delete reinterpret_cast< boost::shared_ptr< Skeleton::GenericObject > * >(argp2);
+      arg2 = &tempshared2;
+    } else {
+      arg2 = (argp2) ? reinterpret_cast< boost::shared_ptr< Skeleton::GenericObject > * >(argp2) : &tempshared2;
+    }
+    // Added mms
+    // Special handling if this is a director class.
+    // See DirectorNotes.md for discussion of this.
+    Swig::Director* dp = dynamic_cast<Swig::Director*>(arg2->get());
+    if(dp) {
+      temp2shared2.reset(arg2->get(), PythonRefPtrCleanup(dp->swig_get_self()));
+      arg2 = &temp2shared2;
+    }
+  }
+  {
+    try {
+      Skeleton::serialize_write_binary((std::string const &)*arg1,(boost::shared_ptr< Skeleton::GenericObject > const &)*arg2);
+    } catch (Swig::DirectorException &e) {
+      SWIG_fail;
+    } catch (const PythonException& e) {
+      e.restore_python_exception();
+      SWIG_fail;
+    } catch (const std::exception& e) {
+      SWIG_exception(SWIG_RuntimeError, e.what());
+    } catch (...) {
+      // Anything not derived from std::exception (a raw type, a
+      // third-party exception hierarchy that doesn't inherit
+      // std::exception, etc.) would otherwise propagate across the
+      // extern "C" boundary into CPython -- undefined behavior, in
+      // practice a process abort rather than a clean Python exception.
+      SWIG_exception(SWIG_RuntimeError, "unknown C++ exception");
+    }
+  }
+  resultobj = SWIG_Py_Void();
+  if (SWIG_IsNewObj(res1)) delete arg1;
+  return resultobj;
+fail:
+  if (SWIG_IsNewObj(res1)) delete arg1;
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_serialize_read_binary_generic(PyObject *self, PyObject *args) {
+  PyObject *resultobj = 0;
+  std::string *arg1 = 0 ;
+  int res1 = SWIG_OLDOBJ ;
+  PyObject *swig_obj[1] ;
+  boost::shared_ptr< Skeleton::GenericObject > result;
+  
+  (void)self;
+  if (!args) SWIG_fail;
+  swig_obj[0] = args;
+  {
+    std::string *ptr = (std::string *)0;
+    res1 = SWIG_AsPtr_std_string(swig_obj[0], &ptr);
+    if (!SWIG_IsOK(res1)) {
+      SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "serialize_read_binary_generic" "', argument " "1"" of type '" "std::string const &""'"); 
+    }
+    if (!ptr) {
+      SWIG_exception_fail(SWIG_NullReferenceError, "invalid null reference " "in method '" "serialize_read_binary_generic" "', argument " "1"" of type '" "std::string const &""'"); 
+    }
+    arg1 = ptr;
+  }
+  {
+    try {
+      result = Skeleton::serialize_read_binary_generic((std::string const &)*arg1);
+    } catch (Swig::DirectorException &e) {
+      SWIG_fail;
+    } catch (const PythonException& e) {
+      e.restore_python_exception();
+      SWIG_fail;
+    } catch (const std::exception& e) {
+      SWIG_exception(SWIG_RuntimeError, e.what());
+    } catch (...) {
+      // Anything not derived from std::exception (a raw type, a
+      // third-party exception hierarchy that doesn't inherit
+      // std::exception, etc.) would otherwise propagate across the
+      // extern "C" boundary into CPython -- undefined behavior, in
+      // practice a process abort rather than a clean Python exception.
+      SWIG_exception(SWIG_RuntimeError, "unknown C++ exception");
+    }
+  }
+  {
+    resultobj = Skeleton::swig_to_python_or_none(result);
+  }
+  if (SWIG_IsNewObj(res1)) delete arg1;
+  return resultobj;
+fail:
+  if (SWIG_IsNewObj(res1)) delete arg1;
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_serialize_write_binary__SWIG_1(PyObject *self, Py_ssize_t nobjs, PyObject **swig_obj) {
   PyObject *resultobj = 0;
   boost::shared_ptr< Skeleton::GenericObject > *arg1 = 0 ;
   void *argp1 ;
   int res1 = 0 ;
   boost::shared_ptr< Skeleton::GenericObject > tempshared1 ;
   boost::shared_ptr< Skeleton::GenericObject > temp2shared1 ;
-  PyObject *swig_obj[1] ;
   std::string result;
   
   (void)self;
-  if (!args) SWIG_fail;
-  swig_obj[0] = args;
+  if ((nobjs < 1) || (nobjs > 1)) SWIG_fail;
   {
     int newmem = 0;
     res1 = SWIG_ConvertPtrAndOwn(swig_obj[0], &argp1, SWIGTYPE_p_boost__shared_ptrT_Skeleton__GenericObject_t,  0 , &newmem);
@@ -6637,11 +6759,39 @@ SWIGINTERN PyObject *_wrap_serialize_write_binary(PyObject *self, PyObject *args
     }
   }
   {
-    resultobj = PyByteArray_FromStringAndSize((&result)->data(), (&result)->size());
+    resultobj = PyBytes_FromStringAndSize((&result)->data(), (&result)->size());
   }
   return resultobj;
 fail:
   return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_serialize_write_binary(PyObject *self, PyObject *args) {
+  Py_ssize_t argc;
+  PyObject *argv[3] = {
+    0
+  };
+  
+  if (!(argc = SWIG_Python_UnpackTuple(args, "serialize_write_binary", 0, 2, argv))) SWIG_fail;
+  --argc;
+  if (argc == 1) {
+    PyObject *retobj = _wrap_serialize_write_binary__SWIG_1(self, argc, argv);
+    if (!SWIG_Python_TypeErrorOccurred(retobj)) return retobj;
+    SWIG_fail;
+  }
+  if (argc == 2) {
+    PyObject *retobj = _wrap_serialize_write_binary__SWIG_0(self, argc, argv);
+    if (!SWIG_Python_TypeErrorOccurred(retobj)) return retobj;
+    SWIG_fail;
+  }
+  
+fail:
+  SWIG_Python_RaiseOrModifyTypeError("Wrong number or type of arguments for overloaded function 'serialize_write_binary'.\n"
+    "  Possible C/C++ prototypes are:\n"
+    "    Skeleton::serialize_write_binary(std::string const &,boost::shared_ptr< Skeleton::GenericObject > const &)\n"
+    "    Skeleton::serialize_write_binary(boost::shared_ptr< Skeleton::GenericObject > const &)\n");
+  return 0;
 }
 
 
@@ -6655,12 +6805,16 @@ SWIGINTERN PyObject *_wrap_serialize_read_binary(PyObject *self, PyObject *args)
   if (!args) SWIG_fail;
   swig_obj[0] = args;
   {
-    if(!PyByteArray_Check(swig_obj[0])) {
+    if(PyBytes_Check(swig_obj[0]))
+    arg1 = new std::string(PyBytes_AS_STRING(swig_obj[0]), PyBytes_GET_SIZE(swig_obj[0]));
+    else
+    if(PyByteArray_Check(swig_obj[0]))
+    arg1 = new std::string(PyByteArray_AS_STRING(swig_obj[0]), PyByteArray_GET_SIZE(swig_obj[0]));
+    else {
       PyErr_Clear();
-      PyErr_SetString(PyExc_TypeError,"not a bytearray");
+      PyErr_SetString(PyExc_TypeError,"not a bytes or bytearray");
       return NULL;
     }
-    arg1 = new std::string(PyByteArray_AS_STRING(swig_obj[0]), PyByteArray_GET_SIZE(swig_obj[0]));
   }
   {
     try {
@@ -6724,7 +6878,11 @@ static PyMethodDef SwigMethods[] = {
 	 { "serialize_write_string", _wrap_serialize_write_string, METH_O, "serialize_write_string(boost::shared_ptr< Skeleton::GenericObject > const & Obj) -> std::string"},
 	 { "serialize_read_generic", _wrap_serialize_read_generic, METH_O, "serialize_read_generic(std::string const & Fname) -> boost::shared_ptr< Skeleton::GenericObject >"},
 	 { "serialize_read_generic_string", _wrap_serialize_read_generic_string, METH_O, "serialize_read_generic_string(std::string const & Data) -> boost::shared_ptr< Skeleton::GenericObject >"},
-	 { "serialize_write_binary", _wrap_serialize_write_binary, METH_O, "serialize_write_binary(boost::shared_ptr< Skeleton::GenericObject > const & Obj) -> std::string"},
+	 { "serialize_read_binary_generic", _wrap_serialize_read_binary_generic, METH_O, "serialize_read_binary_generic(std::string const & Fname) -> boost::shared_ptr< Skeleton::GenericObject >"},
+	 { "serialize_write_binary", _wrap_serialize_write_binary, METH_VARARGS, "\n"
+		"serialize_write_binary(std::string const & Fname, boost::shared_ptr< Skeleton::GenericObject > const & Obj)\n"
+		"serialize_write_binary(boost::shared_ptr< Skeleton::GenericObject > const & Obj) -> std::string\n"
+		""},
 	 { "serialize_read_binary", _wrap_serialize_read_binary, METH_O, "serialize_read_binary(std::string const & Data) -> boost::shared_ptr< Skeleton::GenericObject >"},
 	 { NULL, NULL, 0, NULL }
 };
@@ -6757,7 +6915,11 @@ static PyMethodDef SwigMethods_proxydocs[] = {
 	 { "serialize_write_string", _wrap_serialize_write_string, METH_O, "serialize_write_string(boost::shared_ptr< Skeleton::GenericObject > const & Obj) -> std::string"},
 	 { "serialize_read_generic", _wrap_serialize_read_generic, METH_O, "serialize_read_generic(std::string const & Fname) -> boost::shared_ptr< Skeleton::GenericObject >"},
 	 { "serialize_read_generic_string", _wrap_serialize_read_generic_string, METH_O, "serialize_read_generic_string(std::string const & Data) -> boost::shared_ptr< Skeleton::GenericObject >"},
-	 { "serialize_write_binary", _wrap_serialize_write_binary, METH_O, "serialize_write_binary(boost::shared_ptr< Skeleton::GenericObject > const & Obj) -> std::string"},
+	 { "serialize_read_binary_generic", _wrap_serialize_read_binary_generic, METH_O, "serialize_read_binary_generic(std::string const & Fname) -> boost::shared_ptr< Skeleton::GenericObject >"},
+	 { "serialize_write_binary", _wrap_serialize_write_binary, METH_VARARGS, "\n"
+		"serialize_write_binary(std::string const & Fname, boost::shared_ptr< Skeleton::GenericObject > const & Obj)\n"
+		"serialize_write_binary(boost::shared_ptr< Skeleton::GenericObject > const & Obj) -> std::string\n"
+		""},
 	 { "serialize_read_binary", _wrap_serialize_read_binary, METH_O, "serialize_read_binary(std::string const & Data) -> boost::shared_ptr< Skeleton::GenericObject >"},
 	 { NULL, NULL, 0, NULL }
 };

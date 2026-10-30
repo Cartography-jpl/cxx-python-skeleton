@@ -22,19 +22,7 @@ from skeleton_swig.generic_object_sample import (
 golden = Path(__file__).resolve().parents[3] / "unit_test_data" / "golden"
 
 
-# The skeleton's serialize_function.i doesn't wrap the file based binary
-# read/write (serialize_read_binary_generic, which read_shelve uses for .bin),
-# although swig_rules/lib/serialize_function.i.sample does. So reading the
-# binary archives through read_shelve fails. The binary archives are still
-# checked by the C++ test. Remove the xfail when serialize_function.i is
-# brought back in line with the sample.
-binary_missing = pytest.mark.xfail(
-    strict=True,
-    reason="serialize_function.i lacks serialize_read_binary_generic",
-)
-
-
-@pytest.fixture(params=["xml", pytest.param("bin", marks=binary_missing)])
+@pytest.fixture(params=["xml", "bin"])
 def ext(request):
     return request.param
 

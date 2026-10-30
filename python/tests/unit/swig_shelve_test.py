@@ -79,8 +79,9 @@ def test_python_objects(isolated_dir):
 
 @pytest.mark.skipif(not have_jsonpickle, reason="needs jsonpickle")
 def test_json_python_object(isolated_dir):
-    write_shelve("t.json", {"a": [1, 2], "b": "x"})
-    assert read_shelve("t.json") == {"a": [1, 2], "b": "x"}
+    write_shelve("t.json", {"a": [1, 2], "b": "x", 3: "int key"})
+    # Non-string keys round trip (jsonpickle keys=True)
+    assert read_shelve("t.json") == {"a": [1, 2], "b": "x", 3: "int key"}
     # The file is human readable json
     assert '"b": "x"' in Path("t.json").read_text()
 

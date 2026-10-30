@@ -103,7 +103,7 @@ def read_shelve(f: str | os.PathLike[str]) -> Any:
             if os.path.exists("extra_python_init.py"):
                 exec(Path("extra_python_init.py").read_text())  # noqa: S102
             if have_jsonpickle:
-                return jsonpickle.decode(Path(fb).read_text())
+                return jsonpickle.decode(Path(fb).read_text(), keys=True)
             else:
                 raise RuntimeError(
                     "Use of .json file requires jsonpickle package to be installed"
@@ -168,7 +168,7 @@ def write_shelve(f: str | os.PathLike[str], val: Any) -> None:
     if os.path.splitext(str(f))[1] == ".json":
         if have_jsonpickle:
             with open(f, "w") as fh:
-                fh.write(jsonpickle.encode(val))
+                fh.write(jsonpickle.encode(val, keys=True))
             return
         else:
             raise RuntimeError(

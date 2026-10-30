@@ -130,9 +130,10 @@ serialize_write = _serialize_function.serialize_write
 serialize_write_string = _serialize_function.serialize_write_string
 serialize_read_generic = _serialize_function.serialize_read_generic
 serialize_read_generic_string = _serialize_function.serialize_read_generic_string
+serialize_read_binary_generic = _serialize_function.serialize_read_binary_generic
 serialize_write_binary = _serialize_function.serialize_write_binary
 serialize_read_binary = _serialize_function.serialize_read_binary
 
-__all__ = ["have_serialize_supported","serialize_write","serialize_write_string","serialize_read_generic","serialize_read_generic_string","serialize_write_binary","serialize_read_binary"]
+__all__ = ["have_serialize_supported","serialize_write","serialize_write_string","serialize_read_generic","serialize_read_generic_string","serialize_write_binary","serialize_read_binary","serialize_read_binary_generic"]
 
 
