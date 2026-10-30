@@ -1,0 +1,187 @@
+# Tests for skeleton/swig_shelve.py: read_shelve/write_shelve for every
+# format, shelve_time_after, extra python init code, and SQLiteShelf.
+import os
+import pickle
+import time
+from pathlib import Path
+
+import pytest
+
+from skeleton import (
+    GenericObjectA,
+    GenericObjectC,
+    GenericObjectMap,
+    SQLiteShelf,
+    have_jsonpickle,
+    read_shelve,
+    shelve_time_after,
+    write_shelve,
+)
+
+FORMATS = [
+    "t.xml",
+    "t.xml.gz",
+    "t.bin",
+    "t.bin.gz",
+    "t.db:key",
+    pytest.param(
+        "t.json",
+        marks=pytest.mark.skipif(not have_jsonpickle, reason="needs jsonpickle"),
+    ),
+]
+
+
+def sample_map():
+    m = GenericObjectMap()
+    m["a"] = GenericObjectA(3)
+    m["c"] = GenericObjectC(m.a)
+    return m
+
+
+@pytest.mark.parametrize("fname", FORMATS)
+def test_round_trip(isolated_dir, fname):
+    write_shelve(fname, sample_map())
+    m = read_shelve(fname)
+    assert isinstance(m, GenericObjectMap)
+    assert m.a.v == 3
+    # The weak_ptr is kept, because its target is in the same archive
+    assert m.c.a.v == 3
+    m.a.v = 4
+    assert m.c.a.v == 4
+
+
+@pytest.mark.parametrize("fname", ["sub/t.xml", "sub/t.bin", "sub/t.db:key"])
+def test_other_directory(isolated_dir, fname):
+    """Reading changes to the file's directory and back again."""
+    os.mkdir("sub")
+    cwd = os.getcwd()
+    write_shelve(fname, GenericObjectA(2))
+    assert read_shelve(fname).v == 2
+    assert os.getcwd() == cwd
+
+
+def test_python_objects(isolated_dir):
+    """The sqlite shelve stores python objects as well, natively for the
+    types sqlite supports and pickled otherwise."""
+    write_shelve("t.db:int", 3)
+    write_shelve("t.db:str", "hello")
+    write_shelve("t.db:float", 1.5)
+    write_shelve("t.db:none", None)
+    write_shelve("t.db:list", [1, 2, 3, "blah"])
+    write_shelve("t.db:obj", GenericObjectA(5))
+    assert read_shelve("t.db:int") == 3
+    assert read_shelve("t.db:str") == "hello"
+    assert read_shelve("t.db:float") == 1.5
+    assert read_shelve("t.db:none") is None
+    assert read_shelve("t.db:list") == [1, 2, 3, "blah"]
+    assert read_shelve("t.db:obj").v == 5
+
+
+@pytest.mark.skipif(not have_jsonpickle, reason="needs jsonpickle")
+def test_json_python_object(isolated_dir):
+    write_shelve("t.json", {"a": [1, 2], "b": "x"})
+    assert read_shelve("t.json") == {"a": [1, 2], "b": "x"}
+    # The file is human readable json
+    assert '"b": "x"' in Path("t.json").read_text()
+
+
+def test_missing(isolated_dir):
+    with pytest.raises(RuntimeError):
+        read_shelve("not_here.xml")
+    write_shelve("t.db:key", 1)
+    with pytest.raises(KeyError):
+        read_shelve("t.db:other_key")
+
+
+def test_extra_python_init_file(isolated_dir):
+    """extra_python_init.py in the same directory is run before reading an
+    xml, bin or json file."""
+    write_shelve("t.xml", GenericObjectA(1))
+    Path("extra_python_init.py").write_text(
+        "import builtins\nbuiltins._skeleton_init_ran = True\n"
+    )
+    import builtins
+
+    try:
+        read_shelve("t.xml")
+        assert builtins._skeleton_init_ran
+    finally:
+        del builtins._skeleton_init_ran
+
+
+def test_extra_python_init_key(isolated_dir):
+    """The special key _extra_python_init is run before reading a sqlite
+    shelve."""
+    write_shelve("t.db:key", 1)
+    write_shelve(
+        "t.db:_extra_python_init",
+        "import builtins\nbuiltins._skeleton_init_ran = True\n",
+    )
+    import builtins
+
+    try:
+        assert read_shelve("t.db:key") == 1
+        assert builtins._skeleton_init_ran
+    finally:
+        del builtins._skeleton_init_ran
+
+
+def test_shelve_time_after(isolated_dir):
+    assert not shelve_time_after("not_here.xml", "not_here2.xml")
+    write_shelve("t.db:key1", 1)
+    write_shelve("t1.xml", GenericObjectA(1))
+    # Make sure the times differ. sqlite has millisecond times, the file
+    # system may only have 1 second resolution.
+    time.sleep(1.1)
+    write_shelve("t.db:key2", 2)
+    write_shelve("t2.xml", GenericObjectA(2))
+    assert shelve_time_after("t.db:key2", "t.db:key1")
+    assert not shelve_time_after("t.db:key1", "t.db:key2")
+    assert shelve_time_after("t2.xml", "t1.xml")
+    assert not shelve_time_after("t1.xml", "t2.xml")
+    assert shelve_time_after("t2.xml", "t.db:key1")
+    assert shelve_time_after("t.db:key2", "t1.xml")
+    # A missing key in f1 is "not after"
+    assert not shelve_time_after("t.db:missing", "t.db:key1")
+    assert shelve_time_after("t.db:key1", "t.db:key1")
+
+
+def test_sqlite_shelf(isolated_dir):
+    d = SQLiteShelf("t.db")
+    d["a"] = 1
+    d["b"] = [1, 2]
+    assert set(d.keys()) == {"a", "b"}
+    assert "a" in d
+    assert "c" not in d
+    assert d["b"] == [1, 2]
+    del d["a"]
+    assert "a" not in d
+    t1 = d.update_time_unix("b")
+    assert abs(t1 - time.time()) < 60
+    assert isinstance(d.update_time("b"), str)
+    time.sleep(0.01)
+    d.touch("b")
+    assert d.update_time_unix("b") > t1
+    with pytest.raises(KeyError):
+        d["not_here"]
+    with pytest.raises(KeyError):
+        d.update_time("not_here")
+    d.close()
+    # Data persists after close
+    d = SQLiteShelf("t.db", "r")
+    assert d["b"] == [1, 2]
+    with pytest.raises(RuntimeError):
+        d["c"] = 1
+    with pytest.raises(RuntimeError):
+        del d["b"]
+    with pytest.raises(RuntimeError):
+        d.touch("b")
+    d.close()
+
+
+def test_pickle_bytes(isolated_dir):
+    """The serialized C++ object in a pickle is bytes, which jsonpickle (and
+    other tools) handle. A bytearray was silently dropped by jsonpickle."""
+    reduce_args = GenericObjectA(1).__reduce__()[1]
+    assert isinstance(reduce_args[0], bytes)
+    assert pickle.loads(pickle.dumps(GenericObjectA(1))).v == 1
