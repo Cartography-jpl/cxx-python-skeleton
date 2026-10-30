@@ -51,6 +51,8 @@ import weakref
 
 SWIG_MODULE_ALREADY_DONE = _numpy_sample.SWIG_MODULE_ALREADY_DONE
 class SwigPyIterator(object):
+    r"""Proxy of C++ swig::SwigPyIterator class."""
+
     thisown = property(lambda x: x.this.own(), lambda x, v: x.this.own(v), doc="The membership flag")
 
     def __init__(self, *args, **kwargs):
@@ -78,6 +80,7 @@ class SwigPyIterator(object):
 # Register SwigPyIterator in _numpy_sample:
 _numpy_sample.SwigPyIterator_swigregister(SwigPyIterator)
 SHARED_PTR_DISOWN = _numpy_sample.SHARED_PTR_DISOWN
+
 
 import os
 
@@ -126,13 +129,14 @@ import skeleton_swig.generic_object
 class NumpySample(skeleton_swig.generic_object.GenericObject):
     r"""
 
-    Simple class to test handling of numpy lifetime issues when wrapped in
-    swig.
 
-    We define this here, then have a python test (numpy_sample_test.py) to
-    test this out.
+    Simple class to test handling of numpy lifetime issues when wrapped in swig.  
 
-    C++ includes: numpy_sample.h 
+    We define this here, then have a python test (numpy_sample_test.py) to test this
+    out.  
+
+    C++ includes: numpy_sample.h
+
     """
 
     thisown = property(lambda x: x.this.own(), lambda x, v: x.this.own(v), doc="The membership flag")
@@ -140,8 +144,9 @@ class NumpySample(skeleton_swig.generic_object.GenericObject):
 
     def __init__(self, *args):
         r"""
+        __init__(NumpySample self) -> NumpySample
+        __init__(NumpySample self, BlitzArray_double_2 Din) -> NumpySample
 
-        Skeleton::NumpySample::NumpySample(const blitz::Array< double, 2 > &Din)
         Skeleton::NumpySample::NumpySample
         """
         _numpy_sample.NumpySample_swiginit(self, _numpy_sample.new_NumpySample(*args))

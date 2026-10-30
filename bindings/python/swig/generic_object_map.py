@@ -51,6 +51,8 @@ import weakref
 
 SWIG_MODULE_ALREADY_DONE = _generic_object_map.SWIG_MODULE_ALREADY_DONE
 class SwigPyIterator(object):
+    r"""Proxy of C++ swig::SwigPyIterator class."""
+
     thisown = property(lambda x: x.this.own(), lambda x, v: x.this.own(v), doc="The membership flag")
 
     def __init__(self, *args, **kwargs):
@@ -78,6 +80,7 @@ class SwigPyIterator(object):
 # Register SwigPyIterator in _generic_object_map:
 _generic_object_map.SwigPyIterator_swigregister(SwigPyIterator)
 SHARED_PTR_DISOWN = _generic_object_map.SHARED_PTR_DISOWN
+
 
 import os
 
@@ -126,25 +129,25 @@ import skeleton_swig.generic_object
 class GenericObjectMap(skeleton_swig.generic_object.GenericObject):
     r"""
 
+
     Boost serialization only maintains pointers for a single object being
-    serialized.
+    serialized.  
 
-    So for example we may have object 'a' and object 'b'. Object 'b'
-    contains a pointer to object 'a'. If we serialize object 'b' and
-    object 'a' separately, and then read them back in, we end up with two
-    copies of 'a' - one from the serialization of the original 'a' and one
-    from 'b'. If instead, we have an object c that contains both 'a' and
-    'b', then there will be only one 'a', since boost in serializing c
-    realized there are two pointers that point to the same object.
+    So for example we may have object 'a' and object 'b'. Object 'b' contains a
+    pointer to object 'a'. If we serialize object 'b' and object 'a' separately, and
+    then read them back in, we end up with two copies of 'a' - one from the
+    serialization of the original 'a' and one from 'b'. If instead, we have an
+    object c that contains both 'a' and 'b', then there will be only one 'a', since
+    boost in serializing c realized there are two pointers that point to the same
+    object.  
 
-    As a help when we don't already have a object 'c', this map contains
-    any arbitrary number of objects, allowing us maintain the
-    relationships.
+    As a help when we don't already have a object 'c', this map contains any
+    arbitrary number of objects, allowing us maintain the relationships.  
 
-    This serves much the same purpose as "shelve" does for "pickle" in
-    python.
+    This serves much the same purpose as "shelve" does for "pickle" in python.  
 
-    C++ includes: generic_object_map.h 
+    C++ includes: generic_object_map.h
+
     """
 
     thisown = property(lambda x: x.this.own(), lambda x, v: x.this.own(v), doc="The membership flag")
@@ -152,8 +155,8 @@ class GenericObjectMap(skeleton_swig.generic_object.GenericObject):
 
     def __init__(self):
         r"""
+        __init__(GenericObjectMap self) -> GenericObjectMap
 
-        Skeleton::GenericObjectMap::GenericObjectMap()
         Skeleton::GenericObjectMap::GenericObjectMap
         """
         _generic_object_map.GenericObjectMap_swiginit(self, _generic_object_map.new_GenericObjectMap())

@@ -51,6 +51,8 @@ import weakref
 
 SWIG_MODULE_ALREADY_DONE = _director_example.SWIG_MODULE_ALREADY_DONE
 class SwigPyIterator(object):
+    r"""Proxy of C++ swig::SwigPyIterator class."""
+
     thisown = property(lambda x: x.this.own(), lambda x, v: x.this.own(v), doc="The membership flag")
 
     def __init__(self, *args, **kwargs):
@@ -78,6 +80,7 @@ class SwigPyIterator(object):
 # Register SwigPyIterator in _director_example:
 _director_example.SwigPyIterator_swigregister(SwigPyIterator)
 SHARED_PTR_DISOWN = _director_example.SHARED_PTR_DISOWN
+
 
 import os
 
@@ -124,6 +127,8 @@ def _new_from_set(cls, version, *args):
 
 import skeleton_swig.generic_object
 class Vector_DirectorExample(object):
+    r"""Proxy of C++ std::vector< boost::shared_ptr< Skeleton::DirectorExample > > class."""
+
     thisown = property(lambda x: x.this.own(), lambda x, v: x.this.own(v), doc="The membership flag")
     __repr__ = _swig_repr
     iterator = _swig_new_instance_method(_director_example.Vector_DirectorExample_iterator)
@@ -149,6 +154,12 @@ class Vector_DirectorExample(object):
     erase = _swig_new_instance_method(_director_example.Vector_DirectorExample_erase)
 
     def __init__(self, *args):
+        r"""
+        __init__(Vector_DirectorExample self) -> Vector_DirectorExample
+        __init__(Vector_DirectorExample self, Vector_DirectorExample other) -> Vector_DirectorExample
+        __init__(Vector_DirectorExample self, std::vector< boost::shared_ptr< Skeleton::DirectorExample > >::size_type size) -> Vector_DirectorExample
+        __init__(Vector_DirectorExample self, std::vector< boost::shared_ptr< Skeleton::DirectorExample > >::size_type size, std::vector< boost::shared_ptr< Skeleton::DirectorExample > >::value_type const & value) -> Vector_DirectorExample
+        """
         _director_example.Vector_DirectorExample_swiginit(self, _director_example.new_Vector_DirectorExample(*args))
     push_back = _swig_new_instance_method(_director_example.Vector_DirectorExample_push_back)
     front = _swig_new_instance_method(_director_example.Vector_DirectorExample_front)
@@ -163,6 +174,8 @@ class Vector_DirectorExample(object):
 # Register Vector_DirectorExample in _director_example:
 _director_example.Vector_DirectorExample_swigregister(Vector_DirectorExample)
 class Vector_Vector_DirectorExample(object):
+    r"""Proxy of C++ std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > > class."""
+
     thisown = property(lambda x: x.this.own(), lambda x, v: x.this.own(v), doc="The membership flag")
     __repr__ = _swig_repr
     iterator = _swig_new_instance_method(_director_example.Vector_Vector_DirectorExample_iterator)
@@ -188,6 +201,12 @@ class Vector_Vector_DirectorExample(object):
     erase = _swig_new_instance_method(_director_example.Vector_Vector_DirectorExample_erase)
 
     def __init__(self, *args):
+        r"""
+        __init__(Vector_Vector_DirectorExample self) -> Vector_Vector_DirectorExample
+        __init__(Vector_Vector_DirectorExample self, Vector_Vector_DirectorExample other) -> Vector_Vector_DirectorExample
+        __init__(Vector_Vector_DirectorExample self, std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > >::size_type size) -> Vector_Vector_DirectorExample
+        __init__(Vector_Vector_DirectorExample self, std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > >::size_type size, Vector_DirectorExample value) -> Vector_Vector_DirectorExample
+        """
         _director_example.Vector_Vector_DirectorExample_swiginit(self, _director_example.new_Vector_Vector_DirectorExample(*args))
     push_back = _swig_new_instance_method(_director_example.Vector_Vector_DirectorExample_push_back)
     front = _swig_new_instance_method(_director_example.Vector_Vector_DirectorExample_front)
@@ -202,6 +221,8 @@ class Vector_Vector_DirectorExample(object):
 # Register Vector_Vector_DirectorExample in _director_example:
 _director_example.Vector_Vector_DirectorExample_swigregister(Vector_Vector_DirectorExample)
 class Vector_Vector_int(object):
+    r"""Proxy of C++ std::vector< std::vector< int > > class."""
+
     thisown = property(lambda x: x.this.own(), lambda x, v: x.this.own(v), doc="The membership flag")
     __repr__ = _swig_repr
     iterator = _swig_new_instance_method(_director_example.Vector_Vector_int_iterator)
@@ -227,6 +248,12 @@ class Vector_Vector_int(object):
     erase = _swig_new_instance_method(_director_example.Vector_Vector_int_erase)
 
     def __init__(self, *args):
+        r"""
+        __init__(Vector_Vector_int self) -> Vector_Vector_int
+        __init__(Vector_Vector_int self, Vector_Vector_int other) -> Vector_Vector_int
+        __init__(Vector_Vector_int self, std::vector< std::vector< int > >::size_type size) -> Vector_Vector_int
+        __init__(Vector_Vector_int self, std::vector< std::vector< int > >::size_type size, vector_int value) -> Vector_Vector_int
+        """
         _director_example.Vector_Vector_int_swiginit(self, _director_example.new_Vector_Vector_int(*args))
     push_back = _swig_new_instance_method(_director_example.Vector_Vector_int_push_back)
     front = _swig_new_instance_method(_director_example.Vector_Vector_int_front)
@@ -243,10 +270,12 @@ _director_example.Vector_Vector_int_swigregister(Vector_Vector_int)
 class DirectorExample(skeleton_swig.generic_object.GenericObject):
     r"""
 
-    This is a simple class that we can use to test having a derived class
-    in python to override the director functions.
 
-    C++ includes: director_example.h 
+    This is a simple class that we can use to test having a derived class in python
+    to override the director functions.  
+
+    C++ includes: director_example.h
+
     """
 
     thisown = property(lambda x: x.this.own(), lambda x, v: x.this.own(v), doc="The membership flag")
@@ -268,10 +297,11 @@ class DirectorExample(skeleton_swig.generic_object.GenericObject):
 
     def __init__(self, *args):
         r"""
+        __init__(DirectorExample self, int V, std::string const & Name) -> DirectorExample
+        __init__(DirectorExample self) -> DirectorExample
 
-        Skeleton::DirectorExample::DirectorExample(int value_to_add, const std::string &name)
         Skeleton::DirectorExample::DirectorExample
-        Constructor.
+        Constructor.  
 
         """
         if self.__class__ == DirectorExample:
@@ -290,9 +320,11 @@ _director_example.DirectorExample_swigregister(DirectorExample)
 class DirectorExampleNested(DirectorExample):
     r"""
 
-    A version used for nesting DirectorExample.
 
-    C++ includes: director_example.h 
+    A version used for nesting DirectorExample.  
+
+    C++ includes: director_example.h
+
     """
 
     thisown = property(lambda x: x.this.own(), lambda x, v: x.this.own(v), doc="The membership flag")
@@ -300,11 +332,10 @@ class DirectorExampleNested(DirectorExample):
 
     def __init__(self, value_to_add, name, Obj):
         r"""
+        __init__(DirectorExampleNested self, int value_to_add, std::string const & name, boost::shared_ptr< Skeleton::DirectorExample > const Obj) -> DirectorExampleNested
 
-        Skeleton::DirectorExampleNested::DirectorExampleNested(int value_to_add, const std::string &name, const boost::shared_ptr<
-        DirectorExample > Obj)
         Skeleton::DirectorExampleNested::DirectorExampleNested
-        Constructor.
+        Constructor.  
 
         """
         _director_example.DirectorExampleNested_swiginit(self, _director_example.new_DirectorExampleNested(value_to_add, name, Obj))
@@ -329,10 +360,12 @@ _director_example.DirectorExampleNested_swigregister(DirectorExampleNested)
 class DirectorExampleWeakPtr(skeleton_swig.generic_object.GenericObject):
     r"""
 
-    A weak pointer to a DirectorExample, used to test proper handling of
-    weak pointers and also pointer tracking in the serialization code.
 
-    C++ includes: director_example.h 
+    A weak pointer to a DirectorExample, used to test proper handling of weak
+    pointers and also pointer tracking in the serialization code.  
+
+    C++ includes: director_example.h
+
     """
 
     thisown = property(lambda x: x.this.own(), lambda x, v: x.this.own(v), doc="The membership flag")
@@ -340,8 +373,8 @@ class DirectorExampleWeakPtr(skeleton_swig.generic_object.GenericObject):
 
     def __init__(self, SHARED_PTR_NO_OWN):
         r"""
+        __init__(DirectorExampleWeakPtr self, boost::shared_ptr< Skeleton::DirectorExample > const & SHARED_PTR_NO_OWN) -> DirectorExampleWeakPtr
 
-        Skeleton::DirectorExampleWeakPtr::DirectorExampleWeakPtr(const boost::shared_ptr< DirectorExample > &V)
         Skeleton::DirectorExampleWeakPtr::DirectorExampleWeakPtr
         """
         _director_example.DirectorExampleWeakPtr_swiginit(self, _director_example.new_DirectorExampleWeakPtr(SHARED_PTR_NO_OWN))
@@ -364,10 +397,12 @@ _director_example.DirectorExampleWeakPtr_swigregister(DirectorExampleWeakPtr)
 class DirectorExampleUser(skeleton_swig.generic_object.GenericObject):
     r"""
 
-    Sample class to use DirectorExample, can use to make sure python can
-    be passed correctly.
 
-    C++ includes: director_example.h 
+    Sample class to use DirectorExample, can use to make sure python can be passed
+    correctly.  
+
+    C++ includes: director_example.h
+
     """
 
     thisown = property(lambda x: x.this.own(), lambda x, v: x.this.own(v), doc="The membership flag")
@@ -375,8 +410,8 @@ class DirectorExampleUser(skeleton_swig.generic_object.GenericObject):
 
     def __init__(self):
         r"""
+        __init__(DirectorExampleUser self) -> DirectorExampleUser
 
-        Skeleton::DirectorExampleUser::DirectorExampleUser()
         Skeleton::DirectorExampleUser::DirectorExampleUser
         """
         _director_example.DirectorExampleUser_swiginit(self, _director_example.new_DirectorExampleUser())

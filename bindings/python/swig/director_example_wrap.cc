@@ -16604,266 +16604,344 @@ SWIGINTERN PyObject *DirectorExampleUser_swiginit(PyObject *SWIGUNUSEDPARM(self)
 static PyMethodDef SwigMethods[] = {
 	 { "SWIG_PyInstanceMethod_New", SWIG_PyInstanceMethod_New, METH_O, NULL},
 	 { "SWIG_PyStaticMethod_New", SWIG_PyStaticMethod_New, METH_O, NULL},
-	 { "delete_SwigPyIterator", _wrap_delete_SwigPyIterator, METH_O, NULL},
-	 { "SwigPyIterator_value", _wrap_SwigPyIterator_value, METH_O, NULL},
-	 { "SwigPyIterator_incr", _wrap_SwigPyIterator_incr, METH_VARARGS, NULL},
-	 { "SwigPyIterator_decr", _wrap_SwigPyIterator_decr, METH_VARARGS, NULL},
-	 { "SwigPyIterator_distance", _wrap_SwigPyIterator_distance, METH_VARARGS, NULL},
-	 { "SwigPyIterator_equal", _wrap_SwigPyIterator_equal, METH_VARARGS, NULL},
-	 { "SwigPyIterator_copy", _wrap_SwigPyIterator_copy, METH_O, NULL},
-	 { "SwigPyIterator___next__", _wrap_SwigPyIterator___next__, METH_O, NULL},
-	 { "SwigPyIterator_previous", _wrap_SwigPyIterator_previous, METH_O, NULL},
-	 { "SwigPyIterator_advance", _wrap_SwigPyIterator_advance, METH_VARARGS, NULL},
-	 { "SwigPyIterator___eq__", _wrap_SwigPyIterator___eq__, METH_VARARGS, NULL},
-	 { "SwigPyIterator___ne__", _wrap_SwigPyIterator___ne__, METH_VARARGS, NULL},
-	 { "SwigPyIterator___iadd__", _wrap_SwigPyIterator___iadd__, METH_VARARGS, NULL},
-	 { "SwigPyIterator___isub__", _wrap_SwigPyIterator___isub__, METH_VARARGS, NULL},
-	 { "SwigPyIterator___add__", _wrap_SwigPyIterator___add__, METH_VARARGS, NULL},
-	 { "SwigPyIterator___sub__", _wrap_SwigPyIterator___sub__, METH_VARARGS, NULL},
+	 { "delete_SwigPyIterator", _wrap_delete_SwigPyIterator, METH_O, "delete_SwigPyIterator(SwigPyIterator self)"},
+	 { "SwigPyIterator_value", _wrap_SwigPyIterator_value, METH_O, "SwigPyIterator_value(SwigPyIterator self) -> PyObject *"},
+	 { "SwigPyIterator_incr", _wrap_SwigPyIterator_incr, METH_VARARGS, "SwigPyIterator_incr(SwigPyIterator self, size_t n=1) -> SwigPyIterator"},
+	 { "SwigPyIterator_decr", _wrap_SwigPyIterator_decr, METH_VARARGS, "SwigPyIterator_decr(SwigPyIterator self, size_t n=1) -> SwigPyIterator"},
+	 { "SwigPyIterator_distance", _wrap_SwigPyIterator_distance, METH_VARARGS, "SwigPyIterator_distance(SwigPyIterator self, SwigPyIterator x) -> ptrdiff_t"},
+	 { "SwigPyIterator_equal", _wrap_SwigPyIterator_equal, METH_VARARGS, "SwigPyIterator_equal(SwigPyIterator self, SwigPyIterator x) -> bool"},
+	 { "SwigPyIterator_copy", _wrap_SwigPyIterator_copy, METH_O, "SwigPyIterator_copy(SwigPyIterator self) -> SwigPyIterator"},
+	 { "SwigPyIterator___next__", _wrap_SwigPyIterator___next__, METH_O, "SwigPyIterator___next__(SwigPyIterator self) -> PyObject *"},
+	 { "SwigPyIterator_previous", _wrap_SwigPyIterator_previous, METH_O, "SwigPyIterator_previous(SwigPyIterator self) -> PyObject *"},
+	 { "SwigPyIterator_advance", _wrap_SwigPyIterator_advance, METH_VARARGS, "SwigPyIterator_advance(SwigPyIterator self, ptrdiff_t n) -> SwigPyIterator"},
+	 { "SwigPyIterator___eq__", _wrap_SwigPyIterator___eq__, METH_VARARGS, "SwigPyIterator___eq__(SwigPyIterator self, SwigPyIterator x) -> bool"},
+	 { "SwigPyIterator___ne__", _wrap_SwigPyIterator___ne__, METH_VARARGS, "SwigPyIterator___ne__(SwigPyIterator self, SwigPyIterator x) -> bool"},
+	 { "SwigPyIterator___iadd__", _wrap_SwigPyIterator___iadd__, METH_VARARGS, "SwigPyIterator___iadd__(SwigPyIterator self, ptrdiff_t n) -> SwigPyIterator"},
+	 { "SwigPyIterator___isub__", _wrap_SwigPyIterator___isub__, METH_VARARGS, "SwigPyIterator___isub__(SwigPyIterator self, ptrdiff_t n) -> SwigPyIterator"},
+	 { "SwigPyIterator___add__", _wrap_SwigPyIterator___add__, METH_VARARGS, "SwigPyIterator___add__(SwigPyIterator self, ptrdiff_t n) -> SwigPyIterator"},
+	 { "SwigPyIterator___sub__", _wrap_SwigPyIterator___sub__, METH_VARARGS, "\n"
+		"SwigPyIterator___sub__(SwigPyIterator self, ptrdiff_t n) -> SwigPyIterator\n"
+		"SwigPyIterator___sub__(SwigPyIterator self, SwigPyIterator x) -> ptrdiff_t\n"
+		""},
 	 { "SwigPyIterator_swigregister", SwigPyIterator_swigregister, METH_O, NULL},
-	 { "Vector_DirectorExample_iterator", _wrap_Vector_DirectorExample_iterator, METH_O, NULL},
-	 { "Vector_DirectorExample___bool__", _wrap_Vector_DirectorExample___bool__, METH_O, NULL},
-	 { "Vector_DirectorExample___len__", _wrap_Vector_DirectorExample___len__, METH_O, NULL},
-	 { "Vector_DirectorExample___delitem__", _wrap_Vector_DirectorExample___delitem__, METH_VARARGS, NULL},
-	 { "Vector_DirectorExample___getitem__", _wrap_Vector_DirectorExample___getitem__, METH_VARARGS, NULL},
-	 { "Vector_DirectorExample___setitem__", _wrap_Vector_DirectorExample___setitem__, METH_VARARGS, NULL},
-	 { "Vector_DirectorExample_pop", _wrap_Vector_DirectorExample_pop, METH_O, NULL},
-	 { "Vector_DirectorExample_append", _wrap_Vector_DirectorExample_append, METH_VARARGS, NULL},
-	 { "Vector_DirectorExample_empty", _wrap_Vector_DirectorExample_empty, METH_O, NULL},
-	 { "Vector_DirectorExample_size", _wrap_Vector_DirectorExample_size, METH_O, NULL},
-	 { "Vector_DirectorExample_swap", _wrap_Vector_DirectorExample_swap, METH_VARARGS, NULL},
-	 { "Vector_DirectorExample_begin", _wrap_Vector_DirectorExample_begin, METH_O, NULL},
-	 { "Vector_DirectorExample_end", _wrap_Vector_DirectorExample_end, METH_O, NULL},
-	 { "Vector_DirectorExample_rbegin", _wrap_Vector_DirectorExample_rbegin, METH_O, NULL},
-	 { "Vector_DirectorExample_rend", _wrap_Vector_DirectorExample_rend, METH_O, NULL},
-	 { "Vector_DirectorExample_clear", _wrap_Vector_DirectorExample_clear, METH_O, NULL},
-	 { "Vector_DirectorExample_get_allocator", _wrap_Vector_DirectorExample_get_allocator, METH_O, NULL},
-	 { "Vector_DirectorExample_pop_back", _wrap_Vector_DirectorExample_pop_back, METH_O, NULL},
-	 { "Vector_DirectorExample_erase", _wrap_Vector_DirectorExample_erase, METH_VARARGS, NULL},
-	 { "new_Vector_DirectorExample", _wrap_new_Vector_DirectorExample, METH_VARARGS, NULL},
-	 { "Vector_DirectorExample_push_back", _wrap_Vector_DirectorExample_push_back, METH_VARARGS, NULL},
-	 { "Vector_DirectorExample_front", _wrap_Vector_DirectorExample_front, METH_O, NULL},
-	 { "Vector_DirectorExample_back", _wrap_Vector_DirectorExample_back, METH_O, NULL},
-	 { "Vector_DirectorExample_assign", _wrap_Vector_DirectorExample_assign, METH_VARARGS, NULL},
-	 { "Vector_DirectorExample_resize", _wrap_Vector_DirectorExample_resize, METH_VARARGS, NULL},
-	 { "Vector_DirectorExample_insert", _wrap_Vector_DirectorExample_insert, METH_VARARGS, NULL},
-	 { "Vector_DirectorExample_reserve", _wrap_Vector_DirectorExample_reserve, METH_VARARGS, NULL},
-	 { "Vector_DirectorExample_capacity", _wrap_Vector_DirectorExample_capacity, METH_O, NULL},
-	 { "delete_Vector_DirectorExample", _wrap_delete_Vector_DirectorExample, METH_O, NULL},
+	 { "Vector_DirectorExample_iterator", _wrap_Vector_DirectorExample_iterator, METH_O, "Vector_DirectorExample_iterator(Vector_DirectorExample self) -> SwigPyIterator"},
+	 { "Vector_DirectorExample___bool__", _wrap_Vector_DirectorExample___bool__, METH_O, "Vector_DirectorExample___bool__(Vector_DirectorExample self) -> bool"},
+	 { "Vector_DirectorExample___len__", _wrap_Vector_DirectorExample___len__, METH_O, "Vector_DirectorExample___len__(Vector_DirectorExample self) -> std::vector< boost::shared_ptr< Skeleton::DirectorExample > >::size_type"},
+	 { "Vector_DirectorExample___delitem__", _wrap_Vector_DirectorExample___delitem__, METH_VARARGS, "\n"
+		"Vector_DirectorExample___delitem__(Vector_DirectorExample self, std::vector< boost::shared_ptr< Skeleton::DirectorExample > >::difference_type i)\n"
+		"Vector_DirectorExample___delitem__(Vector_DirectorExample self, SWIGPY_SLICEOBJECT * slice)\n"
+		""},
+	 { "Vector_DirectorExample___getitem__", _wrap_Vector_DirectorExample___getitem__, METH_VARARGS, "\n"
+		"Vector_DirectorExample___getitem__(Vector_DirectorExample self, SWIGPY_SLICEOBJECT * slice) -> Vector_DirectorExample\n"
+		"Vector_DirectorExample___getitem__(Vector_DirectorExample self, std::vector< boost::shared_ptr< Skeleton::DirectorExample > >::difference_type i) -> std::vector< boost::shared_ptr< Skeleton::DirectorExample > >::value_type const &\n"
+		""},
+	 { "Vector_DirectorExample___setitem__", _wrap_Vector_DirectorExample___setitem__, METH_VARARGS, "\n"
+		"Vector_DirectorExample___setitem__(Vector_DirectorExample self, SWIGPY_SLICEOBJECT * slice, Vector_DirectorExample v)\n"
+		"Vector_DirectorExample___setitem__(Vector_DirectorExample self, SWIGPY_SLICEOBJECT * slice)\n"
+		"Vector_DirectorExample___setitem__(Vector_DirectorExample self, std::vector< boost::shared_ptr< Skeleton::DirectorExample > >::difference_type i, std::vector< boost::shared_ptr< Skeleton::DirectorExample > >::value_type const & x)\n"
+		""},
+	 { "Vector_DirectorExample_pop", _wrap_Vector_DirectorExample_pop, METH_O, "Vector_DirectorExample_pop(Vector_DirectorExample self) -> std::vector< boost::shared_ptr< Skeleton::DirectorExample > >::value_type"},
+	 { "Vector_DirectorExample_append", _wrap_Vector_DirectorExample_append, METH_VARARGS, "Vector_DirectorExample_append(Vector_DirectorExample self, std::vector< boost::shared_ptr< Skeleton::DirectorExample > >::value_type const & x)"},
+	 { "Vector_DirectorExample_empty", _wrap_Vector_DirectorExample_empty, METH_O, "Vector_DirectorExample_empty(Vector_DirectorExample self) -> bool"},
+	 { "Vector_DirectorExample_size", _wrap_Vector_DirectorExample_size, METH_O, "Vector_DirectorExample_size(Vector_DirectorExample self) -> std::vector< boost::shared_ptr< Skeleton::DirectorExample > >::size_type"},
+	 { "Vector_DirectorExample_swap", _wrap_Vector_DirectorExample_swap, METH_VARARGS, "Vector_DirectorExample_swap(Vector_DirectorExample self, Vector_DirectorExample v)"},
+	 { "Vector_DirectorExample_begin", _wrap_Vector_DirectorExample_begin, METH_O, "Vector_DirectorExample_begin(Vector_DirectorExample self) -> std::vector< boost::shared_ptr< Skeleton::DirectorExample > >::iterator"},
+	 { "Vector_DirectorExample_end", _wrap_Vector_DirectorExample_end, METH_O, "Vector_DirectorExample_end(Vector_DirectorExample self) -> std::vector< boost::shared_ptr< Skeleton::DirectorExample > >::iterator"},
+	 { "Vector_DirectorExample_rbegin", _wrap_Vector_DirectorExample_rbegin, METH_O, "Vector_DirectorExample_rbegin(Vector_DirectorExample self) -> std::vector< boost::shared_ptr< Skeleton::DirectorExample > >::reverse_iterator"},
+	 { "Vector_DirectorExample_rend", _wrap_Vector_DirectorExample_rend, METH_O, "Vector_DirectorExample_rend(Vector_DirectorExample self) -> std::vector< boost::shared_ptr< Skeleton::DirectorExample > >::reverse_iterator"},
+	 { "Vector_DirectorExample_clear", _wrap_Vector_DirectorExample_clear, METH_O, "Vector_DirectorExample_clear(Vector_DirectorExample self)"},
+	 { "Vector_DirectorExample_get_allocator", _wrap_Vector_DirectorExample_get_allocator, METH_O, "Vector_DirectorExample_get_allocator(Vector_DirectorExample self) -> std::vector< boost::shared_ptr< Skeleton::DirectorExample > >::allocator_type"},
+	 { "Vector_DirectorExample_pop_back", _wrap_Vector_DirectorExample_pop_back, METH_O, "Vector_DirectorExample_pop_back(Vector_DirectorExample self)"},
+	 { "Vector_DirectorExample_erase", _wrap_Vector_DirectorExample_erase, METH_VARARGS, "\n"
+		"Vector_DirectorExample_erase(Vector_DirectorExample self, std::vector< boost::shared_ptr< Skeleton::DirectorExample > >::iterator pos) -> std::vector< boost::shared_ptr< Skeleton::DirectorExample > >::iterator\n"
+		"Vector_DirectorExample_erase(Vector_DirectorExample self, std::vector< boost::shared_ptr< Skeleton::DirectorExample > >::iterator first, std::vector< boost::shared_ptr< Skeleton::DirectorExample > >::iterator last) -> std::vector< boost::shared_ptr< Skeleton::DirectorExample > >::iterator\n"
+		""},
+	 { "new_Vector_DirectorExample", _wrap_new_Vector_DirectorExample, METH_VARARGS, "\n"
+		"Vector_DirectorExample()\n"
+		"Vector_DirectorExample(Vector_DirectorExample other)\n"
+		"Vector_DirectorExample(std::vector< boost::shared_ptr< Skeleton::DirectorExample > >::size_type size)\n"
+		"new_Vector_DirectorExample(std::vector< boost::shared_ptr< Skeleton::DirectorExample > >::size_type size, std::vector< boost::shared_ptr< Skeleton::DirectorExample > >::value_type const & value) -> Vector_DirectorExample\n"
+		""},
+	 { "Vector_DirectorExample_push_back", _wrap_Vector_DirectorExample_push_back, METH_VARARGS, "Vector_DirectorExample_push_back(Vector_DirectorExample self, std::vector< boost::shared_ptr< Skeleton::DirectorExample > >::value_type const & x)"},
+	 { "Vector_DirectorExample_front", _wrap_Vector_DirectorExample_front, METH_O, "Vector_DirectorExample_front(Vector_DirectorExample self) -> std::vector< boost::shared_ptr< Skeleton::DirectorExample > >::value_type const &"},
+	 { "Vector_DirectorExample_back", _wrap_Vector_DirectorExample_back, METH_O, "Vector_DirectorExample_back(Vector_DirectorExample self) -> std::vector< boost::shared_ptr< Skeleton::DirectorExample > >::value_type const &"},
+	 { "Vector_DirectorExample_assign", _wrap_Vector_DirectorExample_assign, METH_VARARGS, "Vector_DirectorExample_assign(Vector_DirectorExample self, std::vector< boost::shared_ptr< Skeleton::DirectorExample > >::size_type n, std::vector< boost::shared_ptr< Skeleton::DirectorExample > >::value_type const & x)"},
+	 { "Vector_DirectorExample_resize", _wrap_Vector_DirectorExample_resize, METH_VARARGS, "\n"
+		"Vector_DirectorExample_resize(Vector_DirectorExample self, std::vector< boost::shared_ptr< Skeleton::DirectorExample > >::size_type new_size)\n"
+		"Vector_DirectorExample_resize(Vector_DirectorExample self, std::vector< boost::shared_ptr< Skeleton::DirectorExample > >::size_type new_size, std::vector< boost::shared_ptr< Skeleton::DirectorExample > >::value_type const & x)\n"
+		""},
+	 { "Vector_DirectorExample_insert", _wrap_Vector_DirectorExample_insert, METH_VARARGS, "\n"
+		"Vector_DirectorExample_insert(Vector_DirectorExample self, std::vector< boost::shared_ptr< Skeleton::DirectorExample > >::iterator pos, std::vector< boost::shared_ptr< Skeleton::DirectorExample > >::value_type const & x) -> std::vector< boost::shared_ptr< Skeleton::DirectorExample > >::iterator\n"
+		"Vector_DirectorExample_insert(Vector_DirectorExample self, std::vector< boost::shared_ptr< Skeleton::DirectorExample > >::iterator pos, std::vector< boost::shared_ptr< Skeleton::DirectorExample > >::size_type n, std::vector< boost::shared_ptr< Skeleton::DirectorExample > >::value_type const & x)\n"
+		""},
+	 { "Vector_DirectorExample_reserve", _wrap_Vector_DirectorExample_reserve, METH_VARARGS, "Vector_DirectorExample_reserve(Vector_DirectorExample self, std::vector< boost::shared_ptr< Skeleton::DirectorExample > >::size_type n)"},
+	 { "Vector_DirectorExample_capacity", _wrap_Vector_DirectorExample_capacity, METH_O, "Vector_DirectorExample_capacity(Vector_DirectorExample self) -> std::vector< boost::shared_ptr< Skeleton::DirectorExample > >::size_type"},
+	 { "delete_Vector_DirectorExample", _wrap_delete_Vector_DirectorExample, METH_O, "delete_Vector_DirectorExample(Vector_DirectorExample self)"},
 	 { "Vector_DirectorExample_swigregister", Vector_DirectorExample_swigregister, METH_O, NULL},
 	 { "Vector_DirectorExample_swiginit", Vector_DirectorExample_swiginit, METH_VARARGS, NULL},
-	 { "Vector_Vector_DirectorExample_iterator", _wrap_Vector_Vector_DirectorExample_iterator, METH_O, NULL},
-	 { "Vector_Vector_DirectorExample___bool__", _wrap_Vector_Vector_DirectorExample___bool__, METH_O, NULL},
-	 { "Vector_Vector_DirectorExample___len__", _wrap_Vector_Vector_DirectorExample___len__, METH_O, NULL},
-	 { "Vector_Vector_DirectorExample___delitem__", _wrap_Vector_Vector_DirectorExample___delitem__, METH_VARARGS, NULL},
-	 { "Vector_Vector_DirectorExample___getitem__", _wrap_Vector_Vector_DirectorExample___getitem__, METH_VARARGS, NULL},
-	 { "Vector_Vector_DirectorExample___setitem__", _wrap_Vector_Vector_DirectorExample___setitem__, METH_VARARGS, NULL},
-	 { "Vector_Vector_DirectorExample_pop", _wrap_Vector_Vector_DirectorExample_pop, METH_O, NULL},
-	 { "Vector_Vector_DirectorExample_append", _wrap_Vector_Vector_DirectorExample_append, METH_VARARGS, NULL},
-	 { "Vector_Vector_DirectorExample_empty", _wrap_Vector_Vector_DirectorExample_empty, METH_O, NULL},
-	 { "Vector_Vector_DirectorExample_size", _wrap_Vector_Vector_DirectorExample_size, METH_O, NULL},
-	 { "Vector_Vector_DirectorExample_swap", _wrap_Vector_Vector_DirectorExample_swap, METH_VARARGS, NULL},
-	 { "Vector_Vector_DirectorExample_begin", _wrap_Vector_Vector_DirectorExample_begin, METH_O, NULL},
-	 { "Vector_Vector_DirectorExample_end", _wrap_Vector_Vector_DirectorExample_end, METH_O, NULL},
-	 { "Vector_Vector_DirectorExample_rbegin", _wrap_Vector_Vector_DirectorExample_rbegin, METH_O, NULL},
-	 { "Vector_Vector_DirectorExample_rend", _wrap_Vector_Vector_DirectorExample_rend, METH_O, NULL},
-	 { "Vector_Vector_DirectorExample_clear", _wrap_Vector_Vector_DirectorExample_clear, METH_O, NULL},
-	 { "Vector_Vector_DirectorExample_get_allocator", _wrap_Vector_Vector_DirectorExample_get_allocator, METH_O, NULL},
-	 { "Vector_Vector_DirectorExample_pop_back", _wrap_Vector_Vector_DirectorExample_pop_back, METH_O, NULL},
-	 { "Vector_Vector_DirectorExample_erase", _wrap_Vector_Vector_DirectorExample_erase, METH_VARARGS, NULL},
-	 { "new_Vector_Vector_DirectorExample", _wrap_new_Vector_Vector_DirectorExample, METH_VARARGS, NULL},
-	 { "Vector_Vector_DirectorExample_push_back", _wrap_Vector_Vector_DirectorExample_push_back, METH_VARARGS, NULL},
-	 { "Vector_Vector_DirectorExample_front", _wrap_Vector_Vector_DirectorExample_front, METH_O, NULL},
-	 { "Vector_Vector_DirectorExample_back", _wrap_Vector_Vector_DirectorExample_back, METH_O, NULL},
-	 { "Vector_Vector_DirectorExample_assign", _wrap_Vector_Vector_DirectorExample_assign, METH_VARARGS, NULL},
-	 { "Vector_Vector_DirectorExample_resize", _wrap_Vector_Vector_DirectorExample_resize, METH_VARARGS, NULL},
-	 { "Vector_Vector_DirectorExample_insert", _wrap_Vector_Vector_DirectorExample_insert, METH_VARARGS, NULL},
-	 { "Vector_Vector_DirectorExample_reserve", _wrap_Vector_Vector_DirectorExample_reserve, METH_VARARGS, NULL},
-	 { "Vector_Vector_DirectorExample_capacity", _wrap_Vector_Vector_DirectorExample_capacity, METH_O, NULL},
-	 { "delete_Vector_Vector_DirectorExample", _wrap_delete_Vector_Vector_DirectorExample, METH_O, NULL},
+	 { "Vector_Vector_DirectorExample_iterator", _wrap_Vector_Vector_DirectorExample_iterator, METH_O, "Vector_Vector_DirectorExample_iterator(Vector_Vector_DirectorExample self) -> SwigPyIterator"},
+	 { "Vector_Vector_DirectorExample___bool__", _wrap_Vector_Vector_DirectorExample___bool__, METH_O, "Vector_Vector_DirectorExample___bool__(Vector_Vector_DirectorExample self) -> bool"},
+	 { "Vector_Vector_DirectorExample___len__", _wrap_Vector_Vector_DirectorExample___len__, METH_O, "Vector_Vector_DirectorExample___len__(Vector_Vector_DirectorExample self) -> std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > >::size_type"},
+	 { "Vector_Vector_DirectorExample___delitem__", _wrap_Vector_Vector_DirectorExample___delitem__, METH_VARARGS, "\n"
+		"Vector_Vector_DirectorExample___delitem__(Vector_Vector_DirectorExample self, std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > >::difference_type i)\n"
+		"Vector_Vector_DirectorExample___delitem__(Vector_Vector_DirectorExample self, SWIGPY_SLICEOBJECT * slice)\n"
+		""},
+	 { "Vector_Vector_DirectorExample___getitem__", _wrap_Vector_Vector_DirectorExample___getitem__, METH_VARARGS, "\n"
+		"Vector_Vector_DirectorExample___getitem__(Vector_Vector_DirectorExample self, SWIGPY_SLICEOBJECT * slice) -> Vector_Vector_DirectorExample\n"
+		"Vector_Vector_DirectorExample___getitem__(Vector_Vector_DirectorExample self, std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > >::difference_type i) -> Vector_DirectorExample\n"
+		""},
+	 { "Vector_Vector_DirectorExample___setitem__", _wrap_Vector_Vector_DirectorExample___setitem__, METH_VARARGS, "\n"
+		"Vector_Vector_DirectorExample___setitem__(Vector_Vector_DirectorExample self, SWIGPY_SLICEOBJECT * slice, Vector_Vector_DirectorExample v)\n"
+		"Vector_Vector_DirectorExample___setitem__(Vector_Vector_DirectorExample self, SWIGPY_SLICEOBJECT * slice)\n"
+		"Vector_Vector_DirectorExample___setitem__(Vector_Vector_DirectorExample self, std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > >::difference_type i, Vector_DirectorExample x)\n"
+		""},
+	 { "Vector_Vector_DirectorExample_pop", _wrap_Vector_Vector_DirectorExample_pop, METH_O, "Vector_Vector_DirectorExample_pop(Vector_Vector_DirectorExample self) -> Vector_DirectorExample"},
+	 { "Vector_Vector_DirectorExample_append", _wrap_Vector_Vector_DirectorExample_append, METH_VARARGS, "Vector_Vector_DirectorExample_append(Vector_Vector_DirectorExample self, Vector_DirectorExample x)"},
+	 { "Vector_Vector_DirectorExample_empty", _wrap_Vector_Vector_DirectorExample_empty, METH_O, "Vector_Vector_DirectorExample_empty(Vector_Vector_DirectorExample self) -> bool"},
+	 { "Vector_Vector_DirectorExample_size", _wrap_Vector_Vector_DirectorExample_size, METH_O, "Vector_Vector_DirectorExample_size(Vector_Vector_DirectorExample self) -> std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > >::size_type"},
+	 { "Vector_Vector_DirectorExample_swap", _wrap_Vector_Vector_DirectorExample_swap, METH_VARARGS, "Vector_Vector_DirectorExample_swap(Vector_Vector_DirectorExample self, Vector_Vector_DirectorExample v)"},
+	 { "Vector_Vector_DirectorExample_begin", _wrap_Vector_Vector_DirectorExample_begin, METH_O, "Vector_Vector_DirectorExample_begin(Vector_Vector_DirectorExample self) -> std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > >::iterator"},
+	 { "Vector_Vector_DirectorExample_end", _wrap_Vector_Vector_DirectorExample_end, METH_O, "Vector_Vector_DirectorExample_end(Vector_Vector_DirectorExample self) -> std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > >::iterator"},
+	 { "Vector_Vector_DirectorExample_rbegin", _wrap_Vector_Vector_DirectorExample_rbegin, METH_O, "Vector_Vector_DirectorExample_rbegin(Vector_Vector_DirectorExample self) -> std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > >::reverse_iterator"},
+	 { "Vector_Vector_DirectorExample_rend", _wrap_Vector_Vector_DirectorExample_rend, METH_O, "Vector_Vector_DirectorExample_rend(Vector_Vector_DirectorExample self) -> std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > >::reverse_iterator"},
+	 { "Vector_Vector_DirectorExample_clear", _wrap_Vector_Vector_DirectorExample_clear, METH_O, "Vector_Vector_DirectorExample_clear(Vector_Vector_DirectorExample self)"},
+	 { "Vector_Vector_DirectorExample_get_allocator", _wrap_Vector_Vector_DirectorExample_get_allocator, METH_O, "Vector_Vector_DirectorExample_get_allocator(Vector_Vector_DirectorExample self) -> std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > >::allocator_type"},
+	 { "Vector_Vector_DirectorExample_pop_back", _wrap_Vector_Vector_DirectorExample_pop_back, METH_O, "Vector_Vector_DirectorExample_pop_back(Vector_Vector_DirectorExample self)"},
+	 { "Vector_Vector_DirectorExample_erase", _wrap_Vector_Vector_DirectorExample_erase, METH_VARARGS, "\n"
+		"Vector_Vector_DirectorExample_erase(Vector_Vector_DirectorExample self, std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > >::iterator pos) -> std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > >::iterator\n"
+		"Vector_Vector_DirectorExample_erase(Vector_Vector_DirectorExample self, std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > >::iterator first, std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > >::iterator last) -> std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > >::iterator\n"
+		""},
+	 { "new_Vector_Vector_DirectorExample", _wrap_new_Vector_Vector_DirectorExample, METH_VARARGS, "\n"
+		"Vector_Vector_DirectorExample()\n"
+		"Vector_Vector_DirectorExample(Vector_Vector_DirectorExample other)\n"
+		"Vector_Vector_DirectorExample(std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > >::size_type size)\n"
+		"new_Vector_Vector_DirectorExample(std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > >::size_type size, Vector_DirectorExample value) -> Vector_Vector_DirectorExample\n"
+		""},
+	 { "Vector_Vector_DirectorExample_push_back", _wrap_Vector_Vector_DirectorExample_push_back, METH_VARARGS, "Vector_Vector_DirectorExample_push_back(Vector_Vector_DirectorExample self, Vector_DirectorExample x)"},
+	 { "Vector_Vector_DirectorExample_front", _wrap_Vector_Vector_DirectorExample_front, METH_O, "Vector_Vector_DirectorExample_front(Vector_Vector_DirectorExample self) -> Vector_DirectorExample"},
+	 { "Vector_Vector_DirectorExample_back", _wrap_Vector_Vector_DirectorExample_back, METH_O, "Vector_Vector_DirectorExample_back(Vector_Vector_DirectorExample self) -> Vector_DirectorExample"},
+	 { "Vector_Vector_DirectorExample_assign", _wrap_Vector_Vector_DirectorExample_assign, METH_VARARGS, "Vector_Vector_DirectorExample_assign(Vector_Vector_DirectorExample self, std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > >::size_type n, Vector_DirectorExample x)"},
+	 { "Vector_Vector_DirectorExample_resize", _wrap_Vector_Vector_DirectorExample_resize, METH_VARARGS, "\n"
+		"Vector_Vector_DirectorExample_resize(Vector_Vector_DirectorExample self, std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > >::size_type new_size)\n"
+		"Vector_Vector_DirectorExample_resize(Vector_Vector_DirectorExample self, std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > >::size_type new_size, Vector_DirectorExample x)\n"
+		""},
+	 { "Vector_Vector_DirectorExample_insert", _wrap_Vector_Vector_DirectorExample_insert, METH_VARARGS, "\n"
+		"Vector_Vector_DirectorExample_insert(Vector_Vector_DirectorExample self, std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > >::iterator pos, Vector_DirectorExample x) -> std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > >::iterator\n"
+		"Vector_Vector_DirectorExample_insert(Vector_Vector_DirectorExample self, std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > >::iterator pos, std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > >::size_type n, Vector_DirectorExample x)\n"
+		""},
+	 { "Vector_Vector_DirectorExample_reserve", _wrap_Vector_Vector_DirectorExample_reserve, METH_VARARGS, "Vector_Vector_DirectorExample_reserve(Vector_Vector_DirectorExample self, std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > >::size_type n)"},
+	 { "Vector_Vector_DirectorExample_capacity", _wrap_Vector_Vector_DirectorExample_capacity, METH_O, "Vector_Vector_DirectorExample_capacity(Vector_Vector_DirectorExample self) -> std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > >::size_type"},
+	 { "delete_Vector_Vector_DirectorExample", _wrap_delete_Vector_Vector_DirectorExample, METH_O, "delete_Vector_Vector_DirectorExample(Vector_Vector_DirectorExample self)"},
 	 { "Vector_Vector_DirectorExample_swigregister", Vector_Vector_DirectorExample_swigregister, METH_O, NULL},
 	 { "Vector_Vector_DirectorExample_swiginit", Vector_Vector_DirectorExample_swiginit, METH_VARARGS, NULL},
-	 { "Vector_Vector_int_iterator", _wrap_Vector_Vector_int_iterator, METH_O, NULL},
-	 { "Vector_Vector_int___bool__", _wrap_Vector_Vector_int___bool__, METH_O, NULL},
-	 { "Vector_Vector_int___len__", _wrap_Vector_Vector_int___len__, METH_O, NULL},
-	 { "Vector_Vector_int___delitem__", _wrap_Vector_Vector_int___delitem__, METH_VARARGS, NULL},
-	 { "Vector_Vector_int___getitem__", _wrap_Vector_Vector_int___getitem__, METH_VARARGS, NULL},
-	 { "Vector_Vector_int___setitem__", _wrap_Vector_Vector_int___setitem__, METH_VARARGS, NULL},
-	 { "Vector_Vector_int_pop", _wrap_Vector_Vector_int_pop, METH_O, NULL},
-	 { "Vector_Vector_int_append", _wrap_Vector_Vector_int_append, METH_VARARGS, NULL},
-	 { "Vector_Vector_int_empty", _wrap_Vector_Vector_int_empty, METH_O, NULL},
-	 { "Vector_Vector_int_size", _wrap_Vector_Vector_int_size, METH_O, NULL},
-	 { "Vector_Vector_int_swap", _wrap_Vector_Vector_int_swap, METH_VARARGS, NULL},
-	 { "Vector_Vector_int_begin", _wrap_Vector_Vector_int_begin, METH_O, NULL},
-	 { "Vector_Vector_int_end", _wrap_Vector_Vector_int_end, METH_O, NULL},
-	 { "Vector_Vector_int_rbegin", _wrap_Vector_Vector_int_rbegin, METH_O, NULL},
-	 { "Vector_Vector_int_rend", _wrap_Vector_Vector_int_rend, METH_O, NULL},
-	 { "Vector_Vector_int_clear", _wrap_Vector_Vector_int_clear, METH_O, NULL},
-	 { "Vector_Vector_int_get_allocator", _wrap_Vector_Vector_int_get_allocator, METH_O, NULL},
-	 { "Vector_Vector_int_pop_back", _wrap_Vector_Vector_int_pop_back, METH_O, NULL},
-	 { "Vector_Vector_int_erase", _wrap_Vector_Vector_int_erase, METH_VARARGS, NULL},
-	 { "new_Vector_Vector_int", _wrap_new_Vector_Vector_int, METH_VARARGS, NULL},
-	 { "Vector_Vector_int_push_back", _wrap_Vector_Vector_int_push_back, METH_VARARGS, NULL},
-	 { "Vector_Vector_int_front", _wrap_Vector_Vector_int_front, METH_O, NULL},
-	 { "Vector_Vector_int_back", _wrap_Vector_Vector_int_back, METH_O, NULL},
-	 { "Vector_Vector_int_assign", _wrap_Vector_Vector_int_assign, METH_VARARGS, NULL},
-	 { "Vector_Vector_int_resize", _wrap_Vector_Vector_int_resize, METH_VARARGS, NULL},
-	 { "Vector_Vector_int_insert", _wrap_Vector_Vector_int_insert, METH_VARARGS, NULL},
-	 { "Vector_Vector_int_reserve", _wrap_Vector_Vector_int_reserve, METH_VARARGS, NULL},
-	 { "Vector_Vector_int_capacity", _wrap_Vector_Vector_int_capacity, METH_O, NULL},
-	 { "delete_Vector_Vector_int", _wrap_delete_Vector_Vector_int, METH_O, NULL},
+	 { "Vector_Vector_int_iterator", _wrap_Vector_Vector_int_iterator, METH_O, "Vector_Vector_int_iterator(Vector_Vector_int self) -> SwigPyIterator"},
+	 { "Vector_Vector_int___bool__", _wrap_Vector_Vector_int___bool__, METH_O, "Vector_Vector_int___bool__(Vector_Vector_int self) -> bool"},
+	 { "Vector_Vector_int___len__", _wrap_Vector_Vector_int___len__, METH_O, "Vector_Vector_int___len__(Vector_Vector_int self) -> std::vector< std::vector< int > >::size_type"},
+	 { "Vector_Vector_int___delitem__", _wrap_Vector_Vector_int___delitem__, METH_VARARGS, "\n"
+		"Vector_Vector_int___delitem__(Vector_Vector_int self, std::vector< std::vector< int > >::difference_type i)\n"
+		"Vector_Vector_int___delitem__(Vector_Vector_int self, SWIGPY_SLICEOBJECT * slice)\n"
+		""},
+	 { "Vector_Vector_int___getitem__", _wrap_Vector_Vector_int___getitem__, METH_VARARGS, "\n"
+		"Vector_Vector_int___getitem__(Vector_Vector_int self, SWIGPY_SLICEOBJECT * slice) -> Vector_Vector_int\n"
+		"Vector_Vector_int___getitem__(Vector_Vector_int self, std::vector< std::vector< int > >::difference_type i) -> vector_int\n"
+		""},
+	 { "Vector_Vector_int___setitem__", _wrap_Vector_Vector_int___setitem__, METH_VARARGS, "\n"
+		"Vector_Vector_int___setitem__(Vector_Vector_int self, SWIGPY_SLICEOBJECT * slice, Vector_Vector_int v)\n"
+		"Vector_Vector_int___setitem__(Vector_Vector_int self, SWIGPY_SLICEOBJECT * slice)\n"
+		"Vector_Vector_int___setitem__(Vector_Vector_int self, std::vector< std::vector< int > >::difference_type i, vector_int x)\n"
+		""},
+	 { "Vector_Vector_int_pop", _wrap_Vector_Vector_int_pop, METH_O, "Vector_Vector_int_pop(Vector_Vector_int self) -> vector_int"},
+	 { "Vector_Vector_int_append", _wrap_Vector_Vector_int_append, METH_VARARGS, "Vector_Vector_int_append(Vector_Vector_int self, vector_int x)"},
+	 { "Vector_Vector_int_empty", _wrap_Vector_Vector_int_empty, METH_O, "Vector_Vector_int_empty(Vector_Vector_int self) -> bool"},
+	 { "Vector_Vector_int_size", _wrap_Vector_Vector_int_size, METH_O, "Vector_Vector_int_size(Vector_Vector_int self) -> std::vector< std::vector< int > >::size_type"},
+	 { "Vector_Vector_int_swap", _wrap_Vector_Vector_int_swap, METH_VARARGS, "Vector_Vector_int_swap(Vector_Vector_int self, Vector_Vector_int v)"},
+	 { "Vector_Vector_int_begin", _wrap_Vector_Vector_int_begin, METH_O, "Vector_Vector_int_begin(Vector_Vector_int self) -> std::vector< std::vector< int > >::iterator"},
+	 { "Vector_Vector_int_end", _wrap_Vector_Vector_int_end, METH_O, "Vector_Vector_int_end(Vector_Vector_int self) -> std::vector< std::vector< int > >::iterator"},
+	 { "Vector_Vector_int_rbegin", _wrap_Vector_Vector_int_rbegin, METH_O, "Vector_Vector_int_rbegin(Vector_Vector_int self) -> std::vector< std::vector< int > >::reverse_iterator"},
+	 { "Vector_Vector_int_rend", _wrap_Vector_Vector_int_rend, METH_O, "Vector_Vector_int_rend(Vector_Vector_int self) -> std::vector< std::vector< int > >::reverse_iterator"},
+	 { "Vector_Vector_int_clear", _wrap_Vector_Vector_int_clear, METH_O, "Vector_Vector_int_clear(Vector_Vector_int self)"},
+	 { "Vector_Vector_int_get_allocator", _wrap_Vector_Vector_int_get_allocator, METH_O, "Vector_Vector_int_get_allocator(Vector_Vector_int self) -> std::vector< std::vector< int > >::allocator_type"},
+	 { "Vector_Vector_int_pop_back", _wrap_Vector_Vector_int_pop_back, METH_O, "Vector_Vector_int_pop_back(Vector_Vector_int self)"},
+	 { "Vector_Vector_int_erase", _wrap_Vector_Vector_int_erase, METH_VARARGS, "\n"
+		"Vector_Vector_int_erase(Vector_Vector_int self, std::vector< std::vector< int > >::iterator pos) -> std::vector< std::vector< int > >::iterator\n"
+		"Vector_Vector_int_erase(Vector_Vector_int self, std::vector< std::vector< int > >::iterator first, std::vector< std::vector< int > >::iterator last) -> std::vector< std::vector< int > >::iterator\n"
+		""},
+	 { "new_Vector_Vector_int", _wrap_new_Vector_Vector_int, METH_VARARGS, "\n"
+		"Vector_Vector_int()\n"
+		"Vector_Vector_int(Vector_Vector_int other)\n"
+		"Vector_Vector_int(std::vector< std::vector< int > >::size_type size)\n"
+		"new_Vector_Vector_int(std::vector< std::vector< int > >::size_type size, vector_int value) -> Vector_Vector_int\n"
+		""},
+	 { "Vector_Vector_int_push_back", _wrap_Vector_Vector_int_push_back, METH_VARARGS, "Vector_Vector_int_push_back(Vector_Vector_int self, vector_int x)"},
+	 { "Vector_Vector_int_front", _wrap_Vector_Vector_int_front, METH_O, "Vector_Vector_int_front(Vector_Vector_int self) -> vector_int"},
+	 { "Vector_Vector_int_back", _wrap_Vector_Vector_int_back, METH_O, "Vector_Vector_int_back(Vector_Vector_int self) -> vector_int"},
+	 { "Vector_Vector_int_assign", _wrap_Vector_Vector_int_assign, METH_VARARGS, "Vector_Vector_int_assign(Vector_Vector_int self, std::vector< std::vector< int > >::size_type n, vector_int x)"},
+	 { "Vector_Vector_int_resize", _wrap_Vector_Vector_int_resize, METH_VARARGS, "\n"
+		"Vector_Vector_int_resize(Vector_Vector_int self, std::vector< std::vector< int > >::size_type new_size)\n"
+		"Vector_Vector_int_resize(Vector_Vector_int self, std::vector< std::vector< int > >::size_type new_size, vector_int x)\n"
+		""},
+	 { "Vector_Vector_int_insert", _wrap_Vector_Vector_int_insert, METH_VARARGS, "\n"
+		"Vector_Vector_int_insert(Vector_Vector_int self, std::vector< std::vector< int > >::iterator pos, vector_int x) -> std::vector< std::vector< int > >::iterator\n"
+		"Vector_Vector_int_insert(Vector_Vector_int self, std::vector< std::vector< int > >::iterator pos, std::vector< std::vector< int > >::size_type n, vector_int x)\n"
+		""},
+	 { "Vector_Vector_int_reserve", _wrap_Vector_Vector_int_reserve, METH_VARARGS, "Vector_Vector_int_reserve(Vector_Vector_int self, std::vector< std::vector< int > >::size_type n)"},
+	 { "Vector_Vector_int_capacity", _wrap_Vector_Vector_int_capacity, METH_O, "Vector_Vector_int_capacity(Vector_Vector_int self) -> std::vector< std::vector< int > >::size_type"},
+	 { "delete_Vector_Vector_int", _wrap_delete_Vector_Vector_int, METH_O, "delete_Vector_Vector_int(Vector_Vector_int self)"},
 	 { "Vector_Vector_int_swigregister", Vector_Vector_int_swigregister, METH_O, NULL},
 	 { "Vector_Vector_int_swiginit", Vector_Vector_int_swiginit, METH_VARARGS, NULL},
-	 { "DirectorExample___str__", _wrap_DirectorExample___str__, METH_O, NULL},
-	 { "DirectorExample_desc", _wrap_DirectorExample_desc, METH_O, NULL},
+	 { "DirectorExample___str__", _wrap_DirectorExample___str__, METH_O, "DirectorExample___str__(DirectorExample self) -> std::string"},
+	 { "DirectorExample_desc", _wrap_DirectorExample_desc, METH_O, "DirectorExample_desc(DirectorExample self) -> std::string"},
 	 { "DirectorExample_func", _wrap_DirectorExample_func, METH_VARARGS, "\n"
+		"DirectorExample_func(DirectorExample self, int v) -> int\n"
 		"\n"
-		"virtual int Skeleton::DirectorExample::func(int v) const\n"
 		"Skeleton::DirectorExample::func\n"
 		""},
 	 { "DirectorExample_value_to_add", _wrap_DirectorExample_value_to_add, METH_VARARGS, "\n"
+		"DirectorExample_value_to_add(DirectorExample self) -> int\n"
+		"DirectorExample_value_to_add(DirectorExample self, int v)\n"
 		"\n"
-		"void Skeleton::DirectorExample::value_to_add(int v)\n"
 		"Skeleton::DirectorExample::value_to_add\n"
 		""},
 	 { "DirectorExample_name", _wrap_DirectorExample_name, METH_O, "\n"
+		"DirectorExample_name(DirectorExample self) -> std::string const &\n"
 		"\n"
-		"const std::string & Skeleton::DirectorExample::name() const\n"
 		"Skeleton::DirectorExample::name\n"
 		""},
 	 { "DirectorExample_same_object", _wrap_DirectorExample_same_object, METH_VARARGS, "\n"
+		"DirectorExample_same_object(DirectorExample self, DirectorExample obj2) -> bool\n"
 		"\n"
-		"bool Skeleton::DirectorExample::same_object(const DirectorExample &obj2) const\n"
 		"Skeleton::DirectorExample::same_object\n"
 		""},
 	 { "new_DirectorExample", _wrap_new_DirectorExample, METH_VARARGS, "\n"
+		"DirectorExample(int V, std::string const & Name)\n"
+		"new_DirectorExample(PyObject * _self) -> DirectorExample\n"
 		"\n"
-		"Skeleton::DirectorExample::DirectorExample(int value_to_add, const std::string &name)\n"
 		"Skeleton::DirectorExample::DirectorExample\n"
-		"Constructor.\n"
+		"Constructor.  \n"
 		"\n"
 		""},
 	 { "delete_DirectorExample", _wrap_delete_DirectorExample, METH_O, "\n"
+		"delete_DirectorExample(DirectorExample self)\n"
 		"\n"
-		"virtual Skeleton::DirectorExample::~DirectorExample()\n"
 		"Skeleton::DirectorExample::~DirectorExample\n"
 		""},
 	 { "disown_DirectorExample", _wrap_disown_DirectorExample, METH_O, NULL},
 	 { "DirectorExample_swigregister", DirectorExample_swigregister, METH_O, NULL},
 	 { "DirectorExample_swiginit", DirectorExample_swiginit, METH_VARARGS, NULL},
 	 { "new_DirectorExampleNested", _wrap_new_DirectorExampleNested, METH_VARARGS, "\n"
+		"new_DirectorExampleNested(int value_to_add, std::string const & name, boost::shared_ptr< Skeleton::DirectorExample > const Obj) -> DirectorExampleNested\n"
 		"\n"
-		"Skeleton::DirectorExampleNested::DirectorExampleNested(int value_to_add, const std::string &name, const boost::shared_ptr<\n"
-		"DirectorExample > Obj)\n"
 		"Skeleton::DirectorExampleNested::DirectorExampleNested\n"
-		"Constructor.\n"
+		"Constructor.  \n"
 		"\n"
 		""},
 	 { "DirectorExampleNested__v_obj", _wrap_DirectorExampleNested__v_obj, METH_O, "\n"
+		"DirectorExampleNested__v_obj(DirectorExampleNested self) -> boost::shared_ptr< Skeleton::DirectorExample >\n"
 		"\n"
-		"const boost::shared_ptr< DirectorExample > & Skeleton::DirectorExampleNested::obj() const\n"
 		"Skeleton::DirectorExampleNested::obj\n"
 		""},
 	 { "delete_DirectorExampleNested", _wrap_delete_DirectorExampleNested, METH_O, "\n"
+		"delete_DirectorExampleNested(DirectorExampleNested self)\n"
 		"\n"
-		"virtual Skeleton::DirectorExampleNested::~DirectorExampleNested()\n"
 		"Skeleton::DirectorExampleNested::~DirectorExampleNested\n"
 		""},
 	 { "DirectorExampleNested_swigregister", DirectorExampleNested_swigregister, METH_O, NULL},
 	 { "DirectorExampleNested_swiginit", DirectorExampleNested_swiginit, METH_VARARGS, NULL},
 	 { "new_DirectorExampleWeakPtr", _wrap_new_DirectorExampleWeakPtr, METH_O, "\n"
+		"new_DirectorExampleWeakPtr(boost::shared_ptr< Skeleton::DirectorExample > const & SHARED_PTR_NO_OWN) -> DirectorExampleWeakPtr\n"
 		"\n"
-		"Skeleton::DirectorExampleWeakPtr::DirectorExampleWeakPtr(const boost::shared_ptr< DirectorExample > &V)\n"
 		"Skeleton::DirectorExampleWeakPtr::DirectorExampleWeakPtr\n"
 		""},
-	 { "DirectorExampleWeakPtr___str__", _wrap_DirectorExampleWeakPtr___str__, METH_O, NULL},
+	 { "DirectorExampleWeakPtr___str__", _wrap_DirectorExampleWeakPtr___str__, METH_O, "DirectorExampleWeakPtr___str__(DirectorExampleWeakPtr self) -> std::string"},
 	 { "DirectorExampleWeakPtr_a", _wrap_DirectorExampleWeakPtr_a, METH_VARARGS, "\n"
+		"DirectorExampleWeakPtr_a(DirectorExampleWeakPtr self) -> boost::shared_ptr< Skeleton::DirectorExample >\n"
+		"DirectorExampleWeakPtr_a(DirectorExampleWeakPtr self, boost::shared_ptr< Skeleton::DirectorExample > const & SHARED_PTR_NO_OWN)\n"
 		"\n"
-		"void Skeleton::DirectorExampleWeakPtr::a(const boost::shared_ptr< DirectorExample > &V)\n"
 		"Skeleton::DirectorExampleWeakPtr::a\n"
 		""},
 	 { "DirectorExampleWeakPtr_expired", _wrap_DirectorExampleWeakPtr_expired, METH_O, "\n"
+		"DirectorExampleWeakPtr_expired(DirectorExampleWeakPtr self) -> bool\n"
 		"\n"
-		"bool Skeleton::DirectorExampleWeakPtr::expired() const\n"
 		"Skeleton::DirectorExampleWeakPtr::expired\n"
 		""},
 	 { "DirectorExampleWeakPtr_use_count", _wrap_DirectorExampleWeakPtr_use_count, METH_O, "\n"
+		"DirectorExampleWeakPtr_use_count(DirectorExampleWeakPtr self) -> long\n"
 		"\n"
-		"long Skeleton::DirectorExampleWeakPtr::use_count() const\n"
 		"Skeleton::DirectorExampleWeakPtr::use_count\n"
 		""},
 	 { "delete_DirectorExampleWeakPtr", _wrap_delete_DirectorExampleWeakPtr, METH_O, "\n"
+		"delete_DirectorExampleWeakPtr(DirectorExampleWeakPtr self)\n"
 		"\n"
-		"virtual Skeleton::DirectorExampleWeakPtr::~DirectorExampleWeakPtr()\n"
 		"Skeleton::DirectorExampleWeakPtr::~DirectorExampleWeakPtr\n"
 		""},
 	 { "DirectorExampleWeakPtr_swigregister", DirectorExampleWeakPtr_swigregister, METH_O, NULL},
 	 { "DirectorExampleWeakPtr_swiginit", DirectorExampleWeakPtr_swiginit, METH_VARARGS, NULL},
 	 { "new_DirectorExampleUser", _wrap_new_DirectorExampleUser, METH_NOARGS, "\n"
+		"new_DirectorExampleUser() -> DirectorExampleUser\n"
 		"\n"
-		"Skeleton::DirectorExampleUser::DirectorExampleUser()\n"
 		"Skeleton::DirectorExampleUser::DirectorExampleUser\n"
 		""},
-	 { "DirectorExampleUser___str__", _wrap_DirectorExampleUser___str__, METH_O, NULL},
+	 { "DirectorExampleUser___str__", _wrap_DirectorExampleUser___str__, METH_O, "DirectorExampleUser___str__(DirectorExampleUser self) -> std::string"},
 	 { "DirectorExampleUser_value_vec", _wrap_DirectorExampleUser_value_vec, METH_O, "\n"
+		"DirectorExampleUser_value_vec(DirectorExampleUser self) -> Vector_DirectorExample\n"
 		"\n"
-		"const std::vector< boost::shared_ptr< DirectorExample > > & Skeleton::DirectorExampleUser::value_vec() const\n"
 		"Skeleton::DirectorExampleUser::value_vec\n"
 		""},
 	 { "DirectorExampleUser_set_vec", _wrap_DirectorExampleUser_set_vec, METH_VARARGS, "\n"
+		"DirectorExampleUser_set_vec(DirectorExampleUser self, Vector_DirectorExample V)\n"
 		"\n"
-		"void Skeleton::DirectorExampleUser::set_vec(const std::vector< boost::shared_ptr< DirectorExample > > &V)\n"
 		"Skeleton::DirectorExampleUser::set_vec\n"
 		""},
 	 { "DirectorExampleUser_value_vec_vec", _wrap_DirectorExampleUser_value_vec_vec, METH_O, "\n"
+		"DirectorExampleUser_value_vec_vec(DirectorExampleUser self) -> Vector_Vector_DirectorExample\n"
 		"\n"
-		"const std::vector< std::vector< boost::shared_ptr< DirectorExample > > > & Skeleton::DirectorExampleUser::value_vec_vec() const\n"
 		"Skeleton::DirectorExampleUser::value_vec_vec\n"
 		""},
 	 { "DirectorExampleUser_set_vec_vec", _wrap_DirectorExampleUser_set_vec_vec, METH_VARARGS, "\n"
+		"DirectorExampleUser_set_vec_vec(DirectorExampleUser self, Vector_Vector_DirectorExample V)\n"
 		"\n"
-		"void Skeleton::DirectorExampleUser::set_vec_vec(const std::vector< std::vector< boost::shared_ptr< DirectorExample >\n"
-		"> > &V)\n"
 		"Skeleton::DirectorExampleUser::set_vec_vec\n"
 		""},
 	 { "DirectorExampleUser_value", _wrap_DirectorExampleUser_value, METH_O, "\n"
+		"DirectorExampleUser_value(DirectorExampleUser self) -> boost::shared_ptr< Skeleton::DirectorExample > const &\n"
 		"\n"
-		"const boost::shared_ptr< DirectorExample > & Skeleton::DirectorExampleUser::value() const\n"
 		"Skeleton::DirectorExampleUser::value\n"
 		""},
 	 { "DirectorExampleUser_value_vec_int", _wrap_DirectorExampleUser_value_vec_int, METH_O, "\n"
+		"DirectorExampleUser_value_vec_int(DirectorExampleUser self) -> vector_int\n"
 		"\n"
-		"const std::vector< int > & Skeleton::DirectorExampleUser::value_vec_int() const\n"
 		"Skeleton::DirectorExampleUser::value_vec_int\n"
 		""},
 	 { "DirectorExampleUser_set_vec_int", _wrap_DirectorExampleUser_set_vec_int, METH_VARARGS, "\n"
+		"DirectorExampleUser_set_vec_int(DirectorExampleUser self, vector_int V)\n"
 		"\n"
-		"void Skeleton::DirectorExampleUser::set_vec_int(const std::vector< int > &V)\n"
 		"Skeleton::DirectorExampleUser::set_vec_int\n"
 		""},
 	 { "DirectorExampleUser_value_vec_vec_int", _wrap_DirectorExampleUser_value_vec_vec_int, METH_O, "\n"
+		"DirectorExampleUser_value_vec_vec_int(DirectorExampleUser self) -> Vector_Vector_int\n"
 		"\n"
-		"const std::vector< std::vector< int > > & Skeleton::DirectorExampleUser::value_vec_vec_int() const\n"
 		"Skeleton::DirectorExampleUser::value_vec_vec_int\n"
 		""},
 	 { "DirectorExampleUser_set_vec_vec_int", _wrap_DirectorExampleUser_set_vec_vec_int, METH_VARARGS, "\n"
+		"DirectorExampleUser_set_vec_vec_int(DirectorExampleUser self, Vector_Vector_int V)\n"
 		"\n"
-		"void Skeleton::DirectorExampleUser::set_vec_vec_int(const std::vector< std::vector< int > > &V)\n"
 		"Skeleton::DirectorExampleUser::set_vec_vec_int\n"
 		""},
 	 { "DirectorExampleUser_set_value", _wrap_DirectorExampleUser_set_value, METH_VARARGS, "\n"
+		"DirectorExampleUser_set_value(DirectorExampleUser self, boost::shared_ptr< Skeleton::DirectorExample > const & V)\n"
 		"\n"
-		"void Skeleton::DirectorExampleUser::set_value(const boost::shared_ptr< DirectorExample > &V)\n"
 		"Skeleton::DirectorExampleUser::set_value\n"
 		""},
 	 { "DirectorExampleUser_apply_func", _wrap_DirectorExampleUser_apply_func, METH_VARARGS, "\n"
+		"DirectorExampleUser_apply_func(DirectorExampleUser self, int v) -> int\n"
+		"DirectorExampleUser_apply_func(DirectorExampleUser self, int v, int ind) -> int\n"
+		"DirectorExampleUser_apply_func(DirectorExampleUser self, int v, int ind, int ind2) -> int\n"
 		"\n"
-		"int Skeleton::DirectorExampleUser::apply_func(int v, int ind, int ind2) const\n"
 		"Skeleton::DirectorExampleUser::apply_func\n"
 		""},
 	 { "delete_DirectorExampleUser", _wrap_delete_DirectorExampleUser, METH_O, "\n"
+		"delete_DirectorExampleUser(DirectorExampleUser self)\n"
 		"\n"
-		"virtual Skeleton::DirectorExampleUser::~DirectorExampleUser()\n"
 		"Skeleton::DirectorExampleUser::~DirectorExampleUser\n"
 		""},
 	 { "DirectorExampleUser_swigregister", DirectorExampleUser_swigregister, METH_O, NULL},
@@ -16874,266 +16952,344 @@ static PyMethodDef SwigMethods[] = {
 static PyMethodDef SwigMethods_proxydocs[] = {
 	 { "SWIG_PyInstanceMethod_New", SWIG_PyInstanceMethod_New, METH_O, NULL},
 	 { "SWIG_PyStaticMethod_New", SWIG_PyStaticMethod_New, METH_O, NULL},
-	 { "delete_SwigPyIterator", _wrap_delete_SwigPyIterator, METH_O, NULL},
-	 { "SwigPyIterator_value", _wrap_SwigPyIterator_value, METH_O, NULL},
-	 { "SwigPyIterator_incr", _wrap_SwigPyIterator_incr, METH_VARARGS, NULL},
-	 { "SwigPyIterator_decr", _wrap_SwigPyIterator_decr, METH_VARARGS, NULL},
-	 { "SwigPyIterator_distance", _wrap_SwigPyIterator_distance, METH_VARARGS, NULL},
-	 { "SwigPyIterator_equal", _wrap_SwigPyIterator_equal, METH_VARARGS, NULL},
-	 { "SwigPyIterator_copy", _wrap_SwigPyIterator_copy, METH_O, NULL},
-	 { "SwigPyIterator___next__", _wrap_SwigPyIterator___next__, METH_O, NULL},
-	 { "SwigPyIterator_previous", _wrap_SwigPyIterator_previous, METH_O, NULL},
-	 { "SwigPyIterator_advance", _wrap_SwigPyIterator_advance, METH_VARARGS, NULL},
-	 { "SwigPyIterator___eq__", _wrap_SwigPyIterator___eq__, METH_VARARGS, NULL},
-	 { "SwigPyIterator___ne__", _wrap_SwigPyIterator___ne__, METH_VARARGS, NULL},
-	 { "SwigPyIterator___iadd__", _wrap_SwigPyIterator___iadd__, METH_VARARGS, NULL},
-	 { "SwigPyIterator___isub__", _wrap_SwigPyIterator___isub__, METH_VARARGS, NULL},
-	 { "SwigPyIterator___add__", _wrap_SwigPyIterator___add__, METH_VARARGS, NULL},
-	 { "SwigPyIterator___sub__", _wrap_SwigPyIterator___sub__, METH_VARARGS, NULL},
+	 { "delete_SwigPyIterator", _wrap_delete_SwigPyIterator, METH_O, "delete_SwigPyIterator(SwigPyIterator self)"},
+	 { "SwigPyIterator_value", _wrap_SwigPyIterator_value, METH_O, "value(SwigPyIterator self) -> PyObject *"},
+	 { "SwigPyIterator_incr", _wrap_SwigPyIterator_incr, METH_VARARGS, "incr(SwigPyIterator self, size_t n=1) -> SwigPyIterator"},
+	 { "SwigPyIterator_decr", _wrap_SwigPyIterator_decr, METH_VARARGS, "decr(SwigPyIterator self, size_t n=1) -> SwigPyIterator"},
+	 { "SwigPyIterator_distance", _wrap_SwigPyIterator_distance, METH_VARARGS, "distance(SwigPyIterator self, SwigPyIterator x) -> ptrdiff_t"},
+	 { "SwigPyIterator_equal", _wrap_SwigPyIterator_equal, METH_VARARGS, "equal(SwigPyIterator self, SwigPyIterator x) -> bool"},
+	 { "SwigPyIterator_copy", _wrap_SwigPyIterator_copy, METH_O, "copy(SwigPyIterator self) -> SwigPyIterator"},
+	 { "SwigPyIterator___next__", _wrap_SwigPyIterator___next__, METH_O, "__next__(SwigPyIterator self) -> PyObject *"},
+	 { "SwigPyIterator_previous", _wrap_SwigPyIterator_previous, METH_O, "previous(SwigPyIterator self) -> PyObject *"},
+	 { "SwigPyIterator_advance", _wrap_SwigPyIterator_advance, METH_VARARGS, "advance(SwigPyIterator self, ptrdiff_t n) -> SwigPyIterator"},
+	 { "SwigPyIterator___eq__", _wrap_SwigPyIterator___eq__, METH_VARARGS, "__eq__(SwigPyIterator self, SwigPyIterator x) -> bool"},
+	 { "SwigPyIterator___ne__", _wrap_SwigPyIterator___ne__, METH_VARARGS, "__ne__(SwigPyIterator self, SwigPyIterator x) -> bool"},
+	 { "SwigPyIterator___iadd__", _wrap_SwigPyIterator___iadd__, METH_VARARGS, "__iadd__(SwigPyIterator self, ptrdiff_t n) -> SwigPyIterator"},
+	 { "SwigPyIterator___isub__", _wrap_SwigPyIterator___isub__, METH_VARARGS, "__isub__(SwigPyIterator self, ptrdiff_t n) -> SwigPyIterator"},
+	 { "SwigPyIterator___add__", _wrap_SwigPyIterator___add__, METH_VARARGS, "__add__(SwigPyIterator self, ptrdiff_t n) -> SwigPyIterator"},
+	 { "SwigPyIterator___sub__", _wrap_SwigPyIterator___sub__, METH_VARARGS, "\n"
+		"__sub__(SwigPyIterator self, ptrdiff_t n) -> SwigPyIterator\n"
+		"__sub__(SwigPyIterator self, SwigPyIterator x) -> ptrdiff_t\n"
+		""},
 	 { "SwigPyIterator_swigregister", SwigPyIterator_swigregister, METH_O, NULL},
-	 { "Vector_DirectorExample_iterator", _wrap_Vector_DirectorExample_iterator, METH_O, NULL},
-	 { "Vector_DirectorExample___bool__", _wrap_Vector_DirectorExample___bool__, METH_O, NULL},
-	 { "Vector_DirectorExample___len__", _wrap_Vector_DirectorExample___len__, METH_O, NULL},
-	 { "Vector_DirectorExample___delitem__", _wrap_Vector_DirectorExample___delitem__, METH_VARARGS, NULL},
-	 { "Vector_DirectorExample___getitem__", _wrap_Vector_DirectorExample___getitem__, METH_VARARGS, NULL},
-	 { "Vector_DirectorExample___setitem__", _wrap_Vector_DirectorExample___setitem__, METH_VARARGS, NULL},
-	 { "Vector_DirectorExample_pop", _wrap_Vector_DirectorExample_pop, METH_O, NULL},
-	 { "Vector_DirectorExample_append", _wrap_Vector_DirectorExample_append, METH_VARARGS, NULL},
-	 { "Vector_DirectorExample_empty", _wrap_Vector_DirectorExample_empty, METH_O, NULL},
-	 { "Vector_DirectorExample_size", _wrap_Vector_DirectorExample_size, METH_O, NULL},
-	 { "Vector_DirectorExample_swap", _wrap_Vector_DirectorExample_swap, METH_VARARGS, NULL},
-	 { "Vector_DirectorExample_begin", _wrap_Vector_DirectorExample_begin, METH_O, NULL},
-	 { "Vector_DirectorExample_end", _wrap_Vector_DirectorExample_end, METH_O, NULL},
-	 { "Vector_DirectorExample_rbegin", _wrap_Vector_DirectorExample_rbegin, METH_O, NULL},
-	 { "Vector_DirectorExample_rend", _wrap_Vector_DirectorExample_rend, METH_O, NULL},
-	 { "Vector_DirectorExample_clear", _wrap_Vector_DirectorExample_clear, METH_O, NULL},
-	 { "Vector_DirectorExample_get_allocator", _wrap_Vector_DirectorExample_get_allocator, METH_O, NULL},
-	 { "Vector_DirectorExample_pop_back", _wrap_Vector_DirectorExample_pop_back, METH_O, NULL},
-	 { "Vector_DirectorExample_erase", _wrap_Vector_DirectorExample_erase, METH_VARARGS, NULL},
-	 { "new_Vector_DirectorExample", _wrap_new_Vector_DirectorExample, METH_VARARGS, NULL},
-	 { "Vector_DirectorExample_push_back", _wrap_Vector_DirectorExample_push_back, METH_VARARGS, NULL},
-	 { "Vector_DirectorExample_front", _wrap_Vector_DirectorExample_front, METH_O, NULL},
-	 { "Vector_DirectorExample_back", _wrap_Vector_DirectorExample_back, METH_O, NULL},
-	 { "Vector_DirectorExample_assign", _wrap_Vector_DirectorExample_assign, METH_VARARGS, NULL},
-	 { "Vector_DirectorExample_resize", _wrap_Vector_DirectorExample_resize, METH_VARARGS, NULL},
-	 { "Vector_DirectorExample_insert", _wrap_Vector_DirectorExample_insert, METH_VARARGS, NULL},
-	 { "Vector_DirectorExample_reserve", _wrap_Vector_DirectorExample_reserve, METH_VARARGS, NULL},
-	 { "Vector_DirectorExample_capacity", _wrap_Vector_DirectorExample_capacity, METH_O, NULL},
-	 { "delete_Vector_DirectorExample", _wrap_delete_Vector_DirectorExample, METH_O, NULL},
+	 { "Vector_DirectorExample_iterator", _wrap_Vector_DirectorExample_iterator, METH_O, "iterator(Vector_DirectorExample self) -> SwigPyIterator"},
+	 { "Vector_DirectorExample___bool__", _wrap_Vector_DirectorExample___bool__, METH_O, "__bool__(Vector_DirectorExample self) -> bool"},
+	 { "Vector_DirectorExample___len__", _wrap_Vector_DirectorExample___len__, METH_O, "__len__(Vector_DirectorExample self) -> std::vector< boost::shared_ptr< Skeleton::DirectorExample > >::size_type"},
+	 { "Vector_DirectorExample___delitem__", _wrap_Vector_DirectorExample___delitem__, METH_VARARGS, "\n"
+		"__delitem__(Vector_DirectorExample self, std::vector< boost::shared_ptr< Skeleton::DirectorExample > >::difference_type i)\n"
+		"__delitem__(Vector_DirectorExample self, SWIGPY_SLICEOBJECT * slice)\n"
+		""},
+	 { "Vector_DirectorExample___getitem__", _wrap_Vector_DirectorExample___getitem__, METH_VARARGS, "\n"
+		"__getitem__(Vector_DirectorExample self, SWIGPY_SLICEOBJECT * slice) -> Vector_DirectorExample\n"
+		"__getitem__(Vector_DirectorExample self, std::vector< boost::shared_ptr< Skeleton::DirectorExample > >::difference_type i) -> std::vector< boost::shared_ptr< Skeleton::DirectorExample > >::value_type const &\n"
+		""},
+	 { "Vector_DirectorExample___setitem__", _wrap_Vector_DirectorExample___setitem__, METH_VARARGS, "\n"
+		"__setitem__(Vector_DirectorExample self, SWIGPY_SLICEOBJECT * slice, Vector_DirectorExample v)\n"
+		"__setitem__(Vector_DirectorExample self, SWIGPY_SLICEOBJECT * slice)\n"
+		"__setitem__(Vector_DirectorExample self, std::vector< boost::shared_ptr< Skeleton::DirectorExample > >::difference_type i, std::vector< boost::shared_ptr< Skeleton::DirectorExample > >::value_type const & x)\n"
+		""},
+	 { "Vector_DirectorExample_pop", _wrap_Vector_DirectorExample_pop, METH_O, "pop(Vector_DirectorExample self) -> std::vector< boost::shared_ptr< Skeleton::DirectorExample > >::value_type"},
+	 { "Vector_DirectorExample_append", _wrap_Vector_DirectorExample_append, METH_VARARGS, "append(Vector_DirectorExample self, std::vector< boost::shared_ptr< Skeleton::DirectorExample > >::value_type const & x)"},
+	 { "Vector_DirectorExample_empty", _wrap_Vector_DirectorExample_empty, METH_O, "empty(Vector_DirectorExample self) -> bool"},
+	 { "Vector_DirectorExample_size", _wrap_Vector_DirectorExample_size, METH_O, "size(Vector_DirectorExample self) -> std::vector< boost::shared_ptr< Skeleton::DirectorExample > >::size_type"},
+	 { "Vector_DirectorExample_swap", _wrap_Vector_DirectorExample_swap, METH_VARARGS, "swap(Vector_DirectorExample self, Vector_DirectorExample v)"},
+	 { "Vector_DirectorExample_begin", _wrap_Vector_DirectorExample_begin, METH_O, "begin(Vector_DirectorExample self) -> std::vector< boost::shared_ptr< Skeleton::DirectorExample > >::iterator"},
+	 { "Vector_DirectorExample_end", _wrap_Vector_DirectorExample_end, METH_O, "end(Vector_DirectorExample self) -> std::vector< boost::shared_ptr< Skeleton::DirectorExample > >::iterator"},
+	 { "Vector_DirectorExample_rbegin", _wrap_Vector_DirectorExample_rbegin, METH_O, "rbegin(Vector_DirectorExample self) -> std::vector< boost::shared_ptr< Skeleton::DirectorExample > >::reverse_iterator"},
+	 { "Vector_DirectorExample_rend", _wrap_Vector_DirectorExample_rend, METH_O, "rend(Vector_DirectorExample self) -> std::vector< boost::shared_ptr< Skeleton::DirectorExample > >::reverse_iterator"},
+	 { "Vector_DirectorExample_clear", _wrap_Vector_DirectorExample_clear, METH_O, "clear(Vector_DirectorExample self)"},
+	 { "Vector_DirectorExample_get_allocator", _wrap_Vector_DirectorExample_get_allocator, METH_O, "get_allocator(Vector_DirectorExample self) -> std::vector< boost::shared_ptr< Skeleton::DirectorExample > >::allocator_type"},
+	 { "Vector_DirectorExample_pop_back", _wrap_Vector_DirectorExample_pop_back, METH_O, "pop_back(Vector_DirectorExample self)"},
+	 { "Vector_DirectorExample_erase", _wrap_Vector_DirectorExample_erase, METH_VARARGS, "\n"
+		"erase(Vector_DirectorExample self, std::vector< boost::shared_ptr< Skeleton::DirectorExample > >::iterator pos) -> std::vector< boost::shared_ptr< Skeleton::DirectorExample > >::iterator\n"
+		"erase(Vector_DirectorExample self, std::vector< boost::shared_ptr< Skeleton::DirectorExample > >::iterator first, std::vector< boost::shared_ptr< Skeleton::DirectorExample > >::iterator last) -> std::vector< boost::shared_ptr< Skeleton::DirectorExample > >::iterator\n"
+		""},
+	 { "new_Vector_DirectorExample", _wrap_new_Vector_DirectorExample, METH_VARARGS, "\n"
+		"Vector_DirectorExample()\n"
+		"Vector_DirectorExample(Vector_DirectorExample other)\n"
+		"Vector_DirectorExample(std::vector< boost::shared_ptr< Skeleton::DirectorExample > >::size_type size)\n"
+		"new_Vector_DirectorExample(std::vector< boost::shared_ptr< Skeleton::DirectorExample > >::size_type size, std::vector< boost::shared_ptr< Skeleton::DirectorExample > >::value_type const & value) -> Vector_DirectorExample\n"
+		""},
+	 { "Vector_DirectorExample_push_back", _wrap_Vector_DirectorExample_push_back, METH_VARARGS, "push_back(Vector_DirectorExample self, std::vector< boost::shared_ptr< Skeleton::DirectorExample > >::value_type const & x)"},
+	 { "Vector_DirectorExample_front", _wrap_Vector_DirectorExample_front, METH_O, "front(Vector_DirectorExample self) -> std::vector< boost::shared_ptr< Skeleton::DirectorExample > >::value_type const &"},
+	 { "Vector_DirectorExample_back", _wrap_Vector_DirectorExample_back, METH_O, "back(Vector_DirectorExample self) -> std::vector< boost::shared_ptr< Skeleton::DirectorExample > >::value_type const &"},
+	 { "Vector_DirectorExample_assign", _wrap_Vector_DirectorExample_assign, METH_VARARGS, "assign(Vector_DirectorExample self, std::vector< boost::shared_ptr< Skeleton::DirectorExample > >::size_type n, std::vector< boost::shared_ptr< Skeleton::DirectorExample > >::value_type const & x)"},
+	 { "Vector_DirectorExample_resize", _wrap_Vector_DirectorExample_resize, METH_VARARGS, "\n"
+		"resize(Vector_DirectorExample self, std::vector< boost::shared_ptr< Skeleton::DirectorExample > >::size_type new_size)\n"
+		"resize(Vector_DirectorExample self, std::vector< boost::shared_ptr< Skeleton::DirectorExample > >::size_type new_size, std::vector< boost::shared_ptr< Skeleton::DirectorExample > >::value_type const & x)\n"
+		""},
+	 { "Vector_DirectorExample_insert", _wrap_Vector_DirectorExample_insert, METH_VARARGS, "\n"
+		"insert(Vector_DirectorExample self, std::vector< boost::shared_ptr< Skeleton::DirectorExample > >::iterator pos, std::vector< boost::shared_ptr< Skeleton::DirectorExample > >::value_type const & x) -> std::vector< boost::shared_ptr< Skeleton::DirectorExample > >::iterator\n"
+		"insert(Vector_DirectorExample self, std::vector< boost::shared_ptr< Skeleton::DirectorExample > >::iterator pos, std::vector< boost::shared_ptr< Skeleton::DirectorExample > >::size_type n, std::vector< boost::shared_ptr< Skeleton::DirectorExample > >::value_type const & x)\n"
+		""},
+	 { "Vector_DirectorExample_reserve", _wrap_Vector_DirectorExample_reserve, METH_VARARGS, "reserve(Vector_DirectorExample self, std::vector< boost::shared_ptr< Skeleton::DirectorExample > >::size_type n)"},
+	 { "Vector_DirectorExample_capacity", _wrap_Vector_DirectorExample_capacity, METH_O, "capacity(Vector_DirectorExample self) -> std::vector< boost::shared_ptr< Skeleton::DirectorExample > >::size_type"},
+	 { "delete_Vector_DirectorExample", _wrap_delete_Vector_DirectorExample, METH_O, "delete_Vector_DirectorExample(Vector_DirectorExample self)"},
 	 { "Vector_DirectorExample_swigregister", Vector_DirectorExample_swigregister, METH_O, NULL},
 	 { "Vector_DirectorExample_swiginit", Vector_DirectorExample_swiginit, METH_VARARGS, NULL},
-	 { "Vector_Vector_DirectorExample_iterator", _wrap_Vector_Vector_DirectorExample_iterator, METH_O, NULL},
-	 { "Vector_Vector_DirectorExample___bool__", _wrap_Vector_Vector_DirectorExample___bool__, METH_O, NULL},
-	 { "Vector_Vector_DirectorExample___len__", _wrap_Vector_Vector_DirectorExample___len__, METH_O, NULL},
-	 { "Vector_Vector_DirectorExample___delitem__", _wrap_Vector_Vector_DirectorExample___delitem__, METH_VARARGS, NULL},
-	 { "Vector_Vector_DirectorExample___getitem__", _wrap_Vector_Vector_DirectorExample___getitem__, METH_VARARGS, NULL},
-	 { "Vector_Vector_DirectorExample___setitem__", _wrap_Vector_Vector_DirectorExample___setitem__, METH_VARARGS, NULL},
-	 { "Vector_Vector_DirectorExample_pop", _wrap_Vector_Vector_DirectorExample_pop, METH_O, NULL},
-	 { "Vector_Vector_DirectorExample_append", _wrap_Vector_Vector_DirectorExample_append, METH_VARARGS, NULL},
-	 { "Vector_Vector_DirectorExample_empty", _wrap_Vector_Vector_DirectorExample_empty, METH_O, NULL},
-	 { "Vector_Vector_DirectorExample_size", _wrap_Vector_Vector_DirectorExample_size, METH_O, NULL},
-	 { "Vector_Vector_DirectorExample_swap", _wrap_Vector_Vector_DirectorExample_swap, METH_VARARGS, NULL},
-	 { "Vector_Vector_DirectorExample_begin", _wrap_Vector_Vector_DirectorExample_begin, METH_O, NULL},
-	 { "Vector_Vector_DirectorExample_end", _wrap_Vector_Vector_DirectorExample_end, METH_O, NULL},
-	 { "Vector_Vector_DirectorExample_rbegin", _wrap_Vector_Vector_DirectorExample_rbegin, METH_O, NULL},
-	 { "Vector_Vector_DirectorExample_rend", _wrap_Vector_Vector_DirectorExample_rend, METH_O, NULL},
-	 { "Vector_Vector_DirectorExample_clear", _wrap_Vector_Vector_DirectorExample_clear, METH_O, NULL},
-	 { "Vector_Vector_DirectorExample_get_allocator", _wrap_Vector_Vector_DirectorExample_get_allocator, METH_O, NULL},
-	 { "Vector_Vector_DirectorExample_pop_back", _wrap_Vector_Vector_DirectorExample_pop_back, METH_O, NULL},
-	 { "Vector_Vector_DirectorExample_erase", _wrap_Vector_Vector_DirectorExample_erase, METH_VARARGS, NULL},
-	 { "new_Vector_Vector_DirectorExample", _wrap_new_Vector_Vector_DirectorExample, METH_VARARGS, NULL},
-	 { "Vector_Vector_DirectorExample_push_back", _wrap_Vector_Vector_DirectorExample_push_back, METH_VARARGS, NULL},
-	 { "Vector_Vector_DirectorExample_front", _wrap_Vector_Vector_DirectorExample_front, METH_O, NULL},
-	 { "Vector_Vector_DirectorExample_back", _wrap_Vector_Vector_DirectorExample_back, METH_O, NULL},
-	 { "Vector_Vector_DirectorExample_assign", _wrap_Vector_Vector_DirectorExample_assign, METH_VARARGS, NULL},
-	 { "Vector_Vector_DirectorExample_resize", _wrap_Vector_Vector_DirectorExample_resize, METH_VARARGS, NULL},
-	 { "Vector_Vector_DirectorExample_insert", _wrap_Vector_Vector_DirectorExample_insert, METH_VARARGS, NULL},
-	 { "Vector_Vector_DirectorExample_reserve", _wrap_Vector_Vector_DirectorExample_reserve, METH_VARARGS, NULL},
-	 { "Vector_Vector_DirectorExample_capacity", _wrap_Vector_Vector_DirectorExample_capacity, METH_O, NULL},
-	 { "delete_Vector_Vector_DirectorExample", _wrap_delete_Vector_Vector_DirectorExample, METH_O, NULL},
+	 { "Vector_Vector_DirectorExample_iterator", _wrap_Vector_Vector_DirectorExample_iterator, METH_O, "iterator(Vector_Vector_DirectorExample self) -> SwigPyIterator"},
+	 { "Vector_Vector_DirectorExample___bool__", _wrap_Vector_Vector_DirectorExample___bool__, METH_O, "__bool__(Vector_Vector_DirectorExample self) -> bool"},
+	 { "Vector_Vector_DirectorExample___len__", _wrap_Vector_Vector_DirectorExample___len__, METH_O, "__len__(Vector_Vector_DirectorExample self) -> std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > >::size_type"},
+	 { "Vector_Vector_DirectorExample___delitem__", _wrap_Vector_Vector_DirectorExample___delitem__, METH_VARARGS, "\n"
+		"__delitem__(Vector_Vector_DirectorExample self, std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > >::difference_type i)\n"
+		"__delitem__(Vector_Vector_DirectorExample self, SWIGPY_SLICEOBJECT * slice)\n"
+		""},
+	 { "Vector_Vector_DirectorExample___getitem__", _wrap_Vector_Vector_DirectorExample___getitem__, METH_VARARGS, "\n"
+		"__getitem__(Vector_Vector_DirectorExample self, SWIGPY_SLICEOBJECT * slice) -> Vector_Vector_DirectorExample\n"
+		"__getitem__(Vector_Vector_DirectorExample self, std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > >::difference_type i) -> Vector_DirectorExample\n"
+		""},
+	 { "Vector_Vector_DirectorExample___setitem__", _wrap_Vector_Vector_DirectorExample___setitem__, METH_VARARGS, "\n"
+		"__setitem__(Vector_Vector_DirectorExample self, SWIGPY_SLICEOBJECT * slice, Vector_Vector_DirectorExample v)\n"
+		"__setitem__(Vector_Vector_DirectorExample self, SWIGPY_SLICEOBJECT * slice)\n"
+		"__setitem__(Vector_Vector_DirectorExample self, std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > >::difference_type i, Vector_DirectorExample x)\n"
+		""},
+	 { "Vector_Vector_DirectorExample_pop", _wrap_Vector_Vector_DirectorExample_pop, METH_O, "pop(Vector_Vector_DirectorExample self) -> Vector_DirectorExample"},
+	 { "Vector_Vector_DirectorExample_append", _wrap_Vector_Vector_DirectorExample_append, METH_VARARGS, "append(Vector_Vector_DirectorExample self, Vector_DirectorExample x)"},
+	 { "Vector_Vector_DirectorExample_empty", _wrap_Vector_Vector_DirectorExample_empty, METH_O, "empty(Vector_Vector_DirectorExample self) -> bool"},
+	 { "Vector_Vector_DirectorExample_size", _wrap_Vector_Vector_DirectorExample_size, METH_O, "size(Vector_Vector_DirectorExample self) -> std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > >::size_type"},
+	 { "Vector_Vector_DirectorExample_swap", _wrap_Vector_Vector_DirectorExample_swap, METH_VARARGS, "swap(Vector_Vector_DirectorExample self, Vector_Vector_DirectorExample v)"},
+	 { "Vector_Vector_DirectorExample_begin", _wrap_Vector_Vector_DirectorExample_begin, METH_O, "begin(Vector_Vector_DirectorExample self) -> std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > >::iterator"},
+	 { "Vector_Vector_DirectorExample_end", _wrap_Vector_Vector_DirectorExample_end, METH_O, "end(Vector_Vector_DirectorExample self) -> std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > >::iterator"},
+	 { "Vector_Vector_DirectorExample_rbegin", _wrap_Vector_Vector_DirectorExample_rbegin, METH_O, "rbegin(Vector_Vector_DirectorExample self) -> std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > >::reverse_iterator"},
+	 { "Vector_Vector_DirectorExample_rend", _wrap_Vector_Vector_DirectorExample_rend, METH_O, "rend(Vector_Vector_DirectorExample self) -> std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > >::reverse_iterator"},
+	 { "Vector_Vector_DirectorExample_clear", _wrap_Vector_Vector_DirectorExample_clear, METH_O, "clear(Vector_Vector_DirectorExample self)"},
+	 { "Vector_Vector_DirectorExample_get_allocator", _wrap_Vector_Vector_DirectorExample_get_allocator, METH_O, "get_allocator(Vector_Vector_DirectorExample self) -> std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > >::allocator_type"},
+	 { "Vector_Vector_DirectorExample_pop_back", _wrap_Vector_Vector_DirectorExample_pop_back, METH_O, "pop_back(Vector_Vector_DirectorExample self)"},
+	 { "Vector_Vector_DirectorExample_erase", _wrap_Vector_Vector_DirectorExample_erase, METH_VARARGS, "\n"
+		"erase(Vector_Vector_DirectorExample self, std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > >::iterator pos) -> std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > >::iterator\n"
+		"erase(Vector_Vector_DirectorExample self, std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > >::iterator first, std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > >::iterator last) -> std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > >::iterator\n"
+		""},
+	 { "new_Vector_Vector_DirectorExample", _wrap_new_Vector_Vector_DirectorExample, METH_VARARGS, "\n"
+		"Vector_Vector_DirectorExample()\n"
+		"Vector_Vector_DirectorExample(Vector_Vector_DirectorExample other)\n"
+		"Vector_Vector_DirectorExample(std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > >::size_type size)\n"
+		"new_Vector_Vector_DirectorExample(std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > >::size_type size, Vector_DirectorExample value) -> Vector_Vector_DirectorExample\n"
+		""},
+	 { "Vector_Vector_DirectorExample_push_back", _wrap_Vector_Vector_DirectorExample_push_back, METH_VARARGS, "push_back(Vector_Vector_DirectorExample self, Vector_DirectorExample x)"},
+	 { "Vector_Vector_DirectorExample_front", _wrap_Vector_Vector_DirectorExample_front, METH_O, "front(Vector_Vector_DirectorExample self) -> Vector_DirectorExample"},
+	 { "Vector_Vector_DirectorExample_back", _wrap_Vector_Vector_DirectorExample_back, METH_O, "back(Vector_Vector_DirectorExample self) -> Vector_DirectorExample"},
+	 { "Vector_Vector_DirectorExample_assign", _wrap_Vector_Vector_DirectorExample_assign, METH_VARARGS, "assign(Vector_Vector_DirectorExample self, std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > >::size_type n, Vector_DirectorExample x)"},
+	 { "Vector_Vector_DirectorExample_resize", _wrap_Vector_Vector_DirectorExample_resize, METH_VARARGS, "\n"
+		"resize(Vector_Vector_DirectorExample self, std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > >::size_type new_size)\n"
+		"resize(Vector_Vector_DirectorExample self, std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > >::size_type new_size, Vector_DirectorExample x)\n"
+		""},
+	 { "Vector_Vector_DirectorExample_insert", _wrap_Vector_Vector_DirectorExample_insert, METH_VARARGS, "\n"
+		"insert(Vector_Vector_DirectorExample self, std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > >::iterator pos, Vector_DirectorExample x) -> std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > >::iterator\n"
+		"insert(Vector_Vector_DirectorExample self, std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > >::iterator pos, std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > >::size_type n, Vector_DirectorExample x)\n"
+		""},
+	 { "Vector_Vector_DirectorExample_reserve", _wrap_Vector_Vector_DirectorExample_reserve, METH_VARARGS, "reserve(Vector_Vector_DirectorExample self, std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > >::size_type n)"},
+	 { "Vector_Vector_DirectorExample_capacity", _wrap_Vector_Vector_DirectorExample_capacity, METH_O, "capacity(Vector_Vector_DirectorExample self) -> std::vector< std::vector< boost::shared_ptr< Skeleton::DirectorExample > > >::size_type"},
+	 { "delete_Vector_Vector_DirectorExample", _wrap_delete_Vector_Vector_DirectorExample, METH_O, "delete_Vector_Vector_DirectorExample(Vector_Vector_DirectorExample self)"},
 	 { "Vector_Vector_DirectorExample_swigregister", Vector_Vector_DirectorExample_swigregister, METH_O, NULL},
 	 { "Vector_Vector_DirectorExample_swiginit", Vector_Vector_DirectorExample_swiginit, METH_VARARGS, NULL},
-	 { "Vector_Vector_int_iterator", _wrap_Vector_Vector_int_iterator, METH_O, NULL},
-	 { "Vector_Vector_int___bool__", _wrap_Vector_Vector_int___bool__, METH_O, NULL},
-	 { "Vector_Vector_int___len__", _wrap_Vector_Vector_int___len__, METH_O, NULL},
-	 { "Vector_Vector_int___delitem__", _wrap_Vector_Vector_int___delitem__, METH_VARARGS, NULL},
-	 { "Vector_Vector_int___getitem__", _wrap_Vector_Vector_int___getitem__, METH_VARARGS, NULL},
-	 { "Vector_Vector_int___setitem__", _wrap_Vector_Vector_int___setitem__, METH_VARARGS, NULL},
-	 { "Vector_Vector_int_pop", _wrap_Vector_Vector_int_pop, METH_O, NULL},
-	 { "Vector_Vector_int_append", _wrap_Vector_Vector_int_append, METH_VARARGS, NULL},
-	 { "Vector_Vector_int_empty", _wrap_Vector_Vector_int_empty, METH_O, NULL},
-	 { "Vector_Vector_int_size", _wrap_Vector_Vector_int_size, METH_O, NULL},
-	 { "Vector_Vector_int_swap", _wrap_Vector_Vector_int_swap, METH_VARARGS, NULL},
-	 { "Vector_Vector_int_begin", _wrap_Vector_Vector_int_begin, METH_O, NULL},
-	 { "Vector_Vector_int_end", _wrap_Vector_Vector_int_end, METH_O, NULL},
-	 { "Vector_Vector_int_rbegin", _wrap_Vector_Vector_int_rbegin, METH_O, NULL},
-	 { "Vector_Vector_int_rend", _wrap_Vector_Vector_int_rend, METH_O, NULL},
-	 { "Vector_Vector_int_clear", _wrap_Vector_Vector_int_clear, METH_O, NULL},
-	 { "Vector_Vector_int_get_allocator", _wrap_Vector_Vector_int_get_allocator, METH_O, NULL},
-	 { "Vector_Vector_int_pop_back", _wrap_Vector_Vector_int_pop_back, METH_O, NULL},
-	 { "Vector_Vector_int_erase", _wrap_Vector_Vector_int_erase, METH_VARARGS, NULL},
-	 { "new_Vector_Vector_int", _wrap_new_Vector_Vector_int, METH_VARARGS, NULL},
-	 { "Vector_Vector_int_push_back", _wrap_Vector_Vector_int_push_back, METH_VARARGS, NULL},
-	 { "Vector_Vector_int_front", _wrap_Vector_Vector_int_front, METH_O, NULL},
-	 { "Vector_Vector_int_back", _wrap_Vector_Vector_int_back, METH_O, NULL},
-	 { "Vector_Vector_int_assign", _wrap_Vector_Vector_int_assign, METH_VARARGS, NULL},
-	 { "Vector_Vector_int_resize", _wrap_Vector_Vector_int_resize, METH_VARARGS, NULL},
-	 { "Vector_Vector_int_insert", _wrap_Vector_Vector_int_insert, METH_VARARGS, NULL},
-	 { "Vector_Vector_int_reserve", _wrap_Vector_Vector_int_reserve, METH_VARARGS, NULL},
-	 { "Vector_Vector_int_capacity", _wrap_Vector_Vector_int_capacity, METH_O, NULL},
-	 { "delete_Vector_Vector_int", _wrap_delete_Vector_Vector_int, METH_O, NULL},
+	 { "Vector_Vector_int_iterator", _wrap_Vector_Vector_int_iterator, METH_O, "iterator(Vector_Vector_int self) -> SwigPyIterator"},
+	 { "Vector_Vector_int___bool__", _wrap_Vector_Vector_int___bool__, METH_O, "__bool__(Vector_Vector_int self) -> bool"},
+	 { "Vector_Vector_int___len__", _wrap_Vector_Vector_int___len__, METH_O, "__len__(Vector_Vector_int self) -> std::vector< std::vector< int > >::size_type"},
+	 { "Vector_Vector_int___delitem__", _wrap_Vector_Vector_int___delitem__, METH_VARARGS, "\n"
+		"__delitem__(Vector_Vector_int self, std::vector< std::vector< int > >::difference_type i)\n"
+		"__delitem__(Vector_Vector_int self, SWIGPY_SLICEOBJECT * slice)\n"
+		""},
+	 { "Vector_Vector_int___getitem__", _wrap_Vector_Vector_int___getitem__, METH_VARARGS, "\n"
+		"__getitem__(Vector_Vector_int self, SWIGPY_SLICEOBJECT * slice) -> Vector_Vector_int\n"
+		"__getitem__(Vector_Vector_int self, std::vector< std::vector< int > >::difference_type i) -> vector_int\n"
+		""},
+	 { "Vector_Vector_int___setitem__", _wrap_Vector_Vector_int___setitem__, METH_VARARGS, "\n"
+		"__setitem__(Vector_Vector_int self, SWIGPY_SLICEOBJECT * slice, Vector_Vector_int v)\n"
+		"__setitem__(Vector_Vector_int self, SWIGPY_SLICEOBJECT * slice)\n"
+		"__setitem__(Vector_Vector_int self, std::vector< std::vector< int > >::difference_type i, vector_int x)\n"
+		""},
+	 { "Vector_Vector_int_pop", _wrap_Vector_Vector_int_pop, METH_O, "pop(Vector_Vector_int self) -> vector_int"},
+	 { "Vector_Vector_int_append", _wrap_Vector_Vector_int_append, METH_VARARGS, "append(Vector_Vector_int self, vector_int x)"},
+	 { "Vector_Vector_int_empty", _wrap_Vector_Vector_int_empty, METH_O, "empty(Vector_Vector_int self) -> bool"},
+	 { "Vector_Vector_int_size", _wrap_Vector_Vector_int_size, METH_O, "size(Vector_Vector_int self) -> std::vector< std::vector< int > >::size_type"},
+	 { "Vector_Vector_int_swap", _wrap_Vector_Vector_int_swap, METH_VARARGS, "swap(Vector_Vector_int self, Vector_Vector_int v)"},
+	 { "Vector_Vector_int_begin", _wrap_Vector_Vector_int_begin, METH_O, "begin(Vector_Vector_int self) -> std::vector< std::vector< int > >::iterator"},
+	 { "Vector_Vector_int_end", _wrap_Vector_Vector_int_end, METH_O, "end(Vector_Vector_int self) -> std::vector< std::vector< int > >::iterator"},
+	 { "Vector_Vector_int_rbegin", _wrap_Vector_Vector_int_rbegin, METH_O, "rbegin(Vector_Vector_int self) -> std::vector< std::vector< int > >::reverse_iterator"},
+	 { "Vector_Vector_int_rend", _wrap_Vector_Vector_int_rend, METH_O, "rend(Vector_Vector_int self) -> std::vector< std::vector< int > >::reverse_iterator"},
+	 { "Vector_Vector_int_clear", _wrap_Vector_Vector_int_clear, METH_O, "clear(Vector_Vector_int self)"},
+	 { "Vector_Vector_int_get_allocator", _wrap_Vector_Vector_int_get_allocator, METH_O, "get_allocator(Vector_Vector_int self) -> std::vector< std::vector< int > >::allocator_type"},
+	 { "Vector_Vector_int_pop_back", _wrap_Vector_Vector_int_pop_back, METH_O, "pop_back(Vector_Vector_int self)"},
+	 { "Vector_Vector_int_erase", _wrap_Vector_Vector_int_erase, METH_VARARGS, "\n"
+		"erase(Vector_Vector_int self, std::vector< std::vector< int > >::iterator pos) -> std::vector< std::vector< int > >::iterator\n"
+		"erase(Vector_Vector_int self, std::vector< std::vector< int > >::iterator first, std::vector< std::vector< int > >::iterator last) -> std::vector< std::vector< int > >::iterator\n"
+		""},
+	 { "new_Vector_Vector_int", _wrap_new_Vector_Vector_int, METH_VARARGS, "\n"
+		"Vector_Vector_int()\n"
+		"Vector_Vector_int(Vector_Vector_int other)\n"
+		"Vector_Vector_int(std::vector< std::vector< int > >::size_type size)\n"
+		"new_Vector_Vector_int(std::vector< std::vector< int > >::size_type size, vector_int value) -> Vector_Vector_int\n"
+		""},
+	 { "Vector_Vector_int_push_back", _wrap_Vector_Vector_int_push_back, METH_VARARGS, "push_back(Vector_Vector_int self, vector_int x)"},
+	 { "Vector_Vector_int_front", _wrap_Vector_Vector_int_front, METH_O, "front(Vector_Vector_int self) -> vector_int"},
+	 { "Vector_Vector_int_back", _wrap_Vector_Vector_int_back, METH_O, "back(Vector_Vector_int self) -> vector_int"},
+	 { "Vector_Vector_int_assign", _wrap_Vector_Vector_int_assign, METH_VARARGS, "assign(Vector_Vector_int self, std::vector< std::vector< int > >::size_type n, vector_int x)"},
+	 { "Vector_Vector_int_resize", _wrap_Vector_Vector_int_resize, METH_VARARGS, "\n"
+		"resize(Vector_Vector_int self, std::vector< std::vector< int > >::size_type new_size)\n"
+		"resize(Vector_Vector_int self, std::vector< std::vector< int > >::size_type new_size, vector_int x)\n"
+		""},
+	 { "Vector_Vector_int_insert", _wrap_Vector_Vector_int_insert, METH_VARARGS, "\n"
+		"insert(Vector_Vector_int self, std::vector< std::vector< int > >::iterator pos, vector_int x) -> std::vector< std::vector< int > >::iterator\n"
+		"insert(Vector_Vector_int self, std::vector< std::vector< int > >::iterator pos, std::vector< std::vector< int > >::size_type n, vector_int x)\n"
+		""},
+	 { "Vector_Vector_int_reserve", _wrap_Vector_Vector_int_reserve, METH_VARARGS, "reserve(Vector_Vector_int self, std::vector< std::vector< int > >::size_type n)"},
+	 { "Vector_Vector_int_capacity", _wrap_Vector_Vector_int_capacity, METH_O, "capacity(Vector_Vector_int self) -> std::vector< std::vector< int > >::size_type"},
+	 { "delete_Vector_Vector_int", _wrap_delete_Vector_Vector_int, METH_O, "delete_Vector_Vector_int(Vector_Vector_int self)"},
 	 { "Vector_Vector_int_swigregister", Vector_Vector_int_swigregister, METH_O, NULL},
 	 { "Vector_Vector_int_swiginit", Vector_Vector_int_swiginit, METH_VARARGS, NULL},
-	 { "DirectorExample___str__", _wrap_DirectorExample___str__, METH_O, NULL},
-	 { "DirectorExample_desc", _wrap_DirectorExample_desc, METH_O, NULL},
+	 { "DirectorExample___str__", _wrap_DirectorExample___str__, METH_O, "__str__(DirectorExample self) -> std::string"},
+	 { "DirectorExample_desc", _wrap_DirectorExample_desc, METH_O, "desc(DirectorExample self) -> std::string"},
 	 { "DirectorExample_func", _wrap_DirectorExample_func, METH_VARARGS, "\n"
+		"func(DirectorExample self, int v) -> int\n"
 		"\n"
-		"virtual int Skeleton::DirectorExample::func(int v) const\n"
 		"Skeleton::DirectorExample::func\n"
 		""},
 	 { "DirectorExample_value_to_add", _wrap_DirectorExample_value_to_add, METH_VARARGS, "\n"
+		"value_to_add(DirectorExample self) -> int\n"
+		"value_to_add(DirectorExample self, int v)\n"
 		"\n"
-		"void Skeleton::DirectorExample::value_to_add(int v)\n"
 		"Skeleton::DirectorExample::value_to_add\n"
 		""},
 	 { "DirectorExample_name", _wrap_DirectorExample_name, METH_O, "\n"
+		"name(DirectorExample self) -> std::string const &\n"
 		"\n"
-		"const std::string & Skeleton::DirectorExample::name() const\n"
 		"Skeleton::DirectorExample::name\n"
 		""},
 	 { "DirectorExample_same_object", _wrap_DirectorExample_same_object, METH_VARARGS, "\n"
+		"same_object(DirectorExample self, DirectorExample obj2) -> bool\n"
 		"\n"
-		"bool Skeleton::DirectorExample::same_object(const DirectorExample &obj2) const\n"
 		"Skeleton::DirectorExample::same_object\n"
 		""},
 	 { "new_DirectorExample", _wrap_new_DirectorExample, METH_VARARGS, "\n"
+		"DirectorExample(int V, std::string const & Name)\n"
+		"new_DirectorExample(PyObject * _self) -> DirectorExample\n"
 		"\n"
-		"Skeleton::DirectorExample::DirectorExample(int value_to_add, const std::string &name)\n"
 		"Skeleton::DirectorExample::DirectorExample\n"
-		"Constructor.\n"
+		"Constructor.  \n"
 		"\n"
 		""},
 	 { "delete_DirectorExample", _wrap_delete_DirectorExample, METH_O, "\n"
+		"delete_DirectorExample(DirectorExample self)\n"
 		"\n"
-		"virtual Skeleton::DirectorExample::~DirectorExample()\n"
 		"Skeleton::DirectorExample::~DirectorExample\n"
 		""},
 	 { "disown_DirectorExample", _wrap_disown_DirectorExample, METH_O, NULL},
 	 { "DirectorExample_swigregister", DirectorExample_swigregister, METH_O, NULL},
 	 { "DirectorExample_swiginit", DirectorExample_swiginit, METH_VARARGS, NULL},
 	 { "new_DirectorExampleNested", _wrap_new_DirectorExampleNested, METH_VARARGS, "\n"
+		"new_DirectorExampleNested(int value_to_add, std::string const & name, boost::shared_ptr< Skeleton::DirectorExample > const Obj) -> DirectorExampleNested\n"
 		"\n"
-		"Skeleton::DirectorExampleNested::DirectorExampleNested(int value_to_add, const std::string &name, const boost::shared_ptr<\n"
-		"DirectorExample > Obj)\n"
 		"Skeleton::DirectorExampleNested::DirectorExampleNested\n"
-		"Constructor.\n"
+		"Constructor.  \n"
 		"\n"
 		""},
 	 { "DirectorExampleNested__v_obj", _wrap_DirectorExampleNested__v_obj, METH_O, "\n"
+		"_v_obj(DirectorExampleNested self) -> boost::shared_ptr< Skeleton::DirectorExample >\n"
 		"\n"
-		"const boost::shared_ptr< DirectorExample > & Skeleton::DirectorExampleNested::obj() const\n"
 		"Skeleton::DirectorExampleNested::obj\n"
 		""},
 	 { "delete_DirectorExampleNested", _wrap_delete_DirectorExampleNested, METH_O, "\n"
+		"delete_DirectorExampleNested(DirectorExampleNested self)\n"
 		"\n"
-		"virtual Skeleton::DirectorExampleNested::~DirectorExampleNested()\n"
 		"Skeleton::DirectorExampleNested::~DirectorExampleNested\n"
 		""},
 	 { "DirectorExampleNested_swigregister", DirectorExampleNested_swigregister, METH_O, NULL},
 	 { "DirectorExampleNested_swiginit", DirectorExampleNested_swiginit, METH_VARARGS, NULL},
 	 { "new_DirectorExampleWeakPtr", _wrap_new_DirectorExampleWeakPtr, METH_O, "\n"
+		"new_DirectorExampleWeakPtr(boost::shared_ptr< Skeleton::DirectorExample > const & SHARED_PTR_NO_OWN) -> DirectorExampleWeakPtr\n"
 		"\n"
-		"Skeleton::DirectorExampleWeakPtr::DirectorExampleWeakPtr(const boost::shared_ptr< DirectorExample > &V)\n"
 		"Skeleton::DirectorExampleWeakPtr::DirectorExampleWeakPtr\n"
 		""},
-	 { "DirectorExampleWeakPtr___str__", _wrap_DirectorExampleWeakPtr___str__, METH_O, NULL},
+	 { "DirectorExampleWeakPtr___str__", _wrap_DirectorExampleWeakPtr___str__, METH_O, "__str__(DirectorExampleWeakPtr self) -> std::string"},
 	 { "DirectorExampleWeakPtr_a", _wrap_DirectorExampleWeakPtr_a, METH_VARARGS, "\n"
+		"a(DirectorExampleWeakPtr self) -> boost::shared_ptr< Skeleton::DirectorExample >\n"
+		"a(DirectorExampleWeakPtr self, boost::shared_ptr< Skeleton::DirectorExample > const & SHARED_PTR_NO_OWN)\n"
 		"\n"
-		"void Skeleton::DirectorExampleWeakPtr::a(const boost::shared_ptr< DirectorExample > &V)\n"
 		"Skeleton::DirectorExampleWeakPtr::a\n"
 		""},
 	 { "DirectorExampleWeakPtr_expired", _wrap_DirectorExampleWeakPtr_expired, METH_O, "\n"
+		"expired(DirectorExampleWeakPtr self) -> bool\n"
 		"\n"
-		"bool Skeleton::DirectorExampleWeakPtr::expired() const\n"
 		"Skeleton::DirectorExampleWeakPtr::expired\n"
 		""},
 	 { "DirectorExampleWeakPtr_use_count", _wrap_DirectorExampleWeakPtr_use_count, METH_O, "\n"
+		"use_count(DirectorExampleWeakPtr self) -> long\n"
 		"\n"
-		"long Skeleton::DirectorExampleWeakPtr::use_count() const\n"
 		"Skeleton::DirectorExampleWeakPtr::use_count\n"
 		""},
 	 { "delete_DirectorExampleWeakPtr", _wrap_delete_DirectorExampleWeakPtr, METH_O, "\n"
+		"delete_DirectorExampleWeakPtr(DirectorExampleWeakPtr self)\n"
 		"\n"
-		"virtual Skeleton::DirectorExampleWeakPtr::~DirectorExampleWeakPtr()\n"
 		"Skeleton::DirectorExampleWeakPtr::~DirectorExampleWeakPtr\n"
 		""},
 	 { "DirectorExampleWeakPtr_swigregister", DirectorExampleWeakPtr_swigregister, METH_O, NULL},
 	 { "DirectorExampleWeakPtr_swiginit", DirectorExampleWeakPtr_swiginit, METH_VARARGS, NULL},
 	 { "new_DirectorExampleUser", _wrap_new_DirectorExampleUser, METH_NOARGS, "\n"
+		"new_DirectorExampleUser() -> DirectorExampleUser\n"
 		"\n"
-		"Skeleton::DirectorExampleUser::DirectorExampleUser()\n"
 		"Skeleton::DirectorExampleUser::DirectorExampleUser\n"
 		""},
-	 { "DirectorExampleUser___str__", _wrap_DirectorExampleUser___str__, METH_O, NULL},
+	 { "DirectorExampleUser___str__", _wrap_DirectorExampleUser___str__, METH_O, "__str__(DirectorExampleUser self) -> std::string"},
 	 { "DirectorExampleUser_value_vec", _wrap_DirectorExampleUser_value_vec, METH_O, "\n"
+		"value_vec(DirectorExampleUser self) -> Vector_DirectorExample\n"
 		"\n"
-		"const std::vector< boost::shared_ptr< DirectorExample > > & Skeleton::DirectorExampleUser::value_vec() const\n"
 		"Skeleton::DirectorExampleUser::value_vec\n"
 		""},
 	 { "DirectorExampleUser_set_vec", _wrap_DirectorExampleUser_set_vec, METH_VARARGS, "\n"
+		"set_vec(DirectorExampleUser self, Vector_DirectorExample V)\n"
 		"\n"
-		"void Skeleton::DirectorExampleUser::set_vec(const std::vector< boost::shared_ptr< DirectorExample > > &V)\n"
 		"Skeleton::DirectorExampleUser::set_vec\n"
 		""},
 	 { "DirectorExampleUser_value_vec_vec", _wrap_DirectorExampleUser_value_vec_vec, METH_O, "\n"
+		"value_vec_vec(DirectorExampleUser self) -> Vector_Vector_DirectorExample\n"
 		"\n"
-		"const std::vector< std::vector< boost::shared_ptr< DirectorExample > > > & Skeleton::DirectorExampleUser::value_vec_vec() const\n"
 		"Skeleton::DirectorExampleUser::value_vec_vec\n"
 		""},
 	 { "DirectorExampleUser_set_vec_vec", _wrap_DirectorExampleUser_set_vec_vec, METH_VARARGS, "\n"
+		"set_vec_vec(DirectorExampleUser self, Vector_Vector_DirectorExample V)\n"
 		"\n"
-		"void Skeleton::DirectorExampleUser::set_vec_vec(const std::vector< std::vector< boost::shared_ptr< DirectorExample >\n"
-		"> > &V)\n"
 		"Skeleton::DirectorExampleUser::set_vec_vec\n"
 		""},
 	 { "DirectorExampleUser_value", _wrap_DirectorExampleUser_value, METH_O, "\n"
+		"value(DirectorExampleUser self) -> boost::shared_ptr< Skeleton::DirectorExample > const &\n"
 		"\n"
-		"const boost::shared_ptr< DirectorExample > & Skeleton::DirectorExampleUser::value() const\n"
 		"Skeleton::DirectorExampleUser::value\n"
 		""},
 	 { "DirectorExampleUser_value_vec_int", _wrap_DirectorExampleUser_value_vec_int, METH_O, "\n"
+		"value_vec_int(DirectorExampleUser self) -> vector_int\n"
 		"\n"
-		"const std::vector< int > & Skeleton::DirectorExampleUser::value_vec_int() const\n"
 		"Skeleton::DirectorExampleUser::value_vec_int\n"
 		""},
 	 { "DirectorExampleUser_set_vec_int", _wrap_DirectorExampleUser_set_vec_int, METH_VARARGS, "\n"
+		"set_vec_int(DirectorExampleUser self, vector_int V)\n"
 		"\n"
-		"void Skeleton::DirectorExampleUser::set_vec_int(const std::vector< int > &V)\n"
 		"Skeleton::DirectorExampleUser::set_vec_int\n"
 		""},
 	 { "DirectorExampleUser_value_vec_vec_int", _wrap_DirectorExampleUser_value_vec_vec_int, METH_O, "\n"
+		"value_vec_vec_int(DirectorExampleUser self) -> Vector_Vector_int\n"
 		"\n"
-		"const std::vector< std::vector< int > > & Skeleton::DirectorExampleUser::value_vec_vec_int() const\n"
 		"Skeleton::DirectorExampleUser::value_vec_vec_int\n"
 		""},
 	 { "DirectorExampleUser_set_vec_vec_int", _wrap_DirectorExampleUser_set_vec_vec_int, METH_VARARGS, "\n"
+		"set_vec_vec_int(DirectorExampleUser self, Vector_Vector_int V)\n"
 		"\n"
-		"void Skeleton::DirectorExampleUser::set_vec_vec_int(const std::vector< std::vector< int > > &V)\n"
 		"Skeleton::DirectorExampleUser::set_vec_vec_int\n"
 		""},
 	 { "DirectorExampleUser_set_value", _wrap_DirectorExampleUser_set_value, METH_VARARGS, "\n"
+		"set_value(DirectorExampleUser self, boost::shared_ptr< Skeleton::DirectorExample > const & V)\n"
 		"\n"
-		"void Skeleton::DirectorExampleUser::set_value(const boost::shared_ptr< DirectorExample > &V)\n"
 		"Skeleton::DirectorExampleUser::set_value\n"
 		""},
 	 { "DirectorExampleUser_apply_func", _wrap_DirectorExampleUser_apply_func, METH_VARARGS, "\n"
+		"apply_func(DirectorExampleUser self, int v) -> int\n"
+		"apply_func(DirectorExampleUser self, int v, int ind) -> int\n"
+		"apply_func(DirectorExampleUser self, int v, int ind, int ind2) -> int\n"
 		"\n"
-		"int Skeleton::DirectorExampleUser::apply_func(int v, int ind, int ind2) const\n"
 		"Skeleton::DirectorExampleUser::apply_func\n"
 		""},
 	 { "delete_DirectorExampleUser", _wrap_delete_DirectorExampleUser, METH_O, "\n"
+		"delete_DirectorExampleUser(DirectorExampleUser self)\n"
 		"\n"
-		"virtual Skeleton::DirectorExampleUser::~DirectorExampleUser()\n"
 		"Skeleton::DirectorExampleUser::~DirectorExampleUser\n"
 		""},
 	 { "DirectorExampleUser_swigregister", DirectorExampleUser_swigregister, METH_O, NULL},

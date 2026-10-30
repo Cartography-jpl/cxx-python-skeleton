@@ -51,6 +51,8 @@ import weakref
 
 SWIG_MODULE_ALREADY_DONE = _skeleton_exception.SWIG_MODULE_ALREADY_DONE
 class SwigPyIterator(object):
+    r"""Proxy of C++ swig::SwigPyIterator class."""
+
     thisown = property(lambda x: x.this.own(), lambda x, v: x.this.own(v), doc="The membership flag")
 
     def __init__(self, *args, **kwargs):
@@ -78,6 +80,7 @@ class SwigPyIterator(object):
 # Register SwigPyIterator in _skeleton_exception:
 _skeleton_exception.SwigPyIterator_swigregister(SwigPyIterator)
 SHARED_PTR_DISOWN = _skeleton_exception.SHARED_PTR_DISOWN
+
 
 import os
 
@@ -126,12 +129,14 @@ import skeleton_swig.generic_object
 class Exception(skeleton_swig.generic_object.GenericObject):
     r"""
 
-    This is the base of the exception hierarchy for Skeleton code.
 
-    This can be written to like a stream to contain information about the
-    exception. This is derived from the standard library std::exception
+    This is the base of the exception hierarchy for Skeleton code.  
 
-    C++ includes: skeleton_exception.h 
+    This can be written to like a stream to contain information about the exception.
+    This is derived from the standard library std::exception  
+
+    C++ includes: skeleton_exception.h
+
     """
 
     thisown = property(lambda x: x.this.own(), lambda x, v: x.this.own(v), doc="The membership flag")
@@ -139,11 +144,13 @@ class Exception(skeleton_swig.generic_object.GenericObject):
 
     def __init__(self, W):
         r"""
+        __init__(Exception self, std::string const & W) -> Exception
 
-        Skeleton::Exception::Exception(const std::string &W="")
         Skeleton::Exception::Exception
-        Default constructor.
-        Can give an optional string describing the error. 
+        Default constructor.  
+
+        Can give an optional string describing the error.  
+
         """
         _skeleton_exception.Exception_swiginit(self, _skeleton_exception.new_Exception(W))
     what = _swig_new_instance_method(_skeleton_exception.Exception_what)

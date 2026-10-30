@@ -7538,76 +7538,83 @@ SWIGINTERN PyObject *GenericObjectC_swiginit(PyObject *SWIGUNUSEDPARM(self), PyO
 static PyMethodDef SwigMethods[] = {
 	 { "SWIG_PyInstanceMethod_New", SWIG_PyInstanceMethod_New, METH_O, NULL},
 	 { "SWIG_PyStaticMethod_New", SWIG_PyStaticMethod_New, METH_O, NULL},
-	 { "delete_SwigPyIterator", _wrap_delete_SwigPyIterator, METH_O, NULL},
-	 { "SwigPyIterator_value", _wrap_SwigPyIterator_value, METH_O, NULL},
-	 { "SwigPyIterator_incr", _wrap_SwigPyIterator_incr, METH_VARARGS, NULL},
-	 { "SwigPyIterator_decr", _wrap_SwigPyIterator_decr, METH_VARARGS, NULL},
-	 { "SwigPyIterator_distance", _wrap_SwigPyIterator_distance, METH_VARARGS, NULL},
-	 { "SwigPyIterator_equal", _wrap_SwigPyIterator_equal, METH_VARARGS, NULL},
-	 { "SwigPyIterator_copy", _wrap_SwigPyIterator_copy, METH_O, NULL},
-	 { "SwigPyIterator___next__", _wrap_SwigPyIterator___next__, METH_O, NULL},
-	 { "SwigPyIterator_previous", _wrap_SwigPyIterator_previous, METH_O, NULL},
-	 { "SwigPyIterator_advance", _wrap_SwigPyIterator_advance, METH_VARARGS, NULL},
-	 { "SwigPyIterator___eq__", _wrap_SwigPyIterator___eq__, METH_VARARGS, NULL},
-	 { "SwigPyIterator___ne__", _wrap_SwigPyIterator___ne__, METH_VARARGS, NULL},
-	 { "SwigPyIterator___iadd__", _wrap_SwigPyIterator___iadd__, METH_VARARGS, NULL},
-	 { "SwigPyIterator___isub__", _wrap_SwigPyIterator___isub__, METH_VARARGS, NULL},
-	 { "SwigPyIterator___add__", _wrap_SwigPyIterator___add__, METH_VARARGS, NULL},
-	 { "SwigPyIterator___sub__", _wrap_SwigPyIterator___sub__, METH_VARARGS, NULL},
+	 { "delete_SwigPyIterator", _wrap_delete_SwigPyIterator, METH_O, "delete_SwigPyIterator(SwigPyIterator self)"},
+	 { "SwigPyIterator_value", _wrap_SwigPyIterator_value, METH_O, "SwigPyIterator_value(SwigPyIterator self) -> PyObject *"},
+	 { "SwigPyIterator_incr", _wrap_SwigPyIterator_incr, METH_VARARGS, "SwigPyIterator_incr(SwigPyIterator self, size_t n=1) -> SwigPyIterator"},
+	 { "SwigPyIterator_decr", _wrap_SwigPyIterator_decr, METH_VARARGS, "SwigPyIterator_decr(SwigPyIterator self, size_t n=1) -> SwigPyIterator"},
+	 { "SwigPyIterator_distance", _wrap_SwigPyIterator_distance, METH_VARARGS, "SwigPyIterator_distance(SwigPyIterator self, SwigPyIterator x) -> ptrdiff_t"},
+	 { "SwigPyIterator_equal", _wrap_SwigPyIterator_equal, METH_VARARGS, "SwigPyIterator_equal(SwigPyIterator self, SwigPyIterator x) -> bool"},
+	 { "SwigPyIterator_copy", _wrap_SwigPyIterator_copy, METH_O, "SwigPyIterator_copy(SwigPyIterator self) -> SwigPyIterator"},
+	 { "SwigPyIterator___next__", _wrap_SwigPyIterator___next__, METH_O, "SwigPyIterator___next__(SwigPyIterator self) -> PyObject *"},
+	 { "SwigPyIterator_previous", _wrap_SwigPyIterator_previous, METH_O, "SwigPyIterator_previous(SwigPyIterator self) -> PyObject *"},
+	 { "SwigPyIterator_advance", _wrap_SwigPyIterator_advance, METH_VARARGS, "SwigPyIterator_advance(SwigPyIterator self, ptrdiff_t n) -> SwigPyIterator"},
+	 { "SwigPyIterator___eq__", _wrap_SwigPyIterator___eq__, METH_VARARGS, "SwigPyIterator___eq__(SwigPyIterator self, SwigPyIterator x) -> bool"},
+	 { "SwigPyIterator___ne__", _wrap_SwigPyIterator___ne__, METH_VARARGS, "SwigPyIterator___ne__(SwigPyIterator self, SwigPyIterator x) -> bool"},
+	 { "SwigPyIterator___iadd__", _wrap_SwigPyIterator___iadd__, METH_VARARGS, "SwigPyIterator___iadd__(SwigPyIterator self, ptrdiff_t n) -> SwigPyIterator"},
+	 { "SwigPyIterator___isub__", _wrap_SwigPyIterator___isub__, METH_VARARGS, "SwigPyIterator___isub__(SwigPyIterator self, ptrdiff_t n) -> SwigPyIterator"},
+	 { "SwigPyIterator___add__", _wrap_SwigPyIterator___add__, METH_VARARGS, "SwigPyIterator___add__(SwigPyIterator self, ptrdiff_t n) -> SwigPyIterator"},
+	 { "SwigPyIterator___sub__", _wrap_SwigPyIterator___sub__, METH_VARARGS, "\n"
+		"SwigPyIterator___sub__(SwigPyIterator self, ptrdiff_t n) -> SwigPyIterator\n"
+		"SwigPyIterator___sub__(SwigPyIterator self, SwigPyIterator x) -> ptrdiff_t\n"
+		""},
 	 { "SwigPyIterator_swigregister", SwigPyIterator_swigregister, METH_O, NULL},
 	 { "new_GenericObjectA", _wrap_new_GenericObjectA, METH_O, "\n"
+		"new_GenericObjectA(int V) -> GenericObjectA\n"
 		"\n"
-		"Skeleton::GenericObjectA::GenericObjectA(int V)\n"
 		"Skeleton::GenericObjectA::GenericObjectA\n"
 		""},
-	 { "GenericObjectA___str__", _wrap_GenericObjectA___str__, METH_O, NULL},
+	 { "GenericObjectA___str__", _wrap_GenericObjectA___str__, METH_O, "GenericObjectA___str__(GenericObjectA self) -> std::string"},
 	 { "GenericObjectA__v_v", _wrap_GenericObjectA__v_v, METH_VARARGS, "\n"
+		"GenericObjectA__v_v(GenericObjectA self) -> int\n"
+		"GenericObjectA__v_v(GenericObjectA self, int const & V)\n"
 		"\n"
-		"void Skeleton::GenericObjectA::v(int V)\n"
 		"Skeleton::GenericObjectA::v\n"
 		""},
-	 { "delete_GenericObjectA", _wrap_delete_GenericObjectA, METH_O, NULL},
+	 { "delete_GenericObjectA", _wrap_delete_GenericObjectA, METH_O, "delete_GenericObjectA(GenericObjectA self)"},
 	 { "GenericObjectA_swigregister", GenericObjectA_swigregister, METH_O, NULL},
 	 { "GenericObjectA_swiginit", GenericObjectA_swiginit, METH_VARARGS, NULL},
 	 { "new_GenericObjectB", _wrap_new_GenericObjectB, METH_O, "\n"
+		"new_GenericObjectB(boost::shared_ptr< Skeleton::GenericObjectA > const & V) -> GenericObjectB\n"
 		"\n"
-		"Skeleton::GenericObjectB::GenericObjectB(const boost::shared_ptr< GenericObjectA > &V)\n"
 		"Skeleton::GenericObjectB::GenericObjectB\n"
 		""},
-	 { "GenericObjectB___str__", _wrap_GenericObjectB___str__, METH_O, NULL},
+	 { "GenericObjectB___str__", _wrap_GenericObjectB___str__, METH_O, "GenericObjectB___str__(GenericObjectB self) -> std::string"},
 	 { "GenericObjectB__v_a", _wrap_GenericObjectB__v_a, METH_VARARGS, "\n"
+		"GenericObjectB__v_a(GenericObjectB self) -> boost::shared_ptr< Skeleton::GenericObjectA >\n"
+		"GenericObjectB__v_a(GenericObjectB self, boost::shared_ptr< Skeleton::GenericObjectA > const & V)\n"
 		"\n"
-		"void Skeleton::GenericObjectB::a(const boost::shared_ptr< GenericObjectA > &V)\n"
 		"Skeleton::GenericObjectB::a\n"
 		""},
-	 { "delete_GenericObjectB", _wrap_delete_GenericObjectB, METH_O, NULL},
+	 { "delete_GenericObjectB", _wrap_delete_GenericObjectB, METH_O, "delete_GenericObjectB(GenericObjectB self)"},
 	 { "GenericObjectB_swigregister", GenericObjectB_swigregister, METH_O, NULL},
 	 { "GenericObjectB_swiginit", GenericObjectB_swiginit, METH_VARARGS, NULL},
 	 { "new_GenericObjectB2", _wrap_new_GenericObjectB2, METH_O, "\n"
+		"new_GenericObjectB2(GenericObjectA V) -> GenericObjectB2\n"
 		"\n"
-		"Skeleton::GenericObjectB2::GenericObjectB2(const GenericObjectA &V)\n"
 		"Skeleton::GenericObjectB2::GenericObjectB2\n"
 		""},
 	 { "GenericObjectB2__v_a", _wrap_GenericObjectB2__v_a, METH_VARARGS, "\n"
+		"GenericObjectB2__v_a(GenericObjectB2 self) -> GenericObjectA\n"
+		"GenericObjectB2__v_a(GenericObjectB2 self, GenericObjectA V)\n"
 		"\n"
-		"void Skeleton::GenericObjectB2::a(const GenericObjectA &V)\n"
 		"Skeleton::GenericObjectB2::a\n"
 		""},
-	 { "delete_GenericObjectB2", _wrap_delete_GenericObjectB2, METH_O, NULL},
+	 { "delete_GenericObjectB2", _wrap_delete_GenericObjectB2, METH_O, "delete_GenericObjectB2(GenericObjectB2 self)"},
 	 { "GenericObjectB2_swigregister", GenericObjectB2_swigregister, METH_O, NULL},
 	 { "GenericObjectB2_swiginit", GenericObjectB2_swiginit, METH_VARARGS, NULL},
 	 { "new_GenericObjectC", _wrap_new_GenericObjectC, METH_O, "\n"
+		"new_GenericObjectC(boost::shared_ptr< Skeleton::GenericObjectA > const & V) -> GenericObjectC\n"
 		"\n"
-		"Skeleton::GenericObjectC::GenericObjectC(const boost::shared_ptr< GenericObjectA > &V)\n"
 		"Skeleton::GenericObjectC::GenericObjectC\n"
 		""},
-	 { "GenericObjectC___str__", _wrap_GenericObjectC___str__, METH_O, NULL},
+	 { "GenericObjectC___str__", _wrap_GenericObjectC___str__, METH_O, "GenericObjectC___str__(GenericObjectC self) -> std::string"},
 	 { "GenericObjectC__v_a", _wrap_GenericObjectC__v_a, METH_VARARGS, "\n"
+		"GenericObjectC__v_a(GenericObjectC self) -> boost::shared_ptr< Skeleton::GenericObjectA >\n"
+		"GenericObjectC__v_a(GenericObjectC self, boost::shared_ptr< Skeleton::GenericObjectA > const & V)\n"
 		"\n"
-		"void Skeleton::GenericObjectC::a(const boost::shared_ptr< GenericObjectA > &V)\n"
 		"Skeleton::GenericObjectC::a\n"
 		""},
-	 { "delete_GenericObjectC", _wrap_delete_GenericObjectC, METH_O, NULL},
+	 { "delete_GenericObjectC", _wrap_delete_GenericObjectC, METH_O, "delete_GenericObjectC(GenericObjectC self)"},
 	 { "GenericObjectC_swigregister", GenericObjectC_swigregister, METH_O, NULL},
 	 { "GenericObjectC_swiginit", GenericObjectC_swiginit, METH_VARARGS, NULL},
 	 { NULL, NULL, 0, NULL }
@@ -7616,76 +7623,83 @@ static PyMethodDef SwigMethods[] = {
 static PyMethodDef SwigMethods_proxydocs[] = {
 	 { "SWIG_PyInstanceMethod_New", SWIG_PyInstanceMethod_New, METH_O, NULL},
 	 { "SWIG_PyStaticMethod_New", SWIG_PyStaticMethod_New, METH_O, NULL},
-	 { "delete_SwigPyIterator", _wrap_delete_SwigPyIterator, METH_O, NULL},
-	 { "SwigPyIterator_value", _wrap_SwigPyIterator_value, METH_O, NULL},
-	 { "SwigPyIterator_incr", _wrap_SwigPyIterator_incr, METH_VARARGS, NULL},
-	 { "SwigPyIterator_decr", _wrap_SwigPyIterator_decr, METH_VARARGS, NULL},
-	 { "SwigPyIterator_distance", _wrap_SwigPyIterator_distance, METH_VARARGS, NULL},
-	 { "SwigPyIterator_equal", _wrap_SwigPyIterator_equal, METH_VARARGS, NULL},
-	 { "SwigPyIterator_copy", _wrap_SwigPyIterator_copy, METH_O, NULL},
-	 { "SwigPyIterator___next__", _wrap_SwigPyIterator___next__, METH_O, NULL},
-	 { "SwigPyIterator_previous", _wrap_SwigPyIterator_previous, METH_O, NULL},
-	 { "SwigPyIterator_advance", _wrap_SwigPyIterator_advance, METH_VARARGS, NULL},
-	 { "SwigPyIterator___eq__", _wrap_SwigPyIterator___eq__, METH_VARARGS, NULL},
-	 { "SwigPyIterator___ne__", _wrap_SwigPyIterator___ne__, METH_VARARGS, NULL},
-	 { "SwigPyIterator___iadd__", _wrap_SwigPyIterator___iadd__, METH_VARARGS, NULL},
-	 { "SwigPyIterator___isub__", _wrap_SwigPyIterator___isub__, METH_VARARGS, NULL},
-	 { "SwigPyIterator___add__", _wrap_SwigPyIterator___add__, METH_VARARGS, NULL},
-	 { "SwigPyIterator___sub__", _wrap_SwigPyIterator___sub__, METH_VARARGS, NULL},
+	 { "delete_SwigPyIterator", _wrap_delete_SwigPyIterator, METH_O, "delete_SwigPyIterator(SwigPyIterator self)"},
+	 { "SwigPyIterator_value", _wrap_SwigPyIterator_value, METH_O, "value(SwigPyIterator self) -> PyObject *"},
+	 { "SwigPyIterator_incr", _wrap_SwigPyIterator_incr, METH_VARARGS, "incr(SwigPyIterator self, size_t n=1) -> SwigPyIterator"},
+	 { "SwigPyIterator_decr", _wrap_SwigPyIterator_decr, METH_VARARGS, "decr(SwigPyIterator self, size_t n=1) -> SwigPyIterator"},
+	 { "SwigPyIterator_distance", _wrap_SwigPyIterator_distance, METH_VARARGS, "distance(SwigPyIterator self, SwigPyIterator x) -> ptrdiff_t"},
+	 { "SwigPyIterator_equal", _wrap_SwigPyIterator_equal, METH_VARARGS, "equal(SwigPyIterator self, SwigPyIterator x) -> bool"},
+	 { "SwigPyIterator_copy", _wrap_SwigPyIterator_copy, METH_O, "copy(SwigPyIterator self) -> SwigPyIterator"},
+	 { "SwigPyIterator___next__", _wrap_SwigPyIterator___next__, METH_O, "__next__(SwigPyIterator self) -> PyObject *"},
+	 { "SwigPyIterator_previous", _wrap_SwigPyIterator_previous, METH_O, "previous(SwigPyIterator self) -> PyObject *"},
+	 { "SwigPyIterator_advance", _wrap_SwigPyIterator_advance, METH_VARARGS, "advance(SwigPyIterator self, ptrdiff_t n) -> SwigPyIterator"},
+	 { "SwigPyIterator___eq__", _wrap_SwigPyIterator___eq__, METH_VARARGS, "__eq__(SwigPyIterator self, SwigPyIterator x) -> bool"},
+	 { "SwigPyIterator___ne__", _wrap_SwigPyIterator___ne__, METH_VARARGS, "__ne__(SwigPyIterator self, SwigPyIterator x) -> bool"},
+	 { "SwigPyIterator___iadd__", _wrap_SwigPyIterator___iadd__, METH_VARARGS, "__iadd__(SwigPyIterator self, ptrdiff_t n) -> SwigPyIterator"},
+	 { "SwigPyIterator___isub__", _wrap_SwigPyIterator___isub__, METH_VARARGS, "__isub__(SwigPyIterator self, ptrdiff_t n) -> SwigPyIterator"},
+	 { "SwigPyIterator___add__", _wrap_SwigPyIterator___add__, METH_VARARGS, "__add__(SwigPyIterator self, ptrdiff_t n) -> SwigPyIterator"},
+	 { "SwigPyIterator___sub__", _wrap_SwigPyIterator___sub__, METH_VARARGS, "\n"
+		"__sub__(SwigPyIterator self, ptrdiff_t n) -> SwigPyIterator\n"
+		"__sub__(SwigPyIterator self, SwigPyIterator x) -> ptrdiff_t\n"
+		""},
 	 { "SwigPyIterator_swigregister", SwigPyIterator_swigregister, METH_O, NULL},
 	 { "new_GenericObjectA", _wrap_new_GenericObjectA, METH_O, "\n"
+		"new_GenericObjectA(int V) -> GenericObjectA\n"
 		"\n"
-		"Skeleton::GenericObjectA::GenericObjectA(int V)\n"
 		"Skeleton::GenericObjectA::GenericObjectA\n"
 		""},
-	 { "GenericObjectA___str__", _wrap_GenericObjectA___str__, METH_O, NULL},
+	 { "GenericObjectA___str__", _wrap_GenericObjectA___str__, METH_O, "__str__(GenericObjectA self) -> std::string"},
 	 { "GenericObjectA__v_v", _wrap_GenericObjectA__v_v, METH_VARARGS, "\n"
+		"_v_v(GenericObjectA self) -> int\n"
+		"_v_v(GenericObjectA self, int const & V)\n"
 		"\n"
-		"void Skeleton::GenericObjectA::v(int V)\n"
 		"Skeleton::GenericObjectA::v\n"
 		""},
-	 { "delete_GenericObjectA", _wrap_delete_GenericObjectA, METH_O, NULL},
+	 { "delete_GenericObjectA", _wrap_delete_GenericObjectA, METH_O, "delete_GenericObjectA(GenericObjectA self)"},
 	 { "GenericObjectA_swigregister", GenericObjectA_swigregister, METH_O, NULL},
 	 { "GenericObjectA_swiginit", GenericObjectA_swiginit, METH_VARARGS, NULL},
 	 { "new_GenericObjectB", _wrap_new_GenericObjectB, METH_O, "\n"
+		"new_GenericObjectB(boost::shared_ptr< Skeleton::GenericObjectA > const & V) -> GenericObjectB\n"
 		"\n"
-		"Skeleton::GenericObjectB::GenericObjectB(const boost::shared_ptr< GenericObjectA > &V)\n"
 		"Skeleton::GenericObjectB::GenericObjectB\n"
 		""},
-	 { "GenericObjectB___str__", _wrap_GenericObjectB___str__, METH_O, NULL},
+	 { "GenericObjectB___str__", _wrap_GenericObjectB___str__, METH_O, "__str__(GenericObjectB self) -> std::string"},
 	 { "GenericObjectB__v_a", _wrap_GenericObjectB__v_a, METH_VARARGS, "\n"
+		"_v_a(GenericObjectB self) -> boost::shared_ptr< Skeleton::GenericObjectA >\n"
+		"_v_a(GenericObjectB self, boost::shared_ptr< Skeleton::GenericObjectA > const & V)\n"
 		"\n"
-		"void Skeleton::GenericObjectB::a(const boost::shared_ptr< GenericObjectA > &V)\n"
 		"Skeleton::GenericObjectB::a\n"
 		""},
-	 { "delete_GenericObjectB", _wrap_delete_GenericObjectB, METH_O, NULL},
+	 { "delete_GenericObjectB", _wrap_delete_GenericObjectB, METH_O, "delete_GenericObjectB(GenericObjectB self)"},
 	 { "GenericObjectB_swigregister", GenericObjectB_swigregister, METH_O, NULL},
 	 { "GenericObjectB_swiginit", GenericObjectB_swiginit, METH_VARARGS, NULL},
 	 { "new_GenericObjectB2", _wrap_new_GenericObjectB2, METH_O, "\n"
+		"new_GenericObjectB2(GenericObjectA V) -> GenericObjectB2\n"
 		"\n"
-		"Skeleton::GenericObjectB2::GenericObjectB2(const GenericObjectA &V)\n"
 		"Skeleton::GenericObjectB2::GenericObjectB2\n"
 		""},
 	 { "GenericObjectB2__v_a", _wrap_GenericObjectB2__v_a, METH_VARARGS, "\n"
+		"_v_a(GenericObjectB2 self) -> GenericObjectA\n"
+		"_v_a(GenericObjectB2 self, GenericObjectA V)\n"
 		"\n"
-		"void Skeleton::GenericObjectB2::a(const GenericObjectA &V)\n"
 		"Skeleton::GenericObjectB2::a\n"
 		""},
-	 { "delete_GenericObjectB2", _wrap_delete_GenericObjectB2, METH_O, NULL},
+	 { "delete_GenericObjectB2", _wrap_delete_GenericObjectB2, METH_O, "delete_GenericObjectB2(GenericObjectB2 self)"},
 	 { "GenericObjectB2_swigregister", GenericObjectB2_swigregister, METH_O, NULL},
 	 { "GenericObjectB2_swiginit", GenericObjectB2_swiginit, METH_VARARGS, NULL},
 	 { "new_GenericObjectC", _wrap_new_GenericObjectC, METH_O, "\n"
+		"new_GenericObjectC(boost::shared_ptr< Skeleton::GenericObjectA > const & V) -> GenericObjectC\n"
 		"\n"
-		"Skeleton::GenericObjectC::GenericObjectC(const boost::shared_ptr< GenericObjectA > &V)\n"
 		"Skeleton::GenericObjectC::GenericObjectC\n"
 		""},
-	 { "GenericObjectC___str__", _wrap_GenericObjectC___str__, METH_O, NULL},
+	 { "GenericObjectC___str__", _wrap_GenericObjectC___str__, METH_O, "__str__(GenericObjectC self) -> std::string"},
 	 { "GenericObjectC__v_a", _wrap_GenericObjectC__v_a, METH_VARARGS, "\n"
+		"_v_a(GenericObjectC self) -> boost::shared_ptr< Skeleton::GenericObjectA >\n"
+		"_v_a(GenericObjectC self, boost::shared_ptr< Skeleton::GenericObjectA > const & V)\n"
 		"\n"
-		"void Skeleton::GenericObjectC::a(const boost::shared_ptr< GenericObjectA > &V)\n"
 		"Skeleton::GenericObjectC::a\n"
 		""},
-	 { "delete_GenericObjectC", _wrap_delete_GenericObjectC, METH_O, NULL},
+	 { "delete_GenericObjectC", _wrap_delete_GenericObjectC, METH_O, "delete_GenericObjectC(GenericObjectC self)"},
 	 { "GenericObjectC_swigregister", GenericObjectC_swigregister, METH_O, NULL},
 	 { "GenericObjectC_swiginit", GenericObjectC_swiginit, METH_VARARGS, NULL},
 	 { NULL, NULL, 0, NULL }

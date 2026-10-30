@@ -51,6 +51,8 @@ import weakref
 
 SWIG_MODULE_ALREADY_DONE = _iostream_swig.SWIG_MODULE_ALREADY_DONE
 class SwigPyIterator(object):
+    r"""Proxy of C++ swig::SwigPyIterator class."""
+
     thisown = property(lambda x: x.this.own(), lambda x, v: x.this.own(v), doc="The membership flag")
 
     def __init__(self, *args, **kwargs):
@@ -78,6 +80,7 @@ class SwigPyIterator(object):
 # Register SwigPyIterator in _iostream_swig:
 _iostream_swig.SwigPyIterator_swigregister(SwigPyIterator)
 SHARED_PTR_DISOWN = _iostream_swig.SHARED_PTR_DISOWN
+
 
 import os
 
@@ -126,10 +129,12 @@ import skeleton_swig.generic_object
 class IostreamSwig(skeleton_swig.generic_object.GenericObject):
     r"""
 
-    This is a simple class that we can use to test that we use SWIG to map
-    between python IO object and C++ stream object.
 
-    C++ includes: iostream_swig.h 
+    This is a simple class that we can use to test that we use SWIG to map between
+    python IO object and C++ stream object.  
+
+    C++ includes: iostream_swig.h
+
     """
 
     thisown = property(lambda x: x.this.own(), lambda x, v: x.this.own(v), doc="The membership flag")
@@ -137,10 +142,10 @@ class IostreamSwig(skeleton_swig.generic_object.GenericObject):
 
     def __init__(self, *args):
         r"""
+        __init__(IostreamSwig self, std::string const & To_write="hi there", int Word_to_read=2) -> IostreamSwig
 
-        Skeleton::IostreamSwig::IostreamSwig(const std::string &To_write="hi there", int Word_to_read=2)
         Skeleton::IostreamSwig::IostreamSwig
-        Constructor.
+        Constructor.  
 
         """
         _iostream_swig.IostreamSwig_swiginit(self, _iostream_swig.new_IostreamSwig(*args))

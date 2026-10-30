@@ -51,6 +51,8 @@ import weakref
 
 SWIG_MODULE_ALREADY_DONE = _generic_object_sample.SWIG_MODULE_ALREADY_DONE
 class SwigPyIterator(object):
+    r"""Proxy of C++ swig::SwigPyIterator class."""
+
     thisown = property(lambda x: x.this.own(), lambda x, v: x.this.own(v), doc="The membership flag")
 
     def __init__(self, *args, **kwargs):
@@ -78,6 +80,7 @@ class SwigPyIterator(object):
 # Register SwigPyIterator in _generic_object_sample:
 _generic_object_sample.SwigPyIterator_swigregister(SwigPyIterator)
 SHARED_PTR_DISOWN = _generic_object_sample.SHARED_PTR_DISOWN
+
 
 import os
 
@@ -126,9 +129,11 @@ import skeleton_swig.generic_object
 class GenericObjectA(skeleton_swig.generic_object.GenericObject):
     r"""
 
-    Simple set of classes for testing serialization support in python.
 
-    C++ includes: generic_object_sample.h 
+    Simple set of classes for testing serialization support in python.  
+
+    C++ includes: generic_object_sample.h
+
     """
 
     thisown = property(lambda x: x.this.own(), lambda x, v: x.this.own(v), doc="The membership flag")
@@ -136,8 +141,8 @@ class GenericObjectA(skeleton_swig.generic_object.GenericObject):
 
     def __init__(self, V):
         r"""
+        __init__(GenericObjectA self, int V) -> GenericObjectA
 
-        Skeleton::GenericObjectA::GenericObjectA(int V)
         Skeleton::GenericObjectA::GenericObjectA
         """
         _generic_object_sample.GenericObjectA_swiginit(self, _generic_object_sample.new_GenericObjectA(V))
@@ -167,6 +172,7 @@ _generic_object_sample.GenericObjectA_swigregister(GenericObjectA)
 class GenericObjectB(skeleton_swig.generic_object.GenericObject):
     r"""
 
+
     C++ includes: generic_object_sample.h
 
     """
@@ -176,8 +182,8 @@ class GenericObjectB(skeleton_swig.generic_object.GenericObject):
 
     def __init__(self, V):
         r"""
+        __init__(GenericObjectB self, boost::shared_ptr< Skeleton::GenericObjectA > const & V) -> GenericObjectB
 
-        Skeleton::GenericObjectB::GenericObjectB(const boost::shared_ptr< GenericObjectA > &V)
         Skeleton::GenericObjectB::GenericObjectB
         """
         _generic_object_sample.GenericObjectB_swiginit(self, _generic_object_sample.new_GenericObjectB(V))
@@ -207,6 +213,7 @@ _generic_object_sample.GenericObjectB_swigregister(GenericObjectB)
 class GenericObjectB2(skeleton_swig.generic_object.GenericObject):
     r"""
 
+
     C++ includes: generic_object_sample.h
 
     """
@@ -216,8 +223,8 @@ class GenericObjectB2(skeleton_swig.generic_object.GenericObject):
 
     def __init__(self, V):
         r"""
+        __init__(GenericObjectB2 self, GenericObjectA V) -> GenericObjectB2
 
-        Skeleton::GenericObjectB2::GenericObjectB2(const GenericObjectA &V)
         Skeleton::GenericObjectB2::GenericObjectB2
         """
         _generic_object_sample.GenericObjectB2_swiginit(self, _generic_object_sample.new_GenericObjectB2(V))
@@ -246,6 +253,7 @@ _generic_object_sample.GenericObjectB2_swigregister(GenericObjectB2)
 class GenericObjectC(skeleton_swig.generic_object.GenericObject):
     r"""
 
+
     C++ includes: generic_object_sample.h
 
     """
@@ -255,8 +263,8 @@ class GenericObjectC(skeleton_swig.generic_object.GenericObject):
 
     def __init__(self, V):
         r"""
+        __init__(GenericObjectC self, boost::shared_ptr< Skeleton::GenericObjectA > const & V) -> GenericObjectC
 
-        Skeleton::GenericObjectC::GenericObjectC(const boost::shared_ptr< GenericObjectA > &V)
         Skeleton::GenericObjectC::GenericObjectC
         """
         _generic_object_sample.GenericObjectC_swiginit(self, _generic_object_sample.new_GenericObjectC(V))
