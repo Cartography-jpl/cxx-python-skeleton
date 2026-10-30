@@ -63,6 +63,7 @@ skeleton_test_all_SOURCES+= @srclib@/printable_test.cc
 skeleton_test_all_SOURCES+= @srclib@/skeleton_exception_test.cc
 skeleton_test_all_SOURCES+= @srclib@/blitz_array_serialize_support_test.cc
 skeleton_test_all_SOURCES+= @srclib@/golden_archive_test.cc
+skeleton_test_all_SOURCES+= @srclib@/serialize_function_test.cc
 
 # Generator for the golden archives in unit_test_data/golden. These are
 # committed, so only regenerate deliberately, see
