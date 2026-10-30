@@ -36,7 +36,7 @@ private:
   void serialize(Archive & ar, const unsigned int version);
 };
 
-class GenericObjectB2 : public Printable<GenericObjectB> {
+class GenericObjectB2 : public Printable<GenericObjectB2> {
 public:
   GenericObjectB2(const GenericObjectA& V) : a_(V) {}
   void print(std::ostream& Os) const {Os << "B2";}

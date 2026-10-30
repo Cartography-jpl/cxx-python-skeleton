@@ -50,6 +50,6 @@ SKELETON_IMPLEMENT(DirectorExampleWeakPtr);
 void DirectorExample::print(std::ostream& Os) const
 {
   Os << "DirectorExample:\n"
-     << "  name:         " << name_
+     << "  name:         " << name_ << "\n"
      << "  value_to_add: " << value_to_add_;
 }

@@ -21,17 +21,6 @@ public:
 
   Exception(const std::string& W = "") 
   { 
-    // This reserve shouldn't really be necessary, but on a Mac
-    // 10.4.11 using gcc 4.0.1, there is some kind of bug where we get
-    // a "Double free" error when printing in Ruby. I never tracked
-    // exactly where this occurred, but it was somewhere in the
-    // iostream library when the buffer of os was resized. We just
-    // reserve enough space up front so this isn't an issue. Since
-    // this only gets called when an exception occurs, there shouldn't
-    // be much of a performance issue with this.
-    std::string buf("blah");
-    buf.reserve(1000);
-    s_.str(buf);
     s_ << W;  
   }
 
@@ -42,8 +31,9 @@ public:
   Exception(const Exception& E)
   {
     try {
-      std::string cp(E.s_.str());
-      s_.str(cp);
+      // Stream the message in (rather than s_.str(...)), so the
+      // stream is positioned at the end and a later << appends.
+      s_ << E.s_.str();
     } catch(...) {		// Ignore all errors.
     }
   }
