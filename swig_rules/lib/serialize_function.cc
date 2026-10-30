@@ -228,9 +228,12 @@ void SWIG_MAPPER_NAMESPACE::skip_weak_ptr_handling(bool Skip)
 static void mark_pointer(const boost::shared_ptr<GenericObject>& Obj)
 {
 #ifdef SWIG_HAVE_BOOST_SERIALIZATION
+  // Clear even when skipping the first pass, otherwise the marks left
+  // by the previous write are used (stale pointers, possibly to
+  // unrelated objects at a reused address).
+  clear_ptr_serialized_reference();
   if(skip_weak_ptr_handling())
     return;
-  clear_ptr_serialized_reference();
   std::ostringstream os_first_pass;
   boost::archive::polymorphic_binary_oarchive oa(os_first_pass);
   oa << boost::serialization::make_nvp("geocal_object", Obj);
