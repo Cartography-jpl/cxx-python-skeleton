@@ -257,7 +257,8 @@ am__objects_1 = @swigsrc@/_swig_wrap_la-skeleton_exception_wrap.lo \
 	@swigsrc@/_swig_wrap_la-serialize_function_wrap.lo \
 	@swigsrc@/_swig_wrap_la-numpy_sample_wrap.lo \
 	@swigsrc@/_swig_wrap_la-exception_sample_wrap.lo \
-	@swigsrc@/_swig_wrap_la-array_typemap_sample_wrap.lo
+	@swigsrc@/_swig_wrap_la-array_typemap_sample_wrap.lo \
+	@swigsrc@/_swig_wrap_la-swig_rules_sample_wrap.lo
 am__objects_2 = $(am__objects_1)
 am__objects_3 = @swigsrc@/_swig_wrap_la-swig_array_wrap.lo \
 	@swigsrc@/_swig_wrap_la-swig_boost_array_wrap.lo \
@@ -360,6 +361,7 @@ am__depfiles_remade = @srclib@/$(DEPDIR)/golden_archive_generator-golden_archive
 	@swigsrc@/$(DEPDIR)/_swig_wrap_la-skeleton_exception_wrap.Plo \
 	@swigsrc@/$(DEPDIR)/_swig_wrap_la-swig_array_wrap.Plo \
 	@swigsrc@/$(DEPDIR)/_swig_wrap_la-swig_boost_array_wrap.Plo \
+	@swigsrc@/$(DEPDIR)/_swig_wrap_la-swig_rules_sample_wrap.Plo \
 	@swigsrc@/$(DEPDIR)/_swig_wrap_la-swig_std_wrap.Plo \
 	@swigsrc@/$(DEPDIR)/_swig_wrap_la-swig_wrap.Plo
 am__mv = mv -f
@@ -932,7 +934,8 @@ SWIG_SRC = @swigsrc@/skeleton_exception_wrap.cc \
 	@swigsrc@/serialize_function_wrap.cc \
 	@swigsrc@/numpy_sample_wrap.cc \
 	@swigsrc@/exception_sample_wrap.cc \
-	@swigsrc@/array_typemap_sample_wrap.cc
+	@swigsrc@/array_typemap_sample_wrap.cc \
+	@swigsrc@/swig_rules_sample_wrap.cc
 
 # Include blitz in builds
 libskeleton_la_LDFLAGS = -R $(BOOST_LIBDIR) -L$(BOOST_LIBDIR) \
@@ -959,7 +962,7 @@ skeletoninc_HEADERS = @swigrules@/lib/swig_type_mapper_base.h \
 	@srclib@/iostream_swig.h \
 	@srclib@/blitz_array_serialize_support.h \
 	@srclib@/numpy_sample.h @srclib@/exception_sample.h \
-	@srclib@/array_typemap_sample.h
+	@srclib@/array_typemap_sample.h @srclib@/swig_rules_sample.h
 
 # Files that contain SWIG wrapper information.
 skeletonswiginc_HEADERS = @srclib@/skeleton_common.i \
@@ -968,7 +971,7 @@ skeletonswiginc_HEADERS = @srclib@/skeleton_common.i \
 	@srclib@/director_example.i @srclib@/generic_object_map.i \
 	@srclib@/iostream_swig.i @srclib@/serialize_function.i \
 	@srclib@/numpy_sample.i @srclib@/exception_sample.i \
-	@srclib@/array_typemap_sample.i
+	@srclib@/array_typemap_sample.i @srclib@/swig_rules_sample.i
 skeleton_test_all_SOURCES = @srclib@/test_all.cc \
 	@srclib@/global_fixture.cc @srclib@/global_fixture_default.cc \
 	@srclib@/generic_object_map_test.cc @srclib@/printable_test.cc \
@@ -1278,6 +1281,8 @@ clean-pkgpythonswigLTLIBRARIES:
 	@swigsrc@/$(am__dirstamp) @swigsrc@/$(DEPDIR)/$(am__dirstamp)
 @swigsrc@/_swig_wrap_la-array_typemap_sample_wrap.lo:  \
 	@swigsrc@/$(am__dirstamp) @swigsrc@/$(DEPDIR)/$(am__dirstamp)
+@swigsrc@/_swig_wrap_la-swig_rules_sample_wrap.lo:  \
+	@swigsrc@/$(am__dirstamp) @swigsrc@/$(DEPDIR)/$(am__dirstamp)
 @swigsrc@/_swig_wrap_la-swig_array_wrap.lo: @swigsrc@/$(am__dirstamp) \
 	@swigsrc@/$(DEPDIR)/$(am__dirstamp)
 @swigsrc@/_swig_wrap_la-swig_boost_array_wrap.lo:  \
@@ -1467,6 +1472,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@@swigsrc@/$(DEPDIR)/_swig_wrap_la-skeleton_exception_wrap.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@@swigsrc@/$(DEPDIR)/_swig_wrap_la-swig_array_wrap.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@@swigsrc@/$(DEPDIR)/_swig_wrap_la-swig_boost_array_wrap.Plo@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@@swigsrc@/$(DEPDIR)/_swig_wrap_la-swig_rules_sample_wrap.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@@swigsrc@/$(DEPDIR)/_swig_wrap_la-swig_std_wrap.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@@swigsrc@/$(DEPDIR)/_swig_wrap_la-swig_wrap.Plo@am__quote@ # am--include-marker
 
@@ -1569,6 +1575,13 @@ am--depfiles: $(am__depfiles_remade)
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='@swigsrc@/array_typemap_sample_wrap.cc' object='@swigsrc@/_swig_wrap_la-array_typemap_sample_wrap.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(_swig_wrap_la_CPPFLAGS) $(CPPFLAGS) $(_swig_wrap_la_CXXFLAGS) $(CXXFLAGS) -c -o @swigsrc@/_swig_wrap_la-array_typemap_sample_wrap.lo `test -f '@swigsrc@/array_typemap_sample_wrap.cc' || echo '$(srcdir)/'`@swigsrc@/array_typemap_sample_wrap.cc
+
+@swigsrc@/_swig_wrap_la-swig_rules_sample_wrap.lo: @swigsrc@/swig_rules_sample_wrap.cc
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(_swig_wrap_la_CPPFLAGS) $(CPPFLAGS) $(_swig_wrap_la_CXXFLAGS) $(CXXFLAGS) -MT @swigsrc@/_swig_wrap_la-swig_rules_sample_wrap.lo -MD -MP -MF @swigsrc@/$(DEPDIR)/_swig_wrap_la-swig_rules_sample_wrap.Tpo -c -o @swigsrc@/_swig_wrap_la-swig_rules_sample_wrap.lo `test -f '@swigsrc@/swig_rules_sample_wrap.cc' || echo '$(srcdir)/'`@swigsrc@/swig_rules_sample_wrap.cc
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) @swigsrc@/$(DEPDIR)/_swig_wrap_la-swig_rules_sample_wrap.Tpo @swigsrc@/$(DEPDIR)/_swig_wrap_la-swig_rules_sample_wrap.Plo
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='@swigsrc@/swig_rules_sample_wrap.cc' object='@swigsrc@/_swig_wrap_la-swig_rules_sample_wrap.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(_swig_wrap_la_CPPFLAGS) $(CPPFLAGS) $(_swig_wrap_la_CXXFLAGS) $(CXXFLAGS) -c -o @swigsrc@/_swig_wrap_la-swig_rules_sample_wrap.lo `test -f '@swigsrc@/swig_rules_sample_wrap.cc' || echo '$(srcdir)/'`@swigsrc@/swig_rules_sample_wrap.cc
 
 @swigsrc@/_swig_wrap_la-swig_array_wrap.lo: @swigsrc@/swig_array_wrap.cc
 @am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(_swig_wrap_la_CPPFLAGS) $(CPPFLAGS) $(_swig_wrap_la_CXXFLAGS) $(CXXFLAGS) -MT @swigsrc@/_swig_wrap_la-swig_array_wrap.lo -MD -MP -MF @swigsrc@/$(DEPDIR)/_swig_wrap_la-swig_array_wrap.Tpo -c -o @swigsrc@/_swig_wrap_la-swig_array_wrap.lo `test -f '@swigsrc@/swig_array_wrap.cc' || echo '$(srcdir)/'`@swigsrc@/swig_array_wrap.cc
@@ -2540,6 +2553,7 @@ distclean: distclean-am
 	-rm -f @swigsrc@/$(DEPDIR)/_swig_wrap_la-skeleton_exception_wrap.Plo
 	-rm -f @swigsrc@/$(DEPDIR)/_swig_wrap_la-swig_array_wrap.Plo
 	-rm -f @swigsrc@/$(DEPDIR)/_swig_wrap_la-swig_boost_array_wrap.Plo
+	-rm -f @swigsrc@/$(DEPDIR)/_swig_wrap_la-swig_rules_sample_wrap.Plo
 	-rm -f @swigsrc@/$(DEPDIR)/_swig_wrap_la-swig_std_wrap.Plo
 	-rm -f @swigsrc@/$(DEPDIR)/_swig_wrap_la-swig_wrap.Plo
 	-rm -f Makefile
@@ -2628,6 +2642,7 @@ maintainer-clean: maintainer-clean-am
 	-rm -f @swigsrc@/$(DEPDIR)/_swig_wrap_la-skeleton_exception_wrap.Plo
 	-rm -f @swigsrc@/$(DEPDIR)/_swig_wrap_la-swig_array_wrap.Plo
 	-rm -f @swigsrc@/$(DEPDIR)/_swig_wrap_la-swig_boost_array_wrap.Plo
+	-rm -f @swigsrc@/$(DEPDIR)/_swig_wrap_la-swig_rules_sample_wrap.Plo
 	-rm -f @swigsrc@/$(DEPDIR)/_swig_wrap_la-swig_std_wrap.Plo
 	-rm -f @swigsrc@/$(DEPDIR)/_swig_wrap_la-swig_wrap.Plo
 	-rm -f Makefile
