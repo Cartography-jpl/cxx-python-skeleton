@@ -351,11 +351,9 @@ public:
 			    %convertptr_flags);
   if(!SWIG_IsOK(res)) {
     numpy.obj = to_numpy<TYPE >($input);
-    if(!numpy.obj) {
+    if(!numpy.obj || PyArray_NDIM((PyArrayObject*)numpy.obj) !=DIM) {
       SWIG_Error(SWIG_TypeError, "in method '$symname', expecting type  Array<TYPE,DIM>");
-    }
-    if(PyArray_NDIM((PyArrayObject*)numpy.obj) !=DIM) {
-      SWIG_Error(SWIG_TypeError, "in method '$symname', expecting type  Array<TYPE,DIM>");
+      return NULL;
     }
     a.reference(to_blitz_array<TYPE, DIM>(numpy).copy());
     $1 = &a;
@@ -371,11 +369,9 @@ public:
 %typemap(in) blitz::Array<TYPE, DIM> (PythonObject numpy) 
 {
   numpy.obj = to_numpy<TYPE >($input);
-  if(!numpy.obj) {
+  if(!numpy.obj || PyArray_NDIM((PyArrayObject*)numpy.obj) !=DIM) {
     SWIG_Error(SWIG_TypeError, "in method '$symname', expecting type  Array<TYPE,DIM>");
-  }
-  if(PyArray_NDIM((PyArrayObject*)numpy.obj) !=DIM) {
-    SWIG_Error(SWIG_TypeError, "in method '$symname', expecting type  Array<TYPE,DIM>");
+    return NULL;
   }
   $1 = to_blitz_array<TYPE, DIM>(numpy);
 }
@@ -386,12 +382,14 @@ public:
 
 %typemap(directorout) blitz::Array<TYPE, DIM> (PythonObject numpy) 
 {
+  // Note that just setting the error isn't enough, we need to stop
+  // here (the code used to go on with a null pointer and segfault). We
+  // are in C++ called from C++, so throw PythonException, which
+  // swig_exception.i turns back into the python error.
   PythonObject t(to_numpy<TYPE >($input));
-  if(!t.obj) {
+  if(!t.obj || PyArray_NDIM((PyArrayObject*)t.obj) !=DIM) {
     SWIG_Error(SWIG_TypeError, "in method '$symname', expecting type  Array<TYPE,DIM>");
-  }
-  if(PyArray_NDIM((PyArrayObject*)t.obj) !=DIM) {
-    SWIG_Error(SWIG_TypeError, "in method '$symname', expecting type  Array<TYPE,DIM>");
+    throw PythonException();
   }
   $result.reference(to_blitz_array<TYPE, DIM>(t).copy());
 }
