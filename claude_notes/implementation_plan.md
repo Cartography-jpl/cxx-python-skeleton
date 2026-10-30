@@ -1,7 +1,7 @@
 # swig-rules-skeleton: implementation plan for the modernization
 
-**Date:** 2026-10-23
-**Status:** In progress. Phase S0 is done; see §0 for the current step.
+**Date:** 2026-10-23 (reviewed and updated 2026-10-30: geocal sync §2.5, test coverage phase ST §4a)
+**Status:** In progress. Phase S0 is done; the next phase is ST (test hardening); see §0.
 **Purpose:** Work through every modernization step planned for geocal (and later framework) on this small repository
 first, so the problems are found and solved here before touching the large repositories.
 
@@ -15,10 +15,12 @@ Related documents:
 
 ## 0. Handoff: where to pick up (read this first)
 
-**Status (2026-10-23):** **Phase S0 is done** (all 8 steps; see the progress log). The maintainer reviews and commits it, then
-may tag `phase0-baseline`. The next step is **Phase S1** (C++20, tooling, hygiene), which includes the clang-format
-trial (S1.6, using `claude_notes/clang_format_trial.clang-format`). The maintainer has to say "go" before S1 starts; if
-unsure, ask.
+**Status (2026-10-30):** **Phase S0 is done** (all 8 steps; see the progress log). A review on 2026-10-30 measured the
+test coverage (§4a) and found that the tests don't cover enough to catch regressions in S1–S6, plus a few real bugs. So
+the next step is the new **Phase ST** (test hardening, §4a), done **before** S1. It also brings in the `swig_rules`
+changes made in geocal since 2026-10-23 (§2.5). After ST comes **Phase S1** (C++20, tooling, hygiene), including the
+clang-format trial (S1.6, using `claude_notes/clang_format_trial.clang-format`). The maintainer has to say "go" before
+ST starts (approved 2026-10-30, §13 item 11; code work still waits for "go"); if unsure, ask.
 
 **Rules for working in this repository** (maintainer decisions):
 * Work on the **`modernize`** branch (already checked out). Don't touch `master` (it keeps the set-aside pickling work).
@@ -34,10 +36,22 @@ unsure, ask.
 |---|---|
 | This repo | `/home/smyth/Local/swig-rules-skeleton` (same as `/ldata/smyth/swig-rules-skeleton`) |
 | Scratch build + pixi env (disposable; fine to modify its `pixi.toml`) | `/home/smyth/Local/swig-rules-skeleton-build/build-pixi`; configure with `../../swig-rules-skeleton/configure --prefix=$CONDA_PREFIX --enable-maintainer-mode --enable-debug` |
+| Coverage build (scratch, uses the `build-pixi` env) | `/home/smyth/Local/swig-rules-skeleton-build/build-coverage`; recipe in §4a "Coverage builds" |
 | nanobind probe sources (reference for S6.1) | `claude_notes/nanobind_probes/` (see its README) |
 | geocal plan (the large repo this rehearses) | `/ssdata/smyth/geocal-repo/claude_documents/cpp_modernization_and_library_plan.md` |
 | framework (follows later; read-only survey) | `/home/smyth/Local/framework` |
 | Earlier discussion (superseded where it disagrees) | `claude_notes/modernization_ideas.md` (§11), `serialization_options.md` (§9), `build_layout_review.md`, `swig_rules_review.md` |
+
+**Notes for geocal (and framework)** — things found here that geocal should also change. A Claude session working
+on geocal and pointed at this repository should read this list, check each item against geocal's current code, and
+apply it there (or record why not) in geocal's plan:
+| Item | Found | geocal/framework action |
+|---|---|---|
+| `python-install` should uninstall before installing | 2026-10-30, §4a "Coverage builds", decision 17 | geocal `python/python.am` (from `python_editable_install_plan.md`) has the same rule. Without the uninstall, switching from a normal to an editable install leaves the old copied package in `site-packages`, which shadows the editable one (seen here: imports and coverage silently used the stale copy). Add `pip uninstall -y geocal` (ignore "not installed") before the `pip install` in both branches. |
+| `"blah"` printing bug | 2026-10-30, §4a bug 3, decision 12 | `print_to_string` / `Exception` seed an `ostringstream` with `"blah"`, so outputs shorter than 4 characters come out wrong (`'Alah'`). Same code in geocal `lib/GeoCalCore/Support/printable.h`, `geocal_exception.h`, `lib/Msp/msp.h`, `lib/swig_quaternion.i`; framework `lib/Support/printable.h`, `fp_exception.h`. Use a plain `std::ostringstream`; add a test with a 1-character `print`. |
+| Test coverage measurement | 2026-10-30, §4a | Recipe in §4a "Coverage builds" (`gcovr`; the system `lcov` 1.14 can't read gcc 15 data). geocal should measure its own coverage before its Phase 5/6, especially for the `swig_rules` typemaps (table in §4a). |
+| `swig_rules` changes flow both ways for now | decision 15 | Before copying `swig_rules/` or `config/m4/` in either direction, diff the trees and merge file by file. geocal-only settings (e.g. `swig_rules/__init__.py` `if True:`) must not be overwritten. |
+| SWIG pin | decision 14 | geocal already pins `4.4.*`; the skeleton pins `4.5.*`. Keep each pinned to its committed wrappers. |
 
 **Progress log** (update as phases complete; one line per step):
 | Phase / step | State | Notes |
@@ -51,6 +65,8 @@ unsure, ask.
 | S0.6 `--without-boost-serialization` | done | Builds and C++ tests pass (`--without-swig --without-documentation`). Fixed: 3 `.cc` files guarded, `swig_rules/lib/serialize_shared_ptr.h` body guarded, `-DSWIG_HAVE_BOOST_SERIALIZATION` only when serialization is on (new `HAVE_BOOST_SERIALIZATION` conditional), map tests skip, a stale `GEOCAL_` macro in the blitz test, `ac_boost.m4` no longer requires `libboost_serialization` in that case. Geocal reference: the same pattern. |
 | S0.7 housekeeping | done | No `*~` files were tracked. `.gitignore` extended (egg-info, pytest_tmp, test xml). |
 | S0.8 sanitizer | done | See "Sanitizer builds" below. |
+| Review 2026-10-30 | done | geocal changes since 2026-10-23 reviewed (§2.5). Coverage measured (§4a): C++ `lib/` + `swig_rules/lib/` 52% of lines, Python `skeleton` package 42% (`swig_shelve.py` 38%); most `swig_rules` typemaps are never exercised. Bugs found that no test catches: §4a "Bugs found". `gcovr` and `pytest-cov` added to the scratch `build-pixi` env (not yet to `env/linux/pixi.toml`). Phase ST added before S1. |
+| ST | not started | Approved 2026-10-30 with decisions §13 items 11–17. `.json` shelves kept (they are used downstream). Waiting for "go". |
 
 ---
 
@@ -277,6 +293,41 @@ Consequences:
   (`add_observer_and_keep_reference` with a Python observer). These cycles through C++ are invisible to Python's GC,
   under SWIG today as well. Tests should drop such references explicitly before exit.
 
+### 2.5 geocal changes since the last sync (reviewed 2026-10-30)
+
+geocal (`develop_2_0`, commits `60e4c54c7`..`2193f1953`, 2026-10-23 to 2026-10-27) changed its copy of `swig_rules/`
+and its plan. Decision 9 (§13) says geocal copies `swig_rules/` *from* the skeleton, so changes made first in geocal
+have to come back here, or the next copy to geocal would undo them. File-by-file diff of geocal's `swig_rules/`
+against this repository's:
+
+| File | geocal change | Action here |
+|---|---|---|
+| `include/swig_array.i` | SWIG ≥ 4.4 uses multi-phase init, so `import_array()` (returns `NULL` on failure, which looks like success) became `import_array1(-1)` under `#if SWIG_VERSION >= 0x040400` | **Take it** (ST.1). The skeleton builds with SWIG 4.5.0, so it has the same latent bug: a numpy import failure would not be reported. |
+| `include/swig_vector_shared_ptr.i` | New `%shared_ptr_value_traits(TYPE)`: lets a Python list convert to `std::vector<T>` when `T` is wrapped with `%shared_ptr` but stored by value (e.g. `std::vector<Time>`), and makes iteration return real objects instead of leaked untyped pointers | **Take it**, and add a sample + test (ST.3), since the skeleton has no by-value vector of a shared_ptr-wrapped class. Note for S6: the nanobind equivalent is `nb::bind_vector` / the STL caster; add the sample to the S6.1 item 9 acceptance tests. |
+| `swig_rules.am`, new `py.typed`, `__init__.py` comment | Generates `<pkg>_swig/__init__.pyi` (star-imports every module) and installs it with `py.typed` and optional hand-written `SWIG_PYI` stubs, so mypy sees the SWIG classes | **Take it** (ST.1). Check `make mypy` in `python/` still works. For S6.5 this becomes `nanobind.stubgen`; record that the hand-written-stub mechanism (`SWIG_PYI`) is replaced there. |
+| `__init__.py` | `if False:` → `if True:` (geocal glob-imports every module into the top package) | **Don't take**: this is a geocal-specific setting. Keep the skeleton's value; note it in `swig_rules/README.md` as the one line each project sets. |
+| `doxygen_single.cfg` | `WARNINGS = NO` (single-file runs give spurious warnings); `MACRO_EXPANSION = YES`, `EXPAND_ONLY_PREDEF = YES`, `PREDEFINED = "UNUSED(x)=x"`; regenerated for doxygen 1.13 | **Take it.** `UNUSED` is defined in geocal's `generic_object.h`, not in the skeleton's; harmless here. |
+| `doxy2swig.py` | geocal has the newer upstream m7thon version (2025-10-17, `2246a41ef`, "basic type information in the docstrings"); the skeleton still has the 2019 one | **Take it**, and regenerate the committed wrappers (separate commit). Matters for S6.3: the nanobind docstring generator should start from this version. |
+| `lib/serialize_shared_ptr.h` | geocal lacks the S0.6 `#ifdef SWIG_HAVE_BOOST_SERIALIZATION` guard | Nothing here; geocal gets it at its next copy (geocal Phase 0 step 4a). |
+| `config/m4/ac_msp.m4` | `-I` → `-isystem` for MSP headers | Take it (geocal-only macro, but keeps `config/m4/` identical for copying). |
+
+Other geocal changes that affect this plan:
+* **SWIG version pin.** geocal now pins `swig = "4.4.*"` so regenerated wrappers match the committed ones. The
+  skeleton's env has unpinned `swig` (4.5.0 today). Pinning here too keeps wrapper diffs meaningful; open question
+  (§13).
+* **`TypeError` for type check failures** (geocal decision 2026-10-25; geocal plan Phase 6 cleanup item). SWIG maps
+  every `std::exception` to `RuntimeError`. In S6.1 item 6 the skeleton must prove the pattern: a library exception
+  type (`Skeleton::TypeError : Exception`, *not* `nb::type_error`, so `libskeleton` stays Python-free), and a
+  translator registered in the module that maps it to Python `TypeError`. Added to S6.1 item 6 and §12.
+* **Warnings cleanup** (geocal 2026-10-25/27): gcc 15 `-Wall` clean apart from Blitz false positives, plus
+  `--strict-markers` and a curated `filterwarnings` list in `pytest.ini`. Both belong in S1 here (S1.2) and ST
+  (`--strict-markers`). geocal's `dir_change.h` fix (destructor doesn't throw, constructor closes the handle) is
+  already done in the skeleton's `serialize_function.cc` `DirChange`, but that class is still not tested (§4a).
+* **`RELEASE_NOTES_2.0.md`**: geocal records every user-visible change. The skeleton has no users, but the S6.6
+  "Python API changes to record" list should be written in the same form, so geocal can copy entries.
+* **mypy** now passes in geocal with `--disallow-untyped-defs`, and `make` generates the `__init__.pyi`. S6.5 must
+  keep that working with nanobind stubs.
+
 ---
 
 ## 3. Phase overview
@@ -287,12 +338,13 @@ passing (or explicitly `xfail`ed with a reason), the golden-archive test green, 
 | Skeleton phase | Content | geocal plan phase |
 |---|---|---|
 | **S0** | Baseline, housekeeping, safety nets | 0 |
+| **ST** | Test hardening (added 2026-10-30): coverage measurement, tests for every `swig_rules` feature consumers use, bug fixes found by them, geocal sync (§2.5). **Done before S1.** | 0 (geocal should repeat the coverage measurement) |
 | **S1** | C++20 switch, tooling, hygiene, Exception/Printable modernization | 1 |
 | **S2** | Boost → std (not in the API) | 2 |
 | — | GSL / libsdbx / FFTW (geocal only) | 3 |
 | **S3** | `std::optional`, `std::array` (touch SWIG typemaps and serialization) | 4 |
 | **S4** | `std::shared_ptr` in C++ and serialization; Python bindings broken until S6 (the state just before S4 is `swig-final`) | 5 |
-| **S5** | New samples for consumer patterns (Observer, multiple/virtual inheritance, template director, arrays). **Do all of S5 before S4**: S4 breaks the Python bindings until S6, so SWIG reference results for the new samples' Python tests can only be recorded before S4. Order of work: S0 → S1 → S2 → S3 → S5 → S4 → S6 | (prerequisite for 4 and 6) |
+| **S5** | New samples for consumer patterns (Observer, multiple/virtual inheritance, template director, arrays). **Do all of S5 before S4**: S4 breaks the Python bindings until S6, so SWIG reference results for the new samples' Python tests can only be recorded before S4. Order of work: S0 → ST → S1 → S2 → S3 → S5 → S4 → S6 | (prerequisite for 4 and 6) |
 | **S6** | nanobind: rules library, bindings (numpy ↔ Blitz through `mdspan` views), build, stubs/docstrings, SWIG removal | 6 |
 | **S7** | Later: `mdspan` for raw pointer-plus-size interfaces, C++23, CMake reference expansion | 7 |
 
@@ -338,13 +390,181 @@ passing (or explicitly `xfail`ed with a reason), the golden-archive test green, 
 
 ---
 
+## 4a. Phase ST: test hardening (added 2026-10-30, before S1)
+
+**Question asked:** once modernizing starts, will the tests tell us if something broke? **Answer: not yet.** The
+tests are good at what they were written for (director lifetime, pickling of `GenericObject`s with shared and weak
+pointers, numpy lifetime, the golden archives). But most of what `swig_rules` provides, and what geocal and framework
+rely on, is never run by any test. Each later phase rewrites exactly those pieces: S1 `Printable`/`Exception`, S2
+`serialize_function.cc`, S3 `boost::optional`/`boost::array` typemaps, S6 *all* typemaps. A regression there would
+pass the suite today.
+
+### Coverage measured (2026-10-30)
+
+Build: `build-coverage` (recipe below), `make skeleton-check` (C++ 1/1) then pytest (21 passed, 6 xfailed). Line
+coverage from `gcovr` (C++) and `pytest-cov` (Python).
+
+| Area | Lines covered | Not covered (main gaps) |
+|---|---|---|
+| C++ `lib/` + `swig_rules/lib/`, total | **52%** (1050 of 1986) | |
+| `lib/skeleton_exception.h` | **0%** | `Exception` is never constructed or thrown in a C++ test; `range_check*` never called. From Python, the only exception test is a Python exception raised in a director. |
+| `lib/printable.h` | 30% | Only `printable_test.cc` with one class. `desc()` override path tested only indirectly. |
+| `lib/blitz_array_serialize_support.cc` | 20% | Only `double`/`int`/`bool` and `std::string` arrays; `float`, `short`, `unsigned`, `unsigned short`, `char`, `unsigned char` never serialized (and four of them can't be, S0.3 finding b). |
+| `swig_rules/lib/serialize_function.cc` | 85% | `serialize_write_binary(file)` never called; `DirChange` error paths; read of a missing file; `skip_weak_ptr_handling`. |
+| `swig_rules/lib/serialize_shared_ptr.h` | 91% | The director branch of `our_shared_ptr::reset` (loading an archive containing a Python director object) is hit only from Python. |
+| `swig_rules/lib/swig_type_mapper.h` | 49% | Only the classes the Python tests happen to return. |
+| Python `skeleton` package | **42%** | `swig_shelve.py` 38%: `.bin` write, `.json`, sqlite `key` path, `shelve_time_after`, `extra_python_init`, `SQLiteShelf` methods. |
+
+`swig_rules/include/*.i` typemaps (no line coverage; checked by reading the tests and the generated `_wrap.cc`
+coverage). geocal/framework counts are the number of `.i` files using the feature:
+
+| `swig_rules` feature | Tested here? | geocal `.i` files | framework |
+|---|---|---|---|
+| `blitz::Array<double,2>` in/out, lifetime | yes (`numpy_sample_test.py`) | many | many |
+| Other ranks (1, 3–8) and element types (`int`, `bool`, …) | **no** | `int` 12, `bool` 14 | many |
+| `OUTPUT`/`OUTPUT1`/`OUTPUT2` argout typemaps | **no** | 47 | 15 |
+| `FORCE_COPY` | **no** | 2 | 6 |
+| non-contiguous / Fortran-ordered numpy input, wrong dtype/rank error | **no** | | ColumnMajor 831 C++ uses |
+| `std::vector<blitz::Array>` in/out, director in/out of Blitz arrays | **no** | | |
+| `boost::array` (`swig_boost_array.i`, `%python_attribute_boost_array`) | **no** (no sample; S3 adds one) | 26 / 3 | |
+| `boost::optional<int>`, `<double>` | **no** (only `optional<blitz::Range>` out) | 1 / 1 | |
+| `boost::rational` (`swig_rational.i`) | **no** | 4 | 3 |
+| `%python_attribute` / `_with_set` | yes | | |
+| `%python_attribute2*`, `_nonconst`, `_with_set_virtual` | **no** | 23 / 1 / 7 | |
+| `%pickle_serialization` | yes | 161 | |
+| `%pickle_init`, `%pickle_vector`, `%pickle_serialization_dir` | **no** | 14 / 1 / 7 | 1 / – / – |
+| `Vector_*` (`std::vector<T>`) pickling, `swig_std.i` `vector_double` etc. | **no** | | |
+| `%shared_ptr_value_traits` (geocal 2026-10-27, §2.5) | **no** (not here yet) | 2 | |
+| iostream in/out | yes | 5 | |
+| `__str__` through `print_to_string` | **no assertion** anywhere | all | all |
+| C++ `Exception` → Python `RuntimeError` with message | **no** | all | all |
+| Unknown non-`std::exception` C++ throw → `RuntimeError` (`catch(...)`) | **no** | | |
+| Return `shared_ptr<GenericObject>` → most-derived Python type | partly (via `GenericObjectMap.__getitem__`) | | |
+| `SHARED_PTR_NO_OWN` | yes (`test_director_example_weak_ptr`) | 0 | |
+
+### Bugs found by this review (none is caught by a test today)
+
+1. **`write_shelve("x.bin", obj)` always fails** with `TypeError: serialize_write_binary() takes exactly one argument
+   (2 given)`. Same root cause as the S0.3 `.bin` read `xfail`: the skeleton's `lib/serialize_function.i` lacks the
+   file-based `serialize_write_binary(Fname, Obj)` and `serialize_read_binary_generic(Fname)` that
+   `swig_rules/lib/serialize_function.i.sample` has. Fix: bring `serialize_function.i` in line with the sample, then
+   drop the 5 `xfail`s.
+2. **`write_shelve`/`read_shelve` with `.json` fails** (`RuntimeError: input stream error`). jsonpickle encodes
+   `__reduce__`'s `bytearray` argument as an empty `{"py/object": "builtins.bytearray"}`, so the binary blob is lost.
+   **Skeleton-only:** geocal, framework and `serialize_function.i.sample` return `bytes`, which jsonpickle round-trips,
+   and framework tests `.json` of a C++ object. Same fix as bug 1 (decision 13).
+3. **`Printable::print_to_string` returns text prefixed with `"blah"`-overwritten garbage.** `std::ostringstream
+   os(buf)` with `buf = "blah"` starts writing at position 0 *over* `"blah"`, so output shorter than 4 characters
+   keeps the tail: `str(GenericObjectA(3))` is `'Alah'`, `str(GenericObjectB(a))` is `'Blah'`. Same in
+   `Exception` (`what()` of `Exception("x")` is `"xlah"`). **This bug is also in geocal** (`printable.h`,
+   `geocal_exception.h`, `msp.h`, `swig_quaternion.i`) **and framework** (`printable.h`, `fp_exception.h`) and
+   `swig_rules/lib/printable.h.sample`. It only shows for text shorter than 4 characters, which is why it went
+   unnoticed. S1.4/S1.5 already removes this code; ST adds the tests that catch it first.
+4. **`GenericObjectB2 : Printable<GenericObjectB>`** (`lib/generic_object_sample.h`), a CRTP typo: should be
+   `Printable<GenericObjectB2>`. `print_to_string` casts `this` to the wrong class (undefined behavior); it is not
+   exposed to SWIG, so `str()` gives the default repr. Fixing it doesn't change the archive (the serialize function
+   registers only `GenericObject` as base); verify with the golden archives.
+5. Known from S0.3, still open: four `blitz::Array` element types instantiated but not serializable. Since all 9
+   types are kept (decision 16), add the missing `BOOST_SERIALIZATION_SPLIT_FREE` lines in ST and extend the golden
+   corpus to them (new files only; existing ones unchanged).
+
+### ST steps
+
+Steps follow the decisions of 2026-10-30 (§13 items 11–17). Each step ends with `make check` green; new tests that expose a bug are first added as `xfail(strict=True)`, then the
+fix removes the `xfail` in the same staged change (so the reviewer sees both).
+
+1. **geocal sync** (§2.5): `swig_array.i`, `swig_vector_shared_ptr.i`, `swig_rules.am` + `py.typed` (`.pyi`),
+   `doxygen_single.cfg`, `doxy2swig.py`, `ac_msp.m4`. Regenerate wrappers in a separate change.
+2. **Coverage tooling, made repeatable**: add `gcovr` and `pytest-cov` to `env/linux/pixi.toml` (already in the
+   scratch env); add a `make coverage` target (or a `script/coverage.sh`) that runs the recipe below and writes
+   `coverage/` HTML. Not part of `make check`.
+3. **New samples and tests for the untested `swig_rules` features** (one small `lib/` sample class with C++ and
+   Python tests, mirroring how geocal uses them). These must survive S6 unchanged as the nanobind acceptance tests,
+   so test *behavior*, not SWIG details (no `.this`, no proxy type names, except in tests explicitly marked SWIG-only):
+   * `ArrayTypemapSample`: Blitz arrays of all 9 element types (decision 16) at ranks 1, 2, 3; `OUTPUT`/`OUTPUT1`/`OUTPUT2`; `FORCE_COPY`; `std::vector<blitz::Array>`; a director
+     method taking and returning a Blitz array; numpy input that is non-contiguous, Fortran-ordered, a wrong dtype
+     (expect conversion or a clear error, record which) and a wrong rank (error).
+   * `OptionalSample`: `boost::optional<int>`, `<double>`, `<blitz::Range>` in and out, engaged and disengaged.
+     (S3 converts these to `std::optional`; the tests stay.)
+   * `boost::rational<int>` round trip.
+   * `%python_attribute2`, `_nonconst`, `_with_set_virtual` (overridden in a Python subclass).
+   * `%pickle_init`, `%pickle_vector` (`Vector_*` of a `GenericObject` and of `int`), `%pickle_serialization_dir`.
+   * `%shared_ptr_value_traits`: a by-value `std::vector<ValueType>` from a Python list, iteration returns typed
+     objects.
+   * Downcast: a C++ function returning `shared_ptr<GenericObject>` for each sample class gives the most-derived
+     Python type and a method call works.
+4. **Printing and exceptions** (gaps for S1):
+   * C++: `operator<<` and `print_to_string` agree for each sample class, including outputs shorter than 4
+     characters (bug 3); `Exception` streaming, copy, `what()`; `range_check` throws with the expected text.
+   * Python: `str()` of every sample class asserted against an exact string (this is the "`str()` unchanged" baseline
+     S1.7 compares against); a C++ `Exception` thrown into Python is `RuntimeError` with the exact message; an unknown
+     C++ throw becomes `RuntimeError("unknown C++ exception")`; `desc()` override from Python is used by `str()`.
+5. **Serialization file entry points** (moved forward from S2, which rewrites this code): C++ tests for
+   `serialize_write`/`serialize_read_generic`, binary file write/read, `.gz` on both, reading a missing file raises,
+   relative paths read from the archive's directory and the working directory is restored also when the read throws.
+   Fix bugs 1 and 2 by bringing `lib/serialize_function.i` in line with `swig_rules/lib/serialize_function.i.sample`
+   (file-based binary read/write, `bytes` instead of `bytearray`, accepting both on input), and remove the 5 golden
+   `.bin` `xfail`s.
+6. **`swig_shelve.py`**: tests for every format (`.xml`, `.xml.gz`, `.bin`, `.bin.gz`, `file.db:key`, `.json`),
+   `shelve_time_after`, `extra_python_init.py` / `_extra_python_init`, `SQLiteShelf` (keys, `in`, delete, update
+   time). `.json` stays supported (decision 13); its test is the check for bug 2.
+7. **Small fixes**:
+   * bug 3, the `"blah"` printing bug (decision 12): in `lib/printable.h`, `lib/skeleton_exception.h` and
+     `swig_rules/lib/printable.h.sample`, use a plain `std::ostringstream` (no seed string). The tests from step 4
+     come first. Note for geocal/framework in §0;
+   * bug 4 (CRTP typo);
+   * `--strict-markers` in `python/tests/pytest.ini` (as geocal did);
+   * pin SWIG `4.5.*` in `env/linux/pixi.toml` (decision 14);
+   * `python/python.am` `python-install`: run `$(PYTHON) -m pip uninstall -y <pkg>` (with the same prefix on the
+     path; ignore "not installed") before the install, so a switch between normal and editable mode can't leave a
+     shadowing copy (decision 17). Verify both directions as in geocal's `python_editable_install_plan.md`.
+8. **`multiprocessing.Pool` round trip** of a plain C++ object and a director object (moved forward from §12: it
+   passes or fails under SWIG today, and that result is the S6 target).
+9. Re-measure coverage and record it in the progress log. Target: no `swig_rules` feature used by geocal or
+   framework is untested; C++ line coverage of `lib/` + `swig_rules/lib/` ≥ 80% excluding Blitz explicit
+   instantiations that aren't used.
+10. **Record the SWIG reference results** (counts and the list of `xfail`s) in the progress log. These, plus the S5
+    results, are what S6 has to reproduce.
+
+**Exit:** ST steps done; S0 phase-end checklist green (gcc 15, gcc 14, `--without-boost-serialization`, ASan);
+suggested tag `phaseT-tests`.
+
+### Coverage builds
+
+The system `lcov` (1.14) can't read gcc 15 coverage data; use `gcovr` from the pixi env.
+
+    cd /home/smyth/Local/swig-rules-skeleton-build/build-coverage      # uses the build-pixi env
+    pixi run --manifest-path ../build-pixi/pixi.toml bash
+    ../../swig-rules-skeleton/configure --prefix=$PWD/inst --without-documentation \
+        CXXFLAGS="-O0 -g --coverage" LDFLAGS="--coverage"
+    make -j 16 && make install PYTHON_EDITABLE_MODE=t
+    find . -name '*.gcda' -delete
+    make skeleton-check
+    source script/setup_skeleton.sh
+    (cd ../../swig-rules-skeleton/python && pytest --cov=skeleton --cov-report=term-missing tests)
+    gcovr -r ../../swig-rules-skeleton . --filter '.*/swig-rules-skeleton/(lib|swig_rules/lib)/' \
+        --exclude '.*_test\.cc' --exclude '.*golden_archive_generator.*' --exclude '.*(global_fixture|test_all).*'
+
+Notes:
+* The editable install (`PYTHON_EDITABLE_MODE=t`) is needed so `pytest-cov` measures the files in the source tree.
+  **Gotcha:** if a normal `make install` was done first, pip leaves the old copied `site-packages/skeleton/`
+  directory behind and it shadows the editable install; delete it (or `pip uninstall skeleton` with the same prefix)
+  before switching. The same applies to geocal's pixi env. Fixed in ST step 7 (`python-install` uninstalls first,
+  §13 decision 17); geocal should do the same (§0 "Notes for geocal").
+* The C++ numbers include the code run from Python (the `.so` is instrumented too), so they are combined C++ +
+  Python coverage of the C++ code.
+
+---
+
 ## 5. Phase S1: C++20, tooling, hygiene
 
 1. **C++20**: `AX_CXX_COMPILE_STDCXX([20], [noext], [mandatory])` in `config/m4_local/skeleton_common.m4`. Fall back to
    `ext` only if something needs GNU extensions. `config/m4/afids_common.m4` is the shared `autoconf-repo` subtree;
    change it there only in coordination with geocal (or keep the setting project-local, as the skeleton already does).
 2. **Warnings**: third-party include paths as `-isystem` (Boost already is via `BOOST_CPPFLAGS`; do the same for Blitz).
-   Add `-Wall -Wextra -Wdeprecated` to the debug build.
+   Add `-Wall -Wextra -Wdeprecated` to the debug build. geocal reached a gcc 15 `-Wall`-clean build on 2026-10-27
+   (only Blitz false positives left, §2.5); aim for the same here, and add a pytest `filterwarnings` list like
+   geocal's (specific entries only).
 3. **clang-tidy** with `compile_commands.json` (not from `bear`: it doesn't run on this host; use `script/make_compile_commands.py` and
    `script/run_clang_tidy.sh`, see the S0.4 note). Apply, one check per commit:
    `modernize-use-override`, `modernize-use-nullptr`, `modernize-use-noexcept` (`throw()` in `skeleton_exception.h`),
@@ -353,7 +573,9 @@ passing (or explicitly `xfail`ed with a reason), the golden-archive test green, 
    checks needed manual fixes and which SWIG could not parse. Regenerate wrappers in separate commits.
 4. **`Printable<T>`** (`lib/printable.h`, plus `swig_rules/lib/printable.h.sample`):
    * `static_cast<const T*>(this)` instead of the C-style casts;
-   * remove the "Mac 10.4.11 double free" `buf.reserve(1000)` workaround (also copy-pasted into `skeleton_exception.h`);
+   * remove the "Mac 10.4.11 double free" `buf.reserve(1000)` workaround (also copy-pasted into `skeleton_exception.h`).
+     It is not just dead code: it is the source of the `"blah"` output bug (§4a bug 3). If ST already fixed the bug,
+     this step only removes what's left;
    * add a generic `std::formatter` for anything derived from `Printable<T>` (calls `print_wrapper`).
 
    Keep `desc()`, the virtual `GenericObject` base, and the class name.
@@ -391,12 +613,9 @@ passing (or explicitly `xfail`ed with a reason), the golden-archive test green, 
 | `BOOST_FOREACH`, `noncopyable`, `scoped_ptr` | where present | |
 | Keep `boost::iostreams` gzip | `serialize_function.cc` | Kept by decision. |
 
-Tests to add first (gap noted in `swig_rules_review.md`):
-* C++ tests for the file entry points `serialize_write`, `serialize_read_generic`, `serialize_read_binary_generic`:
-  XML file, binary file, `.gz` auto-detection on write and read.
-* A test that the working directory is restored when a read throws.
-
-Run these before and after the regex/filesystem change.
+Tests: the `serialize_function` file entry point tests (XML, binary, `.gz`, working-directory restore on a throw)
+were moved forward to ST step 5, so they exist and pass before this phase. Run them before and after the
+regex/filesystem change.
 
 **Exit:** compiled Boost libraries needed by `libskeleton` reduced to serialization, iostreams (and test);
 golden archives load; tag `phase2-boost-std`.
@@ -528,6 +747,13 @@ Decide and test each of these, in this order:
      should give for free.
 6. **Exceptions**: a translator for the C++ `Exception` hierarchy (`nb::register_exception_translator`) and for Python
    exceptions raised in overrides (works already, keep the tests).
+   * Add `Skeleton::TypeError : Exception` (a library type, not `nb::type_error`, so `libskeleton` stays
+     Python-free) and map it to Python `TypeError`. This is the pattern for geocal's deferred Phase 6 item
+     (`IgcMspImp::ground_coordinate_dem`, §2.5). Check what nanobind's default translations do with `std::`
+     exceptions in the pinned version (geocal's plan believes none maps to `TypeError`; `std::invalid_argument` →
+     `ValueError`).
+   * Keep the catch-all for non-`std::exception` throws (today's `catch(...)` in `swig_exception.i`); the ST test
+     for it is the acceptance test.
 7. **numpy ↔ Blitz through `mdspan`** (matches the geocal plan §3.3.1, which adds `mdspan` together with the nanobind
    pilot):
    * Add the conda-forge `mdspan` package, **pinned to the `0.6.1.dev20260223` snapshot** (not `0.6.0`, which
@@ -637,9 +863,19 @@ Tag `nanobind-1`.
 
 ## 12. Test additions: summary checklist
 
+**Phase ST (§4a; before S1)**
+* [ ] Coverage tooling (`gcovr`, `pytest-cov`) in `env/linux/pixi.toml` and a `make coverage` target
+* [ ] Every `swig_rules` typemap/macro used by geocal or framework has a Python test (table in §4a)
+* [ ] Exact `str()` for every sample class; C++ `Exception` → `RuntimeError` with exact message; unknown throw
+* [ ] `operator<<` == `print_to_string`, short outputs (the `"blah"` bug); `Exception`/`range_check` C++ tests
+* [ ] `serialize_function` file entry points: XML, binary, `.gz`; missing file; working-directory restore on exception
+* [ ] `swig_shelve` every format, `shelve_time_after`, `extra_python_init`, `SQLiteShelf`
+* [ ] `multiprocessing.Pool` round trip (plain and director object)
+* [ ] `%shared_ptr_value_traits` vector sample (from geocal)
+
 **C++ (Boost.Test)**
 * [ ] Golden-archive load test: every class, XML and binary (S0); byte-identical re-write after `std::shared_ptr` (S4)
-* [ ] `serialize_function` file entry points: XML, binary, `.gz`; working-directory restore on exception (S2)
+* [ ] `serialize_function` file entry points: XML, binary, `.gz`; working-directory restore on exception (ST; rerun in S2)
 * [ ] `--without-boost-serialization` build compiles and C++ tests pass (S0, every phase)
 * [ ] `std::formatter` == `operator<<`; `Exception` format constructor, `source_location`, stacktrace (S1)
 * [ ] `std::optional` and `std::array` serialization round trip, old-archive load (S3)
@@ -666,11 +902,13 @@ Tag `nanobind-1`.
       under SWIG since S0) must keep passing, or record why not (S6)
 * [ ] Director lifetime: existing exact `__del__` count tests, plus "C++ keeps Python subclass alive after Python drops
       it" (S6)
-* [ ] Exception propagation from Python overrides (existing) and C++ exceptions mapped to the right Python type (S6)
+* [ ] Exception propagation from Python overrides (existing) and C++ exceptions mapped to the right Python type,
+      including `Skeleton::TypeError` → `TypeError` (S6)
 * [ ] Observer notification into Python-subclass observers; template director (S5/S6)
 * [ ] Pickle: every class; shared identity within one pickle (`GenericObjectMap`); `weak_ptr` inside a map; director
       pickle; the nested C++→Python→C++ identity tests from S0 now passing (S6)
-* [ ] **`multiprocessing.Pool` round trip** of C++ objects and director objects (geocal production use) (S6)
+* [ ] **`multiprocessing.Pool` round trip** of C++ objects and director objects (geocal production use) (ST under
+      SWIG; must keep passing in S6)
 * [ ] shelve (sqlite) round trip (existing, keep)
 * [ ] numpy (through the `mdspan` bridge in S6): existing three lifetime tests, plus Fortran-order input,
       non-contiguous input, read-only returns, wrong dtype/rank gives a clear error (S5/S6)
@@ -709,6 +947,28 @@ Tag `nanobind-1`.
    in a state that can be copied as a whole.
 10. **geocal may also break its Python bindings in its Phase 5** (`std::shared_ptr`) until Phase 6 (nanobind), the
     same as S4 here. So geocal won't need a SWIG `std::shared_ptr` port either.
+
+**Decided (maintainer, 2026-10-30):**
+11. **Phase ST is approved**, before S1, with the §4a step 9 coverage target.
+12. **Fix the `"blah"` printing bug in ST** (§4a bug 3), with its tests. The S1 "`str()` unchanged" baseline is
+    recorded after the fix.
+13. **`.json` shelves: keep them.** The maintainer would have removed them if unused, but the check (2026-10-30)
+    found uses: framework's `python/test/swig_shelve_test.py::test_all_formats` writes and reads a C++ object
+    (`PressureSigma`) as `.json`; geocal's `python/bin/sba` documents `.json` output; ecostress-level1
+    `end_to_end_testing/iss_orbit_determine.py` uses a `.json` shelve for a plain dict. The failure here is
+    skeleton-only: its `lib/serialize_function.i` returns a `bytearray`, which jsonpickle encodes as an empty object.
+    geocal, framework and `swig_rules/lib/serialize_function.i.sample` return `bytes`, which round-trips (checked).
+    Fixing bug 1 by bringing `serialize_function.i` in line with the sample fixes bug 2 too. For S6, the pickle blob
+    must stay `bytes`.
+14. **Pin SWIG** in `env/linux/pixi.toml` to the version of the committed wrappers (`4.5.*`; geocal pins `4.4.*`).
+    Short-term only: it goes away with SWIG in S6.
+15. **`swig_rules` changes may be made in either repository for now.** Both geocal and the skeleton are changing it
+    while they are being updated. The long-term rule is "skeleton first, then copy" (decision 9), but not enforced in
+    the near term. Consequence: before each copy in either direction, diff the two `swig_rules/` (and `config/m4/`)
+    trees and merge by file, as done in §2.5, instead of copying blindly.
+16. **Keep all 9 Blitz element types**, and test them (ST step 3).
+17. **`python-install` uninstalls before installing** (fixes the stale-copy shadowing gotcha, §4a). Done in ST;
+    geocal should make the same change (§0 "Notes for geocal").
 
 **Open:**
 * Final module name (item 2).

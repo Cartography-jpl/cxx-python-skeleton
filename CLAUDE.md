@@ -9,6 +9,9 @@ C++20, Boost → std, `std::shared_ptr`, and replacing SWIG with nanobind.
 - **Plan of record and handoff notes: `claude_notes/implementation_plan.md`.** Start with its §0 ("Handoff: where
   to pick up"), which has the current status, the progress log, the next step, and the locations of related repos
   and build areas. Update the progress log there as steps complete.
+- **Working on geocal (or framework) and reviewing this repository?** §0 of that plan has a "Notes for geocal"
+  table of fixes found here that geocal should also make (e.g. `python-install` uninstall-before-install, the
+  `"blah"` printing bug). Check each one against geocal and apply it there or record why not.
 - Work on the **`modernize`** branch. Don't modify `master`.
 - **Stage changes with `git add`; never commit or push.** The maintainer reviews and commits.
 - Don't `git subtree push` to `swig-rules-repo`; this repo's `swig_rules/` is allowed to drift from it.
