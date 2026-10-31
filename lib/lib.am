@@ -32,6 +32,8 @@ skeletoninc_HEADERS+= @srclib@/numpy_sample.h
 skeletoninc_HEADERS+= @srclib@/exception_sample.h
 skeletoninc_HEADERS+= @srclib@/array_typemap_sample.h
 skeletoninc_HEADERS+= @srclib@/swig_rules_sample.h
+skeletoninc_HEADERS+= @srclib@/file_reference_sample.h
+libskeleton_la_SOURCES+= @srclib@/file_reference_sample.cc
 
 # Files that contain SWIG wrapper information.
 skeletonswiginc_HEADERS+= @srclib@/skeleton_common.i
@@ -58,6 +60,8 @@ SWIG_SRC += @swigsrc@/array_typemap_sample_wrap.cc
 skeletonswiginc_HEADERS += @srclib@/array_typemap_sample.i
 SWIG_SRC += @swigsrc@/swig_rules_sample_wrap.cc
 skeletonswiginc_HEADERS += @srclib@/swig_rules_sample.i
+SWIG_SRC += @swigsrc@/file_reference_sample_wrap.cc
+skeletonswiginc_HEADERS += @srclib@/file_reference_sample.i
 
 # Test files
 EXTRA_DIST+= @srclib@/unit_test_support.h
