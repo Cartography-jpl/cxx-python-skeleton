@@ -151,6 +151,10 @@ BOOST_AUTO_TEST_CASE(blitz_arrays)
     check_arrays<double>(test_data_dir(), "double", binary);
     check_arrays<int>(test_data_dir(), "int", binary);
     check_arrays<bool>(test_data_dir(), "bool", binary);
+    check_arrays<float>(test_data_dir(), "float", binary);
+    check_arrays<unsigned int>(test_data_dir(), "uint", binary);
+    check_arrays<unsigned short int>(test_data_dir(), "ushort", binary);
+    check_arrays<short int>(test_data_dir(), "short", binary);
     check_string_array<1>(test_data_dir(), "blitz_string_array_1d", binary);
     check_string_array<2>(test_data_dir(), "blitz_string_array_2d", binary);
   }

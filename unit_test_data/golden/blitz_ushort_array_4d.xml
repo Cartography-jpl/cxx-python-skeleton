@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<!DOCTYPE boost_serialization>
+<boost_serialization signature="serialization::archive" version="20">
+<array class_id="0" tracking_level="0" version="0">
+	<shp0>3</shp0>
+	<shp1>2</shp1>
+	<shp2>2</shp2>
+	<shp3>2</shp3>
+	<data>
+		<item>0</item>
+		<item>65535</item>
+		<item>2</item>
+		<item>65533</item>
+		<item>4</item>
+		<item>65531</item>
+		<item>6</item>
+		<item>65529</item>
+		<item>8</item>
+		<item>65527</item>
+		<item>10</item>
+		<item>65525</item>
+		<item>12</item>
+		<item>65523</item>
+		<item>14</item>
+		<item>65521</item>
+		<item>16</item>
+		<item>65519</item>
+		<item>18</item>
+		<item>65517</item>
+		<item>20</item>
+		<item>65515</item>
+		<item>22</item>
+		<item>65513</item>
+	</data>
+</array>
+</boost_serialization>
+

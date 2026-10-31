@@ -132,13 +132,15 @@ int main(int argc, char** argv)
   u->set_vec_vec_int({{4}, {5, 6}});
   write_object("director_example_user", u);
 
-  // Note float, short and the unsigned types are instantiated in
-  // blitz_array_serialize_support.cc, but have no
-  // BOOST_SERIALIZATION_SPLIT_FREE in the header so can't be used. Only
-  // include the types that work.
   write_arrays<double>("double");
   write_arrays<int>("int");
   write_arrays<bool>("bool");
+  // Added 2026-10-30 (ST), once these types could be serialized. The
+  // files above were not changed.
+  write_arrays<float>("float");
+  write_arrays<unsigned int>("uint");
+  write_arrays<unsigned short int>("ushort");
+  write_arrays<short int>("short");
   write_array_string<1>("blitz_string_array_1d");
   write_array_string<2>("blitz_string_array_2d");
   return 0;

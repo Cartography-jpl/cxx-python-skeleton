@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<!DOCTYPE boost_serialization>
+<boost_serialization signature="serialization::archive" version="20">
+<array class_id="0" tracking_level="0" version="0">
+	<rows>3</rows>
+	<cols>2</cols>
+	<data>
+		<item>0</item>
+		<item>65535</item>
+		<item>2</item>
+		<item>65533</item>
+		<item>4</item>
+		<item>65531</item>
+	</data>
+</array>
+</boost_serialization>
+

@@ -30,11 +30,7 @@ Contents:
 | `director_example`, `director_example_nested`, `director_example_user` | the C++-only `DirectorExample*` objects |
 | `director_example_map` | map holding a `DirectorExample`, a nested one sharing it, and a `DirectorExampleWeakPtr` to it |
 | `blitz_{double,int,bool}_array_{1..5}d`, `blitz_string_array_{1,2}d` | `blitz::Array` of rank 1-5, element value `i` or `-i` (strings `s<i>`), extents 3,2,2,2,2 |
+| `blitz_{float,uint,ushort,short}_array_{1..5}d` | Same, for the other element types. **Added 2026-10-30** (phase ST), when their `BOOST_SERIALIZATION_SPLIT_FREE` was added to `blitz_array_serialize_support.h`; none of the files above changed. (For the unsigned types `-i` wraps around, which is fine, it is the same on read.) |
 
-Only the element types with serialization support in
-`blitz_array_serialize_support.h` are covered (`float`, `short` and the
-unsigned types are instantiated in the `.cc` file but are missing their
-`BOOST_SERIALIZATION_SPLIT_FREE` and so can't be used yet; see the S0 notes in
-`claude_notes/implementation_plan.md`). The arrays are written with the
-element name `array` and read directly (not through a `GenericObject`), so
-they are checked only by the C++ test.
+The arrays are written with the element name `array` and read directly (not
+through a `GenericObject`), so they are checked only by the C++ test.
