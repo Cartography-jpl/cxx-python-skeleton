@@ -73,3 +73,24 @@ def test_cpp_exception_to_python():
         t.checked_value(10)
     assert str(e_info.value).startswith("Out of range error in file")
     assert "Value:           10\n" in str(e_info.value)
+
+
+class PythonRaises(ExceptionSample):
+    def value(self):
+        raise ValueError("raised in python")
+
+
+def test_python_exception_seen_from_cpp():
+    """When a python override raises and C++ catches the exception, what()
+    has the python error and traceback. (The text is the SWIG
+    PythonException format; the nanobind version should give the same
+    information.)"""
+    assert ExceptionSample().value_error_message() == ""
+    msg = PythonRaises().value_error_message()
+    assert msg.startswith("Python error occured:\n")
+    assert "ValueError: raised in python" in msg
+    assert "Traceback" in msg
+    assert "in value" in msg
+    # Propagated back to python, the original exception type comes through
+    with pytest.raises(ValueError, match="raised in python"):
+        PythonRaises().value_rethrow_copy()

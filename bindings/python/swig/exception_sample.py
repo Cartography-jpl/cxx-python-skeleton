@@ -146,13 +146,24 @@ class ExceptionSample(skeleton_swig.generic_object.GenericObject):
 
         Skeleton::ExceptionSample::ExceptionSample
         """
-        _exception_sample.ExceptionSample_swiginit(self, _exception_sample.new_ExceptionSample())
+        if self.__class__ == ExceptionSample:
+            _self = None
+        else:
+            _self = self
+        _exception_sample.ExceptionSample_swiginit(self, _exception_sample.new_ExceptionSample(_self, ))
     throw_skeleton_exception = _swig_new_instance_method(_exception_sample.ExceptionSample_throw_skeleton_exception)
     throw_std_exception = _swig_new_instance_method(_exception_sample.ExceptionSample_throw_std_exception)
     throw_unknown = _swig_new_instance_method(_exception_sample.ExceptionSample_throw_unknown)
     checked_value = _swig_new_instance_method(_exception_sample.ExceptionSample_checked_value)
-    __str__ = _swig_new_instance_method(_exception_sample.ExceptionSample___str__)
     __swig_destroy__ = _exception_sample.delete_ExceptionSample
+    value = _swig_new_instance_method(_exception_sample.ExceptionSample_value)
+    value_error_message = _swig_new_instance_method(_exception_sample.ExceptionSample_value_error_message)
+    value_rethrow_copy = _swig_new_instance_method(_exception_sample.ExceptionSample_value_rethrow_copy)
+    __str__ = _swig_new_instance_method(_exception_sample.ExceptionSample___str__)
+    def __disown__(self):
+        self.this.disown()
+        _exception_sample.disown_ExceptionSample(self)
+        return weakref.proxy(self)
 
 # Register ExceptionSample in _exception_sample:
 _exception_sample.ExceptionSample_swigregister(ExceptionSample)

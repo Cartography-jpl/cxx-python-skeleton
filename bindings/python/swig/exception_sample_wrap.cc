@@ -5480,6 +5480,22 @@ namespace swig {
 #include "exception_sample.h"
 
 
+SWIGINTERN int
+SWIG_AsVal_int (PyObject * obj, int *val)
+{
+  long v;
+  int res = SWIG_AsVal_long (obj, &v);
+  if (SWIG_IsOK(res)) {
+    if ((v < INT_MIN || v > INT_MAX)) {
+      return SWIG_OverflowError;
+    } else {
+      if (val) *val = static_cast< int >(v);
+    }
+  }  
+  return res;
+}
+
+
 struct SWIG_null_deleter {
   void operator() (void const *) const {
   }
@@ -5601,22 +5617,6 @@ SWIG_AsPtr_std_string (PyObject * obj, std::string **val)
 }
 
 
-SWIGINTERN int
-SWIG_AsVal_int (PyObject * obj, int *val)
-{
-  long v;
-  int res = SWIG_AsVal_long (obj, &v);
-  if (SWIG_IsOK(res)) {
-    if ((v < INT_MIN || v > INT_MAX)) {
-      return SWIG_OverflowError;
-    } else {
-      if (val) *val = static_cast< int >(v);
-    }
-  }  
-  return res;
-}
-
-
 #define SWIG_FromCharPtrAndSize(carray, size) SWIG_FromBinaryCharPtrAndSize(carray, size, 0)
 SWIGINTERNINLINE PyObject *
 SWIG_FromBinaryCharPtrAndSize(const char* carray, size_t size, int flags)
@@ -5654,6 +5654,50 @@ SWIG_From_std_string  (const std::string& s)
  * --------------------------------------------------- */
 
 #include "exception_sample_wrap.h"
+
+SwigDirector_ExceptionSample::SwigDirector_ExceptionSample(PyObject *self): Skeleton::ExceptionSample(), Swig::Director(self) {
+  SWIG_DIRECTOR_RGTR((Skeleton::ExceptionSample *)this, this); 
+}
+
+
+
+
+SwigDirector_ExceptionSample::~SwigDirector_ExceptionSample() {
+}
+
+int SwigDirector_ExceptionSample::value() const {
+  int c_result = SwigValueInit< int >() ;
+  
+  if (!swig_get_self()) {
+    Swig::DirectorException::raise("'self' uninitialized, maybe you forgot to call ExceptionSample.__init__.");
+  }
+#if defined(SWIG_PYTHON_DIRECTOR_VTABLE)
+  const size_t swig_method_index = 0;
+  const char *const swig_method_name = "value";
+  PyObject *method = swig_get_method(swig_method_index, swig_method_name);
+  swig::SwigVar_PyObject args = PyTuple_New(0);
+  swig::SwigVar_PyObject result = PyObject_Call(method, (PyObject *) args, NULL);
+#else
+  swig::SwigVar_PyObject swig_method_name = PyUnicode_FromString("value");
+  swig::SwigVar_PyObject result = PyObject_CallMethodObjArgs(swig_get_self(), (PyObject *) swig_method_name, NULL);
+#endif
+  if (!result) {
+    PyObject *error = PyErr_Occurred();
+    {
+      if (error != NULL) {
+        throw PythonException();
+      }
+    }
+  }
+  int swig_val;
+  int swig_res = SWIG_AsVal_int(result, &swig_val);
+  if (!SWIG_IsOK(swig_res)) {
+    Swig::DirectorTypeMismatchException::raise(SWIG_ErrorType(SWIG_ArgError(swig_res)), "in output value of type '""int""'");
+  }
+  c_result = static_cast< int >(swig_val);
+  return (int) c_result;
+}
+
 
 #ifdef __cplusplus
 extern "C" {
@@ -6346,13 +6390,23 @@ SWIGINTERN PyObject *SwigPyIterator_swigregister(PyObject *SWIGUNUSEDPARM(self),
 
 SWIGINTERN PyObject *_wrap_new_ExceptionSample(PyObject *self, PyObject *args) {
   PyObject *resultobj = 0;
+  PyObject *arg1 = 0 ;
+  PyObject *swig_obj[1] ;
   Skeleton::ExceptionSample *result = 0 ;
   
   (void)self;
-  if (!SWIG_Python_UnpackTuple(args, "new_ExceptionSample", 0, 0, 0)) SWIG_fail;
+  if (!args) SWIG_fail;
+  swig_obj[0] = args;
+  arg1 = swig_obj[0];
   {
     try {
-      result = (Skeleton::ExceptionSample *)new Skeleton::ExceptionSample();
+      if (arg1 != Py_None) {
+        /* subclassed */
+        result = (Skeleton::ExceptionSample *)new SwigDirector_ExceptionSample(arg1);
+      } else {
+        result = (Skeleton::ExceptionSample *)new Skeleton::ExceptionSample();
+      }
+      
     } catch (Swig::DirectorException &e) {
       SWIG_fail;
     } catch (const PythonException& e) {
@@ -6627,6 +6681,233 @@ fail:
 }
 
 
+SWIGINTERN PyObject *_wrap_delete_ExceptionSample(PyObject *self, PyObject *args) {
+  PyObject *resultobj = 0;
+  Skeleton::ExceptionSample *arg1 = 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  boost::shared_ptr< Skeleton::ExceptionSample > tempshared1 ;
+  boost::shared_ptr< Skeleton::ExceptionSample > *smartarg1 = 0 ;
+  PyObject *swig_obj[1] ;
+  
+  (void)self;
+  if (!args) SWIG_fail;
+  swig_obj[0] = args;
+  {
+    int newmem = 0;
+    res1 = SWIG_ConvertPtrAndOwn(swig_obj[0], &argp1, SWIGTYPE_p_boost__shared_ptrT_Skeleton__ExceptionSample_t, 0 |  0 , &newmem);
+    if (!SWIG_IsOK(res1)) {
+      SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "delete_ExceptionSample" "', argument " "1"" of type '" "Skeleton::ExceptionSample *""'");
+    }
+    if (newmem & SWIG_CAST_NEW_MEMORY) {
+      tempshared1 = *reinterpret_cast< boost::shared_ptr<  Skeleton::ExceptionSample > * >(argp1);
+      delete reinterpret_cast< boost::shared_ptr<  Skeleton::ExceptionSample > * >(argp1);
+      arg1 = const_cast< Skeleton::ExceptionSample * >(tempshared1.get());
+    } else {
+      smartarg1 = reinterpret_cast< boost::shared_ptr<  Skeleton::ExceptionSample > * >(argp1);
+      arg1 = const_cast< Skeleton::ExceptionSample * >((smartarg1 ? smartarg1->get() : 0));
+    }
+  }
+  {
+    try {
+      (void)arg1; delete smartarg1;
+    } catch (Swig::DirectorException &e) {
+      SWIG_fail;
+    } catch (const PythonException& e) {
+      e.restore_python_exception();
+      SWIG_fail;
+    } catch (const std::exception& e) {
+      SWIG_exception(SWIG_RuntimeError, e.what());
+    } catch (...) {
+      // Anything not derived from std::exception (a raw type, a
+      // third-party exception hierarchy that doesn't inherit
+      // std::exception, etc.) would otherwise propagate across the
+      // extern "C" boundary into CPython -- undefined behavior, in
+      // practice a process abort rather than a clean Python exception.
+      SWIG_exception(SWIG_RuntimeError, "unknown C++ exception");
+    }
+  }
+  resultobj = SWIG_Py_Void();
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_ExceptionSample_value(PyObject *self, PyObject *args) {
+  PyObject *resultobj = 0;
+  Skeleton::ExceptionSample *arg1 = 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  boost::shared_ptr< Skeleton::ExceptionSample const > tempshared1 ;
+  boost::shared_ptr< Skeleton::ExceptionSample const > *smartarg1 = 0 ;
+  PyObject *swig_obj[1] ;
+  Swig::Director *director = 0;
+  bool upcall = false;
+  int result;
+  
+  (void)self;
+  if (!args) SWIG_fail;
+  swig_obj[0] = args;
+  {
+    int newmem = 0;
+    res1 = SWIG_ConvertPtrAndOwn(swig_obj[0], &argp1, SWIGTYPE_p_boost__shared_ptrT_Skeleton__ExceptionSample_t, 0 |  0 , &newmem);
+    if (!SWIG_IsOK(res1)) {
+      SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "ExceptionSample_value" "', argument " "1"" of type '" "Skeleton::ExceptionSample const *""'");
+    }
+    if (newmem & SWIG_CAST_NEW_MEMORY) {
+      tempshared1 = *reinterpret_cast< boost::shared_ptr< const Skeleton::ExceptionSample > * >(argp1);
+      delete reinterpret_cast< boost::shared_ptr< const Skeleton::ExceptionSample > * >(argp1);
+      arg1 = const_cast< Skeleton::ExceptionSample * >(tempshared1.get());
+    } else {
+      smartarg1 = reinterpret_cast< boost::shared_ptr< const Skeleton::ExceptionSample > * >(argp1);
+      arg1 = const_cast< Skeleton::ExceptionSample * >((smartarg1 ? smartarg1->get() : 0));
+    }
+  }
+  try {
+    director = SWIG_DIRECTOR_CAST(arg1);
+    upcall = (director && (director->swig_get_self()==swig_obj[0]));
+    {
+      try {
+        if (upcall) {
+          result = (int)((Skeleton::ExceptionSample const *)arg1)->Skeleton::ExceptionSample::value();
+        } else {
+          result = (int)((Skeleton::ExceptionSample const *)arg1)->value();
+        }
+      } catch (Swig::DirectorException &e) {
+        SWIG_fail;
+      } catch (const PythonException& e) {
+        e.restore_python_exception();
+        SWIG_fail;
+      } catch (const std::exception& e) {
+        SWIG_exception(SWIG_RuntimeError, e.what());
+      } catch (...) {
+        // Anything not derived from std::exception (a raw type, a
+        // third-party exception hierarchy that doesn't inherit
+        // std::exception, etc.) would otherwise propagate across the
+        // extern "C" boundary into CPython -- undefined behavior, in
+        // practice a process abort rather than a clean Python exception.
+        SWIG_exception(SWIG_RuntimeError, "unknown C++ exception");
+      }
+    }
+  } catch (Swig::DirectorException&) {
+    SWIG_fail;
+  }
+  resultobj = SWIG_From_int(static_cast< int >(result));
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_ExceptionSample_value_error_message(PyObject *self, PyObject *args) {
+  PyObject *resultobj = 0;
+  Skeleton::ExceptionSample *arg1 = 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  boost::shared_ptr< Skeleton::ExceptionSample const > tempshared1 ;
+  boost::shared_ptr< Skeleton::ExceptionSample const > *smartarg1 = 0 ;
+  PyObject *swig_obj[1] ;
+  std::string result;
+  
+  (void)self;
+  if (!args) SWIG_fail;
+  swig_obj[0] = args;
+  {
+    int newmem = 0;
+    res1 = SWIG_ConvertPtrAndOwn(swig_obj[0], &argp1, SWIGTYPE_p_boost__shared_ptrT_Skeleton__ExceptionSample_t, 0 |  0 , &newmem);
+    if (!SWIG_IsOK(res1)) {
+      SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "ExceptionSample_value_error_message" "', argument " "1"" of type '" "Skeleton::ExceptionSample const *""'");
+    }
+    if (newmem & SWIG_CAST_NEW_MEMORY) {
+      tempshared1 = *reinterpret_cast< boost::shared_ptr< const Skeleton::ExceptionSample > * >(argp1);
+      delete reinterpret_cast< boost::shared_ptr< const Skeleton::ExceptionSample > * >(argp1);
+      arg1 = const_cast< Skeleton::ExceptionSample * >(tempshared1.get());
+    } else {
+      smartarg1 = reinterpret_cast< boost::shared_ptr< const Skeleton::ExceptionSample > * >(argp1);
+      arg1 = const_cast< Skeleton::ExceptionSample * >((smartarg1 ? smartarg1->get() : 0));
+    }
+  }
+  {
+    try {
+      result = ((Skeleton::ExceptionSample const *)arg1)->value_error_message();
+    } catch (Swig::DirectorException &e) {
+      SWIG_fail;
+    } catch (const PythonException& e) {
+      e.restore_python_exception();
+      SWIG_fail;
+    } catch (const std::exception& e) {
+      SWIG_exception(SWIG_RuntimeError, e.what());
+    } catch (...) {
+      // Anything not derived from std::exception (a raw type, a
+      // third-party exception hierarchy that doesn't inherit
+      // std::exception, etc.) would otherwise propagate across the
+      // extern "C" boundary into CPython -- undefined behavior, in
+      // practice a process abort rather than a clean Python exception.
+      SWIG_exception(SWIG_RuntimeError, "unknown C++ exception");
+    }
+  }
+  resultobj = SWIG_From_std_string(static_cast< std::string >(result));
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_ExceptionSample_value_rethrow_copy(PyObject *self, PyObject *args) {
+  PyObject *resultobj = 0;
+  Skeleton::ExceptionSample *arg1 = 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  boost::shared_ptr< Skeleton::ExceptionSample const > tempshared1 ;
+  boost::shared_ptr< Skeleton::ExceptionSample const > *smartarg1 = 0 ;
+  PyObject *swig_obj[1] ;
+  int result;
+  
+  (void)self;
+  if (!args) SWIG_fail;
+  swig_obj[0] = args;
+  {
+    int newmem = 0;
+    res1 = SWIG_ConvertPtrAndOwn(swig_obj[0], &argp1, SWIGTYPE_p_boost__shared_ptrT_Skeleton__ExceptionSample_t, 0 |  0 , &newmem);
+    if (!SWIG_IsOK(res1)) {
+      SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "ExceptionSample_value_rethrow_copy" "', argument " "1"" of type '" "Skeleton::ExceptionSample const *""'");
+    }
+    if (newmem & SWIG_CAST_NEW_MEMORY) {
+      tempshared1 = *reinterpret_cast< boost::shared_ptr< const Skeleton::ExceptionSample > * >(argp1);
+      delete reinterpret_cast< boost::shared_ptr< const Skeleton::ExceptionSample > * >(argp1);
+      arg1 = const_cast< Skeleton::ExceptionSample * >(tempshared1.get());
+    } else {
+      smartarg1 = reinterpret_cast< boost::shared_ptr< const Skeleton::ExceptionSample > * >(argp1);
+      arg1 = const_cast< Skeleton::ExceptionSample * >((smartarg1 ? smartarg1->get() : 0));
+    }
+  }
+  {
+    try {
+      result = (int)((Skeleton::ExceptionSample const *)arg1)->value_rethrow_copy();
+    } catch (Swig::DirectorException &e) {
+      SWIG_fail;
+    } catch (const PythonException& e) {
+      e.restore_python_exception();
+      SWIG_fail;
+    } catch (const std::exception& e) {
+      SWIG_exception(SWIG_RuntimeError, e.what());
+    } catch (...) {
+      // Anything not derived from std::exception (a raw type, a
+      // third-party exception hierarchy that doesn't inherit
+      // std::exception, etc.) would otherwise propagate across the
+      // extern "C" boundary into CPython -- undefined behavior, in
+      // practice a process abort rather than a clean Python exception.
+      SWIG_exception(SWIG_RuntimeError, "unknown C++ exception");
+    }
+  }
+  resultobj = SWIG_From_int(static_cast< int >(result));
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
 SWIGINTERN PyObject *_wrap_ExceptionSample___str__(PyObject *self, PyObject *args) {
   PyObject *resultobj = 0;
   Skeleton::ExceptionSample *arg1 = 0 ;
@@ -6681,7 +6962,7 @@ fail:
 }
 
 
-SWIGINTERN PyObject *_wrap_delete_ExceptionSample(PyObject *self, PyObject *args) {
+SWIGINTERN PyObject *_wrap_disown_ExceptionSample(PyObject *self, PyObject *args) {
   PyObject *resultobj = 0;
   Skeleton::ExceptionSample *arg1 = 0 ;
   void *argp1 = 0 ;
@@ -6697,7 +6978,7 @@ SWIGINTERN PyObject *_wrap_delete_ExceptionSample(PyObject *self, PyObject *args
     int newmem = 0;
     res1 = SWIG_ConvertPtrAndOwn(swig_obj[0], &argp1, SWIGTYPE_p_boost__shared_ptrT_Skeleton__ExceptionSample_t, 0 |  0 , &newmem);
     if (!SWIG_IsOK(res1)) {
-      SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "delete_ExceptionSample" "', argument " "1"" of type '" "Skeleton::ExceptionSample *""'");
+      SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "disown_ExceptionSample" "', argument " "1"" of type '" "Skeleton::ExceptionSample *""'");
     }
     if (newmem & SWIG_CAST_NEW_MEMORY) {
       tempshared1 = *reinterpret_cast< boost::shared_ptr<  Skeleton::ExceptionSample > * >(argp1);
@@ -6709,24 +6990,10 @@ SWIGINTERN PyObject *_wrap_delete_ExceptionSample(PyObject *self, PyObject *args
     }
   }
   {
-    try {
-      (void)arg1; delete smartarg1;
-    } catch (Swig::DirectorException &e) {
-      SWIG_fail;
-    } catch (const PythonException& e) {
-      e.restore_python_exception();
-      SWIG_fail;
-    } catch (const std::exception& e) {
-      SWIG_exception(SWIG_RuntimeError, e.what());
-    } catch (...) {
-      // Anything not derived from std::exception (a raw type, a
-      // third-party exception hierarchy that doesn't inherit
-      // std::exception, etc.) would otherwise propagate across the
-      // extern "C" boundary into CPython -- undefined behavior, in
-      // practice a process abort rather than a clean Python exception.
-      SWIG_exception(SWIG_RuntimeError, "unknown C++ exception");
-    }
+    Swig::Director *director = SWIG_DIRECTOR_CAST(arg1);
+    if (director) director->swig_disown();
   }
+  
   resultobj = SWIG_Py_Void();
   return resultobj;
 fail:
@@ -6768,8 +7035,8 @@ static PyMethodDef SwigMethods[] = {
 		"SwigPyIterator___sub__(SwigPyIterator self, SwigPyIterator x) -> ptrdiff_t\n"
 		""},
 	 { "SwigPyIterator_swigregister", SwigPyIterator_swigregister, METH_O, NULL},
-	 { "new_ExceptionSample", _wrap_new_ExceptionSample, METH_NOARGS, "\n"
-		"new_ExceptionSample() -> ExceptionSample\n"
+	 { "new_ExceptionSample", _wrap_new_ExceptionSample, METH_O, "\n"
+		"new_ExceptionSample(PyObject * _self) -> ExceptionSample\n"
 		"\n"
 		"Skeleton::ExceptionSample::ExceptionSample\n"
 		""},
@@ -6801,12 +7068,37 @@ static PyMethodDef SwigMethods[] = {
 		"Use range_check, throws if V isn't in [0, 10).  \n"
 		"\n"
 		""},
-	 { "ExceptionSample___str__", _wrap_ExceptionSample___str__, METH_O, "ExceptionSample___str__(ExceptionSample self) -> std::string"},
 	 { "delete_ExceptionSample", _wrap_delete_ExceptionSample, METH_O, "\n"
 		"delete_ExceptionSample(ExceptionSample self)\n"
 		"\n"
 		"Skeleton::ExceptionSample::~ExceptionSample\n"
 		""},
+	 { "ExceptionSample_value", _wrap_ExceptionSample_value, METH_O, "\n"
+		"ExceptionSample_value(ExceptionSample self) -> int\n"
+		"\n"
+		"Skeleton::ExceptionSample::value\n"
+		"Virtual function a python subclass can override (and raise in).  \n"
+		"\n"
+		""},
+	 { "ExceptionSample_value_error_message", _wrap_ExceptionSample_value_error_message, METH_O, "\n"
+		"ExceptionSample_value_error_message(ExceptionSample self) -> std::string\n"
+		"\n"
+		"Skeleton::ExceptionSample::value_error_message\n"
+		"Call value(), and if it throws catch the exception in C++ and return its what().  \n"
+		"\n"
+		"This is what C++ code (e.g. a log message) sees when a python override raises.  \n"
+		"\n"
+		""},
+	 { "ExceptionSample_value_rethrow_copy", _wrap_ExceptionSample_value_rethrow_copy, METH_O, "\n"
+		"ExceptionSample_value_rethrow_copy(ExceptionSample self) -> int\n"
+		"\n"
+		"Skeleton::ExceptionSample::value_rethrow_copy\n"
+		"Call value() and copy the exception before rethrowing (exercises the\n"
+		"PythonException copy, which has to keep the python error).  \n"
+		"\n"
+		""},
+	 { "ExceptionSample___str__", _wrap_ExceptionSample___str__, METH_O, "ExceptionSample___str__(ExceptionSample self) -> std::string"},
+	 { "disown_ExceptionSample", _wrap_disown_ExceptionSample, METH_O, NULL},
 	 { "ExceptionSample_swigregister", ExceptionSample_swigregister, METH_O, NULL},
 	 { "ExceptionSample_swiginit", ExceptionSample_swiginit, METH_VARARGS, NULL},
 	 { NULL, NULL, 0, NULL }
@@ -6835,8 +7127,8 @@ static PyMethodDef SwigMethods_proxydocs[] = {
 		"__sub__(SwigPyIterator self, SwigPyIterator x) -> ptrdiff_t\n"
 		""},
 	 { "SwigPyIterator_swigregister", SwigPyIterator_swigregister, METH_O, NULL},
-	 { "new_ExceptionSample", _wrap_new_ExceptionSample, METH_NOARGS, "\n"
-		"new_ExceptionSample() -> ExceptionSample\n"
+	 { "new_ExceptionSample", _wrap_new_ExceptionSample, METH_O, "\n"
+		"new_ExceptionSample(PyObject * _self) -> ExceptionSample\n"
 		"\n"
 		"Skeleton::ExceptionSample::ExceptionSample\n"
 		""},
@@ -6868,12 +7160,37 @@ static PyMethodDef SwigMethods_proxydocs[] = {
 		"Use range_check, throws if V isn't in [0, 10).  \n"
 		"\n"
 		""},
-	 { "ExceptionSample___str__", _wrap_ExceptionSample___str__, METH_O, "__str__(ExceptionSample self) -> std::string"},
 	 { "delete_ExceptionSample", _wrap_delete_ExceptionSample, METH_O, "\n"
 		"delete_ExceptionSample(ExceptionSample self)\n"
 		"\n"
 		"Skeleton::ExceptionSample::~ExceptionSample\n"
 		""},
+	 { "ExceptionSample_value", _wrap_ExceptionSample_value, METH_O, "\n"
+		"value(ExceptionSample self) -> int\n"
+		"\n"
+		"Skeleton::ExceptionSample::value\n"
+		"Virtual function a python subclass can override (and raise in).  \n"
+		"\n"
+		""},
+	 { "ExceptionSample_value_error_message", _wrap_ExceptionSample_value_error_message, METH_O, "\n"
+		"value_error_message(ExceptionSample self) -> std::string\n"
+		"\n"
+		"Skeleton::ExceptionSample::value_error_message\n"
+		"Call value(), and if it throws catch the exception in C++ and return its what().  \n"
+		"\n"
+		"This is what C++ code (e.g. a log message) sees when a python override raises.  \n"
+		"\n"
+		""},
+	 { "ExceptionSample_value_rethrow_copy", _wrap_ExceptionSample_value_rethrow_copy, METH_O, "\n"
+		"value_rethrow_copy(ExceptionSample self) -> int\n"
+		"\n"
+		"Skeleton::ExceptionSample::value_rethrow_copy\n"
+		"Call value() and copy the exception before rethrowing (exercises the\n"
+		"PythonException copy, which has to keep the python error).  \n"
+		"\n"
+		""},
+	 { "ExceptionSample___str__", _wrap_ExceptionSample___str__, METH_O, "__str__(ExceptionSample self) -> std::string"},
+	 { "disown_ExceptionSample", _wrap_disown_ExceptionSample, METH_O, NULL},
 	 { "ExceptionSample_swigregister", ExceptionSample_swigregister, METH_O, NULL},
 	 { "ExceptionSample_swiginit", ExceptionSample_swiginit, METH_VARARGS, NULL},
 	 { NULL, NULL, 0, NULL }

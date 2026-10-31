@@ -6,6 +6,7 @@
 %base_import(generic_object)
 %skeleton_shared_ptr(Skeleton::ExceptionSample);
 namespace Skeleton {
+%feature("director") ExceptionSample;
 class ExceptionSample : public GenericObject {
 public:
   ExceptionSample();
@@ -13,6 +14,10 @@ public:
   void throw_std_exception(const std::string& Msg) const;
   void throw_unknown() const;
   int checked_value(int V) const;
+  virtual ~ExceptionSample();
+  virtual int value() const;
+  std::string value_error_message() const;
+  int value_rethrow_copy() const;
   std::string print_to_string() const;
 };
 }

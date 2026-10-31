@@ -36,7 +36,9 @@ EXTRA_DIST+= config/m4
 # tests and writes a report to coverage/ (index.html for the C++, and
 # python/index.html for the python). Needs gcovr and pytest-cov. This
 # isn't part of "make check". See claude_notes/implementation_plan.md
-# section 4a.
+# section 4a. --merge-lines counts a line in a template as covered if any
+# instance runs it (otherwise e.g. SwigTypeMapper<T> for every class
+# that is never downcast shows as uncovered).
 GCOVR = gcovr
 coverage:
 	find . -name '*.gcda' -delete
@@ -53,7 +55,7 @@ coverage:
 	  --filter '$(realpath $(abs_top_srcdir))/(lib|swig_rules/lib)/' \
 	  --exclude '.*_test\.cc' --exclude '.*golden_archive_generator.*' \
 	  --exclude '.*(global_fixture|test_all).*' \
-	  --print-summary --html-details coverage/index.html
+	  --merge-lines --print-summary --html-details coverage/index.html
 	@echo "Coverage report in coverage/index.html and coverage/python/index.html"
 
 .PHONY: coverage
