@@ -1074,12 +1074,24 @@ SWIG_CPPFLAGS = $(AM_CPPFLAGS)
 SWIG_TYPE_TABLE_NAME = skeleton
 SWIG_MODULE_NAME = skeleton
 SWIG_LIBADD = libskeleton.la
+#=================================================================
+# LDFLAGS for programs run from the build tree and never installed (the
+# unit tests, the golden archive generator). The -rpath makes them use the
+# libskeleton just built. In a conda/pixi env, LDFLAGS has
+# -Wl,-rpath,$CONDA_PREFIX/lib, which automake puts ahead of libtool's own
+# .libs rpath. With --prefix=$CONDA_PREFIX, after the first "make install"
+# these programs then load the *installed* libskeleton, so "make check"
+# silently tests the old code. LD_LIBRARY_PATH doesn't help: conda links
+# with --disable-new-dtags, so this is an RPATH, not a RUNPATH. Per-target
+# LDFLAGS come before $(LDFLAGS), so this puts .libs first. Don't use it for
+# installed programs: it would put the build directory in their rpath.
+UNINSTALLED_PROGRAM_LDFLAGS = -no-install -Wl,-rpath,$(abs_top_builddir)/.libs
 skeleton_test_all_LDADD = libskeleton.la 
-skeleton_test_all_LDFLAGS = -no-install 
+skeleton_test_all_LDFLAGS = $(UNINSTALLED_PROGRAM_LDFLAGS)
 skeleton_test_all_CPPFLAGS = $(AM_CPPFLAGS)
 golden_archive_generator_SOURCES = @srclib@/golden_archive_generator.cc
 golden_archive_generator_LDADD = libskeleton.la
-golden_archive_generator_LDFLAGS = -no-install
+golden_archive_generator_LDFLAGS = $(UNINSTALLED_PROGRAM_LDFLAGS)
 golden_archive_generator_CPPFLAGS = $(AM_CPPFLAGS) $(BOOST_CPPFLAGS) \
 	$(BLITZ_CFLAGS) -DSWIG_MAPPER_NAMESPACE=Skeleton
 all: $(BUILT_SOURCES)

@@ -18,7 +18,11 @@ Related documents:
 
 ## 0. Handoff: where to pick up (read this first)
 
-**Status (2026-10-30):** **Phase S0 is done** (all 8 steps; see the progress log). A review on 2026-10-30 measured the
+**Status (2026-11-05):** **Phase S0 is done, and ST steps 1–11 are done** (progress log). What is left of ST is its
+exit checklist: gcc 15 and gcc 14 are green; the `--without-boost-serialization` and ASan builds are left. Then
+**Phase S1**.
+
+*Earlier status (2026-10-30):* Phase S0 is done (all 8 steps; see the progress log). A review on 2026-10-30 measured the
 test coverage (§4a) and found that the tests don't cover enough to catch regressions in S1–S6, plus a few real bugs. So
 the next step is the new **Phase ST** (test hardening, §4a), done **before** S1. It also brings in the `swig_rules`
 changes made in geocal since 2026-10-23 (§2.5). After ST comes **Phase S1** (C++20, tooling, hygiene), including the
@@ -27,7 +31,8 @@ ST starts (approved 2026-10-30, §13 item 11; code work still waits for "go"); i
 
 **Review 2026-11-05** (§2.6): geocal found that `make check` can test the *installed* library instead of the one just
 built (conda RPATH). geocal wants the fix tried here first, so it is now ST step 11. The threading work in geocal adds
-GIL, worker-thread and overload-dispatch tests to S6.1 (items 7, 11). framework has not changed.
+GIL, worker-thread and overload-dispatch tests to S6.1 (items 7, 11). framework has not changed. ST.11 was done the
+same day (staged, not committed): a per-target rpath in `lib/lib.am`, see the progress log.
 
 **Rules for working in this repository** (maintainer decisions):
 * Work on the **`modernize`** branch (already checked out). Don't touch `master` (it keeps the set-aside pickling work).
@@ -45,7 +50,7 @@ notes were mostly written on rifle; on frenchpeas, use the matching frenchpeas p
 | What | rifle (work) | frenchpeas (home) |
 |---|---|---|
 | This repo | `/home/smyth/Local/swig-rules-skeleton` (same as `/ldata/smyth/swig-rules-skeleton`) | `/data2/smythdata/swig-rules-skeleton` |
-| Scratch build + pixi env (disposable; fine to modify its `pixi.toml`) | `/home/smyth/Local/swig-rules-skeleton-build/build-pixi` (also `build-coverage`, `build-pixi-gcc14`) | `/data2/smythdata/swig-rules-skeleton-build/build` (only this one so far) |
+| Scratch build + pixi env (disposable; fine to modify its `pixi.toml`) | `/home/smyth/Local/swig-rules-skeleton-build/build-pixi` (also `build-coverage`, `build-pixi-gcc14`) | `/data2/smythdata/swig-rules-skeleton-build/build`; also `build-coverage` (uses `build`'s env) `build-rpath` (its own env: `build`'s lock plus `gxx_linux-64`/`gcc_linux-64`, i.e. conda's compiler activation, for ST.11), and `build-gcc14` (min-compiler env, gcc/g++ 14.4.0; `compilers` 1.11 there, so it has conda's compiler activation too) |
 | geocal repo | `/ssdata/smyth/geocal-repo` | `/data2/smythdata/geocal-repo` |
 | geocal build | `/ldata/smyth/geocal-build/build-pixi` | `/data2/smythdata/geocal-build/build-pixi` |
 | framework (follows later; read-only survey) | `/home/smyth/Local/framework` | `/data2/smythdata/framework` |
@@ -74,6 +79,7 @@ apply it there (or record why not) in geocal's plan:
 | `doxygen_single.cfg` `DOT_MULTI_TARGETS` | ST.1 | Obsolete in doxygen 1.18 (warning on every module). Removed here; geocal's copy (doxygen 1.13) will need the same when its doxygen is updated. |
 | Test coverage measurement | 2026-10-30, §4a | Recipe in §4a "Coverage builds" (`gcovr`; the system `lcov` 1.14 can't read gcc 15 data). geocal should measure its own coverage before its Phase 5/6, especially for the `swig_rules` typemaps (table in §4a). |
 | `swig_rules` changes flow both ways for now | decision 15 | Before copying `swig_rules/` or `config/m4/` in either direction, diff the trees and merge file by file. geocal-only settings (e.g. `swig_rules/__init__.py` `if True:`) must not be overwritten. |
+| **`make check` tests the installed library** (geocal plan §6.1, open item 5) | 2026-11-05, ST.11 | Reproduced here and fixed with a per-target rpath (option 5 below), not one of geocal's four options. In `lib/lib.am`: `UNINSTALLED_PROGRAM_LDFLAGS = -no-install -Wl,-rpath,$(abs_top_builddir)/.libs`, used as `*_LDFLAGS` of every never-installed program linked to the library (`skeleton_test_all`, `golden_archive_generator`). Automake puts per-target LDFLAGS before `$(LDFLAGS)`, so `.libs` comes before conda's env rpath. geocal: do the same for `geocal_test_all` and any other `check_PROGRAMS`/`noinst_PROGRAMS` (keep `-no-install` if it is there; replacing it brings back a libtool wrapper). Not for installed programs (the build dir would end up in their rpath); geocal's build-dir libtool wrappers such as `picmtch5` are a separate case. Then drop the `LD_PRELOAD` workaround from `resampler_threading_plan.md`. |
 | SWIG pin | decision 14 | geocal already pins `4.4.*`; the skeleton pins `4.5.*`. Keep each pinned to its committed wrappers. |
 
 **Progress log** (update as phases complete; one line per step):
@@ -90,7 +96,11 @@ apply it there (or record why not) in geocal's plan:
 | S0.8 sanitizer | done | See "Sanitizer builds" below. |
 | Review 2026-10-30 | done | geocal changes since 2026-10-23 reviewed (§2.5). Coverage measured (§4a): C++ `lib/` + `swig_rules/lib/` 52% of lines, Python `skeleton` package 42% (`swig_shelve.py` 38%); most `swig_rules` typemaps are never exercised. Bugs found that no test catches: §4a "Bugs found". `gcovr` and `pytest-cov` added to the scratch `build-pixi` env (not yet to `env/linux/pixi.toml`). Phase ST added before S1. |
 | Review 2026-11-05 | done | geocal `2193f1953`..`f3d94e93` and framework (no change since 2026-10-22) reviewed (§2.6). New: ST step 11 (`make check` must test the just-built library), S6.1 items 7 and 11, S6.3 notes, §13 open items. |
-| ST | not started | Approved 2026-10-30 with decisions §13 items 11–17. `.json` shelves kept (they are used downstream). Waiting for "go". |
+| ST.1–ST.8 | done | 2026-10-30, commits `5bfa4c4`..`8c2f015` (see `git log`; ST.3 also added the 4 missing Blitz element types to serialization and golden archives, bug 5). |
+| ST.9 coverage | done | 2026-11-05, `build-coverage` on frenchpeas, `make coverage`. **C++ `lib/` + `swig_rules/lib/`: 91.7% of lines (905 of 987) with `--merge-lines`, 82% (2123 of 2582) without** (the 2026-10-30 figure of 52% was without). Functions 90.7%, branches 51.2%. Python `skeleton` package **94%** (`swig_shelve.py` 94%). Target (≥ 80%, no untested `swig_rules` feature) met: every row of the §4a feature table now has a test. Lowest: `swig_rules/lib/python_lib_init.h` 61% (module-init error paths), `swig_type_mapper_base.h` 75%, `swig_to_python.h` 86%; `lib/generic_object.cc` 0% (2 lines, the empty `GenericObject` destructor and registration). `gcovr` and `pytest-cov` had to be added to the frenchpeas scratch env (`build/pixi.toml`, with `clang-tools` and `nanobind`, matching `env/linux/pixi.toml`). |
+| ST.10 SWIG reference | done | 2026-11-05, `build` (gcc 15.3, SWIG 4.5.0, Boost 1.90, Python 3.13). **C++: 1/1 test program, 25 of 25 test cases, 2025 assertions. Python (`make installcheck`): 89 passed, 1 xfailed, 0 skipped.** The one strict `xfail` is `director_example_test.py::test_director_example_object_tracking` ("nested C++/Python identity: redesigned in S6"). The 5 golden `.bin` `xfail`s from S0.3 are gone (fixed in ST.5). This is what S6 has to reproduce (plus the S5 samples). |
+| ST.11 `make check` RPATH | done | 2026-11-05, staged. **Reproduced** in `build-rpath` (conda compiler activation, `--prefix=$CONDA_PREFIX`): after `make install`, `skeleton_test_all`'s RPATH was `<env>/lib:.libs`, `ldd` showed the installed `libskeleton`, and with `GenericObjectA::serialize` deliberately broken `make check` **passed** (`LD_PRELOAD` of `.libs` made the same binary fail). The build-tree `_swig_wrap.so` already had `.libs` first; only programs are affected. Option 4 (`-Wl,--enable-new-dtags`) alone **doesn't fix it**: RUNPATH keeps the same order, and nothing sets `LD_LIBRARY_PATH` because `-no-install` programs have no libtool wrapper. **Fix:** `UNINSTALLED_PROGRAM_LDFLAGS` in `lib/lib.am` (see "Notes for geocal"), used by `skeleton_test_all` and `golden_archive_generator` (which had the same problem, so `make golden-archives` would have written the corpus with the installed library). Checked: the broken library now makes `make check` fail; clean source passes `make check` before and after `make install` and `make installcheck` (89 passed, 1 xfailed) in both `build-rpath` and `build`; the installed `libskeleton.so.0` has no build directory in its RPATH. |
+| ST exit checklist | partly done | **gcc 15** (`build`) and **gcc 14** (`build-gcc14` on frenchpeas, 2026-11-05: g++ 14.4.0, SWIG 4.5.0, Boost 1.90, Python 3.13; `--prefix=$CONDA_PREFIX --enable-maintainer-mode --enable-debug`) both green: `make check` 1/1 (25 test cases) before and after `make install`, `make installcheck` 89 passed, 1 xfailed. The gcc 14 env has conda's compiler activation, so it also confirms the ST.11 fix (`.libs` first in the test RPATH). Warnings identical to gcc 15 (125: 119 `-Wunused-parameter`, 5 `-Wcast-function-type`, 1 `-Wsign-compare`; for S1.2). Still to do: `--without-boost-serialization`, ASan. |
 
 ---
 
@@ -365,7 +375,7 @@ geocal (`develop_2_0`, `2193f1953`..`f3d94e93`, all 2026-11-03) did the Resample
 
 | geocal finding | Action here |
 |---|---|
-| **`make check` tests the installed library** (geocal plan §6.1, open item 5). Conda's compiler activation puts `-Wl,-rpath,$CONDA_PREFIX/lib -Wl,--disable-new-dtags` in `LDFLAGS`. With `--prefix=$CONDA_PREFIX`, the env's old `libgeocal.so` comes before `.libs` in the test program's RPATH (RPATH, so `LD_LIBRARY_PATH` doesn't help). New symbols give `undefined symbol`; changed code silently tests the old version. geocal asks for the fix to be tried in the skeleton first. | **ST step 11.** The skeleton has the same setup (`--prefix=$CONDA_PREFIX`) but doesn't show it in the frenchpeas scratch env: that env's `compilers` 2.0.0 brings no `gxx_linux-64` activation, so `LDFLAGS` is empty and `skeleton_test_all` has `.libs` first in its RPATH (checked 2026-11-05). geocal's env does have the activation. To reproduce, add `gxx_linux-64` (and `gcc_linux-64`) to a scratch env, then pick one of geocal's four options and test it here. Check both the C++ test program and the Python extension (`_swig_wrap.so` loads `libskeleton` the same way). |
+| **`make check` tests the installed library** (geocal plan §6.1, open item 5; **done in ST.11, see progress log**). Conda's compiler activation puts `-Wl,-rpath,$CONDA_PREFIX/lib -Wl,--disable-new-dtags` in `LDFLAGS`. With `--prefix=$CONDA_PREFIX`, the env's old `libgeocal.so` comes before `.libs` in the test program's RPATH (RPATH, so `LD_LIBRARY_PATH` doesn't help). New symbols give `undefined symbol`; changed code silently tests the old version. geocal asks for the fix to be tried in the skeleton first. | **ST step 11.** The skeleton has the same setup (`--prefix=$CONDA_PREFIX`) but doesn't show it in the frenchpeas scratch env: that env's `compilers` 2.0.0 brings no `gxx_linux-64` activation, so `LDFLAGS` is empty and `skeleton_test_all` has `.libs` first in its RPATH (checked 2026-11-05). geocal's env does have the activation. To reproduce, add `gxx_linux-64` (and `gcc_linux-64`) to a scratch env, then pick one of geocal's four options and test it here. Check both the C++ test program and the Python extension (`_swig_wrap.so` loads `libskeleton` the same way). |
 | **GIL.** The SWIG wrappers are built without `-threads`, so the GIL is held for every C++ call. geocal's `ThreadPool` guard against two threads using the global pool at once relies on this for Python callers. | S6.1 item 11: keep the GIL held by default under nanobind (no `nb::gil_scoped_release` unless a call is shown to be safe and worth it), and test a director called from a C++ worker thread. |
 | **Exceptions from worker threads.** A task that threw used to call `std::terminate`. Now the first `std::exception_ptr` is saved and rethrown from `wait_tasks_finish`, so the original exception reaches the caller (and Python, as `RuntimeError`). | Covered by the same S6.1 item 11 test: the exception, or a Python exception from an override run on a worker thread, arrives in Python with its type and message. |
 | **Overload dispatch on the first argument**: `resample_field(blitz::Array<double,2>)`, `(shared_ptr<RasterImage>)` and `(std::string)`. A numpy `float32` array must be accepted for the `double` overload, and a `MemoryRasterImageFloat` must not be taken by the Blitz typecheck. | S6.1 item 7 acceptance test. nanobind resolves overloads in two passes (exact, then with implicit conversion); check that the result is the same as SWIG's. The ST `ArrayTypemapSample` already shows a different dtype is converted (a copy) for a single signature. |
@@ -947,7 +957,7 @@ Tag `nanobind-1`.
 * [ ] `swig_shelve` every format, `shelve_time_after`, `extra_python_init`, `SQLiteShelf`
 * [ ] `multiprocessing.Pool` round trip (plain and director object)
 * [ ] `%shared_ptr_value_traits` vector sample (from geocal)
-* [ ] `make check` fails on a just-changed library after `make install` into the env is fixed (ST step 11, from geocal)
+* [x] `make check` fails on a just-changed library after `make install` into the env is fixed (ST step 11, from geocal; done 2026-11-05)
 
 **C++ (Boost.Test)**
 * [ ] Golden-archive load test: every class, XML and binary (S0); byte-identical re-write after `std::shared_ptr` (S4)
@@ -1050,8 +1060,9 @@ Tag `nanobind-1`.
 
 **Open:**
 * Final module name (item 2).
-* **Fix for `make check` testing the installed library** (ST step 11, from geocal plan §6.1 / its open item 5): which
-  of geocal's four options. Try them here first.
+* **Fix for `make check` testing the installed library** (ST step 11, from geocal plan §6.1 / its open item 5):
+  implemented 2026-11-05 as a per-target rpath for never-installed programs (progress log ST.11), staged for review.
+  Option 4 was tried and doesn't work alone; options 1–3 were not needed. Close this once the maintainer accepts it.
 * **Threading sample in the skeleton?** (2026-11-05, §2.6). A small `std::thread` callback sample (no `ThreadPool`
   copy) would let S6.1 item 11 test directors and exceptions on worker threads here. Without it, these are tested
   first in geocal's nanobind pilot. Recommendation: add it in S5, since it is small and the deadlock case is easier to
