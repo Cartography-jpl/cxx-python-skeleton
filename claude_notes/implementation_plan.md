@@ -1,6 +1,7 @@
 # swig-rules-skeleton: implementation plan for the modernization
 
-**Date:** 2026-10-23 (reviewed and updated 2026-10-30: geocal sync §2.5, test coverage phase ST §4a)
+**Date:** 2026-10-23 (reviewed and updated 2026-10-30: geocal sync §2.5, test coverage phase ST §4a; 2026-11-05:
+geocal/framework sync §2.6)
 **Status:** In progress. Phase S0 is done; the next phase is ST (test hardening); see §0.
 **Purpose:** Work through every modernization step planned for geocal (and later framework) on this small repository
 first, so the problems are found and solved here before touching the large repositories.
@@ -11,6 +12,8 @@ Related documents:
   `modernization_ideas.md` lists what has changed since; where they disagree, this plan wins.
 * `/ssdata/smyth/geocal-repo/claude_documents/cpp_modernization_and_library_plan.md`: the geocal plan this mirrors
   (referred to below as "the geocal plan").
+* `<geocal repo>/claude_documents/resampler_threading_plan.md`: geocal's Resampler speed-up and `ThreadPool` work
+  (2026-11-03); the parts that affect this plan are in §2.6.
 * framework (`/home/smyth/Local/framework`): surveyed read-only; it will follow later with the same steps.
 
 ## 0. Handoff: where to pick up (read this first)
@@ -22,6 +25,10 @@ changes made in geocal since 2026-10-23 (§2.5). After ST comes **Phase S1** (C+
 clang-format trial (S1.6, using `claude_notes/clang_format_trial.clang-format`). The maintainer has to say "go" before
 ST starts (approved 2026-10-30, §13 item 11; code work still waits for "go"); if unsure, ask.
 
+**Review 2026-11-05** (§2.6): geocal found that `make check` can test the *installed* library instead of the one just
+built (conda RPATH). geocal wants the fix tried here first, so it is now ST step 11. The threading work in geocal adds
+GIL, worker-thread and overload-dispatch tests to S6.1 (items 7, 11). framework has not changed.
+
 **Rules for working in this repository** (maintainer decisions):
 * Work on the **`modernize`** branch (already checked out). Don't touch `master` (it keeps the set-aside pickling work).
 * **Stage changes with `git add`, never commit.** The maintainer reviews and commits. Phase "tags" in this plan are
@@ -31,15 +38,27 @@ ST starts (approved 2026-10-30, §13 item 11; code work still waits for "go"); i
 * **The Python bindings may be broken from S4 until S6** (decided): S4 converts C++ and serialization to
   `std::shared_ptr` and is verified by the C++ tests and golden archives only; the SWIG side is not ported. See §8.
 
-**Locations:**
+**Locations:** work happens on two machines with different paths. Tell them apart by `hostname` (`rifle` or
+`frenchpeas`), or just check which path exists, since only one is valid on each machine. Paths elsewhere in these
+notes were mostly written on rifle; on frenchpeas, use the matching frenchpeas path from this table.
+
+| What | rifle (work) | frenchpeas (home) |
+|---|---|---|
+| This repo | `/home/smyth/Local/swig-rules-skeleton` (same as `/ldata/smyth/swig-rules-skeleton`) | `/data2/smythdata/swig-rules-skeleton` |
+| Scratch build + pixi env (disposable; fine to modify its `pixi.toml`) | `/home/smyth/Local/swig-rules-skeleton-build/build-pixi` (also `build-coverage`, `build-pixi-gcc14`) | `/data2/smythdata/swig-rules-skeleton-build/build` (only this one so far) |
+| geocal repo | `/ssdata/smyth/geocal-repo` | `/data2/smythdata/geocal-repo` |
+| geocal build | `/ldata/smyth/geocal-build/build-pixi` | `/data2/smythdata/geocal-build/build-pixi` |
+| framework (follows later; read-only survey) | `/home/smyth/Local/framework` | `/data2/smythdata/framework` |
+| framework build | `/home/smyth/Local/framework-build` | `/data2/smythdata/framework-build/build_conda`, `build_conda_debug` |
+
+Configure the skeleton scratch build from inside its build directory with
+`../../swig-rules-skeleton/configure --prefix=$CONDA_PREFIX --enable-maintainer-mode --enable-debug`. The coverage
+build recipe is in §4a "Coverage builds".
+
 | What | Where |
 |---|---|
-| This repo | `/home/smyth/Local/swig-rules-skeleton` (same as `/ldata/smyth/swig-rules-skeleton`) |
-| Scratch build + pixi env (disposable; fine to modify its `pixi.toml`) | `/home/smyth/Local/swig-rules-skeleton-build/build-pixi`; configure with `../../swig-rules-skeleton/configure --prefix=$CONDA_PREFIX --enable-maintainer-mode --enable-debug` |
-| Coverage build (scratch, uses the `build-pixi` env) | `/home/smyth/Local/swig-rules-skeleton-build/build-coverage`; recipe in §4a "Coverage builds" |
 | nanobind probe sources (reference for S6.1) | `claude_notes/nanobind_probes/` (see its README) |
-| geocal plan (the large repo this rehearses) | `/ssdata/smyth/geocal-repo/claude_documents/cpp_modernization_and_library_plan.md` |
-| framework (follows later; read-only survey) | `/home/smyth/Local/framework` |
+| geocal plan (the large repo this rehearses) | `<geocal repo>/claude_documents/cpp_modernization_and_library_plan.md` |
 | Earlier discussion (superseded where it disagrees) | `claude_notes/modernization_ideas.md` (§11), `serialization_options.md` (§9), `build_layout_review.md`, `swig_rules_review.md` |
 
 **Notes for geocal (and framework)** — things found here that geocal should also change. A Claude session working
@@ -70,6 +89,7 @@ apply it there (or record why not) in geocal's plan:
 | S0.7 housekeeping | done | No `*~` files were tracked. `.gitignore` extended (egg-info, pytest_tmp, test xml). |
 | S0.8 sanitizer | done | See "Sanitizer builds" below. |
 | Review 2026-10-30 | done | geocal changes since 2026-10-23 reviewed (§2.5). Coverage measured (§4a): C++ `lib/` + `swig_rules/lib/` 52% of lines, Python `skeleton` package 42% (`swig_shelve.py` 38%); most `swig_rules` typemaps are never exercised. Bugs found that no test catches: §4a "Bugs found". `gcovr` and `pytest-cov` added to the scratch `build-pixi` env (not yet to `env/linux/pixi.toml`). Phase ST added before S1. |
+| Review 2026-11-05 | done | geocal `2193f1953`..`f3d94e93` and framework (no change since 2026-10-22) reviewed (§2.6). New: ST step 11 (`make check` must test the just-built library), S6.1 items 7 and 11, S6.3 notes, §13 open items. |
 | ST | not started | Approved 2026-10-30 with decisions §13 items 11–17. `.json` shelves kept (they are used downstream). Waiting for "go". |
 
 ---
@@ -254,6 +274,9 @@ Counts are grep counts over non-generated `.h`/`.cc` (878 files).
   * The nanobind design must handle multiple and virtual inheritance at framework's scale. The skeleton tests in
     Phase 6 are sized for that.
 
+Rechecked 2026-11-05: framework `master` has no commits since `0521a2dd` (2026-10-22), before this survey; the only
+newer branch is a dependabot `setuptools` bump. Nothing here changes.
+
 ### 2.4 Observer ownership in geocal and framework (survey 2026-10-23)
 
 The question: is it OK to require that Observers (or Observables) are owned by a `shared_ptr`? Short answer: **not
@@ -331,6 +354,26 @@ Other geocal changes that affect this plan:
   "Python API changes to record" list should be written in the same form, so geocal can copy entries.
 * **mypy** now passes in geocal with `--disallow-untyped-defs`, and `make` generates the `__init__.pyi`. S6.5 must
   keep that working with nanobind stubs.
+
+### 2.6 geocal and framework changes since 2026-10-30 (reviewed 2026-11-05)
+
+geocal (`develop_2_0`, `2193f1953`..`f3d94e93`, all 2026-11-03) did the Resampler speed-up
+(`claude_documents/resampler_threading_plan.md`): a threaded `Resampler`, guards in `ThreadPool`, a new
+`parallel_row_blocks` helper, and one new open item in the geocal plan (§6.1 there). It did **not** change
+`swig_rules/`, `config/m4/` or `env/`; the remaining `swig_rules/` differences are the ST fixes made here and geocal's
+`__init__.py` setting (§2.5), so nothing comes back this time. framework: no change (§2.3).
+
+| geocal finding | Action here |
+|---|---|
+| **`make check` tests the installed library** (geocal plan §6.1, open item 5). Conda's compiler activation puts `-Wl,-rpath,$CONDA_PREFIX/lib -Wl,--disable-new-dtags` in `LDFLAGS`. With `--prefix=$CONDA_PREFIX`, the env's old `libgeocal.so` comes before `.libs` in the test program's RPATH (RPATH, so `LD_LIBRARY_PATH` doesn't help). New symbols give `undefined symbol`; changed code silently tests the old version. geocal asks for the fix to be tried in the skeleton first. | **ST step 11.** The skeleton has the same setup (`--prefix=$CONDA_PREFIX`) but doesn't show it in the frenchpeas scratch env: that env's `compilers` 2.0.0 brings no `gxx_linux-64` activation, so `LDFLAGS` is empty and `skeleton_test_all` has `.libs` first in its RPATH (checked 2026-11-05). geocal's env does have the activation. To reproduce, add `gxx_linux-64` (and `gcc_linux-64`) to a scratch env, then pick one of geocal's four options and test it here. Check both the C++ test program and the Python extension (`_swig_wrap.so` loads `libskeleton` the same way). |
+| **GIL.** The SWIG wrappers are built without `-threads`, so the GIL is held for every C++ call. geocal's `ThreadPool` guard against two threads using the global pool at once relies on this for Python callers. | S6.1 item 11: keep the GIL held by default under nanobind (no `nb::gil_scoped_release` unless a call is shown to be safe and worth it), and test a director called from a C++ worker thread. |
+| **Exceptions from worker threads.** A task that threw used to call `std::terminate`. Now the first `std::exception_ptr` is saved and rethrown from `wait_tasks_finish`, so the original exception reaches the caller (and Python, as `RuntimeError`). | Covered by the same S6.1 item 11 test: the exception, or a Python exception from an override run on a worker thread, arrives in Python with its type and message. |
+| **Overload dispatch on the first argument**: `resample_field(blitz::Array<double,2>)`, `(shared_ptr<RasterImage>)` and `(std::string)`. A numpy `float32` array must be accepted for the `double` overload, and a `MemoryRasterImageFloat` must not be taken by the Blitz typecheck. | S6.1 item 7 acceptance test. nanobind resolves overloads in two passes (exact, then with implicit conversion); check that the result is the same as SWIG's. The ST `ArrayTypemapSample` already shows a different dtype is converted (a copy) for a single signature. |
+| **Static data members** go through `cvar` in SWIG, so geocal used static `max_step_ratio()` / `set_max_step_ratio()` functions instead. | S6.3: the converter needs `static` functions (`.def_static`) only; no static data members. |
+| **doxy2swig and anonymous namespaces**: an anonymous namespace in a `.cc` makes doxy2swig emit a `%feature` line SWIG can't parse; geocal moved the helpers into the class. | S6.3: the docstring generator must skip anonymous-namespace symbols. The skeleton's only anonymous namespaces are in `*_test.cc` files, which doxygen doesn't read, so nothing to fix now. |
+| **Serialization version bump**: `Resampler` went to class version 1 with new fields; old pickles load (checked by a small version 0 pickle in the test data). A renamed member kept its serialized name (`GEOCAL_NVP_`). | Nothing new to do: the golden archives are the same check. S5 samples that change version should follow the same pattern. |
+| **A `*_test.cc` file never listed in the `.am`** (`resampler_test.cc`, plus two others, so their tests never ran). | Checked here: every `*_test.cc` is listed. |
+| **`ThreadPool` uses `boost::asio::thread_pool`**; the geocal plan keeps Asio (a `std`-only replacement is optional). | No change to §2.2 (Asio kept). The skeleton has no thread pool; whether to add a small one as a test sample is an open question (§13). |
 
 ---
 
@@ -529,6 +572,15 @@ fix removes the `xfail` in the same staged change (so the reviewer sees both).
    instantiations that aren't used.
 10. **Record the SWIG reference results** (counts and the list of `xfail`s) in the progress log. These, plus the S5
     results, are what S6 has to reproduce.
+11. **`make check` tests the library that was just built** (added 2026-11-05, §2.6; geocal plan §6.1). First reproduce
+    it: a scratch env with conda's compiler activation (`gxx_linux-64`), `--prefix=$CONDA_PREFIX`, `make install`, then
+    a change to a library function that a test checks. `make check` should fail on the change, but passes against the
+    old installed `libskeleton`. Then try geocal's options, smallest first: (4) `-Wl,--enable-new-dtags`, (3) filter
+    `-Wl,-rpath,$prefix/lib` out of `LDFLAGS` in configure (relying on libtool's install relink), (2) the test driver
+    runs through `libtool --mode=execute` / `LD_PRELOAD`, (1) install to a prefix that isn't the env. Check with
+    `readelf -d` on the test program and on `_swig_wrap.so`, run the C++ and Python tests before and after
+    `make install`, and check that the *installed* programs still find the installed library. The fix goes in the
+    shared `config/m4` (or `swig_rules.am`) so geocal can copy it; add a row to "Notes for geocal" in §0.
 
 **Exit:** ST steps done; S0 phase-end checklist green (gcc 15, gcc 14, `--without-boost-serialization`, ASan);
 suggested tag `phaseT-tests`.
@@ -774,6 +826,10 @@ Decide and test each of these, in this order:
      and strided cases; read-only returns; and a clear error for a wrong dtype or rank. Run them under ASan.
    * C++ tests for the `mdspan` ↔ Blitz layer on its own (no Python): contiguous, strided slice, column-major.
      These are the cases already shown to work in a probe on 2026-10-22.
+   * Overload dispatch (geocal `Resampler::resample_field`, §2.6): one function overloaded on a Blitz
+     `double` array, a `shared_ptr` to a `GenericObject` class, and a `std::string`. A numpy `float64` array, a
+     `float32` array, a sample object and a `str` each pick the right overload, and a `GenericObject` class with a
+     float array inside isn't taken by the array overload. Record the SWIG result first (ST or S5) and match it.
 8. **iostream**: Python file object ↔ `std::istream`/`std::ostream` via a small `streambuf` (no nanobind equivalent).
    The existing `iostream_swig_test.py` is the acceptance test.
 9. **STL containers**: SWIG's `%template(Vector_DirectorExample)` gives a reference-semantics proxy type that the
@@ -782,6 +838,17 @@ Decide and test each of these, in this order:
 10. **Cross-module types**: build a second tiny extension module (`_skeleton_downstream`) in this repo that uses and
     returns types from the main module, to prove the geocal → ECOSTRESS and framework → instrument-repo pattern
     (nanobind version pinned across modules).
+11. **GIL and C++ worker threads** (added 2026-11-05, §2.6). SWIG holds the GIL for every call (no `-threads`), and
+    geocal's `ThreadPool` relies on that. Default: nanobind bindings hold the GIL too; releasing it
+    (`nb::call_guard<nb::gil_scoped_release>`) is a per-function decision for later. Test with a small sample that
+    runs a callback on a `std::thread` (or a few) and waits for it, the way `ThreadPool` does:
+    * a director (Python override) called from the worker thread works: the trampoline must take the GIL, and the
+      waiting thread must not hold it while it waits, or it deadlocks. Record what SWIG does today (it likely
+      crashes or deadlocks, since it has no thread support built in), so the result is known, not assumed;
+    * a C++ exception, and a Python exception raised in the override, thrown on the worker and rethrown by the
+      waiting thread (through `std::exception_ptr`, as geocal's `ThreadPool` now does) arrives in Python with its type
+      and message.
+    Whether this sample lives in the skeleton is open (§13); without it, these tests move to geocal's nanobind pilot.
 
 ### 6.2 Rules library layout
 
@@ -809,7 +876,9 @@ Everything Python-specific lives in the extension module; `libskeleton` stays Py
   * `%pickle_serialization` → `__reduce__`;
   * `%feature("director")` → trampoline class;
   * `%template(Vector_X)` → `bind_vector`;
-  * anything in `%extend` / `%pythoncode` → flagged for hand conversion.
+  * anything in `%extend` / `%pythoncode` → flagged for hand conversion;
+  * static functions → `.def_static`. Static data members aren't needed: geocal avoids them because SWIG exposes them
+    through `cvar` (§2.6).
 
   The `.i` files are the specification of the Python API, so this keeps it stable. Run it on the skeleton's 9 `.i`
   files and hand-fix the output. The goal is that geocal's 230 and framework's 324 `.i` files convert with only
@@ -818,6 +887,8 @@ Everything Python-specific lives in the extension module; `libskeleton` stays Py
   with one `init_<file>(nb::module_&)` per header group.
 * Docstrings: generate a `docstrings.h` from the existing doxygen XML (a `doxy2nanobind.py` adapted from
   `doxy2swig.py`, or `pybind11_mkdoc`, which emits plain strings usable by nanobind; evaluate both on the skeleton).
+  It must skip symbols in anonymous namespaces: doxy2swig emits an unparsable `%feature` line for them today, and
+  geocal works around it by moving helpers into the class (§2.6).
 
 ### 6.4 Build
 
@@ -876,6 +947,7 @@ Tag `nanobind-1`.
 * [ ] `swig_shelve` every format, `shelve_time_after`, `extra_python_init`, `SQLiteShelf`
 * [ ] `multiprocessing.Pool` round trip (plain and director object)
 * [ ] `%shared_ptr_value_traits` vector sample (from geocal)
+* [ ] `make check` fails on a just-changed library after `make install` into the env is fixed (ST step 11, from geocal)
 
 **C++ (Boost.Test)**
 * [ ] Golden-archive load test: every class, XML and binary (S0); byte-identical re-write after `std::shared_ptr` (S4)
@@ -917,6 +989,8 @@ Tag `nanobind-1`.
 * [ ] numpy (through the `mdspan` bridge in S6): existing three lifetime tests, plus Fortran-order input,
       non-contiguous input, read-only returns, wrong dtype/rank gives a clear error (S5/S6)
 * [ ] iostream tests (existing, keep)
+* [ ] Overload dispatch: Blitz `double` array vs. `GenericObject` class vs. `str`, with `float32` input (S6.1 item 7)
+* [ ] Director called from a C++ worker thread; exceptions from a worker thread reach Python (S6.1 item 11)
 * [ ] Cross-module: the downstream test module creates, receives and returns main-module types (S6)
 * [ ] `help()` shows docstrings; `mypy` passes against generated stubs (S6)
 * [ ] Python tests under AddressSanitizer or valgrind (S6)
@@ -976,3 +1050,9 @@ Tag `nanobind-1`.
 
 **Open:**
 * Final module name (item 2).
+* **Fix for `make check` testing the installed library** (ST step 11, from geocal plan §6.1 / its open item 5): which
+  of geocal's four options. Try them here first.
+* **Threading sample in the skeleton?** (2026-11-05, §2.6). A small `std::thread` callback sample (no `ThreadPool`
+  copy) would let S6.1 item 11 test directors and exceptions on worker threads here. Without it, these are tested
+  first in geocal's nanobind pilot. Recommendation: add it in S5, since it is small and the deadlock case is easier to
+  debug in the skeleton.

@@ -81,12 +81,25 @@ After configure, `source script/setup_skeleton.sh` (generated from `script/setup
 `PYTHONPATH`/`PATH`/`SKELETONTOP` so the built library and python bindings are importable — this is done
 automatically by the test scripts below but is needed if running things manually.
 
+### Machines and paths
+
+Work happens on two machines with different paths: `rifle` (work) and `frenchpeas` (home). Tell them apart by
+`hostname`, or just check which path exists, since only one is valid on each machine. Paths in `claude_notes/` were
+mostly written on rifle; the full mapping (this repo, scratch builds, geocal, framework and their builds) is in the
+Locations table in §0 of `claude_notes/implementation_plan.md`.
+
+| | rifle | frenchpeas |
+|---|---|---|
+| This repo | `/home/smyth/Local/swig-rules-skeleton` | `/data2/smythdata/swig-rules-skeleton` |
+| Scratch build | `/home/smyth/Local/swig-rules-skeleton-build/build-pixi` | `/data2/smythdata/swig-rules-skeleton-build/build` |
+| geocal | `/ssdata/smyth/geocal-repo` | `/data2/smythdata/geocal-repo` |
+| framework | `/home/smyth/Local/framework` | `/data2/smythdata/framework` |
+
 ### Scratch build/test environment
 
-`/home/smyth/Local/swig-rules-skeleton-build/build-pixi` is a scratch pixi environment (outside this repo)
-that can be used to actually configure/build/run tests against, e.g.:
+The scratch build directory above is a pixi environment (outside this repo) that can be used to actually
+configure/build/run tests against, e.g. (from inside it):
 ```sh
-cd /home/smyth/Local/swig-rules-skeleton-build/build-pixi
 ../../swig-rules-skeleton/configure --prefix=$CONDA_PREFIX --enable-maintainer-mode --enable-debug
 ```
 It's fine to modify this environment's `pixi.toml`/add packages to it as needed to get a build working — it's
