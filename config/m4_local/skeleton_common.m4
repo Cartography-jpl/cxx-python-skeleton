@@ -54,15 +54,13 @@ AM_PROG_CC_C_O
 AC_ENABLE_DEBUG
 
 #=================================================================
-# We are far enough along in time that we should be able to just
-# require a C++17 compiler. We can perhaps relax that is needed to
-# support older versions, but as of now (2024) this standard is already
-# 7 years old. It is probably too soon to require C++20 right now,
-# we can revisit that as needed (and perhaps just have this code
-# conditional for now).
+# Require C++20 (gcc >= 14, the minimum compiler tested; see
+# claude_notes/implementation_plan.md phase S1). Use -std=c++20, not
+# gnu++20: nothing here needs the GNU extensions, and the strict mode
+# catches nonportable code. nanobind needs at least C++17.
 #=================================================================
 
-AX_CXX_COMPILE_STDCXX([17], [ext], [mandatory])
+AX_CXX_COMPILE_STDCXX([20], [noext], [mandatory])
 
 #=================================================================
 # C++ Threading requires pthread sometimes

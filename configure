@@ -731,7 +731,7 @@ PTHREAD_CXX
 PTHREAD_CC
 ax_pthread_config
 CPP
-HAVE_CXX17
+HAVE_CXX20
 DEBUG_FLAGS
 CXXCPP
 LT_SYS_LIBRARY_PATH
@@ -20363,15 +20363,13 @@ fi
 
 
 #=================================================================
-# We are far enough along in time that we should be able to just
-# require a C++17 compiler. We can perhaps relax that is needed to
-# support older versions, but as of now (2024) this standard is already
-# 7 years old. It is probably too soon to require C++20 right now,
-# we can revisit that as needed (and perhaps just have this code
-# conditional for now).
+# Require C++20 (gcc >= 14, the minimum compiler tested; see
+# claude_notes/implementation_plan.md phase S1). Use -std=c++20, not
+# gnu++20: nothing here needs the GNU extensions, and the strict mode
+# catches nonportable code. nanobind needs at least C++17.
 #=================================================================
 
-  ax_cxx_compile_alternatives="17 1z"    ax_cxx_compile_cxx17_required=true
+  ax_cxx_compile_alternatives="20"    ax_cxx_compile_cxx20_required=true
   ac_ext=cpp
 ac_cpp='$CXXCPP $CPPFLAGS'
 ac_compile='$CXX -c $CXXFLAGS $CPPFLAGS conftest.$ac_ext >&5'
@@ -20381,19 +20379,26 @@ ac_compiler_gnu=$ac_cv_cxx_compiler_gnu
 
 
 
+
+
     if test x$ac_success = xno; then
-    for alternative in ${ax_cxx_compile_alternatives}; do
-      switch="-std=gnu++${alternative}"
-      cachevar=`printf "%s\n" "ax_cv_cxx_compile_cxx17_$switch" | sed "$as_sed_sh"`
-      { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking whether $CXX supports C++17 features with $switch" >&5
-printf %s "checking whether $CXX supports C++17 features with $switch... " >&6; }
+                    for alternative in ${ax_cxx_compile_alternatives}; do
+      for switch in -std=c++${alternative} +std=c++${alternative} "-h std=c++${alternative}" MSVC; do
+        if test x"$switch" = xMSVC; then
+                                        switch=-std:c++${alternative}
+          cachevar=`printf "%s\n" "ax_cv_cxx_compile_cxx20_${switch}_MSVC" | sed "$as_sed_sh"`
+        else
+          cachevar=`printf "%s\n" "ax_cv_cxx_compile_cxx20_$switch" | sed "$as_sed_sh"`
+        fi
+        { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking whether $CXX supports C++20 features with $switch" >&5
+printf %s "checking whether $CXX supports C++20 features with $switch... " >&6; }
 if eval test \${$cachevar+y}
 then :
   printf %s "(cached) " >&6
 else case e in #(
   e) ac_save_CXX="$CXX"
-         CXX="$CXX $switch"
-         cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+           CXX="$CXX $switch"
+           cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 /* end confdefs.h.  */
 
 
@@ -21195,6 +21200,32 @@ namespace cxx17
 
 
 
+
+#ifndef __cplusplus
+
+#error "This is not a C++ compiler"
+
+#elif (defined _MSVC_LANG ? _MSVC_LANG : __cplusplus) < 202002L
+
+#error "This is not a C++20 compiler"
+
+#else
+
+#include <version>
+
+namespace cxx20
+{
+
+// As C++20 supports feature test macros in the standard, there is no
+// immediate need to actually test for feature availability on the
+// Autoconf side.
+
+}  // namespace cxx20
+
+#endif  // (defined _MSVC_LANG ? _MSVC_LANG : __cplusplus) < 202002L
+
+
+
 _ACEOF
 if ac_fn_cxx_try_compile "$LINENO"
 then :
@@ -21204,43 +21235,45 @@ else case e in #(
 esac
 fi
 rm -f core conftest.err conftest.$ac_objext conftest.beam conftest.$ac_ext
-         CXX="$ac_save_CXX" ;;
+           CXX="$ac_save_CXX" ;;
 esac
 fi
 eval ac_res=\$$cachevar
 	       { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $ac_res" >&5
 printf "%s\n" "$ac_res" >&6; }
-      if eval test x\$$cachevar = xyes; then
-        CXX="$CXX $switch"
-        if test -n "$CXXCPP" ; then
-          CXXCPP="$CXXCPP $switch"
+        if eval test x\$$cachevar = xyes; then
+          CXX="$CXX $switch"
+          if test -n "$CXXCPP" ; then
+            CXXCPP="$CXXCPP $switch"
+          fi
+          ac_success=yes
+          break
         fi
-        ac_success=yes
+      done
+      if test x$ac_success = xyes; then
         break
       fi
     done
   fi
-
-
   ac_ext=c
 ac_cpp='$CPP $CPPFLAGS'
 ac_compile='$CC -c $CFLAGS $CPPFLAGS conftest.$ac_ext >&5'
 ac_link='$CC -o conftest$ac_exeext $CFLAGS $CPPFLAGS $LDFLAGS conftest.$ac_ext $LIBS >&5'
 ac_compiler_gnu=$ac_cv_c_compiler_gnu
 
-  if test x$ax_cxx_compile_cxx17_required = xtrue; then
+  if test x$ax_cxx_compile_cxx20_required = xtrue; then
     if test x$ac_success = xno; then
-      as_fn_error $? "*** A compiler with support for C++17 language features is required." "$LINENO" 5
+      as_fn_error $? "*** A compiler with support for C++20 language features is required." "$LINENO" 5
     fi
   fi
   if test x$ac_success = xno; then
-    HAVE_CXX17=0
-    { printf "%s\n" "$as_me:${as_lineno-$LINENO}: No compiler with C++17 support was found" >&5
-printf "%s\n" "$as_me: No compiler with C++17 support was found" >&6;}
+    HAVE_CXX20=0
+    { printf "%s\n" "$as_me:${as_lineno-$LINENO}: No compiler with C++20 support was found" >&5
+printf "%s\n" "$as_me: No compiler with C++20 support was found" >&6;}
   else
-    HAVE_CXX17=1
+    HAVE_CXX20=1
 
-printf "%s\n" "#define HAVE_CXX17 1" >>confdefs.h
+printf "%s\n" "#define HAVE_CXX20 1" >>confdefs.h
 
   fi
 
