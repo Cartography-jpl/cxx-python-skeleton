@@ -147,7 +147,7 @@ swig_to_python(const std::vector<std::vector<boost::shared_ptr<T> > >& V)
   PyObject* res = PyList_New(V.size());
   if(!res)
     return NULL;
-  for(int i = 0; i < V.size(); ++i)
+  for(int i = 0; i < (int) V.size(); ++i)
     PyList_SetItem(res, i, swig_to_python(V[i]));
   return res;
 }

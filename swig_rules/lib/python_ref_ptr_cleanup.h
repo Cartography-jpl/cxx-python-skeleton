@@ -88,7 +88,7 @@ public:
 /// Call by std::shared_ptr when its count gets to 0.
 /// p here is the pointer contained in the shared_ptr
 //-----------------------------------------------------------------------
-  void operator()(void* p)
+  void operator()(void* /* p */)
   {
 #ifdef 	PTR_DEBUG
     std::cerr << "Start PythonRefPtrCleanup operator() " << obj << " has count "

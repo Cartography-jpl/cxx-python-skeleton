@@ -225,7 +225,7 @@ void SWIG_MAPPER_NAMESPACE::skip_weak_ptr_handling(bool Skip)
 /// encounter. 
 //-----------------------------------------------------------------------
 
-static void mark_pointer(const boost::shared_ptr<GenericObject>& Obj)
+[[maybe_unused]] static void mark_pointer([[maybe_unused]] const boost::shared_ptr<GenericObject>& Obj)
 {
 #ifdef SWIG_HAVE_BOOST_SERIALIZATION
   // Clear even when skipping the first pass, otherwise the marks left
@@ -254,8 +254,8 @@ static void mark_pointer(const boost::shared_ptr<GenericObject>& Obj)
 /// objects (e.g., can have a std::map if we end up needing it).
 //-----------------------------------------------------------------------
 
-void SWIG_MAPPER_NAMESPACE::serialize_write(const std::string& Fname,
-			     const boost::shared_ptr<GenericObject>& Obj)
+void SWIG_MAPPER_NAMESPACE::serialize_write([[maybe_unused]] const std::string& Fname,
+			     [[maybe_unused]] const boost::shared_ptr<GenericObject>& Obj)
 {
 #ifdef SWIG_HAVE_BOOST_SERIALIZATION
   PtrSerializeLock lock;
@@ -268,8 +268,8 @@ void SWIG_MAPPER_NAMESPACE::serialize_write(const std::string& Fname,
 #endif
 }
 
-void SWIG_MAPPER_NAMESPACE::serialize_write_binary(const std::string& Fname,
-			     const boost::shared_ptr<GenericObject>& Obj)
+void SWIG_MAPPER_NAMESPACE::serialize_write_binary([[maybe_unused]] const std::string& Fname,
+			     [[maybe_unused]] const boost::shared_ptr<GenericObject>& Obj)
 {
 #ifdef SWIG_HAVE_BOOST_SERIALIZATION
   PtrSerializeLock lock;
@@ -287,7 +287,7 @@ void SWIG_MAPPER_NAMESPACE::serialize_write_binary(const std::string& Fname,
 //-----------------------------------------------------------------------
 
 std::string SWIG_MAPPER_NAMESPACE::serialize_write_string
-(const boost::shared_ptr<GenericObject>& Obj)
+([[maybe_unused]] const boost::shared_ptr<GenericObject>& Obj)
 {
 #ifdef SWIG_HAVE_BOOST_SERIALIZATION
   PtrSerializeLock lock;
@@ -309,7 +309,7 @@ std::string SWIG_MAPPER_NAMESPACE::serialize_write_string
 //-----------------------------------------------------------------------
 
 std::string SWIG_MAPPER_NAMESPACE::serialize_write_binary
-(const boost::shared_ptr<GenericObject>& Obj)
+([[maybe_unused]] const boost::shared_ptr<GenericObject>& Obj)
 {
 #ifdef SWIG_HAVE_BOOST_SERIALIZATION
   PtrSerializeLock lock;
@@ -331,7 +331,7 @@ std::string SWIG_MAPPER_NAMESPACE::serialize_write_binary
 //-----------------------------------------------------------------------
 
 boost::shared_ptr<GenericObject> 
-SWIG_MAPPER_NAMESPACE::serialize_read_binary(const std::string& Data)
+SWIG_MAPPER_NAMESPACE::serialize_read_binary([[maybe_unused]] const std::string& Data)
 {
 #ifdef SWIG_HAVE_BOOST_SERIALIZATION
   std::istringstream is(Data);
@@ -363,7 +363,7 @@ SWIG_MAPPER_NAMESPACE::serialize_read_binary(const std::string& Data)
 //-----------------------------------------------------------------------
 
 boost::shared_ptr<GenericObject> 
-SWIG_MAPPER_NAMESPACE::serialize_read_generic(const std::string& Fname)
+SWIG_MAPPER_NAMESPACE::serialize_read_generic([[maybe_unused]] const std::string& Fname)
 {
 #ifdef SWIG_HAVE_BOOST_SERIALIZATION
   IstreamCompress is(Fname.c_str());
@@ -384,7 +384,7 @@ SWIG_MAPPER_NAMESPACE::serialize_read_generic(const std::string& Fname)
 }
 
 boost::shared_ptr<GenericObject> 
-SWIG_MAPPER_NAMESPACE::serialize_read_binary_generic(const std::string& Fname)
+SWIG_MAPPER_NAMESPACE::serialize_read_binary_generic([[maybe_unused]] const std::string& Fname)
 {
 #ifdef SWIG_HAVE_BOOST_SERIALIZATION
   IstreamCompress is(Fname.c_str());
@@ -410,7 +410,7 @@ SWIG_MAPPER_NAMESPACE::serialize_read_binary_generic(const std::string& Fname)
 //-----------------------------------------------------------------------
 
 boost::shared_ptr<GenericObject> 
-SWIG_MAPPER_NAMESPACE::serialize_read_generic_string(const std::string& Data)
+SWIG_MAPPER_NAMESPACE::serialize_read_generic_string([[maybe_unused]] const std::string& Data)
 {
 #ifdef SWIG_HAVE_BOOST_SERIALIZATION
   std::istringstream is(Data);

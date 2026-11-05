@@ -20321,7 +20321,11 @@ then :
   enableval=$enable_debug; if test "$enableval" = yes; then
   { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: yes" >&5
 printf "%s\n" "yes" >&6; }
-  if test "x$CONDA_PREFIX" != x; then
+  # Use conda's debug flags when its compiler activation set them. A
+  # conda env without the activation (e.g. plain gcc/gxx packages) has
+  # CONDA_PREFIX but no DEBUG_CXXFLAGS, and would otherwise get no
+  # debug flags at all, so fall back to the gcc flags below.
+  if test "x$CONDA_PREFIX" != x && test "x$DEBUG_CXXFLAGS" != x; then
     CXXFLAGS="$DEBUG_CXXFLAGS"
     CFLAGS="$DEBUG_CFLAGS"
 # There are some legitimate uses of mve in p1 that appear to violate the
@@ -20361,6 +20365,13 @@ fi
 
 
 
+# Warnings for debug builds (the development builds). conda's
+# DEBUG_CXXFLAGS already has -Wall -Wextra; this covers the other cases
+# and adds -Wdeprecated. Third party headers are -isystem, so their
+# warnings don't show.
+if test "x$enable_debug" = "xyes" && test "x$GXX" = "xyes"; then
+  CXXFLAGS="$CXXFLAGS -Wall -Wextra -Wdeprecated"
+fi
 
 #=================================================================
 # Require C++20 (gcc >= 14, the minimum compiler tested; see
@@ -26412,6 +26423,36 @@ printf "%s\n" "no" >&6; }
         else
                 { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: yes" >&5
 printf "%s\n" "yes" >&6; }
+                # Keep only the include directories, as -isystem so
+                # warnings from the Blitz headers don't show in our
+                # builds. The conda-forge blitz.pc Cflags also carry the
+                # flags blitz itself was built with (-DNDEBUG -O2
+                # -D_FORTIFY_SOURCE=2 ...), which would otherwise end up
+                # in our builds too, including debug ones.
+                ac_blitz_cflags=""
+                ac_blitz_next=""
+                for ac_blitz_flag in $BLITZ_CFLAGS; do
+                    ac_blitz_dir=""
+                    if test "x$ac_blitz_next" = "xyes"; then
+                        ac_blitz_dir="$ac_blitz_flag"
+                        ac_blitz_next=""
+                    else
+                        case "$ac_blitz_flag" in
+                          -isystem) ac_blitz_next=yes ;;
+                          -isystem*) ac_blitz_dir=`echo "$ac_blitz_flag" | sed 's/^-isystem//'` ;;
+                          -I*) ac_blitz_dir=`echo "$ac_blitz_flag" | sed 's/^-I//'` ;;
+                        esac
+                    fi
+                    # /usr/include is already a system directory, and
+                    # -isystem on it breaks #include_next.
+                    if test "x$ac_blitz_dir" != "x" && test "x$ac_blitz_dir" != "x/usr/include"; then
+                        case " $ac_blitz_cflags " in
+                          *" -isystem $ac_blitz_dir "*) ;;
+                          *) ac_blitz_cflags="$ac_blitz_cflags -isystem $ac_blitz_dir" ;;
+                        esac
+                    fi
+                done
+                BLITZ_CFLAGS="$ac_blitz_cflags"
 
 
 

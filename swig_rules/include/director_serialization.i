@@ -36,14 +36,14 @@
  namespace boost {
    namespace serialization {
      template<class Archive>
-     void serialize(Archive& ar, SwigDirector_ ## TYPE& D, const unsigned int version) {
+     void serialize(Archive& ar, SwigDirector_ ## TYPE& D, const unsigned int /* version */) {
        ar & boost::serialization::make_nvp(BOOST_PP_STRINGIZE(TYPE),
  					  boost::serialization::base_object<NAMESPACE::TYPE>(D));
      }
      template<class Archive> 
      void save_construct_data(Archive & ar,
 			      const SwigDirector_ ## TYPE* d, 
-			      const unsigned int version)
+			      const unsigned int /* version */)
      {
        static PyObject* swig_this_name = PyUnicode_FromString("this");
        PyObject* pobj = d->swig_get_self();
@@ -67,7 +67,7 @@
      }
      template<class Archive>
      void load_construct_data(Archive & ar, SwigDirector_ ## TYPE* d,
- 			     const unsigned int version)
+ 			     const unsigned int /* version */)
      {
        std::string python_object;
        ar & BOOST_SERIALIZATION_NVP(python_object);

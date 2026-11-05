@@ -7,7 +7,7 @@
 
 template<class Archive, class T>
 void boost::serialization::save(Archive& ar, const blitz::Array<T, 1>& A, 
-			      const unsigned version) 
+			      const unsigned /* version */) 
 {
   using boost::serialization::make_array;
   if(A.size() > 0 && !A.isStorageContiguous())
@@ -20,7 +20,7 @@ void boost::serialization::save(Archive& ar, const blitz::Array<T, 1>& A,
 
 template<typename Archive, class T>
 void boost::serialization::load(Archive& ar, blitz::Array<T, 1>& A, 
-				const unsigned version) 
+				const unsigned /* version */) 
 {
   using boost::serialization::make_array;
   int size;
@@ -32,7 +32,7 @@ void boost::serialization::load(Archive& ar, blitz::Array<T, 1>& A,
 
 template<class Archive, class T>
 void boost::serialization::save(Archive& ar, const blitz::Array<T, 2>& A, 
-			      const unsigned version) 
+			      const unsigned /* version */) 
 {
   using boost::serialization::make_array;
   if(A.size() > 0 && !A.isStorageContiguous())
@@ -46,7 +46,7 @@ void boost::serialization::save(Archive& ar, const blitz::Array<T, 2>& A,
 
 template<typename Archive, class T>
 void boost::serialization::load(Archive& ar, blitz::Array<T, 2>& A, 
-				const unsigned version) 
+				const unsigned /* version */) 
 {
   using boost::serialization::make_array;
   int rows, cols;
@@ -58,7 +58,7 @@ void boost::serialization::load(Archive& ar, blitz::Array<T, 2>& A,
 
 template<class Archive, class T>
 void boost::serialization::save(Archive& ar, const blitz::Array<T, 3>& A, 
-			      const unsigned version) 
+			      const unsigned /* version */) 
 {
   using boost::serialization::make_array;
   if(A.size() > 0 && !A.isStorageContiguous())
@@ -73,7 +73,7 @@ void boost::serialization::save(Archive& ar, const blitz::Array<T, 3>& A,
 
 template<typename Archive, class T>
 void boost::serialization::load(Archive& ar, blitz::Array<T, 3>& A, 
-				const unsigned version) 
+				const unsigned /* version */) 
 {
   using boost::serialization::make_array;
   int rows, cols, depth;
@@ -85,7 +85,7 @@ void boost::serialization::load(Archive& ar, blitz::Array<T, 3>& A,
 
 template<class Archive, class T>
 void boost::serialization::save(Archive& ar, const blitz::Array<T, 4>& A, 
-			      const unsigned version) 
+			      const unsigned /* version */) 
 {
   using boost::serialization::make_array;
   if(A.size() > 0 && !A.isStorageContiguous())
@@ -102,7 +102,7 @@ void boost::serialization::save(Archive& ar, const blitz::Array<T, 4>& A,
 
 template<typename Archive, class T>
 void boost::serialization::load(Archive& ar, blitz::Array<T, 4>& A, 
-				const unsigned version) 
+				const unsigned /* version */) 
 {
   using boost::serialization::make_array;
   blitz::TinyVector<int, 4> shp;
@@ -117,7 +117,7 @@ void boost::serialization::load(Archive& ar, blitz::Array<T, 4>& A,
 
 template<class Archive, class T>
 void boost::serialization::save(Archive& ar, const blitz::Array<T, 5>& A, 
-			      const unsigned version) 
+			      const unsigned /* version */) 
 {
   using boost::serialization::make_array;
   if(A.size() > 0 && !A.isStorageContiguous())
@@ -135,7 +135,7 @@ void boost::serialization::save(Archive& ar, const blitz::Array<T, 5>& A,
 
 template<typename Archive, class T>
 void boost::serialization::load(Archive& ar, blitz::Array<T, 5>& A, 
-				const unsigned version) 
+				const unsigned /* version */) 
 {
   using boost::serialization::make_array;
   blitz::TinyVector<int, 5> shp;
@@ -151,241 +151,241 @@ void boost::serialization::load(Archive& ar, blitz::Array<T, 5>& A,
 
 template void boost::serialization::load(polymorphic_iarchive& ar, 
 					 blitz::Array<double, 1>& A, 
-					 const unsigned version);
+					 const unsigned /* version */);
 template void boost::serialization::save(polymorphic_oarchive& ar, 
 					 const blitz::Array<double, 1>& A, 
-					 const unsigned version);
+					 const unsigned /* version */);
 
 template void boost::serialization::load(polymorphic_iarchive& ar, 
 					 blitz::Array<double, 2>& A, 
-					 const unsigned version);
+					 const unsigned /* version */);
 template void boost::serialization::save(polymorphic_oarchive& ar, 
 					 const blitz::Array<double, 2>& A, 
-					 const unsigned version);
+					 const unsigned /* version */);
 
 template void boost::serialization::load(polymorphic_iarchive& ar, 
 					 blitz::Array<double, 3>& A, 
-					 const unsigned version);
+					 const unsigned /* version */);
 template void boost::serialization::save(polymorphic_oarchive& ar, 
 					 const blitz::Array<double, 3>& A, 
-					 const unsigned version);
+					 const unsigned /* version */);
 
 template void boost::serialization::load(polymorphic_iarchive& ar, 
 					 blitz::Array<double, 4>& A, 
-					 const unsigned version);
+					 const unsigned /* version */);
 template void boost::serialization::save(polymorphic_oarchive& ar, 
 					 const blitz::Array<double, 4>& A, 
-					 const unsigned version);
+					 const unsigned /* version */);
 
 template void boost::serialization::load(polymorphic_iarchive& ar, 
 					 blitz::Array<double, 5>& A, 
-					 const unsigned version);
+					 const unsigned /* version */);
 template void boost::serialization::save(polymorphic_oarchive& ar, 
 					 const blitz::Array<double, 5>& A, 
-					 const unsigned version);
+					 const unsigned /* version */);
 
 template void boost::serialization::load(polymorphic_iarchive& ar, 
 					 blitz::Array<float, 1>& A, 
-					 const unsigned version);
+					 const unsigned /* version */);
 template void boost::serialization::save(polymorphic_oarchive& ar, 
 					 const blitz::Array<float, 1>& A, 
-					 const unsigned version);
+					 const unsigned /* version */);
 
 template void boost::serialization::load(polymorphic_iarchive& ar, 
 					 blitz::Array<float, 2>& A, 
-					 const unsigned version);
+					 const unsigned /* version */);
 template void boost::serialization::save(polymorphic_oarchive& ar, 
 					 const blitz::Array<float, 2>& A, 
-					 const unsigned version);
+					 const unsigned /* version */);
 
 template void boost::serialization::load(polymorphic_iarchive& ar, 
 					 blitz::Array<float, 3>& A, 
-					 const unsigned version);
+					 const unsigned /* version */);
 template void boost::serialization::save(polymorphic_oarchive& ar, 
 					 const blitz::Array<float, 3>& A, 
-					 const unsigned version);
+					 const unsigned /* version */);
 
 template void boost::serialization::load(polymorphic_iarchive& ar, 
 					 blitz::Array<float, 4>& A, 
-					 const unsigned version);
+					 const unsigned /* version */);
 template void boost::serialization::save(polymorphic_oarchive& ar, 
 					 const blitz::Array<float, 4>& A, 
-					 const unsigned version);
+					 const unsigned /* version */);
 
 template void boost::serialization::load(polymorphic_iarchive& ar, 
 					 blitz::Array<float, 5>& A, 
-					 const unsigned version);
+					 const unsigned /* version */);
 template void boost::serialization::save(polymorphic_oarchive& ar, 
 					 const blitz::Array<float, 5>& A, 
-					 const unsigned version);
+					 const unsigned /* version */);
 
 template void boost::serialization::load(polymorphic_iarchive& ar, 
 					 blitz::Array<std::string, 1>& A, 
-					 const unsigned version);
+					 const unsigned /* version */);
 template void boost::serialization::save(polymorphic_oarchive& ar, 
 					 const blitz::Array<std::string, 1>& A, 
-					 const unsigned version);
+					 const unsigned /* version */);
 
 template void boost::serialization::load(polymorphic_iarchive& ar, 
 					 blitz::Array<std::string, 2>& A, 
-					 const unsigned version);
+					 const unsigned /* version */);
 template void boost::serialization::save(polymorphic_oarchive& ar, 
 					 const blitz::Array<std::string, 2>& A, 
-					 const unsigned version);
+					 const unsigned /* version */);
 
 template void boost::serialization::load(polymorphic_iarchive& ar, 
 					 blitz::Array<int, 1>& A, 
-					 const unsigned version);
+					 const unsigned /* version */);
 template void boost::serialization::save(polymorphic_oarchive& ar, 
 					 const blitz::Array<int, 1>& A, 
-					 const unsigned version);
+					 const unsigned /* version */);
 template void boost::serialization::load(polymorphic_iarchive& ar, 
 					 blitz::Array<int, 2>& A, 
-					 const unsigned version);
+					 const unsigned /* version */);
 template void boost::serialization::save(polymorphic_oarchive& ar, 
 					 const blitz::Array<int, 2>& A, 
-					 const unsigned version);
+					 const unsigned /* version */);
 template void boost::serialization::load(polymorphic_iarchive& ar, 
 					 blitz::Array<int, 3>& A, 
-					 const unsigned version);
+					 const unsigned /* version */);
 template void boost::serialization::save(polymorphic_oarchive& ar, 
 					 const blitz::Array<int, 3>& A, 
-					 const unsigned version);
+					 const unsigned /* version */);
 template void boost::serialization::load(polymorphic_iarchive& ar, 
 					 blitz::Array<int, 4>& A, 
-					 const unsigned version);
+					 const unsigned /* version */);
 template void boost::serialization::save(polymorphic_oarchive& ar, 
 					 const blitz::Array<int, 4>& A, 
-					 const unsigned version);
+					 const unsigned /* version */);
 template void boost::serialization::load(polymorphic_iarchive& ar, 
 					 blitz::Array<int, 5>& A, 
-					 const unsigned version);
+					 const unsigned /* version */);
 template void boost::serialization::save(polymorphic_oarchive& ar, 
 					 const blitz::Array<int, 5>& A, 
-					 const unsigned version);
+					 const unsigned /* version */);
 
 template void boost::serialization::load(polymorphic_iarchive& ar, 
 					 blitz::Array<bool, 1>& A, 
-					 const unsigned version);
+					 const unsigned /* version */);
 template void boost::serialization::save(polymorphic_oarchive& ar, 
 					 const blitz::Array<bool, 1>& A, 
-					 const unsigned version);
+					 const unsigned /* version */);
 template void boost::serialization::load(polymorphic_iarchive& ar, 
 					 blitz::Array<bool, 2>& A, 
-					 const unsigned version);
+					 const unsigned /* version */);
 template void boost::serialization::save(polymorphic_oarchive& ar, 
 					 const blitz::Array<bool, 2>& A, 
-					 const unsigned version);
+					 const unsigned /* version */);
 template void boost::serialization::load(polymorphic_iarchive& ar, 
 					 blitz::Array<bool, 3>& A, 
-					 const unsigned version);
+					 const unsigned /* version */);
 template void boost::serialization::save(polymorphic_oarchive& ar, 
 					 const blitz::Array<bool, 3>& A, 
-					 const unsigned version);
+					 const unsigned /* version */);
 template void boost::serialization::load(polymorphic_iarchive& ar, 
 					 blitz::Array<bool, 4>& A, 
-					 const unsigned version);
+					 const unsigned /* version */);
 template void boost::serialization::save(polymorphic_oarchive& ar, 
 					 const blitz::Array<bool, 4>& A, 
-					 const unsigned version);
+					 const unsigned /* version */);
 template void boost::serialization::load(polymorphic_iarchive& ar, 
 					 blitz::Array<bool, 5>& A, 
-					 const unsigned version);
+					 const unsigned /* version */);
 template void boost::serialization::save(polymorphic_oarchive& ar, 
 					 const blitz::Array<bool, 5>& A, 
-					 const unsigned version);
+					 const unsigned /* version */);
 
 template void boost::serialization::load(polymorphic_iarchive& ar, 
 					 blitz::Array<unsigned int, 1>& A, 
-					 const unsigned version);
+					 const unsigned /* version */);
 template void boost::serialization::save(polymorphic_oarchive& ar, 
 					 const blitz::Array<unsigned int, 1>& A, 
-					 const unsigned version);
+					 const unsigned /* version */);
 template void boost::serialization::load(polymorphic_iarchive& ar, 
 					 blitz::Array<unsigned int, 2>& A, 
-					 const unsigned version);
+					 const unsigned /* version */);
 template void boost::serialization::save(polymorphic_oarchive& ar, 
 					 const blitz::Array<unsigned int, 2>& A, 
-					 const unsigned version);
+					 const unsigned /* version */);
 template void boost::serialization::load(polymorphic_iarchive& ar, 
 					 blitz::Array<unsigned int, 3>& A, 
-					 const unsigned version);
+					 const unsigned /* version */);
 template void boost::serialization::save(polymorphic_oarchive& ar, 
 					 const blitz::Array<unsigned int, 3>& A, 
-					 const unsigned version);
+					 const unsigned /* version */);
 template void boost::serialization::load(polymorphic_iarchive& ar, 
 					 blitz::Array<unsigned int, 4>& A, 
-					 const unsigned version);
+					 const unsigned /* version */);
 template void boost::serialization::save(polymorphic_oarchive& ar, 
 					 const blitz::Array<unsigned int, 4>& A, 
-					 const unsigned version);
+					 const unsigned /* version */);
 template void boost::serialization::load(polymorphic_iarchive& ar, 
 					 blitz::Array<unsigned int, 5>& A, 
-					 const unsigned version);
+					 const unsigned /* version */);
 template void boost::serialization::save(polymorphic_oarchive& ar, 
 					 const blitz::Array<unsigned int, 5>& A, 
-					 const unsigned version);
+					 const unsigned /* version */);
 
 template void boost::serialization::load(polymorphic_iarchive& ar, 
 					 blitz::Array<short int, 1>& A, 
-					 const unsigned version);
+					 const unsigned /* version */);
 template void boost::serialization::save(polymorphic_oarchive& ar, 
 					 const blitz::Array<short int, 1>& A, 
-					 const unsigned version);
+					 const unsigned /* version */);
 template void boost::serialization::load(polymorphic_iarchive& ar, 
 					 blitz::Array<short int, 2>& A, 
-					 const unsigned version);
+					 const unsigned /* version */);
 template void boost::serialization::save(polymorphic_oarchive& ar, 
 					 const blitz::Array<short int, 2>& A, 
-					 const unsigned version);
+					 const unsigned /* version */);
 template void boost::serialization::load(polymorphic_iarchive& ar, 
 					 blitz::Array<short int, 3>& A, 
-					 const unsigned version);
+					 const unsigned /* version */);
 template void boost::serialization::save(polymorphic_oarchive& ar, 
 					 const blitz::Array<short int, 3>& A, 
-					 const unsigned version);
+					 const unsigned /* version */);
 template void boost::serialization::load(polymorphic_iarchive& ar, 
 					 blitz::Array<short int, 4>& A, 
-					 const unsigned version);
+					 const unsigned /* version */);
 template void boost::serialization::save(polymorphic_oarchive& ar, 
 					 const blitz::Array<short int, 4>& A, 
-					 const unsigned version);
+					 const unsigned /* version */);
 template void boost::serialization::load(polymorphic_iarchive& ar, 
 					 blitz::Array<short int, 5>& A, 
-					 const unsigned version);
+					 const unsigned /* version */);
 template void boost::serialization::save(polymorphic_oarchive& ar, 
 					 const blitz::Array<short int, 5>& A, 
-					 const unsigned version);
+					 const unsigned /* version */);
 
 template void boost::serialization::load(polymorphic_iarchive& ar, 
 					 blitz::Array<unsigned short int, 1>& A, 
-					 const unsigned version);
+					 const unsigned /* version */);
 template void boost::serialization::save(polymorphic_oarchive& ar, 
 					 const blitz::Array<unsigned short int, 1>& A, 
-					 const unsigned version);
+					 const unsigned /* version */);
 template void boost::serialization::load(polymorphic_iarchive& ar, 
 					 blitz::Array<unsigned short int, 2>& A, 
-					 const unsigned version);
+					 const unsigned /* version */);
 template void boost::serialization::save(polymorphic_oarchive& ar, 
 					 const blitz::Array<unsigned short int, 2>& A, 
-					 const unsigned version);
+					 const unsigned /* version */);
 template void boost::serialization::load(polymorphic_iarchive& ar, 
 					 blitz::Array<unsigned short int, 3>& A, 
-					 const unsigned version);
+					 const unsigned /* version */);
 template void boost::serialization::save(polymorphic_oarchive& ar, 
 					 const blitz::Array<unsigned short int, 3>& A, 
-					 const unsigned version);
+					 const unsigned /* version */);
 template void boost::serialization::load(polymorphic_iarchive& ar, 
 					 blitz::Array<unsigned short int, 4>& A, 
-					 const unsigned version);
+					 const unsigned /* version */);
 template void boost::serialization::save(polymorphic_oarchive& ar, 
 					 const blitz::Array<unsigned short int, 4>& A, 
-					 const unsigned version);
+					 const unsigned /* version */);
 template void boost::serialization::load(polymorphic_iarchive& ar, 
 					 blitz::Array<unsigned short int, 5>& A, 
-					 const unsigned version);
+					 const unsigned /* version */);
 template void boost::serialization::save(polymorphic_oarchive& ar, 
 					 const blitz::Array<unsigned short int, 5>& A, 
-					 const unsigned version);
+					 const unsigned /* version */);
 
 #endif

@@ -33,6 +33,36 @@ if test "x$want_blitz" = "xyes"; then
                 AC_MSG_RESULT([no])
         else
                 AC_MSG_RESULT([yes])
+                # Keep only the include directories, as -isystem so
+                # warnings from the Blitz headers don't show in our
+                # builds. The conda-forge blitz.pc Cflags also carry the
+                # flags blitz itself was built with (-DNDEBUG -O2
+                # -D_FORTIFY_SOURCE=2 ...), which would otherwise end up
+                # in our builds too, including debug ones.
+                ac_blitz_cflags=""
+                ac_blitz_next=""
+                for ac_blitz_flag in $BLITZ_CFLAGS; do
+                    ac_blitz_dir=""
+                    if test "x$ac_blitz_next" = "xyes"; then
+                        ac_blitz_dir="$ac_blitz_flag"
+                        ac_blitz_next=""
+                    else
+                        case "$ac_blitz_flag" in
+                          -isystem) ac_blitz_next=yes ;;
+                          -isystem*) ac_blitz_dir=`echo "$ac_blitz_flag" | sed 's/^-isystem//'` ;;
+                          -I*) ac_blitz_dir=`echo "$ac_blitz_flag" | sed 's/^-I//'` ;;
+                        esac
+                    fi
+                    # /usr/include is already a system directory, and
+                    # -isystem on it breaks #include_next.
+                    if test "x$ac_blitz_dir" != "x" && test "x$ac_blitz_dir" != "x/usr/include"; then
+                        case " $ac_blitz_cflags " in
+                          *" -isystem $ac_blitz_dir "*) ;;
+                          *) ac_blitz_cflags="$ac_blitz_cflags -isystem $ac_blitz_dir" ;;
+                        esac
+                    fi
+                done
+                BLITZ_CFLAGS="$ac_blitz_cflags"
                 AC_SUBST(BLITZ_CFLAGS)
                 AC_SUBST(BLITZ_LIBS)
                 AC_DEFINE(HAVE_BLITZ,,[Defined if we have Blitz])

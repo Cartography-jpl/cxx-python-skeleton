@@ -110,6 +110,12 @@ _swig_wrap_la_CPPFLAGS = $(PYTHON_CPPFLAGS) $(PYTHON_NUMPY_CPPFLAGS)
 _swig_wrap_la_CPPFLAGS+= $(SWIG_CPPFLAGS)
 _swig_wrap_la_CPPFLAGS+= -DSWIG_TYPE_TABLE=$(SWIG_TYPE_TABLE_NAME)
 _swig_wrap_la_CXXFLAGS = $(AM_CXXFLAGS)
+# SWIG's own generated code for the std::ios manipulators (in
+# swig_std_wrap.cc) casts between function pointer types, which
+# -Wextra warns about. Generated code we can't change, so turn just that
+# warning off for the wrappers. (gcc gives the specific -Wno- priority
+# over -Wextra, whatever the order on the command line.)
+_swig_wrap_la_CXXFLAGS+= -Wno-cast-function-type
 _swig_wrap_la_LDFLAGS = -module -avoid-version
 _swig_wrap_la_LIBADD = $(SWIG_LIBADD)
 _swig_wrap_la_SOURCES = $(COMPILE_SWIG_SRC)

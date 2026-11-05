@@ -10,6 +10,8 @@
 
 using namespace Skeleton;
 
+// The helpers are only used by the serialization tests.
+#ifdef SKELETON_HAVE_BOOST_SERIALIZATION
 namespace {
 // Scratch directory, removed at the end of the test.
 class TempDir {
@@ -44,10 +46,9 @@ void check_map(const boost::shared_ptr<GenericObjectMap>& M)
   BOOST_CHECK(M->get<GenericObjectC>("c")->a().get() == a.get());
 }
 
-// C++17, std::string::ends_with needs C++20
 bool is_gz_name(const std::string& F)
 {
-  return F.size() >= 3 && F.compare(F.size() - 3, 3, ".gz") == 0;
+  return F.ends_with(".gz");
 }
 
 bool is_gzip(const std::string& F)
@@ -58,6 +59,7 @@ bool is_gzip(const std::string& F)
   return b[0] == 0x1f && b[1] == 0x8b;
 }
 }
+#endif
 
 BOOST_FIXTURE_TEST_SUITE(serialize_function, GlobalFixture)
 

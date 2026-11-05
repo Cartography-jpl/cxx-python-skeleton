@@ -52,6 +52,13 @@ AC_PROG_CC
 
 AM_PROG_CC_C_O
 AC_ENABLE_DEBUG
+# Warnings for debug builds (the development builds). conda's
+# DEBUG_CXXFLAGS already has -Wall -Wextra; this covers the other cases
+# and adds -Wdeprecated. Third party headers are -isystem, so their
+# warnings don't show.
+if test "x$enable_debug" = "xyes" && test "x$GXX" = "xyes"; then
+  CXXFLAGS="$CXXFLAGS -Wall -Wextra -Wdeprecated"
+fi
 
 #=================================================================
 # Require C++20 (gcc >= 14, the minimum compiler tested; see

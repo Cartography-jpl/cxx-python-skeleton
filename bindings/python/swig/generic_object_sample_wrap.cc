@@ -5003,7 +5003,7 @@ public:
     Py_DECREF(res);
     return reslen;
   }
-  std::streamoff seek(std::streamoff off, std::ios_base::seekdir way)
+  std::streamoff seek(std::streamoff /* off */, std::ios_base::seekdir /* way */)
   {
     throw std::runtime_error("Not implemented");
   }

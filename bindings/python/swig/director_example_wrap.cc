@@ -5012,7 +5012,7 @@ public:
     Py_DECREF(res);
     return reslen;
   }
-  std::streamoff seek(std::streamoff off, std::ios_base::seekdir way)
+  std::streamoff seek(std::streamoff /* off */, std::ios_base::seekdir /* way */)
   {
     throw std::runtime_error("Not implemented");
   }
@@ -6745,14 +6745,14 @@ SWIG_From_std_string  (const std::string& s)
  namespace boost {
    namespace serialization {
      template<class Archive>
-     void serialize(Archive& ar, SwigDirector_DirectorExample& D, const unsigned int version) {
+     void serialize(Archive& ar, SwigDirector_DirectorExample& D, const unsigned int /* version */) {
        ar & boost::serialization::make_nvp(BOOST_PP_STRINGIZE(DirectorExample),
  					  boost::serialization::base_object<Skeleton::DirectorExample>(D));
      }
      template<class Archive> 
      void save_construct_data(Archive & ar,
 			      const SwigDirector_DirectorExample* d, 
-			      const unsigned int version)
+			      const unsigned int /* version */)
      {
        static PyObject* swig_this_name = PyUnicode_FromString("this");
        PyObject* pobj = d->swig_get_self();
@@ -6776,7 +6776,7 @@ SWIG_From_std_string  (const std::string& s)
      }
      template<class Archive>
      void load_construct_data(Archive & ar, SwigDirector_DirectorExample* d,
- 			     const unsigned int version)
+ 			     const unsigned int /* version */)
      {
        std::string python_object;
        ar & BOOST_SERIALIZATION_NVP(python_object);

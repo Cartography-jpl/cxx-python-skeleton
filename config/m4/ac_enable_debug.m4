@@ -5,7 +5,11 @@ AC_ARG_ENABLE(debug,
 AS_HELP_STRING([--enable-debug],[Enable compiler debugging flags]),
 [if test "$enableval" = yes; then
   AC_MSG_RESULT([yes])
-  if test "x$CONDA_PREFIX" != x; then
+  # Use conda's debug flags when its compiler activation set them. A
+  # conda env without the activation (e.g. plain gcc/gxx packages) has
+  # CONDA_PREFIX but no DEBUG_CXXFLAGS, and would otherwise get no
+  # debug flags at all, so fall back to the gcc flags below.
+  if test "x$CONDA_PREFIX" != x && test "x$DEBUG_CXXFLAGS" != x; then
     CXXFLAGS="$DEBUG_CXXFLAGS"
     CFLAGS="$DEBUG_CFLAGS"
 # There are some legitimate uses of mve in p1 that appear to violate the
