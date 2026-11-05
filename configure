@@ -25993,7 +25993,11 @@ fi
         boost_missing=yes
     elif test "x$BOOST_FILESYSTEM_LIB" = "x" \
        -o "x$BOOST_REGEX_LIB" = "x" -o "x$BOOST_DATE_TIME_LIB" = "x" \
-       -o "x$BOOST_IOSTREAMS_LIB" = "x" -o "x$BOOST_SERIALIZATION_LIB" = "x"; then
+       -o "x$BOOST_IOSTREAMS_LIB" = "x"; then
+        boost_missing=yes
+    elif test "x$BOOST_SERIALIZATION_LIB" = "x" -a "x$with_boost_serialization" != "xno"; then
+        # AX_BOOST_SERIALIZATION skips looking for the library if the user
+        # gave --without-boost-serialization, so it is fine if it is missing.
         boost_missing=yes
     fi
     if test "$boost_missing" = "yes"; then
