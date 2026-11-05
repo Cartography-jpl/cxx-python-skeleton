@@ -19,8 +19,9 @@ Related documents:
 ## 0. Handoff: where to pick up (read this first)
 
 **Status (2026-11-05):** **Phase S0 is done, and ST steps 1–11 are done** (progress log). What is left of ST is its
-exit checklist: gcc 15 and gcc 14 are green; the `--without-boost-serialization` and ASan builds are left. Then
-**Phase S1**.
+exit checklist: all four builds were run on 2026-11-05. gcc 15, gcc 14 and `--without-boost-serialization` are green;
+ASan finds no memory errors but one leak in an error path. Both findings (A, B in the progress log) are decided
+(§13 decisions 19, 20), so **ST is done**; the maintainer may tag it (`phaseT-tests`). Next is **Phase S1**.
 
 *Earlier status (2026-10-30):* Phase S0 is done (all 8 steps; see the progress log). A review on 2026-10-30 measured the
 test coverage (§4a) and found that the tests don't cover enough to catch regressions in S1–S6, plus a few real bugs. So
@@ -32,7 +33,7 @@ ST starts (approved 2026-10-30, §13 item 11; code work still waits for "go"); i
 **Review 2026-11-05** (§2.6): geocal found that `make check` can test the *installed* library instead of the one just
 built (conda RPATH). geocal wants the fix tried here first, so it is now ST step 11. The threading work in geocal adds
 GIL, worker-thread and overload-dispatch tests to S6.1 (items 7, 11). framework has not changed. ST.11 was done the
-same day (staged, not committed): a per-target rpath in `lib/lib.am`, see the progress log.
+same day: a per-target rpath in `lib/lib.am`, accepted by the maintainer (§13 decision 18); see the progress log.
 
 **Rules for working in this repository** (maintainer decisions):
 * Work on the **`modernize`** branch (already checked out). Don't touch `master` (it keeps the set-aside pickling work).
@@ -50,7 +51,7 @@ notes were mostly written on rifle; on frenchpeas, use the matching frenchpeas p
 | What | rifle (work) | frenchpeas (home) |
 |---|---|---|
 | This repo | `/home/smyth/Local/swig-rules-skeleton` (same as `/ldata/smyth/swig-rules-skeleton`) | `/data2/smythdata/swig-rules-skeleton` |
-| Scratch build + pixi env (disposable; fine to modify its `pixi.toml`) | `/home/smyth/Local/swig-rules-skeleton-build/build-pixi` (also `build-coverage`, `build-pixi-gcc14`) | `/data2/smythdata/swig-rules-skeleton-build/build`; also `build-coverage` (uses `build`'s env) `build-rpath` (its own env: `build`'s lock plus `gxx_linux-64`/`gcc_linux-64`, i.e. conda's compiler activation, for ST.11), and `build-gcc14` (min-compiler env, gcc/g++ 14.4.0; `compilers` 1.11 there, so it has conda's compiler activation too) |
+| Scratch build + pixi env (disposable; fine to modify its `pixi.toml`) | `/home/smyth/Local/swig-rules-skeleton-build/build-pixi` (also `build-coverage`, `build-pixi-gcc14`) | `/data2/smythdata/swig-rules-skeleton-build/build`; also `build-coverage` (uses `build`'s env) `build-rpath` (its own env: `build`'s lock plus `gxx_linux-64`/`gcc_linux-64`, i.e. conda's compiler activation, for ST.11), and `build-gcc14` (min-compiler env, gcc/g++ 14.4.0; `compilers` 1.11 there, so it has conda's compiler activation too), `build-noserial` and `build-asan` (both use other dirs' envs: `build` and `build-rpath`) |
 | geocal repo | `/ssdata/smyth/geocal-repo` | `/data2/smythdata/geocal-repo` |
 | geocal build | `/ldata/smyth/geocal-build/build-pixi` | `/data2/smythdata/geocal-build/build-pixi` |
 | framework (follows later; read-only survey) | `/home/smyth/Local/framework` | `/data2/smythdata/framework` |
@@ -99,8 +100,11 @@ apply it there (or record why not) in geocal's plan:
 | ST.1–ST.8 | done | 2026-10-30, commits `5bfa4c4`..`8c2f015` (see `git log`; ST.3 also added the 4 missing Blitz element types to serialization and golden archives, bug 5). |
 | ST.9 coverage | done | 2026-11-05, `build-coverage` on frenchpeas, `make coverage`. **C++ `lib/` + `swig_rules/lib/`: 91.7% of lines (905 of 987) with `--merge-lines`, 82% (2123 of 2582) without** (the 2026-10-30 figure of 52% was without). Functions 90.7%, branches 51.2%. Python `skeleton` package **94%** (`swig_shelve.py` 94%). Target (≥ 80%, no untested `swig_rules` feature) met: every row of the §4a feature table now has a test. Lowest: `swig_rules/lib/python_lib_init.h` 61% (module-init error paths), `swig_type_mapper_base.h` 75%, `swig_to_python.h` 86%; `lib/generic_object.cc` 0% (2 lines, the empty `GenericObject` destructor and registration). `gcovr` and `pytest-cov` had to be added to the frenchpeas scratch env (`build/pixi.toml`, with `clang-tools` and `nanobind`, matching `env/linux/pixi.toml`). |
 | ST.10 SWIG reference | done | 2026-11-05, `build` (gcc 15.3, SWIG 4.5.0, Boost 1.90, Python 3.13). **C++: 1/1 test program, 25 of 25 test cases, 2025 assertions. Python (`make installcheck`): 89 passed, 1 xfailed, 0 skipped.** The one strict `xfail` is `director_example_test.py::test_director_example_object_tracking` ("nested C++/Python identity: redesigned in S6"). The 5 golden `.bin` `xfail`s from S0.3 are gone (fixed in ST.5). This is what S6 has to reproduce (plus the S5 samples). |
-| ST.11 `make check` RPATH | done | 2026-11-05, staged. **Reproduced** in `build-rpath` (conda compiler activation, `--prefix=$CONDA_PREFIX`): after `make install`, `skeleton_test_all`'s RPATH was `<env>/lib:.libs`, `ldd` showed the installed `libskeleton`, and with `GenericObjectA::serialize` deliberately broken `make check` **passed** (`LD_PRELOAD` of `.libs` made the same binary fail). The build-tree `_swig_wrap.so` already had `.libs` first; only programs are affected. Option 4 (`-Wl,--enable-new-dtags`) alone **doesn't fix it**: RUNPATH keeps the same order, and nothing sets `LD_LIBRARY_PATH` because `-no-install` programs have no libtool wrapper. **Fix:** `UNINSTALLED_PROGRAM_LDFLAGS` in `lib/lib.am` (see "Notes for geocal"), used by `skeleton_test_all` and `golden_archive_generator` (which had the same problem, so `make golden-archives` would have written the corpus with the installed library). Checked: the broken library now makes `make check` fail; clean source passes `make check` before and after `make install` and `make installcheck` (89 passed, 1 xfailed) in both `build-rpath` and `build`; the installed `libskeleton.so.0` has no build directory in its RPATH. |
-| ST exit checklist | partly done | **gcc 15** (`build`) and **gcc 14** (`build-gcc14` on frenchpeas, 2026-11-05: g++ 14.4.0, SWIG 4.5.0, Boost 1.90, Python 3.13; `--prefix=$CONDA_PREFIX --enable-maintainer-mode --enable-debug`) both green: `make check` 1/1 (25 test cases) before and after `make install`, `make installcheck` 89 passed, 1 xfailed. The gcc 14 env has conda's compiler activation, so it also confirms the ST.11 fix (`.libs` first in the test RPATH). Warnings identical to gcc 15 (125: 119 `-Wunused-parameter`, 5 `-Wcast-function-type`, 1 `-Wsign-compare`; for S1.2). Still to do: `--without-boost-serialization`, ASan. |
+| ST.11 `make check` RPATH | done | 2026-11-05; accepted (§13 decision 18). **Reproduced** in `build-rpath` (conda compiler activation, `--prefix=$CONDA_PREFIX`): after `make install`, `skeleton_test_all`'s RPATH was `<env>/lib:.libs`, `ldd` showed the installed `libskeleton`, and with `GenericObjectA::serialize` deliberately broken `make check` **passed** (`LD_PRELOAD` of `.libs` made the same binary fail). The build-tree `_swig_wrap.so` already had `.libs` first; only programs are affected. Option 4 (`-Wl,--enable-new-dtags`) alone **doesn't fix it**: RUNPATH keeps the same order, and nothing sets `LD_LIBRARY_PATH` because `-no-install` programs have no libtool wrapper. **Fix:** `UNINSTALLED_PROGRAM_LDFLAGS` in `lib/lib.am` (see "Notes for geocal"), used by `skeleton_test_all` and `golden_archive_generator` (which had the same problem, so `make golden-archives` would have written the corpus with the installed library). Checked: the broken library now makes `make check` fail; clean source passes `make check` before and after `make install` and `make installcheck` (89 passed, 1 xfailed) in both `build-rpath` and `build`; the installed `libskeleton.so.0` has no build directory in its RPATH. |
+| ST exit checklist | done, with 2 findings | 2026-11-05, frenchpeas. **gcc 15** (`build`) and **gcc 14** (`build-gcc14`: g++ 14.4.0, SWIG 4.5.0, Boost 1.90, Python 3.13; `--prefix=$CONDA_PREFIX --enable-maintainer-mode --enable-debug`) both green: `make check` 1/1 (25 test cases) before and after `make install`, `make installcheck` 89 passed, 1 xfailed. The gcc 14 env has conda's compiler activation, so it also confirms the ST.11 fix. Warnings identical to gcc 15 (125: 119 `-Wunused-parameter`, 5 `-Wcast-function-type`, 1 `-Wsign-compare`; for S1.2). **`--without-boost-serialization`** (`build-noserial`, `--without-swig --without-documentation`): `make skeleton-check` passes, 15 of 15 test cases (the serialization ones are compiled out). Finding A below. **ASan** (`build-asan`): C++ tests all pass with no memory errors; Python tests (`LD_PRELOAD` libasan, `detect_leaks=0`) 89 passed, 1 xfailed, no ASan errors. Finding B below. |
+| ST finding A: Python extension needs serialization | decided | `--without-boost-serialization` builds only the C++ library and its tests: `--without-swig` still compiles the committed wrappers, and `%skeleton_director_serialization` (`swig_rules/include/director_serialization.i`, since 2023) puts unguarded Boost.Serialization code in `director_example_wrap.cc`, so plain `make` fails. **Maintainer, 2026-11-05: that is the intended scope** (§13 decision 19). Documented in `CLAUDE.md`; the phase-end check stays `make skeleton-check`. |
+| ST finding B: leak on a truncated archive | accepted | LeakSanitizer fails `make skeleton-check` in the ASan build with 176 bytes in 4 indirect allocations, all from the truncated-archive read in `serialize_function/directory_restored` (added in ST.5, after the clean S0.8 run). Every normal read is clean. **Cause (Boost, not our code):** in Boost 1.90 `iserializer.hpp`, `heap_allocation()` allocates the object and releases ownership at once, and `pointer_iserializer::load_object_ptr` only guards `load_construct_data`; the data load after it has no try/catch. So if the archive ends partway through an object loaded through a pointer (here the top-level `GenericObjectMap`), nothing owns that object, and what it already holds (a map node, a `shared_ptr` to `GenericObjectA`) goes with it. **Tried:** `basic_iarchive::delete_created_pointers()` in a catch in `serialize_read_generic` (through the `polymorphic_iarchive` base; it is private on the concrete archive). No double free, but the leak is unchanged: it only deletes objects whose load finished, not the one in progress. Freeing the object ourselves isn't safe in general: we can't tell whether it was constructed (a director's `load_construct_data` can throw too), and the pointer isn't yet adjusted to the base type. **Decision (maintainer, 2026-11-05): accept and note** (§13 decision 20). A load-only error path; small, one-off. For the ASan C++ check, either set `ASAN_OPTIONS=detect_leaks=0` or add a narrow LSan suppression (`leak:directory_restored`, needs `fast_unwind_on_malloc=0` for full stacks). Look again if it turns up outside a deliberately broken archive, or after S4 (`std::shared_ptr`). |
+| ASan on frenchpeas | note | The S0.8 recipe fails at configure in the `build` env: with `-fsanitize=address` the non-activated conda gcc links the host's `/lib64/librt.so.1` (Gentoo glibc, `undefined reference to __libc_unwind_link_get@GLIBC_PRIVATE`). Use an env with conda's compiler activation (`build-rpath`) and append to its `LDFLAGS`: `LDFLAGS="$LDFLAGS -fsanitize=address"`, and preload `$($CXX -print-file-name=libasan.so)`. |
 
 ---
 
@@ -1058,11 +1062,20 @@ Tag `nanobind-1`.
 17. **`python-install` uninstalls before installing** (fixes the stale-copy shadowing gotcha, §4a). Done in ST;
     geocal should make the same change (§0 "Notes for geocal").
 
+**Decided (maintainer, 2026-11-05):**
+18. **`make check` must test the library just built: accept the ST.11 fix.** Never-installed programs linked to the
+    library use `UNINSTALLED_PROGRAM_LDFLAGS = -no-install -Wl,-rpath,$(abs_top_builddir)/.libs` (`lib/lib.am`), so
+    `.libs` comes before conda's env rpath. Keep watching it (for example, check `readelf -d` on the test program when
+    the env or libtool changes). geocal should make the same change (§0 "Notes for geocal"); this closes geocal plan
+    open item 5 once geocal has it.
+
+19. **`--without-boost-serialization` covers only the C++ library and its tests**, not the Python extension (ST finding
+    A). Documented in `CLAUDE.md`.
+20. **Accept the Boost.Serialization leak on a truncated archive** (ST finding B): a Boost error-path leak with no safe
+    fix on our side. Note it; keep watching.
+
 **Open:**
 * Final module name (item 2).
-* **Fix for `make check` testing the installed library** (ST step 11, from geocal plan §6.1 / its open item 5):
-  implemented 2026-11-05 as a per-target rpath for never-installed programs (progress log ST.11), staged for review.
-  Option 4 was tried and doesn't work alone; options 1–3 were not needed. Close this once the maintainer accepts it.
 * **Threading sample in the skeleton?** (2026-11-05, §2.6). A small `std::thread` callback sample (no `ThreadPool`
   copy) would let S6.1 item 11 test directors and exceptions on worker threads here. Without it, these are tested
   first in geocal's nanobind pilot. Recommendation: add it in S5, since it is small and the deadlock case is easier to

@@ -48,7 +48,8 @@ Useful `configure` options:
 - `--without-swig` — skip regenerating/compiling SWIG wrappers (faster edit/build loop when not touching `.i` files)
 - `--without-documentation` — skip doxygen (also required if doxygen isn't installed and SWIG generation is on;
   doxygen output is fed into SWIG docstrings via `doxy2swig.py`)
-- `--without-boost-serialization` — disable boost-serialization support code
+- `--without-boost-serialization` — disable boost-serialization support code. This builds only the C++ library and
+  its tests (check with `make skeleton-check`); the Python extension needs serialization, so plain `make` fails.
 - `--enable-python-editable-mode` — `make install` installs the pure python code in `python/` as an editable pip
   install (`pip install -e`) instead of copying it. Can also be selected for one run with
   `make install PYTHON_EDITABLE_MODE=t` (use `PYTHON_EDITABLE_MODE=` to force a normal install when configure enabled
