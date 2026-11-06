@@ -2,10 +2,9 @@
 #define GENERIC_OBJECT_MAP_H
 #include "printable.h"
 #include <boost/shared_ptr.hpp>
-#include <boost/range/adaptor/map.hpp>
-#include <boost/range/algorithm/copy.hpp>
-#include <boost/assign.hpp>
 #include <algorithm>
+#include <iterator>
+#include <ranges>
 #include <string>
 #include <map>
 
@@ -49,7 +48,7 @@ public:
   std::vector<std::string> keys() const
   {
     std::vector<std::string> r;
-    boost::copy(*this | boost::adaptors::map_keys, std::back_inserter(r));
+    std::ranges::copy(std::views::keys(*this), std::back_inserter(r));
     return r;
   }
 

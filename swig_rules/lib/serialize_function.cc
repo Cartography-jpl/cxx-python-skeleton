@@ -2,13 +2,12 @@
 #include "serialize_function.h"
 #include "serialize_shared_ptr.h"
 #include "weak_ptr_serialize_support.h"
-#include <boost/regex.hpp>
 #include <boost/iostreams/filtering_stream.hpp>
 #include <boost/iostreams/filter/gzip.hpp>
 #include <stdexcept>
 #include <fstream>
 #include <sstream>
-#include <boost/filesystem.hpp>
+#include <filesystem>
 #include <string>
 #include <unistd.h>
 #include <cerrno>
@@ -106,7 +105,7 @@ public:
   OstreamCompress(const std::string& Fname)
     : FilteringOstream(Fname)
   {
-    if(boost::regex_search(Fname, boost::regex("\\.gz$")))
+    if(Fname.ends_with(".gz"))
       sb.push(boost::iostreams::gzip_compressor());
     sb.push(f);
   }
@@ -135,7 +134,7 @@ public:
   IstreamCompress(const std::string& Fname)
     : FilteringIstream(Fname)
   {
-    if(boost::regex_search(Fname, boost::regex("\\.gz$")))
+    if(Fname.ends_with(".gz"))
       sb.push(boost::iostreams::gzip_decompressor());
     sb.push(f);
   }
@@ -370,7 +369,7 @@ SWIG_MAPPER_NAMESPACE::serialize_read_generic([[maybe_unused]] const std::string
   if(!is)
     throw std::runtime_error("Trouble opening file " + Fname);
   boost::archive::polymorphic_xml_iarchive ia(is);
-  boost::filesystem::path p(Fname);
+  std::filesystem::path p(Fname);
   std::string dir = p.parent_path().string();
   if(dir == "")
     dir = ".";
@@ -391,7 +390,7 @@ SWIG_MAPPER_NAMESPACE::serialize_read_binary_generic([[maybe_unused]] const std:
   if(!is)
     throw std::runtime_error("Trouble opening file " + Fname);
   boost::archive::polymorphic_binary_iarchive ia(is);
-  boost::filesystem::path p(Fname);
+  std::filesystem::path p(Fname);
   std::string dir = p.parent_path().string();
   if(dir == "")
     dir = ".";

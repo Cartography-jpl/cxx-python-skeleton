@@ -14,8 +14,11 @@ DIST_HOOK =
 libskeleton_la_CPPFLAGS = $(AM_CPPFLAGS) $(BOOST_CPPFLAGS) $(BLITZ_CFLAGS)
 
 libskeleton_la_LDFLAGS+= -R $(BOOST_LIBDIR) -L$(BOOST_LIBDIR)
-libskeleton_la_LDFLAGS+= $(BOOST_REGEX_LIB) $(BOOST_DATETIME_LIB)
-libskeleton_la_LDFLAGS+= $(BOOST_IOSTREAMS_LIB) $(BOOST_FILESYSTEM_LIB)
+# Only the compiled Boost libraries libskeleton uses: iostreams (gzip) and
+# serialization. regex and filesystem were replaced by std in phase S2 of
+# claude_notes/implementation_plan.md; configure still looks for them
+# (config/m4/ac_boost.m4 is shared with geocal, which needs them).
+libskeleton_la_LDFLAGS+= $(BOOST_IOSTREAMS_LIB)
 libskeleton_la_LDFLAGS+= $(BOOST_SERIALIZATION_LIB)
 
 # Include blitz in builds

@@ -43,7 +43,7 @@ public:
     std::string print_to_string() const
       {
         std::ostringstream os;
-        BOOST_FOREACH(T i, *$self)
+        for(const T& i : *$self)
           os << i << " ";
         return os.str();
       }

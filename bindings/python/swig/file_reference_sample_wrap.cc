@@ -4960,7 +4960,6 @@ inline void iter_to_vector_of_arrays(PyObject* sequence, std::vector<blitz::Arra
 
 
 #include <boost/array.hpp>
-#include <boost/foreach.hpp>
 #include <algorithm>
 
 template<class T, int D> inline boost::array<T, D>

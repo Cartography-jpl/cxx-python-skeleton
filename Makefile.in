@@ -945,14 +945,17 @@ SWIG_SRC = @swigsrc@/skeleton_exception_wrap.cc \
 	@swigsrc@/array_typemap_sample_wrap.cc \
 	@swigsrc@/swig_rules_sample_wrap.cc \
 	@swigsrc@/file_reference_sample_wrap.cc
+# Only the compiled Boost libraries libskeleton uses: iostreams (gzip) and
+# serialization. regex and filesystem were replaced by std in phase S2 of
+# claude_notes/implementation_plan.md; configure still looks for them
+# (config/m4/ac_boost.m4 is shared with geocal, which needs them).
 
 # Include blitz in builds
 # Boost.Stacktrace (header only, in skeleton_exception.cc) uses dladdr,
 # which is in libdl for glibc before 2.34 (e.g. the conda sysroot).
 libskeleton_la_LDFLAGS = -R $(BOOST_LIBDIR) -L$(BOOST_LIBDIR) \
-	$(BOOST_REGEX_LIB) $(BOOST_DATETIME_LIB) \
-	$(BOOST_IOSTREAMS_LIB) $(BOOST_FILESYSTEM_LIB) \
-	$(BOOST_SERIALIZATION_LIB) $(BLITZ_LIBS) -ldl
+	$(BOOST_IOSTREAMS_LIB) $(BOOST_SERIALIZATION_LIB) \
+	$(BLITZ_LIBS) -ldl
 skeletonincdir = @includedir@/skeleton
 
 #=================================================================

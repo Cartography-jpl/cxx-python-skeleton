@@ -7,7 +7,7 @@
 #include <cstring>
 #include <typeinfo>
 #include <boost/shared_ptr.hpp>
-#include <boost/operators.hpp>
+#include <compare>
 #include "generic_object.h"
 
 namespace SWIG_MAPPER_NAMESPACE {
@@ -19,11 +19,14 @@ class null_type {
   This is a wrapper around std::type_info that allows it to be used
   as an index in a associative container.
 
-  This is actually in cxx11, but we don't want to depend on using a
-  cxx11 compiler. When these become more the standard compiler, we
-  can replace this class with std::type_info.
+  This is like std::type_index, but compares the type *names*. The
+  type_info of a class can be duplicated in different shared
+  libraries (e.g. python extension modules), and std::type_index may
+  compare the type_info addresses (libc++ does in some cases), which
+  would then treat one class as two. libstdc++ compares names too, so
+  on Linux the two behave the same.
 *******************************************************************/
-class type_index : public boost::totally_ordered<type_index> {
+class type_index {
 public:
 
 //-----------------------------------------------------------------------
@@ -46,11 +49,11 @@ public:
   { return std::strcmp(id->name(), other.id->name()) == 0;}
 
 //-----------------------------------------------------------------------
-/// Comparison operator
+/// Ordering, for use as a std::map key (<, >, <= and >= come from this).
 //-----------------------------------------------------------------------
 
-  bool operator<(type_index const& other) const
-  {return std::strcmp(id->name(), other.id->name()) < 0;}
+  std::strong_ordering operator<=>(type_index const& other) const
+  { return std::strcmp(id->name(), other.id->name()) <=> 0; }
 
 //-----------------------------------------------------------------------
 /// Return type name.

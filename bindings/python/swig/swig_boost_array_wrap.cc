@@ -4258,7 +4258,6 @@ inline void iter_to_vector_of_arrays(PyObject* sequence, std::vector<blitz::Arra
 
 
 #include <boost/array.hpp>
-#include <boost/foreach.hpp>
 #include <algorithm>
 
 template<class T, int D> inline boost::array<T, D>
@@ -4436,7 +4435,7 @@ SWIGINTERN double boost_array_Sl_double_Sc_20_Sg____getitem__(boost::array< doub
 SWIGINTERN void boost_array_Sl_double_Sc_20_Sg____setitem__(boost::array< double,20 > *self,int i,double const &V){(*self)[i] = V;}
 SWIGINTERN std::string boost_array_Sl_double_Sc_20_Sg__print_to_string(boost::array< double,20 > const *self){
         std::ostringstream os;
-        BOOST_FOREACH(double i, *self)
+        for(const double& i : *self)
           os << i << " ";
         return os.str();
       }
@@ -4444,7 +4443,7 @@ SWIGINTERN double boost_array_Sl_double_Sc_12_Sg____getitem__(boost::array< doub
 SWIGINTERN void boost_array_Sl_double_Sc_12_Sg____setitem__(boost::array< double,12 > *self,int i,double const &V){(*self)[i] = V;}
 SWIGINTERN std::string boost_array_Sl_double_Sc_12_Sg__print_to_string(boost::array< double,12 > const *self){
         std::ostringstream os;
-        BOOST_FOREACH(double i, *self)
+        for(const double& i : *self)
           os << i << " ";
         return os.str();
       }
@@ -4452,7 +4451,7 @@ SWIGINTERN double boost_array_Sl_double_Sc_14_Sg____getitem__(boost::array< doub
 SWIGINTERN void boost_array_Sl_double_Sc_14_Sg____setitem__(boost::array< double,14 > *self,int i,double const &V){(*self)[i] = V;}
 SWIGINTERN std::string boost_array_Sl_double_Sc_14_Sg__print_to_string(boost::array< double,14 > const *self){
         std::ostringstream os;
-        BOOST_FOREACH(double i, *self)
+        for(const double& i : *self)
           os << i << " ";
         return os.str();
       }
@@ -4460,7 +4459,7 @@ SWIGINTERN double boost_array_Sl_double_Sc_3_Sg____getitem__(boost::array< doubl
 SWIGINTERN void boost_array_Sl_double_Sc_3_Sg____setitem__(boost::array< double,3 > *self,int i,double const &V){(*self)[i] = V;}
 SWIGINTERN std::string boost_array_Sl_double_Sc_3_Sg__print_to_string(boost::array< double,3 > const *self){
         std::ostringstream os;
-        BOOST_FOREACH(double i, *self)
+        for(const double& i : *self)
           os << i << " ";
         return os.str();
       }
@@ -4489,7 +4488,7 @@ SWIG_AsVal_bool (PyObject *obj, bool *val)
 SWIGINTERN void boost_array_Sl_bool_Sc_20_Sg____setitem__(boost::array< bool,20 > *self,int i,bool const &V){(*self)[i] = V;}
 SWIGINTERN std::string boost_array_Sl_bool_Sc_20_Sg__print_to_string(boost::array< bool,20 > const *self){
         std::ostringstream os;
-        BOOST_FOREACH(bool i, *self)
+        for(const bool& i : *self)
           os << i << " ";
         return os.str();
       }
