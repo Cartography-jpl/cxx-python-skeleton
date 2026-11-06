@@ -18,7 +18,7 @@
   After spending some time with this, we have adopted python *always*
   owns the objects and manages the lifetimes. A python director object
   is given a "this" member function by SWIG when we create the
-  director object. The "this" member points to a boost::shared_ptr of
+  director object. The "this" member points to a std::shared_ptr of
   the underlying C++ code (so in our skeleton
   https://github.jpl.nasa.gov/Cartography/swig-rules-skeleton
   DirectorExample with is a C++ class SwigDirector_DirectorExample

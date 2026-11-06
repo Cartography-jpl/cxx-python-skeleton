@@ -27,9 +27,11 @@ ECHO_2D = [
 @pytest.mark.parametrize(("fname", "dtype"), ECHO_2D)
 def test_element_types(fname, dtype):
     t = ArrayTypemapSample()
-    a = (np.arange(6).reshape(2, 3) % 2 == 0) if dtype == np.bool_ else np.arange(
-        6, dtype=dtype
-    ).reshape(2, 3)
+    a = (
+        (np.arange(6).reshape(2, 3) % 2 == 0)
+        if dtype == np.bool_
+        else np.arange(6, dtype=dtype).reshape(2, 3)
+    )
     a = a.astype(dtype)
     r = getattr(t, fname)(a)
     assert isinstance(r, np.ndarray)

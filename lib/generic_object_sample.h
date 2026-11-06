@@ -1,8 +1,7 @@
 #ifndef GENERIC_OBJECT_SAMPLE_H
 #define GENERIC_OBJECT_SAMPLE_H
 #include "printable.h"
-#include <boost/shared_ptr.hpp>
-#include <boost/weak_ptr.hpp>
+#include <memory>
 
 namespace Skeleton {
 /****************************************************************/ /**
@@ -24,12 +23,12 @@ private:
 
 class GenericObjectB : public Printable<GenericObjectB> {
 public:
-  GenericObjectB(const boost::shared_ptr<GenericObjectA>& V) : a_(V) {}
+  GenericObjectB(const std::shared_ptr<GenericObjectA>& V) : a_(V) {}
   void print(std::ostream& Os) const { Os << "B"; }
-  const boost::shared_ptr<GenericObjectA>& a() const { return a_; }
-  void a(const boost::shared_ptr<GenericObjectA>& V) { a_ = V; }
+  const std::shared_ptr<GenericObjectA>& a() const { return a_; }
+  void a(const std::shared_ptr<GenericObjectA>& V) { a_ = V; }
 private:
-  boost::shared_ptr<GenericObjectA> a_;
+  std::shared_ptr<GenericObjectA> a_;
   GenericObjectB() = default;
   friend class boost::serialization::access;
   template<class Archive>
@@ -52,12 +51,12 @@ private:
 
 class GenericObjectC : public Printable<GenericObjectC> {
 public:
-  GenericObjectC(const boost::shared_ptr<GenericObjectA>& V) : a_(V) {}
+  GenericObjectC(const std::shared_ptr<GenericObjectA>& V) : a_(V) {}
   void print(std::ostream& Os) const { Os << "C"; }
-  boost::shared_ptr<GenericObjectA> a() const { return a_.lock(); }
-  void a(const boost::shared_ptr<GenericObjectA>& V) { a_ = V; }
+  std::shared_ptr<GenericObjectA> a() const { return a_.lock(); }
+  void a(const std::shared_ptr<GenericObjectA>& V) { a_ = V; }
 private:
-  boost::weak_ptr<GenericObjectA> a_;
+  std::weak_ptr<GenericObjectA> a_;
   GenericObjectC() = default;
   friend class boost::serialization::access;
   template<class Archive>

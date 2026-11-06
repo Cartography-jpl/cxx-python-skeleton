@@ -21,10 +21,10 @@ public:
 
 BOOST_AUTO_TEST_CASE(run)
 {
-  auto d = boost::make_shared<DirectorExample>(1, "threads");
+  auto d = std::make_shared<DirectorExample>(1, "threads");
   // (1+1) + (2+1) + (3+1) + (4+1)
   BOOST_CHECK_EQUAL(ThreadExample::run(d, 1, 4), 14);
-  auto t = boost::make_shared<Throws>();
+  auto t = std::make_shared<Throws>();
   BOOST_CHECK_EQUAL(ThreadExample::run(t, 0, 2), 1);
   BOOST_CHECK_EXCEPTION(ThreadExample::run(t, 0, 4), Exception,
                         [](const Exception& e) {

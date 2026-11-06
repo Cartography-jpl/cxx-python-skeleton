@@ -20,7 +20,8 @@ def test_defaults():
 
 
 @pytest.mark.parametrize(
-    "value", [[4, 5, 6], (4, 5, 6), np.array([4.0, 5.0, 6.0]), np.arange(4.0, 10.0)[::2]]
+    "value",
+    [[4, 5, 6], (4, 5, 6), np.array([4.0, 5.0, 6.0]), np.arange(4.0, 10.0)[::2]],
 )
 def test_position(value):
     a = ArraySample()

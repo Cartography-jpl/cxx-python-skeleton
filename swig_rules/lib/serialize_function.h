@@ -2,53 +2,51 @@
 #define SERIALIZE_FUNCTION_H
 #include "generic_object.h"
 #include <string>
-#include <boost/shared_ptr.hpp>
+#include <memory>
 
 namespace SWIG_MAPPER_NAMESPACE {
 bool skip_weak_ptr_handling();
 void skip_weak_ptr_handling(bool Skip);
 bool have_serialize_supported();
 void serialize_write(const std::string& Fname,
-                     const boost::shared_ptr<GenericObject>& Obj);
+                     const std::shared_ptr<GenericObject>& Obj);
 void serialize_write_binary(const std::string& Fname,
-                            const boost::shared_ptr<GenericObject>& Obj);
+                            const std::shared_ptr<GenericObject>& Obj);
 
-std::string serialize_write_string(const boost::shared_ptr<GenericObject>& Obj);
+std::string serialize_write_string(const std::shared_ptr<GenericObject>& Obj);
 
-boost::shared_ptr<GenericObject>
-serialize_read_generic(const std::string& Fname);
-boost::shared_ptr<GenericObject>
+std::shared_ptr<GenericObject> serialize_read_generic(const std::string& Fname);
+std::shared_ptr<GenericObject>
 serialize_read_binary_generic(const std::string& Fname);
 
-boost::shared_ptr<GenericObject>
+std::shared_ptr<GenericObject>
 serialize_read_generic_string(const std::string& Data);
 
-std::string serialize_write_binary(const boost::shared_ptr<GenericObject>& Obj);
-boost::shared_ptr<GenericObject> serialize_read_binary(const std::string& Data);
+std::string serialize_write_binary(const std::shared_ptr<GenericObject>& Obj);
+std::shared_ptr<GenericObject> serialize_read_binary(const std::string& Data);
 
 template<class T>
-inline boost::shared_ptr<T> serialize_read(const std::string& Fname)
+inline std::shared_ptr<T> serialize_read(const std::string& Fname)
 {
-  return boost::dynamic_pointer_cast<T>(serialize_read_generic(Fname));
+  return std::dynamic_pointer_cast<T>(serialize_read_generic(Fname));
 }
 
 template<class T>
-inline boost::shared_ptr<T> serialize_read_binary(const std::string& Fname)
+inline std::shared_ptr<T> serialize_read_binary(const std::string& Fname)
 {
-  return boost::dynamic_pointer_cast<T>(serialize_read_binary_generic(Fname));
+  return std::dynamic_pointer_cast<T>(serialize_read_binary_generic(Fname));
 }
 
 template<class T>
-inline boost::shared_ptr<T> serialize_read_string(const std::string& Data)
+inline std::shared_ptr<T> serialize_read_string(const std::string& Data)
 {
-  return boost::dynamic_pointer_cast<T>(serialize_read_generic_string(Data));
+  return std::dynamic_pointer_cast<T>(serialize_read_generic_string(Data));
 }
 
 template<class T>
-inline boost::shared_ptr<T>
-serialize_read_binary_string(const std::string& Data)
+inline std::shared_ptr<T> serialize_read_binary_string(const std::string& Data)
 {
-  return boost::dynamic_pointer_cast<T>(serialize_read_binary(Data));
+  return std::dynamic_pointer_cast<T>(serialize_read_binary(Data));
 }
 }
 #endif

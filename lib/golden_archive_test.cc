@@ -27,11 +27,11 @@ BOOST_FIXTURE_TEST_SUITE(golden_archive, GlobalFixture)
 #ifdef SKELETON_HAVE_BOOST_SERIALIZATION
 namespace {
 template<class T>
-boost::shared_ptr<T> read_golden(const std::string& Dir,
-                                 const std::string& Name, bool Binary)
+std::shared_ptr<T> read_golden(const std::string& Dir, const std::string& Name,
+                               bool Binary)
 {
   std::string f = Dir + "golden/" + Name + (Binary ? ".bin" : ".xml");
-  boost::shared_ptr<T> r =
+  std::shared_ptr<T> r =
       Binary ? serialize_read_binary<T>(f) : serialize_read<T>(f);
   BOOST_REQUIRE(r);
   return r;

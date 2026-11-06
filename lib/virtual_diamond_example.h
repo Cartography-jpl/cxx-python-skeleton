@@ -2,7 +2,7 @@
 #define VIRTUAL_DIAMOND_EXAMPLE_H
 #include "printable.h"
 #include "with_parameter_like.h"
-#include <boost/shared_ptr.hpp>
+#include <memory>
 #include <string>
 
 namespace Skeleton {
@@ -72,28 +72,28 @@ private:
 *******************************************************************/
 class VirtualDiamondExample : public Printable<VirtualDiamondExample> {
 public:
-  VirtualDiamondExample(const boost::shared_ptr<Diamond>& D) : d_(D) {}
+  VirtualDiamondExample(const std::shared_ptr<Diamond>& D) : d_(D) {}
   ~VirtualDiamondExample() override = default;
-  const boost::shared_ptr<Diamond>& diamond() const { return d_; }
-  boost::shared_ptr<RootLike> as_root() const { return d_; }
-  boost::shared_ptr<NestedLike> as_nested() const { return d_; }
-  boost::shared_ptr<WithParameterLike> as_with_parameter() const { return d_; }
-  boost::shared_ptr<GenericObject> as_generic() const { return d_; }
-  static std::string root_name(const boost::shared_ptr<RootLike>& R)
+  const std::shared_ptr<Diamond>& diamond() const { return d_; }
+  std::shared_ptr<RootLike> as_root() const { return d_; }
+  std::shared_ptr<NestedLike> as_nested() const { return d_; }
+  std::shared_ptr<WithParameterLike> as_with_parameter() const { return d_; }
+  std::shared_ptr<GenericObject> as_generic() const { return d_; }
+  static std::string root_name(const std::shared_ptr<RootLike>& R)
   {
     return R->root_name();
   }
-  static std::string nested_name(const boost::shared_ptr<NestedLike>& N)
+  static std::string nested_name(const std::shared_ptr<NestedLike>& N)
   {
     return N->nested_name();
   }
-  static double parameter_sum(const boost::shared_ptr<WithParameterLike>& P)
+  static double parameter_sum(const std::shared_ptr<WithParameterLike>& P)
   {
     return P->parameter_sum();
   }
   virtual void print(std::ostream& Os) const { Os << "VirtualDiamondExample"; }
 private:
-  boost::shared_ptr<Diamond> d_;
+  std::shared_ptr<Diamond> d_;
 };
 }
 

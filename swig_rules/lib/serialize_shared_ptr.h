@@ -1,4 +1,5 @@
 #include <iostream>
+#include <memory>
 #include "swig_type_mapper_base.h"
 // Workaround for a Boost.Serialization bug (boostorg/serialization issue
 // #319, still in Boost 1.90): shared_ptr_helper.hpp declares, at namespace
@@ -29,7 +30,11 @@
 
 #ifdef SWIG_HAVE_BOOST_SERIALIZATION
 //-----------------------------------------------------------------------
-/// This is largely a duplicate of boost/serialization/shared_ptr.hpp.
+/// This is largely a duplicate of boost/serialization/shared_ptr.hpp
+/// (since phase S4 for std::shared_ptr; the archive format is the same
+/// as for boost::shared_ptr: version 1, not tracked, the pointer as
+/// "px", so archives written with boost::shared_ptr still load and
+/// writing again gives the same bytes).
 /// We need to have our own copy to add support for handling SWIG
 /// directors.
 //-----------------------------------------------------------------------
@@ -37,14 +42,14 @@
 namespace boost {
   namespace serialization{
 template<class T>
-struct version< ::boost::shared_ptr< T > > {
+struct version< ::std::shared_ptr< T > > {
   typedef mpl::integral_c_tag tag;
   typedef mpl::int_<1> type;
   static const int value = type::value;
 };
 // don't track shared pointers
 template<class T>
-struct tracking_level< ::boost::shared_ptr< T > > {
+struct tracking_level< ::std::shared_ptr< T > > {
   typedef mpl::integral_c_tag tag;
   typedef mpl::int_< ::boost::serialization::track_never> type;
   static const int value = type::value;
@@ -66,36 +71,41 @@ struct null_deleter {
 /// but adds special handling for the pointer passed to reset.
 //-----------------------------------------------------------------------
 
-template<class T> class our_shared_ptr : public boost::shared_ptr<T>
+template<class T> class our_shared_ptr : public std::shared_ptr<T>
 {
 public:
-  typedef typename boost::shared_ptr< T >::element_type element_type;
+  typedef typename std::shared_ptr< T >::element_type element_type;
   template< class Y >
   our_shared_ptr(our_shared_ptr<Y> const & r, element_type * p )
-    : boost::shared_ptr<T>(r, p)
+    : std::shared_ptr<T>(r, p)
   {
   }
   template< class Y >
   our_shared_ptr(our_shared_ptr<Y> const & r)
-    : boost::shared_ptr<T>(r)
+    : std::shared_ptr<T>(r)
   {
   }
   our_shared_ptr() = default;
-  void reset() BOOST_SP_NOEXCEPT
+  void reset() noexcept
   {
-    boost::shared_ptr<T>::reset();
+    std::shared_ptr<T>::reset();
   }
   void reset(T* r)
   {
-    // We'll put in a proper deleter shortly.
-    boost::shared_ptr<T> t2(r, null_deleter());
-    boost::shared_ptr<SWIG_MAPPER_NAMESPACE::GenericObject> v2 =
-      boost::dynamic_pointer_cast<SWIG_MAPPER_NAMESPACE::GenericObject>(t2);
+    // We'll put in a proper deleter shortly. Made with the aliasing
+    // constructor from a shared_ptr<void>, so a class with
+    // enable_shared_from_this doesn't take this non-owning pointer as its
+    // weak_this (see to_ptr in null_deleter.h).
+    std::shared_ptr<T> t2(
+      std::shared_ptr<void>(const_cast<void*>(static_cast<const void*>(r)),
+                            null_deleter()), r);
+    std::shared_ptr<SWIG_MAPPER_NAMESPACE::GenericObject> v2 =
+      std::dynamic_pointer_cast<SWIG_MAPPER_NAMESPACE::GenericObject>(t2);
     if(v2 && SWIG_MAPPER_NAMESPACE::SwigTypeMapperBase::is_python_director(v2)) {
-      boost::shared_ptr<T> t = boost::dynamic_pointer_cast<T>(SWIG_MAPPER_NAMESPACE::SwigTypeMapperBase::swig_python_director_setup(v2));
-      boost::shared_ptr<T>::operator=(t);
+      std::shared_ptr<T> t = std::dynamic_pointer_cast<T>(SWIG_MAPPER_NAMESPACE::SwigTypeMapperBase::swig_python_director_setup(v2));
+      std::shared_ptr<T>::operator=(t);
     } else {
-      boost::shared_ptr<T>::reset(r);
+      std::shared_ptr<T>::reset(r);
     }      
   }
 };
@@ -103,7 +113,7 @@ public:
 template<class Archive, class T>
 inline void save(
 		 Archive & ar,
-		 const boost::shared_ptr< T > &t,
+		 const std::shared_ptr< T > &t,
 		 const unsigned int /* file_version */
 		 ){
   // The most common cause of trapping here would be serializing
@@ -117,7 +127,7 @@ inline void save(
 template<class Archive, class T>
 inline void load(
     Archive & ar,
-    boost::shared_ptr< T > &t,
+    std::shared_ptr< T > &t,
     const unsigned int /*file_version*/
 ){
   // The most common cause of trapping here would be serializing
@@ -139,7 +149,7 @@ inline void load(
 template<class Archive, class T>
 inline void serialize(
     Archive & ar,
-    boost::shared_ptr< T > &t,
+    std::shared_ptr< T > &t,
     const unsigned int file_version
 ){
     // correct shared_ptr serialization depends upon object tracking

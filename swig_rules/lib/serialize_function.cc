@@ -193,11 +193,11 @@ static bool skip_weak_ptr_handling_val = false;
 
 //-----------------------------------------------------------------------
 /// As described in weak_ptr_serialize_support, we can optionally
-/// handle boost::weak_ptr for transversing the serialization twice -
+/// handle std::weak_ptr for transversing the serialization twice -
 /// once to mark pointer we encounter and once to serialize all
 /// weak_ptr pointing to objects we encountered.
 ///
-/// If you don't actually need this support for boost::weak_ptr, you
+/// If you don't actually need this support for std::weak_ptr, you
 /// can turn this off and avoid the cost of navigating twice through
 /// the serialization.
 //-----------------------------------------------------------------------
@@ -209,11 +209,11 @@ bool SWIG_MAPPER_NAMESPACE::skip_weak_ptr_handling()
 
 //-----------------------------------------------------------------------
 /// As described in weak_ptr_serialize_support, we can optionally
-/// handle boost::weak_ptr for transversing the serialization twice -
+/// handle std::weak_ptr for transversing the serialization twice -
 /// once to mark pointer we encounter and once to serialize all
 /// weak_ptr pointing to objects we encountered.
 ///
-/// If you don't actually need this support for boost::weak_ptr, you
+/// If you don't actually need this support for std::weak_ptr, you
 /// can turn this off and avoid the cost of navigating twice through
 /// the serialization.
 //-----------------------------------------------------------------------
@@ -229,7 +229,7 @@ void SWIG_MAPPER_NAMESPACE::skip_weak_ptr_handling(bool Skip)
 //-----------------------------------------------------------------------
 
 [[maybe_unused]] static void
-mark_pointer([[maybe_unused]] const boost::shared_ptr<GenericObject>& Obj)
+mark_pointer([[maybe_unused]] const std::shared_ptr<GenericObject>& Obj)
 {
 #ifdef SWIG_HAVE_BOOST_SERIALIZATION
   // Clear even when skipping the first pass, otherwise the marks left
@@ -261,7 +261,7 @@ mark_pointer([[maybe_unused]] const boost::shared_ptr<GenericObject>& Obj)
 
 void SWIG_MAPPER_NAMESPACE::serialize_write(
     [[maybe_unused]] const std::string& Fname,
-    [[maybe_unused]] const boost::shared_ptr<GenericObject>& Obj)
+    [[maybe_unused]] const std::shared_ptr<GenericObject>& Obj)
 {
 #ifdef SWIG_HAVE_BOOST_SERIALIZATION
   PtrSerializeLock lock;
@@ -277,7 +277,7 @@ void SWIG_MAPPER_NAMESPACE::serialize_write(
 
 void SWIG_MAPPER_NAMESPACE::serialize_write_binary(
     [[maybe_unused]] const std::string& Fname,
-    [[maybe_unused]] const boost::shared_ptr<GenericObject>& Obj)
+    [[maybe_unused]] const std::shared_ptr<GenericObject>& Obj)
 {
 #ifdef SWIG_HAVE_BOOST_SERIALIZATION
   PtrSerializeLock lock;
@@ -296,7 +296,7 @@ void SWIG_MAPPER_NAMESPACE::serialize_write_binary(
 //-----------------------------------------------------------------------
 
 std::string SWIG_MAPPER_NAMESPACE::serialize_write_string(
-    [[maybe_unused]] const boost::shared_ptr<GenericObject>& Obj)
+    [[maybe_unused]] const std::shared_ptr<GenericObject>& Obj)
 {
 #ifdef SWIG_HAVE_BOOST_SERIALIZATION
   PtrSerializeLock lock;
@@ -319,7 +319,7 @@ std::string SWIG_MAPPER_NAMESPACE::serialize_write_string(
 //-----------------------------------------------------------------------
 
 std::string SWIG_MAPPER_NAMESPACE::serialize_write_binary(
-    [[maybe_unused]] const boost::shared_ptr<GenericObject>& Obj)
+    [[maybe_unused]] const std::shared_ptr<GenericObject>& Obj)
 {
 #ifdef SWIG_HAVE_BOOST_SERIALIZATION
   PtrSerializeLock lock;
@@ -341,13 +341,13 @@ std::string SWIG_MAPPER_NAMESPACE::serialize_write_binary(
 /// than xml
 //-----------------------------------------------------------------------
 
-boost::shared_ptr<GenericObject> SWIG_MAPPER_NAMESPACE::serialize_read_binary(
+std::shared_ptr<GenericObject> SWIG_MAPPER_NAMESPACE::serialize_read_binary(
     [[maybe_unused]] const std::string& Data)
 {
 #ifdef SWIG_HAVE_BOOST_SERIALIZATION
   std::istringstream is(Data);
   boost::archive::polymorphic_binary_iarchive ia(is);
-  boost::shared_ptr<GenericObject> obj;
+  std::shared_ptr<GenericObject> obj;
   ia >> boost::serialization::make_nvp("geocal_object", obj);
   return obj;
 #else
@@ -374,7 +374,7 @@ boost::shared_ptr<GenericObject> SWIG_MAPPER_NAMESPACE::serialize_read_binary(
 /// current directory.
 //-----------------------------------------------------------------------
 
-boost::shared_ptr<GenericObject> SWIG_MAPPER_NAMESPACE::serialize_read_generic(
+std::shared_ptr<GenericObject> SWIG_MAPPER_NAMESPACE::serialize_read_generic(
     [[maybe_unused]] const std::string& Fname)
 {
 #ifdef SWIG_HAVE_BOOST_SERIALIZATION
@@ -387,7 +387,7 @@ boost::shared_ptr<GenericObject> SWIG_MAPPER_NAMESPACE::serialize_read_generic(
   if(dir == "")
     dir = ".";
   DirChange d(dir);
-  boost::shared_ptr<GenericObject> obj;
+  std::shared_ptr<GenericObject> obj;
   ia >> boost::serialization::make_nvp("geocal_object", obj);
   return obj;
 #else
@@ -396,7 +396,7 @@ boost::shared_ptr<GenericObject> SWIG_MAPPER_NAMESPACE::serialize_read_generic(
 #endif
 }
 
-boost::shared_ptr<GenericObject>
+std::shared_ptr<GenericObject>
 SWIG_MAPPER_NAMESPACE::serialize_read_binary_generic(
     [[maybe_unused]] const std::string& Fname)
 {
@@ -410,7 +410,7 @@ SWIG_MAPPER_NAMESPACE::serialize_read_binary_generic(
   if(dir == "")
     dir = ".";
   DirChange d(dir);
-  boost::shared_ptr<GenericObject> obj;
+  std::shared_ptr<GenericObject> obj;
   ia >> boost::serialization::make_nvp("geocal_object", obj);
   return obj;
 #else
@@ -424,14 +424,14 @@ SWIG_MAPPER_NAMESPACE::serialize_read_binary_generic(
 /// than reading a file.
 //-----------------------------------------------------------------------
 
-boost::shared_ptr<GenericObject>
+std::shared_ptr<GenericObject>
 SWIG_MAPPER_NAMESPACE::serialize_read_generic_string(
     [[maybe_unused]] const std::string& Data)
 {
 #ifdef SWIG_HAVE_BOOST_SERIALIZATION
   std::istringstream is(Data);
   boost::archive::polymorphic_xml_iarchive ia(is);
-  boost::shared_ptr<GenericObject> obj;
+  std::shared_ptr<GenericObject> obj;
   ia >> boost::serialization::make_nvp("geocal_object", obj);
   return obj;
 #else

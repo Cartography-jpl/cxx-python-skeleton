@@ -3,7 +3,7 @@
 #include "observer.h"
 #include "printable.h"
 #include "with_parameter_like.h"
-#include <boost/shared_ptr.hpp>
+#include <memory>
 #include <string>
 
 namespace Skeleton {
@@ -81,23 +81,23 @@ private:
 *******************************************************************/
 class MultiBaseExample : public Printable<MultiBaseExample> {
 public:
-  MultiBaseExample(const boost::shared_ptr<CameraLike>& Cam) : cam_(Cam) {}
+  MultiBaseExample(const std::shared_ptr<CameraLike>& Cam) : cam_(Cam) {}
   ~MultiBaseExample() override = default;
-  const boost::shared_ptr<CameraLike>& camera() const { return cam_; }
-  boost::shared_ptr<WithParameterLike> camera_as_with_parameter() const
+  const std::shared_ptr<CameraLike>& camera() const { return cam_; }
+  std::shared_ptr<WithParameterLike> camera_as_with_parameter() const
   {
     return cam_;
   }
-  boost::shared_ptr<GenericObject> camera_as_generic() const { return cam_; }
-  boost::shared_ptr<Observable<CameraLike>> camera_as_observable() const
+  std::shared_ptr<GenericObject> camera_as_generic() const { return cam_; }
+  std::shared_ptr<Observable<CameraLike>> camera_as_observable() const
   {
     return cam_;
   }
-  static int number_band(const boost::shared_ptr<CameraLike>& Cam)
+  static int number_band(const std::shared_ptr<CameraLike>& Cam)
   {
     return Cam->number_band();
   }
-  static double parameter_sum(const boost::shared_ptr<WithParameterLike>& P)
+  static double parameter_sum(const std::shared_ptr<WithParameterLike>& P)
   {
     return P->parameter_sum();
   }
@@ -105,10 +105,10 @@ public:
   {
     return P.parameter_sum();
   }
-  static std::string type_name(const boost::shared_ptr<GenericObject>& G);
+  static std::string type_name(const std::shared_ptr<GenericObject>& G);
   virtual void print(std::ostream& Os) const { Os << "MultiBaseExample"; }
 private:
-  boost::shared_ptr<CameraLike> cam_;
+  std::shared_ptr<CameraLike> cam_;
 };
 }
 

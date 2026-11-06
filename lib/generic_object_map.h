@@ -1,12 +1,13 @@
 #ifndef GENERIC_OBJECT_MAP_H
 #define GENERIC_OBJECT_MAP_H
 #include "printable.h"
-#include <boost/shared_ptr.hpp>
+#include <memory>
 #include <algorithm>
 #include <iterator>
 #include <ranges>
 #include <string>
 #include <map>
+#include <vector>
 
 namespace Skeleton {
 
@@ -30,7 +31,7 @@ namespace Skeleton {
 *******************************************************************/
 class GenericObjectMap
   : public Printable<GenericObjectMap>,
-    public std::map<std::string, boost::shared_ptr<GenericObject>> {
+    public std::map<std::string, std::shared_ptr<GenericObject>> {
 public:
   GenericObjectMap() = default;
   ~GenericObjectMap() override = default;
@@ -57,7 +58,7 @@ public:
   //-----------------------------------------------------------------------
 
   void set_generic(const std::string& Key,
-                   const boost::shared_ptr<GenericObject>& V)
+                   const std::shared_ptr<GenericObject>& V)
   {
     (*this)[Key] = V;
   }
@@ -67,13 +68,13 @@ public:
   /// value in the map.
   //-----------------------------------------------------------------------
 
-  boost::shared_ptr<GenericObject> get_generic(const std::string& Key) const
+  std::shared_ptr<GenericObject> get_generic(const std::string& Key) const
   {
-    std::map<std::string, boost::shared_ptr<GenericObject>>::const_iterator i =
+    std::map<std::string, std::shared_ptr<GenericObject>>::const_iterator i =
         find(Key);
     if(i != end())
       return i->second;
-    return boost::shared_ptr<GenericObject>();
+    return std::shared_ptr<GenericObject>();
   }
 
   //-----------------------------------------------------------------------
@@ -81,10 +82,9 @@ public:
   /// value in the map or it doesn't match type
   //-----------------------------------------------------------------------
 
-  template<class T>
-  inline boost::shared_ptr<T> get(const std::string& Key) const
+  template<class T> inline std::shared_ptr<T> get(const std::string& Key) const
   {
-    return boost::dynamic_pointer_cast<T>(get_generic(Key));
+    return std::dynamic_pointer_cast<T>(get_generic(Key));
   }
 
   friend class boost::serialization::access;

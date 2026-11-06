@@ -2,7 +2,7 @@
 #define THREAD_EXAMPLE_H
 #include "director_example.h"
 #include "printable.h"
-#include <boost/shared_ptr.hpp>
+#include <memory>
 
 namespace Skeleton {
 /****************************************************************/ /**
@@ -22,7 +22,7 @@ public:
   /// own thread, and return the sum of the results.
   //-----------------------------------------------------------------------
 
-  static int run(const boost::shared_ptr<DirectorExample>& Obj, int V,
+  static int run(const std::shared_ptr<DirectorExample>& Obj, int V,
                  int Number_thread);
   virtual void print(std::ostream& Os) const { Os << "ThreadExample"; }
 };

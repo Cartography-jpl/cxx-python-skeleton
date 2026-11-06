@@ -2,8 +2,7 @@
 #define SKELETON_OBSERVER_H
 #include "null_deleter.h"
 #include "generic_object.h"
-#include <boost/shared_ptr.hpp>
-#include <boost/weak_ptr.hpp>
+#include <memory>
 #include <algorithm>
 #include <list>
 #include <vector>
@@ -70,7 +69,7 @@ public:
 private:
   // Shared ptr that we can use to get weak_ptr to. This object has
   // exactly the same lifetime as the containing object.
-  boost::shared_ptr<Observer> this_obj;
+  std::shared_ptr<Observer> this_obj;
   friend class Observable<T>;
   friend class boost::serialization::access;
   template<class Archive>
@@ -95,7 +94,7 @@ public:
   //-----------------------------------------------------------------------
 
   virtual void invalidate_cache() { cache_valid = false; }
-  boost::shared_ptr<CacheInvalidatedObserver>& this_obj() { return this_obj_; }
+  std::shared_ptr<CacheInvalidatedObserver>& this_obj() { return this_obj_; }
 
   // Python is happier with functions vs accessing cache_valid. So
   // return and allow setting of cache_valid
@@ -105,7 +104,7 @@ protected:
   bool cache_valid;
   // Shared ptr that we can use to get weak_ptr to. This object has
   // exactly the same lifetime as the containing object.
-  boost::shared_ptr<CacheInvalidatedObserver> this_obj_;
+  std::shared_ptr<CacheInvalidatedObserver> this_obj_;
   friend class boost::serialization::access;
   template<class Archive>
   void serialize(Archive& ar, const unsigned int version);
@@ -152,8 +151,7 @@ public:
   {
     CPointerEqual p(Obs.this_obj().get());
     if(std::ranges::find_if(colist, p) == colist.end())
-      colist.push_back(
-          boost::weak_ptr<CacheInvalidatedObserver>(Obs.this_obj()));
+      colist.push_back(std::weak_ptr<CacheInvalidatedObserver>(Obs.this_obj()));
   }
   void remove_cache_invalidated_observer(CacheInvalidatedObserver& Obs)
   {
@@ -166,7 +164,7 @@ public:
   /// the class description for details.
   //-----------------------------------------------------------------------
 
-  void add_observer_and_keep_reference(boost::shared_ptr<Observer<T>>& Obs)
+  void add_observer_and_keep_reference(std::shared_ptr<Observer<T>>& Obs)
   {
     ref_list.push_back(Obs);
     add_observer(*Obs);
@@ -186,11 +184,11 @@ public:
   {
     // Copy out shared_ptrs into a separate list since olist will be
     // changed by remove_observer as we go.
-    std::vector<boost::shared_ptr<Observer<T>>> obs_pointers;
+    std::vector<std::shared_ptr<Observer<T>>> obs_pointers;
     for(auto& w : olist)
       if(auto p = w.lock())
         obs_pointers.push_back(p);
-    std::vector<boost::shared_ptr<CacheInvalidatedObserver>> cobs_pointers;
+    std::vector<std::shared_ptr<CacheInvalidatedObserver>> cobs_pointers;
     for(auto& w : colist)
       if(auto p = w.lock())
         cobs_pointers.push_back(p);
@@ -243,7 +241,7 @@ protected:
   class PointerEqual {
   public:
     PointerEqual(Observer<T>* t) : t_(t) {}
-    bool operator()(const boost::weak_ptr<Observer<T>>& w) const
+    bool operator()(const std::weak_ptr<Observer<T>>& w) const
     {
       return w.lock().get() == t_;
     }
@@ -252,7 +250,7 @@ protected:
   class CPointerEqual {
   public:
     CPointerEqual(CacheInvalidatedObserver* t) : t_(t) {}
-    bool operator()(const boost::weak_ptr<CacheInvalidatedObserver>& w) const
+    bool operator()(const std::weak_ptr<CacheInvalidatedObserver>& w) const
     {
       return w.lock().get() == t_;
     }
@@ -267,7 +265,7 @@ protected:
   {
     PointerEqual p(Obs.this_obj.get());
     if(std::ranges::find_if(olist, p) == olist.end()) {
-      olist.push_back(boost::weak_ptr<Observer<T>>(Obs.this_obj));
+      olist.push_back(std::weak_ptr<Observer<T>>(Obs.this_obj));
       Obs.notify_add(t);
       Obs.notify_add();
     }
@@ -276,7 +274,7 @@ protected:
   {
     PointerEqual p(Obs.this_obj.get());
     if(std::ranges::find_if(olist, p) == olist.end()) {
-      olist.push_back(boost::weak_ptr<Observer<T>>(Obs.this_obj));
+      olist.push_back(std::weak_ptr<Observer<T>>(Obs.this_obj));
       Obs.notify_add();
     }
   }
@@ -308,9 +306,9 @@ protected:
     olist.remove_if([](const auto& w) { return w.expired(); });
     colist.remove_if([](const auto& w) { return w.expired(); });
   }
-  std::list<boost::weak_ptr<Observer<T>>> olist;
-  std::list<boost::weak_ptr<CacheInvalidatedObserver>> colist;
-  std::vector<boost::shared_ptr<Observer<T>>> ref_list;
+  std::list<std::weak_ptr<Observer<T>>> olist;
+  std::list<std::weak_ptr<CacheInvalidatedObserver>> colist;
+  std::vector<std::shared_ptr<Observer<T>>> ref_list;
 
   //-----------------------------------------------------------------------
   /// Used when loading (see observer_serialize_support.h). An observer
@@ -332,8 +330,8 @@ protected:
     Lst.swap(Loaded);
   }
   void merge_loaded(
-      std::list<boost::weak_ptr<Observer<T>>>& Loaded_olist,
-      std::list<boost::weak_ptr<CacheInvalidatedObserver>>& Loaded_colist)
+      std::list<std::weak_ptr<Observer<T>>>& Loaded_olist,
+      std::list<std::weak_ptr<CacheInvalidatedObserver>>& Loaded_colist)
   {
     merge_loaded(olist, Loaded_olist,
                  [](Observer<T>* p) { return PointerEqual(p); });

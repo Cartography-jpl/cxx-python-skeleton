@@ -28,16 +28,16 @@ public:
   std::filesystem::path p;
 };
 
-boost::shared_ptr<GenericObjectMap> sample_map()
+std::shared_ptr<GenericObjectMap> sample_map()
 {
-  auto m = boost::make_shared<GenericObjectMap>();
-  (*m)["a"] = boost::make_shared<GenericObjectA>(3);
-  (*m)["b"] = boost::make_shared<GenericObjectB>(m->get<GenericObjectA>("a"));
-  (*m)["c"] = boost::make_shared<GenericObjectC>(m->get<GenericObjectA>("a"));
+  auto m = std::make_shared<GenericObjectMap>();
+  (*m)["a"] = std::make_shared<GenericObjectA>(3);
+  (*m)["b"] = std::make_shared<GenericObjectB>(m->get<GenericObjectA>("a"));
+  (*m)["c"] = std::make_shared<GenericObjectC>(m->get<GenericObjectA>("a"));
   return m;
 }
 
-void check_map(const boost::shared_ptr<GenericObjectMap>& M)
+void check_map(const std::shared_ptr<GenericObjectMap>& M)
 {
   BOOST_REQUIRE(M);
   auto a = M->get<GenericObjectA>("a");
@@ -144,10 +144,10 @@ BOOST_AUTO_TEST_CASE(skip_weak_ptr)
   // add_ptr_serialized_reference), so a weak_ptr is kept only if its
   // target was written *earlier* in the same archive. GenericObjectMap
   // writes in key order: "a" before "c", but "_c" before "a".
-  auto m = boost::make_shared<GenericObjectMap>();
-  (*m)["a"] = boost::make_shared<GenericObjectA>(3);
-  (*m)["c"] = boost::make_shared<GenericObjectC>(m->get<GenericObjectA>("a"));
-  (*m)["_c"] = boost::make_shared<GenericObjectC>(m->get<GenericObjectA>("a"));
+  auto m = std::make_shared<GenericObjectMap>();
+  (*m)["a"] = std::make_shared<GenericObjectA>(3);
+  (*m)["c"] = std::make_shared<GenericObjectC>(m->get<GenericObjectA>("a"));
+  (*m)["_c"] = std::make_shared<GenericObjectC>(m->get<GenericObjectA>("a"));
   BOOST_CHECK(!skip_weak_ptr_handling());
   auto mr = serialize_read_string<GenericObjectMap>(serialize_write_string(m));
   BOOST_CHECK(mr->get<GenericObjectC>("c")->a());

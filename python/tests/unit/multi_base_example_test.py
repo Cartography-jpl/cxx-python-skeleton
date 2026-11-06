@@ -24,7 +24,8 @@ def cam():
 
 
 @pytest.mark.parametrize(
-    "func", ["camera", "camera_as_with_parameter", "camera_as_generic", "camera_as_observable"]
+    "func",
+    ["camera", "camera_as_with_parameter", "camera_as_generic", "camera_as_observable"],
 )
 def test_downcast(cam, func):
     """Returned as any base, python gets the most derived type, and methods of
@@ -88,7 +89,9 @@ def diamond():
     return Diamond("d", 1, 2)
 
 
-@pytest.mark.parametrize("func", ["diamond", "as_root", "as_nested", "as_with_parameter", "as_generic"])
+@pytest.mark.parametrize(
+    "func", ["diamond", "as_root", "as_nested", "as_with_parameter", "as_generic"]
+)
 def test_diamond_downcast(diamond, func):
     v = VirtualDiamondExample(diamond)
     d = getattr(v, func)

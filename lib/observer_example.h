@@ -2,7 +2,7 @@
 #define OBSERVER_EXAMPLE_H
 #include "observer.h"
 #include "printable.h"
-#include <boost/shared_ptr.hpp>
+#include <memory>
 #include <string>
 
 namespace Skeleton {
@@ -65,7 +65,7 @@ class ObserverExample : public Observer<ObservableExample>,
 public:
   ObserverExample(const std::string& Name = "") : name_(Name) {}
   ObserverExample(const std::string& Name,
-                  const boost::shared_ptr<ObservableExample>& Obj)
+                  const std::shared_ptr<ObservableExample>& Obj)
     : name_(Name), observed_(Obj)
   {
     if(observed_)
@@ -99,7 +99,7 @@ public:
   /// The ObservableExample given to the constructor, if any.
   //-----------------------------------------------------------------------
 
-  const boost::shared_ptr<ObservableExample>& observed() const
+  const std::shared_ptr<ObservableExample>& observed() const
   {
     return observed_;
   }
@@ -109,7 +109,7 @@ public:
   }
 private:
   std::string name_;
-  boost::shared_ptr<ObservableExample> observed_;
+  std::shared_ptr<ObservableExample> observed_;
   int notify_count_ = 0;
   int add_count_ = 0;
   int remove_count_ = 0;
@@ -130,7 +130,7 @@ private:
 class CacheExample : public CacheInvalidatedObserver,
                      public Printable<CacheExample> {
 public:
-  CacheExample(const boost::shared_ptr<ObservableExample>& Obj) : observed_(Obj)
+  CacheExample(const std::shared_ptr<ObservableExample>& Obj) : observed_(Obj)
   {
     observed_->add_cache_invalidated_observer(*this);
   }
@@ -150,14 +150,14 @@ public:
     return cached_;
   }
   int recompute_count() const { return recompute_count_; }
-  const boost::shared_ptr<ObservableExample>& observed() const
+  const std::shared_ptr<ObservableExample>& observed() const
   {
     return observed_;
   }
   virtual void print(std::ostream& Os) const { Os << "CacheExample"; }
 private:
   CacheExample() = default;
-  boost::shared_ptr<ObservableExample> observed_;
+  std::shared_ptr<ObservableExample> observed_;
   mutable double cached_ = 0;
   mutable int recompute_count_ = 0;
   friend class boost::serialization::access;

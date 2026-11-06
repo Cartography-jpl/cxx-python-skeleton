@@ -24,7 +24,7 @@ BOOST_AUTO_TEST_CASE(notification)
   ObserverExample stack_obs("stack");
   o.add_observer(stack_obs);
   HasMemberObserver h(o);
-  auto sp_obs = boost::make_shared<ObserverExample>("shared_ptr");
+  auto sp_obs = std::make_shared<ObserverExample>("shared_ptr");
   o.add_observer(*sp_obs);
   BOOST_CHECK_EQUAL(o.number_observer(), 3);
   BOOST_CHECK_EQUAL(stack_obs.add_count(), 1);
@@ -70,11 +70,11 @@ BOOST_AUTO_TEST_CASE(dead_observer)
 BOOST_AUTO_TEST_CASE(keep_reference)
 {
   ObservableExample o;
-  boost::weak_ptr<ObserverExample> w;
+  std::weak_ptr<ObserverExample> w;
   {
-    auto obs = boost::make_shared<ObserverExample>("kept");
+    auto obs = std::make_shared<ObserverExample>("kept");
     w = obs;
-    boost::shared_ptr<Observer<ObservableExample>> p = obs;
+    std::shared_ptr<Observer<ObservableExample>> p = obs;
     o.add_observer_and_keep_reference(p);
   }
   BOOST_REQUIRE(!w.expired());
@@ -84,7 +84,7 @@ BOOST_AUTO_TEST_CASE(keep_reference)
 
 BOOST_AUTO_TEST_CASE(constructor_registration)
 {
-  auto o = boost::make_shared<ObservableExample>(1);
+  auto o = std::make_shared<ObservableExample>(1);
   ObserverExample obs("ctor", o);
   BOOST_CHECK_EQUAL(o->number_observer(), 1);
   BOOST_CHECK_EQUAL(obs.add_count(), 1);
@@ -95,7 +95,7 @@ BOOST_AUTO_TEST_CASE(constructor_registration)
 
 BOOST_AUTO_TEST_CASE(cache_observer)
 {
-  auto o = boost::make_shared<ObservableExample>(1);
+  auto o = std::make_shared<ObservableExample>(1);
   CacheExample c(o);
   BOOST_CHECK_EQUAL(o->number_cache_observer(), 1);
   BOOST_CHECK_EQUAL(c.value(), 2);
@@ -110,20 +110,52 @@ BOOST_AUTO_TEST_CASE(cache_observer)
   BOOST_CHECK_EQUAL(o->number_cache_observer(), 0);
 }
 
+namespace {
+// An observer with enable_shared_from_this (GenericObject gets it in S6).
+class SharedObserver : public ObserverExample,
+                       public std::enable_shared_from_this<SharedObserver> {
+public:
+  SharedObserver() : ObserverExample("shared") {}
+};
+}
+
+BOOST_AUTO_TEST_CASE(shared_from_this_owner)
+{
+  // this_obj (to_ptr in the Observer constructor) and to_ptr/const_pointer
+  // must not claim weak_this: shared_from_this() returns the real owner.
+  auto p = std::make_shared<SharedObserver>();
+  auto np = to_ptr(*p);
+  auto cp = const_pointer(*p);
+  ObservableExample o;
+  o.add_observer(*p);
+  auto s = p->shared_from_this();
+  BOOST_CHECK(!s.owner_before(p) && !p.owner_before(s));
+  BOOST_CHECK_EQUAL(p.use_count(), 2);
+  BOOST_CHECK(np.owner_before(p) || p.owner_before(np));
+  BOOST_CHECK(cp.get() == p.get());
+  // An object not owned by a shared_ptr has no shared_from_this.
+  SharedObserver stack_obs;
+  BOOST_CHECK(stack_obs.weak_from_this().expired());
+  o.add_observer(stack_obs);
+  o.value(1);
+  BOOST_CHECK_EQUAL(stack_obs.notify_count(), 1);
+  BOOST_CHECK(stack_obs.weak_from_this().expired());
+}
+
 #ifdef SKELETON_HAVE_BOOST_SERIALIZATION
 BOOST_AUTO_TEST_CASE(serialization)
 {
   // Observable alone: the observer isn't in the archive, so it is
   // dropped (two pass weak_ptr rule).
-  auto o = boost::make_shared<ObservableExample>(1);
-  auto obs = boost::make_shared<ObserverExample>("plain");
+  auto o = std::make_shared<ObservableExample>(1);
+  auto obs = std::make_shared<ObserverExample>("plain");
   o->add_observer(*obs);
   auto o2 = serialize_read_string<ObservableExample>(serialize_write_string(o));
   BOOST_CHECK_EQUAL(o2->value(), 1);
   BOOST_CHECK_EQUAL(o2->number_observer(), 0);
 
   // Both in a map: the connection is kept.
-  auto m = boost::make_shared<GenericObjectMap>();
+  auto m = std::make_shared<GenericObjectMap>();
   (*m)["o"] = o;
   (*m)["obs"] = obs;
   auto m2 = serialize_read_string<GenericObjectMap>(serialize_write_string(m));
@@ -137,8 +169,8 @@ BOOST_AUTO_TEST_CASE(serialization)
 
   // Observer that registered in its constructor: written on its own, the
   // Observable comes along and the observer registers again in load().
-  auto o3 = boost::make_shared<ObservableExample>(2);
-  auto cobs = boost::make_shared<ObserverExample>("ctor", o3);
+  auto o3 = std::make_shared<ObservableExample>(2);
+  auto cobs = std::make_shared<ObserverExample>("ctor", o3);
   o3->value(3);
   auto cobs2 =
       serialize_read_string<ObserverExample>(serialize_write_string(cobs));
@@ -154,7 +186,7 @@ BOOST_AUTO_TEST_CASE(serialization)
   // Observable read first, so the observer is read from inside its
   // olist and registers itself (load()) before its archive entry is read.
   // It must still be in the list only once.
-  auto m3 = boost::make_shared<GenericObjectMap>();
+  auto m3 = std::make_shared<GenericObjectMap>();
   (*m3)["a"] = o3;
   (*m3)["b"] = cobs;
   auto m4 = serialize_read_string<GenericObjectMap>(serialize_write_string(m3));
@@ -168,16 +200,16 @@ BOOST_AUTO_TEST_CASE(serialization)
 
   // add_observer_and_keep_reference: the Observable owns the observer,
   // so it is written with it.
-  auto o4 = boost::make_shared<ObservableExample>(5);
-  boost::shared_ptr<Observer<ObservableExample>> kept =
-      boost::make_shared<ObserverExample>("kept");
+  auto o4 = std::make_shared<ObservableExample>(5);
+  std::shared_ptr<Observer<ObservableExample>> kept =
+      std::make_shared<ObserverExample>("kept");
   o4->add_observer_and_keep_reference(kept);
   auto o5 =
       serialize_read_string<ObservableExample>(serialize_write_string(o4));
   BOOST_CHECK_EQUAL(o5->number_observer(), 1);
 
   // Cache observer, with its observable.
-  auto c = boost::make_shared<CacheExample>(o3);
+  auto c = std::make_shared<CacheExample>(o3);
   BOOST_CHECK_EQUAL(c->value(), 6);
   auto c2 = serialize_read_string<CacheExample>(serialize_write_string(c));
   BOOST_CHECK_EQUAL(c2->observed()->number_cache_observer(), 1);

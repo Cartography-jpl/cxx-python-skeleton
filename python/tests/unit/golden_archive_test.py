@@ -86,7 +86,10 @@ def test_director_example_user(ext):
     assert isinstance(u, DirectorExampleUser)
     assert u.value().name() == "e1"
     assert [v.name() for v in u.value_vec()] == ["e1", "e2"]
-    assert [[v.name() for v in vv] for vv in u.value_vec_vec()] == [["e1"], ["e2", "e1"]]
+    assert [[v.name() for v in vv] for vv in u.value_vec_vec()] == [
+        ["e1"],
+        ["e2", "e1"],
+    ]
     assert list(u.value_vec_int()) == [1, 2, 3]
     assert [list(v) for v in u.value_vec_vec_int()] == [[4], [5, 6]]
 

@@ -1,8 +1,7 @@
 #ifndef DIRECTOR_EXAMPLE_H
 #define DIRECTOR_EXAMPLE_H
 #include "printable.h"
-#include <boost/shared_ptr.hpp>
-#include <boost/weak_ptr.hpp>
+#include <memory>
 #include <vector>
 #include <iostream>
 
@@ -55,17 +54,17 @@ public:
   //-----------------------------------------------------------------------
 
   DirectorExampleNested(int value_to_add, const std::string& name,
-                        const boost::shared_ptr<DirectorExample> Obj)
+                        const std::shared_ptr<DirectorExample> Obj)
     : DirectorExample(value_to_add, name), obj_(Obj)
   {
   }
   ~DirectorExampleNested() override = default;
 
-  const boost::shared_ptr<DirectorExample>& obj() const { return obj_; }
+  const std::shared_ptr<DirectorExample>& obj() const { return obj_; }
 protected:
   DirectorExampleNested() = default;
 private:
-  boost::shared_ptr<DirectorExample> obj_;
+  std::shared_ptr<DirectorExample> obj_;
   friend class boost::serialization::access;
   template<class Archive>
   void serialize(Archive& ar, const unsigned int version);
@@ -77,7 +76,7 @@ private:
 *******************************************************************/
 class DirectorExampleWeakPtr : public Printable<DirectorExampleWeakPtr> {
 public:
-  DirectorExampleWeakPtr(const boost::shared_ptr<DirectorExample>& V) : a_(V) {}
+  DirectorExampleWeakPtr(const std::shared_ptr<DirectorExample>& V) : a_(V) {}
   ~DirectorExampleWeakPtr() override = default;
   void print(std::ostream& Os) const
   {
@@ -89,12 +88,12 @@ public:
       Os << "None";
     Os << "\n----------------------\n";
   }
-  boost::shared_ptr<DirectorExample> a() const { return a_.lock(); }
-  void a(const boost::shared_ptr<DirectorExample>& V) { a_ = V; }
+  std::shared_ptr<DirectorExample> a() const { return a_.lock(); }
+  void a(const std::shared_ptr<DirectorExample>& V) { a_ = V; }
   bool expired() const { return a_.expired(); }
   long use_count() const { return a_.use_count(); }
 private:
-  boost::weak_ptr<DirectorExample> a_;
+  std::weak_ptr<DirectorExample> a_;
   DirectorExampleWeakPtr() = default;
   friend class boost::serialization::access;
   template<class Archive>
@@ -113,21 +112,21 @@ public:
     std::cerr << "Destroying DirectorExampleUser\n";
   }
   virtual void print(std::ostream& Os) const { Os << "DirectorExampleUser"; }
-  const std::vector<boost::shared_ptr<DirectorExample>>& value_vec() const
+  const std::vector<std::shared_ptr<DirectorExample>>& value_vec() const
   {
     return value_vec_;
   }
-  void set_vec(const std::vector<boost::shared_ptr<DirectorExample>>& V)
+  void set_vec(const std::vector<std::shared_ptr<DirectorExample>>& V)
   {
     value_vec_ = V;
   }
-  const std::vector<std::vector<boost::shared_ptr<DirectorExample>>>&
+  const std::vector<std::vector<std::shared_ptr<DirectorExample>>>&
   value_vec_vec() const
   {
     return value_vec2_;
   }
   void set_vec_vec(
-      const std::vector<std::vector<boost::shared_ptr<DirectorExample>>>& V)
+      const std::vector<std::vector<std::shared_ptr<DirectorExample>>>& V)
   {
     value_vec2_ = V;
   }
@@ -135,8 +134,8 @@ public:
   void set_vec_int(const std::vector<int>& V) { t_ = V; }
   const std::vector<std::vector<int>>& value_vec_vec_int() const { return t2_; }
   void set_vec_vec_int(const std::vector<std::vector<int>>& V) { t2_ = V; }
-  const boost::shared_ptr<DirectorExample>& value() const { return value_; }
-  void set_value(const boost::shared_ptr<DirectorExample>& V) { value_ = V; }
+  const std::shared_ptr<DirectorExample>& value() const { return value_; }
+  void set_value(const std::shared_ptr<DirectorExample>& V) { value_ = V; }
   int apply_func(int v) const { return value_->func(v); }
   int apply_func(int v, int ind) const { return value_vec_[ind]->func(v); }
   int apply_func(int v, int ind, int ind2) const
@@ -144,9 +143,9 @@ public:
     return value_vec2_[ind][ind2]->func(v);
   }
 private:
-  std::vector<boost::shared_ptr<DirectorExample>> value_vec_;
-  std::vector<std::vector<boost::shared_ptr<DirectorExample>>> value_vec2_;
-  boost::shared_ptr<DirectorExample> value_;
+  std::vector<std::shared_ptr<DirectorExample>> value_vec_;
+  std::vector<std::vector<std::shared_ptr<DirectorExample>>> value_vec2_;
+  std::shared_ptr<DirectorExample> value_;
   std::vector<int> t_;
   std::vector<std::vector<int>> t2_;
   friend class boost::serialization::access;

@@ -74,7 +74,7 @@ BOOST_AUTO_TEST_CASE(sample_classes)
 {
   // operator<< and print_to_string agree, with the exact text. These
   // are the strings python's str() gives too (see printing_test.py).
-  auto a = boost::make_shared<GenericObjectA>(1);
+  auto a = std::make_shared<GenericObjectA>(1);
   BOOST_CHECK_EQUAL(a->print_to_string(), "A");
   BOOST_CHECK_EQUAL(stream_string(*a), "A");
   GenericObjectB b(a);
@@ -102,7 +102,7 @@ BOOST_AUTO_TEST_CASE(format)
   DerivedTest d;
   BOOST_CHECK_EQUAL(std::format("{}", d), stream_string(d));
   BOOST_CHECK_EQUAL(std::format("{}", d), "Test");
-  auto a = boost::make_shared<GenericObjectA>(1);
+  auto a = std::make_shared<GenericObjectA>(1);
   BOOST_CHECK_EQUAL(std::format("{}", *a), stream_string(*a));
   GenericObjectMap m;
   BOOST_CHECK_EQUAL(std::format("{}", m), stream_string(m));

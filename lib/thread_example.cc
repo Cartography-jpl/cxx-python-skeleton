@@ -6,7 +6,7 @@
 
 using namespace Skeleton;
 
-int ThreadExample::run(const boost::shared_ptr<DirectorExample>& Obj, int V,
+int ThreadExample::run(const std::shared_ptr<DirectorExample>& Obj, int V,
                        int Number_thread)
 {
   std::vector<int> res(Number_thread, 0);

@@ -1,7 +1,7 @@
 // Writes the "golden" archives in unit_test_data/golden. These are
 // written by the current code and then committed, so later phases of
 // the modernization can check they still read archives written by the
-// original boost::shared_ptr/boost::array code.
+// original std::shared_ptr/boost::array code.
 //
 // Regenerate deliberately (see unit_test_data/golden/README.md):
 //   make golden-archives
@@ -18,7 +18,7 @@
 #include "multi_base_example.h"
 #include "virtual_diamond_example.h"
 #include "serialize_function.h"
-#include <boost/make_shared.hpp>
+#include <memory>
 #include <boost/archive/polymorphic_xml_oarchive.hpp>
 #include <boost/archive/polymorphic_binary_oarchive.hpp>
 #include <fstream>
@@ -29,7 +29,7 @@ using namespace Skeleton;
 static std::string outdir;
 
 static void write_object(const std::string& Name,
-                         const boost::shared_ptr<GenericObject>& Obj)
+                         const std::shared_ptr<GenericObject>& Obj)
 {
   serialize_write(outdir + "/" + Name + ".xml", Obj);
   serialize_write_binary(outdir + "/" + Name + ".bin", Obj);
@@ -98,34 +98,34 @@ int main(int argc, char** argv)
     return 1;
   }
   outdir = argv[1];
-  auto a = boost::make_shared<GenericObjectA>(7);
+  auto a = std::make_shared<GenericObjectA>(7);
   write_object("generic_object_a", a);
-  write_object("generic_object_b", boost::make_shared<GenericObjectB>(a));
+  write_object("generic_object_b", std::make_shared<GenericObjectB>(a));
   write_object("generic_object_b2",
-               boost::make_shared<GenericObjectB2>(GenericObjectA(8)));
+               std::make_shared<GenericObjectB2>(GenericObjectA(8)));
   // Weak pointer to something not otherwise serialized: comes back null
-  write_object("generic_object_c", boost::make_shared<GenericObjectC>(a));
+  write_object("generic_object_c", std::make_shared<GenericObjectC>(a));
 
   // Shared and weak entries in a map, a and b share one A, c is
   // weak pointer to it.
-  auto m = boost::make_shared<GenericObjectMap>();
-  (*m)["a"] = boost::make_shared<GenericObjectA>(1);
-  (*m)["b"] = boost::make_shared<GenericObjectB>(m->get<GenericObjectA>("a"));
-  (*m)["c"] = boost::make_shared<GenericObjectC>(m->get<GenericObjectA>("a"));
-  (*m)["b2"] = boost::make_shared<GenericObjectB2>(GenericObjectA(2));
+  auto m = std::make_shared<GenericObjectMap>();
+  (*m)["a"] = std::make_shared<GenericObjectA>(1);
+  (*m)["b"] = std::make_shared<GenericObjectB>(m->get<GenericObjectA>("a"));
+  (*m)["c"] = std::make_shared<GenericObjectC>(m->get<GenericObjectA>("a"));
+  (*m)["b2"] = std::make_shared<GenericObjectB2>(GenericObjectA(2));
   write_object("generic_object_map", m);
 
   // The C++ only DirectorExample objects
-  auto e1 = boost::make_shared<DirectorExample>(5, "e1");
+  auto e1 = std::make_shared<DirectorExample>(5, "e1");
   write_object("director_example", e1);
-  auto e2 = boost::make_shared<DirectorExampleNested>(6, "e2", e1);
+  auto e2 = std::make_shared<DirectorExampleNested>(6, "e2", e1);
   write_object("director_example_nested", e2);
-  auto dm = boost::make_shared<GenericObjectMap>();
+  auto dm = std::make_shared<GenericObjectMap>();
   (*dm)["e1"] = e1;
   (*dm)["e2"] = e2;
-  (*dm)["weak"] = boost::make_shared<DirectorExampleWeakPtr>(e1);
+  (*dm)["weak"] = std::make_shared<DirectorExampleWeakPtr>(e1);
   write_object("director_example_map", dm);
-  auto u = boost::make_shared<DirectorExampleUser>();
+  auto u = std::make_shared<DirectorExampleUser>();
   u->set_value(e1);
   u->set_vec({e1, e2});
   u->set_vec_vec({{e1}, {e2, e1}});
@@ -149,7 +149,7 @@ int main(int argc, char** argv)
   // (S3.2); since then written with the std types, giving the same files.
   // Values differ from the ArraySample defaults, so a load that reads
   // nothing would be caught.
-  auto as = boost::make_shared<ArraySample>();
+  auto as = std::make_shared<ArraySample>();
   as->position_ = {{0.5, -1.25, 3e8}};
   blitz::Array<double, 2> mat(2, 3);
   mat = 1.5, -2, 3, 4, 5, -6.5;
@@ -157,33 +157,33 @@ int main(int argc, char** argv)
   as->count(42);
   as->scale(2.5);
   write_object("array_sample", as);
-  auto ase = boost::make_shared<ArraySample>();
+  auto ase = std::make_shared<ArraySample>();
   ase->count(std::nullopt);
   ase->scale(std::nullopt);
   write_object("array_sample_empty", ase);
   // Added 2026-11-06 (phase S5), the consumer pattern samples. Written
-  // with boost::shared_ptr, before S4.
-  auto ob = boost::make_shared<ObservableExample>(1.5);
-  auto obs_ctor = boost::make_shared<ObserverExample>("ctor", ob);
-  auto obs_plain = boost::make_shared<ObserverExample>("plain");
+  // with std::shared_ptr, before S4.
+  auto ob = std::make_shared<ObservableExample>(1.5);
+  auto obs_ctor = std::make_shared<ObserverExample>("ctor", ob);
+  auto obs_plain = std::make_shared<ObserverExample>("plain");
   ob->add_observer(*obs_plain);
-  auto obs_dropped = boost::make_shared<ObserverExample>("dropped");
+  auto obs_dropped = std::make_shared<ObserverExample>("dropped");
   ob->add_observer(*obs_dropped);
-  boost::shared_ptr<Observer<ObservableExample>> obs_kept =
-      boost::make_shared<ObserverExample>("kept");
+  std::shared_ptr<Observer<ObservableExample>> obs_kept =
+      std::make_shared<ObserverExample>("kept");
   ob->add_observer_and_keep_reference(obs_kept);
   ob->value(2.5);
-  auto cache = boost::make_shared<CacheExample>(ob);
+  auto cache = std::make_shared<CacheExample>(ob);
   cache->value();
-  auto om = boost::make_shared<GenericObjectMap>();
+  auto om = std::make_shared<GenericObjectMap>();
   (*om)["observable"] = ob;
   (*om)["ctor"] = obs_ctor;
   (*om)["plain"] = obs_plain;
   (*om)["cache"] = cache;
   write_object("observer_map", om);
   write_object("observer_ctor", obs_ctor);
-  auto cam = boost::make_shared<SimpleCameraLike>(10, 3);
+  auto cam = std::make_shared<SimpleCameraLike>(10, 3);
   write_object("simple_camera_like", cam);
-  write_object("diamond", boost::make_shared<Diamond>("d", 1, 2));
+  write_object("diamond", std::make_shared<Diamond>("d", 1, 2));
   return 0;
 }

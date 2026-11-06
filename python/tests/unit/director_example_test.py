@@ -365,9 +365,7 @@ def test_director_lifetime_shelve(isolated_dir, serial):
     print("All done with euser_s")
 
 
-@pytest.mark.xfail(
-    strict=True, reason="nested C++/Python identity: redesigned in S6"
-)
+@pytest.mark.xfail(strict=True, reason="nested C++/Python identity: redesigned in S6")
 def test_director_example_object_tracking(isolated_dir, serial):
     """Check that both the C++ objects and python objects correctly handle
     duplicates in pickling and shelving"""

@@ -8,7 +8,9 @@ from skeleton import ColumnMajorSample
 
 
 def expected(rows=2, cols=3):
-    return np.array([[10 * i + j for j in range(cols)] for i in range(rows)], dtype=float)
+    return np.array(
+        [[10 * i + j for j in range(cols)] for i in range(rows)], dtype=float
+    )
 
 
 def test_column_major_return():

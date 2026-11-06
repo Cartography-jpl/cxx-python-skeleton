@@ -2,8 +2,7 @@
 #define FILE_REFERENCE_SAMPLE_H
 #include "printable.h"
 #include "generic_object_sample.h"
-#include <boost/shared_ptr.hpp>
-#include <boost/make_shared.hpp>
+#include <memory>
 #include <fstream>
 #include <vector>
 
@@ -49,18 +48,18 @@ private:
 /// swig_rules' type mapper).
 //-----------------------------------------------------------------------
 
-inline std::vector<boost::shared_ptr<GenericObject>> generic_object_list()
+inline std::vector<std::shared_ptr<GenericObject>> generic_object_list()
 {
-  std::vector<boost::shared_ptr<GenericObject>> res;
-  auto a = boost::make_shared<GenericObjectA>(1);
+  std::vector<std::shared_ptr<GenericObject>> res;
+  auto a = std::make_shared<GenericObjectA>(1);
   res.push_back(a);
-  res.push_back(boost::make_shared<GenericObjectB>(a));
-  res.push_back(boost::make_shared<GenericObjectB2>(*a));
-  res.push_back(boost::make_shared<GenericObjectC>(a));
+  res.push_back(std::make_shared<GenericObjectB>(a));
+  res.push_back(std::make_shared<GenericObjectB2>(*a));
+  res.push_back(std::make_shared<GenericObjectC>(a));
   return res;
 }
 
-inline boost::shared_ptr<GenericObject> generic_object_index(int I)
+inline std::shared_ptr<GenericObject> generic_object_index(int I)
 {
   return generic_object_list()[I];
 }

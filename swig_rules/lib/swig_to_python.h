@@ -20,7 +20,7 @@ namespace SWIG_MAPPER_NAMESPACE {
 //-----------------------------------------------------------------------
 
 template<typename T>
-inline PyObject* swig_to_python(const boost::shared_ptr<T>& V)
+inline PyObject* swig_to_python(const std::shared_ptr<T>& V)
 {
 
   //-----------------------------------------------------------------------
@@ -66,8 +66,7 @@ inline PyObject* swig_to_python(const boost::shared_ptr<T>& V)
 // Py_INCREF. I think the only place this gets used is
 // serialize_function.i, but you might have other examples of this
 
-inline PyObject*
-swig_to_python_or_none(const boost::shared_ptr<GenericObject>& V)
+inline PyObject* swig_to_python_or_none(const std::shared_ptr<GenericObject>& V)
 {
   //-----------------------------------------------------------------------
   // If pointer is Null, return None.
@@ -113,13 +112,12 @@ swig_to_python_or_none(const boost::shared_ptr<GenericObject>& V)
 }
 
 template<typename T>
-inline PyObject* swig_to_python(const boost::shared_ptr<T>* V)
+inline PyObject* swig_to_python(const std::shared_ptr<T>* V)
 {
   return swig_to_python(*V);
 }
 
-inline PyObject*
-swig_to_python_or_none(const boost::shared_ptr<GenericObject>* V)
+inline PyObject* swig_to_python_or_none(const std::shared_ptr<GenericObject>* V)
 {
   return swig_to_python_or_none(*V);
 }
@@ -129,7 +127,7 @@ swig_to_python_or_none(const boost::shared_ptr<GenericObject>* V)
 //-----------------------------------------------------------------------
 
 template<typename T>
-inline PyObject* swig_to_python(const std::vector<boost::shared_ptr<T>>& V)
+inline PyObject* swig_to_python(const std::vector<std::shared_ptr<T>>& V)
 {
   PyObject* res = PyList_New(V.size());
   if(!res)
@@ -140,14 +138,14 @@ inline PyObject* swig_to_python(const std::vector<boost::shared_ptr<T>>& V)
 }
 
 template<typename T>
-inline PyObject* swig_to_python(const std::vector<boost::shared_ptr<T>>* V)
+inline PyObject* swig_to_python(const std::vector<std::shared_ptr<T>>* V)
 {
   return swig_to_python(*V);
 }
 
 template<typename T>
 inline PyObject*
-swig_to_python(const std::vector<std::vector<boost::shared_ptr<T>>>& V)
+swig_to_python(const std::vector<std::vector<std::shared_ptr<T>>>& V)
 {
   PyObject* res = PyList_New(V.size());
   if(!res)
@@ -159,7 +157,7 @@ swig_to_python(const std::vector<std::vector<boost::shared_ptr<T>>>& V)
 
 template<typename T>
 inline PyObject*
-swig_to_python(const std::vector<std::vector<boost::shared_ptr<T>>>* V)
+swig_to_python(const std::vector<std::vector<std::shared_ptr<T>>>* V)
 {
   return swig_to_python(*V);
 }

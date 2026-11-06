@@ -5,8 +5,7 @@
 
 using namespace Skeleton;
 
-std::string
-MultiBaseExample::type_name(const boost::shared_ptr<GenericObject>& G)
+std::string MultiBaseExample::type_name(const std::shared_ptr<GenericObject>& G)
 {
   if(!G)
     return "None";

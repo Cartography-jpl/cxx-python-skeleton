@@ -25,24 +25,24 @@ public:
   SwigTypeMapper(const char* Typename) { sinfo = SWIG_TypeQuery(Typename); }
   // We have the definition of this function in shared_ptr_type_mapper.i
   bool is_python_director_check(
-      const boost::shared_ptr<GenericObject>& V) const override
+      const std::shared_ptr<GenericObject>& V) const override
   {
-    boost::shared_ptr<Swig::Director> v2 =
-        boost::dynamic_pointer_cast<Swig::Director>(V);
+    std::shared_ptr<Swig::Director> v2 =
+        std::dynamic_pointer_cast<Swig::Director>(V);
     if(v2)
       return true;
     return false;
   }
-  boost::shared_ptr<GenericObject> do_swig_python_director_setup(
-      const boost::shared_ptr<GenericObject>& V) const override
+  std::shared_ptr<GenericObject> do_swig_python_director_setup(
+      const std::shared_ptr<GenericObject>& V) const override
   {
-    boost::shared_ptr<Swig::Director> v2 =
-        boost::dynamic_pointer_cast<Swig::Director>(V);
+    std::shared_ptr<Swig::Director> v2 =
+        std::dynamic_pointer_cast<Swig::Director>(V);
     if(!v2)
       return V;
     PyObject* pobj = v2->swig_get_self();
     // Transfer ownership of pobj to r.
-    boost::shared_ptr<GenericObject> r(V.get(), PythonRefPtrCleanup(pobj));
+    std::shared_ptr<GenericObject> r(V.get(), PythonRefPtrCleanup(pobj));
     Py_DECREF(pobj);
 #ifdef PTR_DEBUG
     std::cerr << "in do_swig_python_director_setup\n";
@@ -51,10 +51,10 @@ public:
 #endif
     return r;
   }
-  void* to_python(const boost::shared_ptr<GenericObject>& V) const override
+  void* to_python(const std::shared_ptr<GenericObject>& V) const override
   {
-    boost::shared_ptr<T> v2 = boost::dynamic_pointer_cast<T>(V);
-    boost::shared_ptr<T>* v3 = v2 ? new boost::shared_ptr<T>(v2) : nullptr;
+    std::shared_ptr<T> v2 = std::dynamic_pointer_cast<T>(V);
+    std::shared_ptr<T>* v3 = v2 ? new std::shared_ptr<T>(v2) : nullptr;
     return SWIG_NewPointerObj(SWIG_as_voidptr(v3), sinfo, SWIG_POINTER_OWN);
   }
   ~SwigTypeMapper() override = default;

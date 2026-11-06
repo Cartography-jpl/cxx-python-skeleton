@@ -1,18 +1,17 @@
 #ifndef WEAK_PTR_SERIALIZED_SUPPORT_H
 #define WEAK_PTR_SERIALIZED_SUPPORT_H
 #include "generic_object.h"
-#include <boost/shared_ptr.hpp>
-#include <boost/weak_ptr.hpp>
+#include <memory>
 #include <boost/serialization/nvp.hpp>
 #include <boost/serialization/split_free.hpp>
 
 /****************************************************************/ /**
-  There is a complication in serializing a boost::weak_ptr. Normally
-  when you encounter a boost::shared_ptr you want to serialize the
+  There is a complication in serializing a std::weak_ptr. Normally
+  when you encounter a std::shared_ptr you want to serialize the
   object, e.g. object A contains a boost:shared_ptr pointing to object
   B.
 
-  boost::weak_ptr on the other hand is a looser connection. It means
+  std::weak_ptr on the other hand is a looser connection. It means
   an object A has a reference to access B, but doesn't really "own"
   it (e.g., B is a Observer of A, and A notifies it about changes).
 
@@ -24,7 +23,7 @@
   1. You don't want to keep any references. The weak_ptr is just not
      included in the serialization of class A.
   2. You always want the weak_ptr included just like we do with
-     boost::shared_ptr. boost has serialization code that does this
+     std::shared_ptr. boost has serialization code that does this
      in boost/serialization/weak_ptr.hpp.
 
   Often neither of these ways are what you want. For example, in
@@ -96,11 +95,11 @@ namespace boost {
 namespace serialization {
 
 template<class Archive, class T>
-inline void save(Archive& ar, const boost::weak_ptr<T>& t,
+inline void save(Archive& ar, const std::weak_ptr<T>& t,
                  const unsigned int /* file_version */
 )
 {
-  boost::shared_ptr<T> sp = t.lock();
+  std::shared_ptr<T> sp = t.lock();
   const SWIG_MAPPER_NAMESPACE::GenericObject* ptr = nullptr;
   if(sp) {
     ptr = dynamic_cast<const SWIG_MAPPER_NAMESPACE::GenericObject*>(sp.get());
@@ -111,17 +110,17 @@ inline void save(Archive& ar, const boost::weak_ptr<T>& t,
 }
 
 template<class Archive, class T>
-inline void load(Archive& ar, boost::weak_ptr<T>& t,
+inline void load(Archive& ar, std::weak_ptr<T>& t,
                  const unsigned int /* file_version */
 )
 {
-  boost::shared_ptr<T> sp;
+  std::shared_ptr<T> sp;
   ar >> boost::serialization::make_nvp("weak_ptr", sp);
   t = sp;
 }
 
 template<class Archive, class T>
-inline void serialize(Archive& ar, boost::weak_ptr<T>& t,
+inline void serialize(Archive& ar, std::weak_ptr<T>& t,
                       const unsigned int file_version)
 {
   boost::serialization::split_free(ar, t, file_version);

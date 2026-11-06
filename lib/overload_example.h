@@ -3,7 +3,7 @@
 #include "numpy_sample.h"
 #include "printable.h"
 #include <blitz/array.h>
-#include <boost/shared_ptr.hpp>
+#include <memory>
 #include <string>
 
 namespace Skeleton {
@@ -19,7 +19,7 @@ public:
   OverloadExample() = default;
   ~OverloadExample() override = default;
   static std::string which(const blitz::Array<double, 2>&) { return "array"; }
-  static std::string which(const boost::shared_ptr<NumpySample>&)
+  static std::string which(const std::shared_ptr<NumpySample>&)
   {
     return "NumpySample";
   }

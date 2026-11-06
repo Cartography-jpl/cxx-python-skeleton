@@ -8,7 +8,7 @@ template<class Archive>
 void GenericObjectMap::serialize(Archive& ar, const unsigned int)
 {
   SKELETON_GENERIC_BASE(GenericObjectMap);
-  typedef std::map<std::string, boost::shared_ptr<GenericObject>>
+  typedef std::map<std::string, std::shared_ptr<GenericObject>>
       MapGenericObject;
   ar& BOOST_SERIALIZATION_BASE_OBJECT_NVP(MapGenericObject);
 }
