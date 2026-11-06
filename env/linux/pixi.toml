@@ -43,6 +43,9 @@ nanobind = "*"
 # Test coverage (claude_notes/implementation_plan.md section 4a, "make coverage")
 gcovr = "*"
 pytest-cov = "*"
+# addr2line, for function names and file:line in Exception::stacktrace()
+# (claude_notes/implementation_plan.md S1.5)
+binutils = "*"
 
 [pypi-dependencies]
 mkinit = "*"

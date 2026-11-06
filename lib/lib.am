@@ -11,7 +11,9 @@ lib_LTLIBRARIES += libskeleton.la
 # with --disable-new-dtags, so this is an RPATH, not a RUNPATH. Per-target
 # LDFLAGS come before $(LDFLAGS), so this puts .libs first. Don't use it for
 # installed programs: it would put the build directory in their rpath.
-UNINSTALLED_PROGRAM_LDFLAGS = -no-install -Wl,-rpath,$(abs_top_builddir)/.libs
+# (Not named *_LDFLAGS: automake would take that as the flags of a
+# program called UNINSTALLED_PROGRAM, and warn.)
+UNINSTALLED_PROGRAM_LINK_FLAGS = -no-install -Wl,-rpath,$(abs_top_builddir)/.libs
 
 #=================================================================
 # Unit test
@@ -19,7 +21,7 @@ UNINSTALLED_PROGRAM_LDFLAGS = -no-install -Wl,-rpath,$(abs_top_builddir)/.libs
 check_PROGRAMS = skeleton_test_all
 skeleton_test_all_SOURCES += @srclib@/test_all.cc
 skeleton_test_all_LDADD = libskeleton.la 
-skeleton_test_all_LDFLAGS = $(UNINSTALLED_PROGRAM_LDFLAGS)
+skeleton_test_all_LDFLAGS = $(UNINSTALLED_PROGRAM_LINK_FLAGS)
 skeleton_test_all_CPPFLAGS = $(AM_CPPFLAGS)
 TESTS+= @srclib@/test_all.sh
 EXTRA_DIST+= @srclib@/test_all.sh
@@ -37,6 +39,7 @@ skeletoninc_HEADERS+= @srclib@/generic_object_map.h
 libskeleton_la_SOURCES+= @srclib@/generic_object_map.cc
 skeletoninc_HEADERS+= @srclib@/printable.h
 skeletoninc_HEADERS+= @srclib@/skeleton_exception.h
+libskeleton_la_SOURCES+= @srclib@/skeleton_exception.cc
 skeletoninc_HEADERS+= @srclib@/iostream_swig.h
 libskeleton_la_SOURCES+= @srclib@/iostream_swig.cc
 skeletoninc_HEADERS+= @srclib@/blitz_array_serialize_support.h
@@ -94,7 +97,7 @@ skeleton_test_all_SOURCES+= @srclib@/serialize_function_test.cc
 check_PROGRAMS+= golden_archive_generator
 golden_archive_generator_SOURCES = @srclib@/golden_archive_generator.cc
 golden_archive_generator_LDADD = libskeleton.la
-golden_archive_generator_LDFLAGS = $(UNINSTALLED_PROGRAM_LDFLAGS)
+golden_archive_generator_LDFLAGS = $(UNINSTALLED_PROGRAM_LINK_FLAGS)
 golden_archive_generator_CPPFLAGS = $(AM_CPPFLAGS) $(BOOST_CPPFLAGS) $(BLITZ_CFLAGS)
 golden_archive_generator_CPPFLAGS+= -DSWIG_MAPPER_NAMESPACE=Skeleton
 

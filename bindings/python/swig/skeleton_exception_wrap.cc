@@ -6588,7 +6588,8 @@ static PyMethodDef SwigMethods[] = {
 		"Skeleton::Exception::Exception\n"
 		"Default constructor.  \n"
 		"\n"
-		"Can give an optional string describing the error.  \n"
+		"Can give an optional string describing the error. The string is used as is, it\n"
+		"isn't a format string.  \n"
 		"\n"
 		""},
 	 { "Exception_what", _wrap_Exception_what, METH_O, "\n"
@@ -6603,8 +6604,6 @@ static PyMethodDef SwigMethods[] = {
 		"delete_Exception(Exception self)\n"
 		"\n"
 		"Skeleton::Exception::~Exception\n"
-		"Destructor.  \n"
-		"\n"
 		""},
 	 { "Exception_swigregister", Exception_swigregister, METH_O, NULL},
 	 { "Exception_swiginit", Exception_swiginit, METH_VARARGS, NULL},
@@ -6640,7 +6639,8 @@ static PyMethodDef SwigMethods_proxydocs[] = {
 		"Skeleton::Exception::Exception\n"
 		"Default constructor.  \n"
 		"\n"
-		"Can give an optional string describing the error.  \n"
+		"Can give an optional string describing the error. The string is used as is, it\n"
+		"isn't a format string.  \n"
 		"\n"
 		""},
 	 { "Exception_what", _wrap_Exception_what, METH_O, "\n"
@@ -6655,8 +6655,6 @@ static PyMethodDef SwigMethods_proxydocs[] = {
 		"delete_Exception(Exception self)\n"
 		"\n"
 		"Skeleton::Exception::~Exception\n"
-		"Destructor.  \n"
-		"\n"
 		""},
 	 { "Exception_swigregister", Exception_swigregister, METH_O, NULL},
 	 { "Exception_swiginit", Exception_swiginit, METH_VARARGS, NULL},

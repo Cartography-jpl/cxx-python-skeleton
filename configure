@@ -732,6 +732,7 @@ PTHREAD_CC
 ax_pthread_config
 CPP
 HAVE_CXX20
+ADDR2LINE
 DEBUG_FLAGS
 CXXCPP
 LT_SYS_LIBRARY_PATH
@@ -20372,6 +20373,71 @@ fi
 if test "x$enable_debug" = "xyes" && test "x$GXX" = "xyes"; then
   CXXFLAGS="$CXXFLAGS -Wall -Wextra -Wdeprecated"
 fi
+
+#=================================================================
+# addr2line (binutils), used by Exception::stacktrace() to give
+# function names and file:line (Boost.Stacktrace's addr2line backend).
+# Boost runs it by absolute path, given as a macro that it turns back
+# into a string, so only accept a plain path. Without it the stack
+# trace has only addresses, plus names of exported symbols.
+#=================================================================
+
+# Extract the first word of "addr2line", so it can be a program name with args.
+set dummy addr2line; ac_word=$2
+{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for $ac_word" >&5
+printf %s "checking for $ac_word... " >&6; }
+if test ${ac_cv_path_ADDR2LINE+y}
+then :
+  printf %s "(cached) " >&6
+else case e in #(
+  e) case $ADDR2LINE in
+  [\\/]* | ?:[\\/]*)
+  ac_cv_path_ADDR2LINE="$ADDR2LINE" # Let the user override the test with a path.
+  ;;
+  *)
+  as_save_IFS=$IFS; IFS=$PATH_SEPARATOR
+for as_dir in $PATH
+do
+  IFS=$as_save_IFS
+  case $as_dir in #(((
+    '') as_dir=./ ;;
+    */) ;;
+    *) as_dir=$as_dir/ ;;
+  esac
+    for ac_exec_ext in '' $ac_executable_extensions; do
+  if as_fn_executable_p "$as_dir$ac_word$ac_exec_ext"; then
+    ac_cv_path_ADDR2LINE="$as_dir$ac_word$ac_exec_ext"
+    printf "%s\n" "$as_me:${as_lineno-$LINENO}: found $as_dir$ac_word$ac_exec_ext" >&5
+    break 2
+  fi
+done
+  done
+IFS=$as_save_IFS
+
+  ;;
+esac ;;
+esac
+fi
+ADDR2LINE=$ac_cv_path_ADDR2LINE
+if test -n "$ADDR2LINE"; then
+  { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $ADDR2LINE" >&5
+printf "%s\n" "$ADDR2LINE" >&6; }
+else
+  { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no" >&5
+printf "%s\n" "no" >&6; }
+fi
+
+
+case "$ADDR2LINE" in
+  "") ;;
+  *[!A-Za-z0-9/._-]*)
+    { printf "%s\n" "$as_me:${as_lineno-$LINENO}: WARNING: addr2line path $ADDR2LINE has unusual characters, not using it for stack traces" >&5
+printf "%s\n" "$as_me: WARNING: addr2line path $ADDR2LINE has unusual characters, not using it for stack traces" >&2;} ;;
+  *)
+
+printf "%s\n" "#define SKELETON_ADDR2LINE $ADDR2LINE" >>confdefs.h
+ ;;
+esac
 
 #=================================================================
 # Require C++20 (gcc >= 14, the minimum compiler tested; see

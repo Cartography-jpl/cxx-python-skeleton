@@ -20,6 +20,9 @@ libskeleton_la_LDFLAGS+= $(BOOST_SERIALIZATION_LIB)
 
 # Include blitz in builds
 libskeleton_la_LDFLAGS+= $(BLITZ_LIBS)
+# Boost.Stacktrace (header only, in skeleton_exception.cc) uses dladdr,
+# which is in libdl for glibc before 2.34 (e.g. the conda sysroot).
+libskeleton_la_LDFLAGS+= -ldl
 
 EXTRA_DIST+= README.md bootstrap
 EXTRA_DIST+= config/m4_local/README

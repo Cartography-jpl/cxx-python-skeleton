@@ -135,6 +135,13 @@ class Exception(skeleton_swig.generic_object.GenericObject):
     This can be written to like a stream to contain information about the exception.
     This is derived from the standard library std::exception  
 
+    The message can also be given as a std::format string:  
+
+    throw Exception("Line {} out of range [0, {})", ln, nline);  
+
+    The exception records where it was created (source_location()), and a stack
+    trace (stacktrace(), see capture_stacktrace).  
+
     C++ includes: skeleton_exception.h
 
     """
@@ -149,7 +156,8 @@ class Exception(skeleton_swig.generic_object.GenericObject):
         Skeleton::Exception::Exception
         Default constructor.  
 
-        Can give an optional string describing the error.  
+        Can give an optional string describing the error. The string is used as is, it
+        isn't a format string.  
 
         """
         _skeleton_exception.Exception_swiginit(self, _skeleton_exception.new_Exception(W))

@@ -61,6 +61,24 @@ if test "x$enable_debug" = "xyes" && test "x$GXX" = "xyes"; then
 fi
 
 #=================================================================
+# addr2line (binutils), used by Exception::stacktrace() to give
+# function names and file:line (Boost.Stacktrace's addr2line backend).
+# Boost runs it by absolute path, given as a macro that it turns back
+# into a string, so only accept a plain path. Without it the stack
+# trace has only addresses, plus names of exported symbols.
+#=================================================================
+
+AC_PATH_PROG([ADDR2LINE], [addr2line])
+case "$ADDR2LINE" in
+  "") ;;
+  *[[!A-Za-z0-9/._-]]*)
+    AC_MSG_WARN([addr2line path $ADDR2LINE has unusual characters, not using it for stack traces]) ;;
+  *)
+    AC_DEFINE_UNQUOTED([SKELETON_ADDR2LINE], [$ADDR2LINE],
+                       [Absolute path of addr2line, used for stack traces]) ;;
+esac
+
+#=================================================================
 # Require C++20 (gcc >= 14, the minimum compiler tested; see
 # claude_notes/implementation_plan.md phase S1). Use -std=c++20, not
 # gnu++20: nothing here needs the GNU extensions, and the strict mode

@@ -101,6 +101,9 @@
    your system. */
 #undef PTHREAD_CREATE_JOINABLE
 
+/* Absolute path of addr2line, used for stack traces */
+#undef SKELETON_ADDR2LINE
+
 /* Defined if we have boost serialization */
 #undef SKELETON_HAVE_BOOST_SERIALIZATION
 
