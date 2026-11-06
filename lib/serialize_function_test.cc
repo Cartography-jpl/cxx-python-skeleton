@@ -19,7 +19,7 @@ public:
   TempDir()
   {
     p = std::filesystem::temp_directory_path() /
-      ("skeleton_serialize_test_" + std::to_string(::getpid()));
+        ("skeleton_serialize_test_" + std::to_string(::getpid()));
     std::filesystem::remove_all(p);
     std::filesystem::create_directories(p / "sub");
   }
@@ -91,10 +91,10 @@ BOOST_AUTO_TEST_CASE(binary_file)
 
 BOOST_AUTO_TEST_CASE(string_round_trip)
 {
-  check_map(serialize_read_string<GenericObjectMap>
-            (serialize_write_string(sample_map())));
-  check_map(serialize_read_binary_string<GenericObjectMap>
-            (serialize_write_binary(sample_map())));
+  check_map(serialize_read_string<GenericObjectMap>(
+      serialize_write_string(sample_map())));
+  check_map(serialize_read_binary_string<GenericObjectMap>(
+      serialize_write_binary(sample_map())));
 }
 
 BOOST_AUTO_TEST_CASE(missing_file)

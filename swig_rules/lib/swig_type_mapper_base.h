@@ -11,11 +11,10 @@
 #include "generic_object.h"
 
 namespace SWIG_MAPPER_NAMESPACE {
-  /// Dummy class to use as a nice default for type_index
-class null_type {
-};
+/// Dummy class to use as a nice default for type_index
+class null_type {};
 
-/****************************************************************//**
+/****************************************************************/ /**
   This is a wrapper around std::type_info that allows it to be used
   as an index in a associative container.
 
@@ -28,43 +27,46 @@ class null_type {
 *******************************************************************/
 class type_index {
 public:
-
-//-----------------------------------------------------------------------
-/// Default constructor.
-//-----------------------------------------------------------------------
+  //-----------------------------------------------------------------------
+  /// Default constructor.
+  //-----------------------------------------------------------------------
 
   type_index() : id(&typeid(null_type)) {}
 
-//-----------------------------------------------------------------------
-/// Constructor
-//-----------------------------------------------------------------------
+  //-----------------------------------------------------------------------
+  /// Constructor
+  //-----------------------------------------------------------------------
 
   type_index(std::type_info const& id) : id(&id) {}
 
-//-----------------------------------------------------------------------
-/// Comparison operator
-//-----------------------------------------------------------------------
+  //-----------------------------------------------------------------------
+  /// Comparison operator
+  //-----------------------------------------------------------------------
 
   bool operator==(type_index const& other) const
-  { return std::strcmp(id->name(), other.id->name()) == 0;}
+  {
+    return std::strcmp(id->name(), other.id->name()) == 0;
+  }
 
-//-----------------------------------------------------------------------
-/// Ordering, for use as a std::map key (<, >, <= and >= come from this).
-//-----------------------------------------------------------------------
+  //-----------------------------------------------------------------------
+  /// Ordering, for use as a std::map key (<, >, <= and >= come from this).
+  //-----------------------------------------------------------------------
 
   std::strong_ordering operator<=>(type_index const& other) const
-  { return std::strcmp(id->name(), other.id->name()) <=> 0; }
+  {
+    return std::strcmp(id->name(), other.id->name()) <=> 0;
+  }
 
-//-----------------------------------------------------------------------
-/// Return type name.
-//-----------------------------------------------------------------------
+  //-----------------------------------------------------------------------
+  /// Return type name.
+  //-----------------------------------------------------------------------
 
-  std::string name() const {return id->name();}
+  std::string name() const { return id->name(); }
 private:
   std::type_info const* id;
 };
 
-/****************************************************************//**
+/****************************************************************/ /**
   One of the limitations of SWIG is that you can "lose" type
   information. If you pass a boost::shared_ptr<DerivedType> to an
   object holding a boost::shared_ptr<BaseType> p, then when you access
@@ -88,23 +90,27 @@ private:
 *******************************************************************/
 class SwigTypeMapperBase {
 public:
-  virtual bool is_python_director_check(const boost::shared_ptr<GenericObject>& V) const = 0;
-  virtual boost::shared_ptr<GenericObject> do_swig_python_director_setup(const boost::shared_ptr<GenericObject>& V) const = 0;
+  virtual bool
+  is_python_director_check(const boost::shared_ptr<GenericObject>& V) const = 0;
+  virtual boost::shared_ptr<GenericObject> do_swig_python_director_setup(
+      const boost::shared_ptr<GenericObject>& V) const = 0;
   virtual void* to_python(const boost::shared_ptr<GenericObject>& V) const = 0;
   virtual ~SwigTypeMapperBase() = default;
 
-//-----------------------------------------------------------------------
-/// Add a handler for the given type info. Normally this is called in
-/// the SWIG initialization of the class.
-//-----------------------------------------------------------------------
+  //-----------------------------------------------------------------------
+  /// Add a handler for the given type info. Normally this is called in
+  /// the SWIG initialization of the class.
+  //-----------------------------------------------------------------------
 
   static void add(std::type_info const& id,
                   const boost::shared_ptr<SwigTypeMapperBase>& v)
-  { swig_type_map[type_index(id)] = v; }
+  {
+    swig_type_map[type_index(id)] = v;
+  }
 
-//-----------------------------------------------------------------------
-/// Return true if object is a python director
-//-----------------------------------------------------------------------
+  //-----------------------------------------------------------------------
+  /// Return true if object is a python director
+  //-----------------------------------------------------------------------
   static bool is_python_director(const boost::shared_ptr<GenericObject>& V)
   {
     GenericObject& t(*V.get());
@@ -114,21 +120,21 @@ public:
     return false;
   }
 
-//-----------------------------------------------------------------------
-/// Finish setting up python director by setting "this" to the object.
-/// Note this is done here because we need access to the Python/SWIG
-/// headers. This gets called from serialize_shared_ptr, which doesn't
-/// easily have access to these header files. This actually doesn't
-/// depend at all on this particular class, it really just handles
-/// the header file issue.
-///
-/// This returns a possibly updated shared_ptr like V, which should
-/// replace the shared ptr we are creating. See DirectorNotes.md for
-/// a description of this.
-//-----------------------------------------------------------------------
+  //-----------------------------------------------------------------------
+  /// Finish setting up python director by setting "this" to the object.
+  /// Note this is done here because we need access to the Python/SWIG
+  /// headers. This gets called from serialize_shared_ptr, which doesn't
+  /// easily have access to these header files. This actually doesn't
+  /// depend at all on this particular class, it really just handles
+  /// the header file issue.
+  ///
+  /// This returns a possibly updated shared_ptr like V, which should
+  /// replace the shared ptr we are creating. See DirectorNotes.md for
+  /// a description of this.
+  //-----------------------------------------------------------------------
 
-  static boost::shared_ptr<GenericObject> swig_python_director_setup
-  (const boost::shared_ptr<GenericObject>& V)
+  static boost::shared_ptr<GenericObject>
+  swig_python_director_setup(const boost::shared_ptr<GenericObject>& V)
   {
     GenericObject& t(*V.get());
     type_index tid(typeid(t));
@@ -137,13 +143,12 @@ public:
     return V;
   }
 
-//-----------------------------------------------------------------------
-/// Return a python object (if we can convert), or 0 if we don't find
-/// the type.
-//-----------------------------------------------------------------------
+  //-----------------------------------------------------------------------
+  /// Return a python object (if we can convert), or 0 if we don't find
+  /// the type.
+  //-----------------------------------------------------------------------
 
-  static void*
-  map_to_python(const boost::shared_ptr<GenericObject>& V)
+  static void* map_to_python(const boost::shared_ptr<GenericObject>& V)
   {
     GenericObject& t(*V.get());
     type_index tid(typeid(t));
@@ -152,36 +157,34 @@ public:
     return nullptr;
   }
 
-//-----------------------------------------------------------------------
-/// Return a python object. This variation explicitly gives the type
-/// to use.
-//-----------------------------------------------------------------------
+  //-----------------------------------------------------------------------
+  /// Return a python object. This variation explicitly gives the type
+  /// to use.
+  //-----------------------------------------------------------------------
 
-  static void*
-  map_to_python(const boost::shared_ptr<GenericObject>& V,
-                std::type_info const& id)
+  static void* map_to_python(const boost::shared_ptr<GenericObject>& V,
+                             std::type_info const& id)
   {
     type_index tid(id);
     if(swig_type_map.count(tid) != 0)
       return swig_type_map[tid]->to_python(V);
     throw std::runtime_error("Unknown type");
   }
-  static void*
-  map_to_python(const boost::shared_ptr<GenericObject>& V,
-                const type_index& tid)
+  static void* map_to_python(const boost::shared_ptr<GenericObject>& V,
+                             const type_index& tid)
   {
     if(swig_type_map.count(tid) != 0)
       return swig_type_map[tid]->to_python(V);
     throw std::runtime_error("Unknown type");
   }
 private:
-//-----------------------------------------------------------------------
-/// Map to go from type_index to the SwigTypeMapperBase object
-/// associated with it.
-//-----------------------------------------------------------------------
+  //-----------------------------------------------------------------------
+  /// Map to go from type_index to the SwigTypeMapperBase object
+  /// associated with it.
+  //-----------------------------------------------------------------------
 
-  static std::map<type_index, boost::shared_ptr<SwigTypeMapperBase> >
-  swig_type_map;
+  static std::map<type_index, boost::shared_ptr<SwigTypeMapperBase>>
+      swig_type_map;
 };
 }
 #endif

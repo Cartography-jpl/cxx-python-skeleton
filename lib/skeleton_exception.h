@@ -25,15 +25,18 @@ namespace Skeleton {
 //-----------------------------------------------------------------------
 
 template<class... Args> struct ExceptionFormat {
-  template<class S> requires std::convertible_to<const S&, std::string_view>
-  consteval ExceptionFormat(const S& Fmt, std::source_location Loc =
-                            std::source_location::current())
-    : fmt(Fmt), loc(Loc) {}
+  template<class S>
+    requires std::convertible_to<const S&, std::string_view>
+  consteval ExceptionFormat(
+      const S& Fmt, std::source_location Loc = std::source_location::current())
+    : fmt(Fmt), loc(Loc)
+  {
+  }
   std::format_string<Args...> fmt;
   std::source_location loc;
 };
 
-/****************************************************************//**
+/****************************************************************/ /**
   This is the base of the exception hierarchy for Skeleton code. This
   can be written to like a stream to contain information about the
   exception. This is derived from the standard library std::exception
@@ -46,12 +49,12 @@ template<class... Args> struct ExceptionFormat {
   a stack trace (stacktrace(), see capture_stacktrace).
 *******************************************************************/
 
-class Exception: public std::exception, public Printable<Exception> {
+class Exception : public std::exception, public Printable<Exception> {
 public:
-//-----------------------------------------------------------------------
-/// Default constructor. Can give an optional string describing
-/// the error. The string is used as is, it isn't a format string.
-//-----------------------------------------------------------------------
+  //-----------------------------------------------------------------------
+  /// Default constructor. Can give an optional string describing
+  /// the error. The string is used as is, it isn't a format string.
+  //-----------------------------------------------------------------------
 
   Exception(const std::string& W = "",
             std::source_location Loc = std::source_location::current())
@@ -60,18 +63,18 @@ public:
     capture();
   }
 
-//-----------------------------------------------------------------------
-// Constructor taking a std::format format string and its arguments (see
-// the class description). Hidden from doxygen with \cond: doxy2swig gives
-// all constructor overloads one docstring, so this C++-only overload
-// would replace the text of the python Exception.__init__, which wraps
-// the constructor above.
-//-----------------------------------------------------------------------
+  //-----------------------------------------------------------------------
+  // Constructor taking a std::format format string and its arguments (see
+  // the class description). Hidden from doxygen with \cond: doxy2swig gives
+  // all constructor overloads one docstring, so this C++-only overload
+  // would replace the text of the python Exception.__init__, which wraps
+  // the constructor above.
+  //-----------------------------------------------------------------------
 
   /// \cond
-  template<class... Args> requires (sizeof...(Args) > 0)
-  Exception(ExceptionFormat<std::type_identity_t<Args>...> Fmt,
-            Args&&... A)
+  template<class... Args>
+    requires(sizeof...(Args) > 0)
+  Exception(ExceptionFormat<std::type_identity_t<Args>...> Fmt, Args&&... A)
     : msg_(std::format(Fmt.fmt, std::forward<Args>(A)...)), loc_(Fmt.loc)
   {
     capture();
@@ -82,11 +85,11 @@ public:
   Exception& operator=(const Exception& E) = default;
   ~Exception() noexcept override = default;
 
-//-----------------------------------------------------------------------
-/// Write to exception what() string. Stream manipulators carry over
-/// to later values, as for a stream (e.g. e << std::setprecision(8)
-/// << x << y formats both x and y with 8 digits).
-//-----------------------------------------------------------------------
+  //-----------------------------------------------------------------------
+  /// Write to exception what() string. Stream manipulators carry over
+  /// to later values, as for a stream (e.g. e << std::setprecision(8)
+  /// << x << y formats both x and y with 8 digits).
+  //-----------------------------------------------------------------------
 
   template<class T> inline Exception& operator<<(const T& V)
   {
@@ -104,9 +107,9 @@ public:
     return *this;
   }
 
-//-----------------------------------------------------------------------
-/// Print out description of object.
-//-----------------------------------------------------------------------
+  //-----------------------------------------------------------------------
+  /// Print out description of object.
+  //-----------------------------------------------------------------------
 
   virtual void print(std::ostream& Os) const
   {
@@ -116,36 +119,33 @@ public:
        << "=========================\n";
   }
 
-//-----------------------------------------------------------------------
-/// Description of what the error is.
-//-----------------------------------------------------------------------
+  //-----------------------------------------------------------------------
+  /// Description of what the error is.
+  //-----------------------------------------------------------------------
 
-  const char* what() const noexcept override
-  {
-    return msg_.c_str();
-  }
+  const char* what() const noexcept override { return msg_.c_str(); }
 
-//-----------------------------------------------------------------------
-/// Where the exception was created (file, line, function). For a
-/// derived exception class this is where its constructor called
-/// ours, unless it passes its own source_location through.
-//-----------------------------------------------------------------------
+  //-----------------------------------------------------------------------
+  /// Where the exception was created (file, line, function). For a
+  /// derived exception class this is where its constructor called
+  /// ours, unless it passes its own source_location through.
+  //-----------------------------------------------------------------------
 
   const std::source_location& source_location() const { return loc_; }
 
-//-----------------------------------------------------------------------
-/// The stack trace captured when the exception was created, one
-/// frame per line. Empty if capturing was turned off. Turning the
-/// addresses into function names is only done here, so it costs
-/// nothing unless it is asked for.
-//-----------------------------------------------------------------------
+  //-----------------------------------------------------------------------
+  /// The stack trace captured when the exception was created, one
+  /// frame per line. Empty if capturing was turned off. Turning the
+  /// addresses into function names is only done here, so it costs
+  /// nothing unless it is asked for.
+  //-----------------------------------------------------------------------
 
   std::string stacktrace() const;
 
-//-----------------------------------------------------------------------
-/// Turn capturing the stack trace on or off (on by default), for
-/// code that throws and catches exceptions often.
-//-----------------------------------------------------------------------
+  //-----------------------------------------------------------------------
+  /// Turn capturing the stack trace on or off (on by default), for
+  /// code that throws and catches exceptions often.
+  //-----------------------------------------------------------------------
 
   static void capture_stacktrace(bool V);
   static bool capture_stacktrace();
@@ -167,16 +167,13 @@ private:
 /// Range check
 //-----------------------------------------------------------------------
 
-template<class T> inline void range_check_template(
-const T&           Val,         // Value to be checked.
-const T&           Min,         // Minimum allowed value.
-const T&           Max,         // Maximum allowed value.
-const char*        File,
-int                Line
-)
+template<class T>
+inline void range_check_template(const T& Val, // Value to be checked.
+                                 const T& Min, // Minimum allowed value.
+                                 const T& Max, // Maximum allowed value.
+                                 const char* File, int Line)
 {
-  if(Val < Min ||
-     !(Val < Max)) {
+  if(Val < Min || !(Val < Max)) {
     Exception e;
     e << "Out of range error in file " << File << " at line " << Line << "\n"
       << "Value:           " << Val << "\n"
@@ -186,16 +183,14 @@ int                Line
   }
 }
 
-template<class T> inline void range_check_inclusive_template(
-const T&           Val,         // Value to be checked.
-const T&           Min,         // Minimum allowed value.
-const T&           Max,         // Maximum allowed value.
-const char*        File,
-int                Line
-)
+template<class T>
+inline void
+range_check_inclusive_template(const T& Val, // Value to be checked.
+                               const T& Min, // Minimum allowed value.
+                               const T& Max, // Maximum allowed value.
+                               const char* File, int Line)
 {
-  if(Val < Min ||
-     Val > Max) {
+  if(Val < Min || Val > Max) {
     Exception e;
     e << "Out of range error in file " << File << " at line " << Line << "\n"
       << "Value:           " << Val << "\n"
@@ -209,21 +204,19 @@ int                Line
 /// Range check
 //-----------------------------------------------------------------------
 
-#define range_check(V, Min, Max) \
-      Skeleton::range_check_template(V, Min, Max, __FILE__, __LINE__)
-#define range_check_inclusive(V, Min, Max) \
-      Skeleton::range_check_inclusive_template(V, Min, Max, __FILE__, __LINE__)
+#define range_check(V, Min, Max)                                               \
+  Skeleton::range_check_template(V, Min, Max, __FILE__, __LINE__)
+#define range_check_inclusive(V, Min, Max)                                     \
+  Skeleton::range_check_inclusive_template(V, Min, Max, __FILE__, __LINE__)
 
 //-----------------------------------------------------------------------
 /// Range check
 //-----------------------------------------------------------------------
 
-template<class T> inline void range_min_check_template(
-const T&           Val,         // Value to be checked.
-const T&           Min,         // Minimum allowed value.
-const char*        File,
-int                Line
-)
+template<class T>
+inline void range_min_check_template(const T& Val, // Value to be checked.
+                                     const T& Min, // Minimum allowed value.
+                                     const char* File, int Line)
 {
   if(Val < Min) {
     Exception e;
@@ -238,19 +231,17 @@ int                Line
 /// Range check
 //-----------------------------------------------------------------------
 
-#define range_min_check(V, Min) \
-      Skeleton::range_min_check_template(V, Min, __FILE__, __LINE__)
+#define range_min_check(V, Min)                                                \
+  Skeleton::range_min_check_template(V, Min, __FILE__, __LINE__)
 
 //-----------------------------------------------------------------------
 /// Range check
 //-----------------------------------------------------------------------
 
-template<class T> inline void range_max_check_template(
-const T&           Val,         // Value to be checked.
-const T&           Max,         // Maximum allowed value.
-const char*        File,
-int                Line
-)
+template<class T>
+inline void range_max_check_template(const T& Val, // Value to be checked.
+                                     const T& Max, // Maximum allowed value.
+                                     const char* File, int Line)
 {
   if(!(Val < Max)) {
     Exception e;
@@ -265,8 +256,8 @@ int                Line
 /// Range check
 //-----------------------------------------------------------------------
 
-#define range_max_check(V, Max) \
-      Skeleton::range_max_check_template(V, Max, __FILE__, __LINE__)
+#define range_max_check(V, Max)                                                \
+  Skeleton::range_max_check_template(V, Max, __FILE__, __LINE__)
 
 }
 /*@}*/

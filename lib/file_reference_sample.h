@@ -8,7 +8,7 @@
 #include <vector>
 
 namespace Skeleton {
-/****************************************************************//**
+/****************************************************************/ /**
   A class that refers to a file by a (possibly relative) name, and
   reads it when created or loaded. This is like geocal's AirMspiIgc,
   which uses %pickle_serialization_dir so a pickle can be loaded from
@@ -17,13 +17,14 @@ namespace Skeleton {
 *******************************************************************/
 class FileReferenceSample : public Printable<FileReferenceSample> {
 public:
-  FileReferenceSample(const std::string& Fname)
-    : fname_(Fname) { read(); }
+  FileReferenceSample(const std::string& Fname) : fname_(Fname) { read(); }
   ~FileReferenceSample() override = default;
   const std::string& file_name() const { return fname_; }
   const std::string& contents() const { return contents_; }
   virtual void print(std::ostream& Os) const
-  { Os << "FileReferenceSample(" << fname_ << ")"; }
+  {
+    Os << "FileReferenceSample(" << fname_ << ")";
+  }
 private:
   void read()
   {
@@ -38,8 +39,7 @@ private:
   friend class boost::serialization::access;
   template<class Archive>
   void save(Archive& ar, const unsigned int version) const;
-  template<class Archive>
-  void load(Archive& ar, const unsigned int version);
+  template<class Archive> void load(Archive& ar, const unsigned int version);
   SKELETON_SPLIT_MEMBER();
 };
 
@@ -49,9 +49,9 @@ private:
 /// swig_rules' type mapper).
 //-----------------------------------------------------------------------
 
-inline std::vector<boost::shared_ptr<GenericObject> > generic_object_list()
+inline std::vector<boost::shared_ptr<GenericObject>> generic_object_list()
 {
-  std::vector<boost::shared_ptr<GenericObject> > res;
+  std::vector<boost::shared_ptr<GenericObject>> res;
   auto a = boost::make_shared<GenericObjectA>(1);
   res.push_back(a);
   res.push_back(boost::make_shared<GenericObjectB>(a));
@@ -61,7 +61,9 @@ inline std::vector<boost::shared_ptr<GenericObject> > generic_object_list()
 }
 
 inline boost::shared_ptr<GenericObject> generic_object_index(int I)
-{ return generic_object_list()[I]; }
+{
+  return generic_object_list()[I];
+}
 }
 
 SKELETON_EXPORT_KEY(FileReferenceSample);

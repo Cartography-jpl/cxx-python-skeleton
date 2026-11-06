@@ -6,7 +6,7 @@
 //#define PTR_DEBUG 1
 
 namespace SWIG_MAPPER_NAMESPACE {
-/****************************************************************//**
+/****************************************************************/ /**
   Important - you can only include this header file if you have
   included the swig header stuff, e.g. normally only if you are using
   this in swig code. For geocal, this just gets included by
@@ -19,23 +19,23 @@ namespace SWIG_MAPPER_NAMESPACE {
 /// Function to map from a shared point to a python object.
 //-----------------------------------------------------------------------
 
-template<typename T> inline PyObject*
-swig_to_python(const boost::shared_ptr<T>& V)
+template<typename T>
+inline PyObject* swig_to_python(const boost::shared_ptr<T>& V)
 {
 
-//-----------------------------------------------------------------------
-// If pointer is Null, return None.
-//-----------------------------------------------------------------------
+  //-----------------------------------------------------------------------
+  // If pointer is Null, return None.
+  //-----------------------------------------------------------------------
 
   if(!V) {
     Py_INCREF(Py_None);
     return Py_None;
   }
 
-//-----------------------------------------------------------------------
-// If underlying object is a python object wrapped in a
-// Swig::Director, return the underlying python object
-//-----------------------------------------------------------------------
+  //-----------------------------------------------------------------------
+  // If underlying object is a python object wrapped in a
+  // Swig::Director, return the underlying python object
+  //-----------------------------------------------------------------------
 
   Swig::Director* d = dynamic_cast<Swig::Director*>(V.get());
   if(d) {
@@ -44,20 +44,20 @@ swig_to_python(const boost::shared_ptr<T>& V)
     return p;
   }
 
-//-----------------------------------------------------------------------
-// See if underlying type is registered in swig_type_map. If so, return the
-// underlying type
-//-----------------------------------------------------------------------
+  //-----------------------------------------------------------------------
+  // See if underlying type is registered in swig_type_map. If so, return the
+  // underlying type
+  //-----------------------------------------------------------------------
 
   void* p = SwigTypeMapperBase::map_to_python(V);
   if(p)
-    return (PyObject*) p;
+    return (PyObject*)p;
 
-//-----------------------------------------------------------------------
-// Otherwise, fall back to returning the type T.
-//-----------------------------------------------------------------------
+  //-----------------------------------------------------------------------
+  // Otherwise, fall back to returning the type T.
+  //-----------------------------------------------------------------------
 
-  return (PyObject*) SwigTypeMapperBase::map_to_python(V, typeid(T));
+  return (PyObject*)SwigTypeMapperBase::map_to_python(V, typeid(T));
 }
 
 // The lifetime of the python director object is a little different for things
@@ -66,66 +66,70 @@ swig_to_python(const boost::shared_ptr<T>& V)
 // Py_INCREF. I think the only place this gets used is
 // serialize_function.i, but you might have other examples of this
 
-
 inline PyObject*
 swig_to_python_or_none(const boost::shared_ptr<GenericObject>& V)
 {
-//-----------------------------------------------------------------------
-// If pointer is Null, return None.
-//-----------------------------------------------------------------------
+  //-----------------------------------------------------------------------
+  // If pointer is Null, return None.
+  //-----------------------------------------------------------------------
 
   if(!V) {
     Py_INCREF(Py_None);
     return Py_None;
   }
 
-//-----------------------------------------------------------------------
-// If underlying object is a python object wrapped in a
-// Swig::Director, return the underlying python object
-//-----------------------------------------------------------------------
+  //-----------------------------------------------------------------------
+  // If underlying object is a python object wrapped in a
+  // Swig::Director, return the underlying python object
+  //-----------------------------------------------------------------------
 
   Swig::Director* d = dynamic_cast<Swig::Director*>(V.get());
   if(d) {
     PyObject* p = d->swig_get_self();
 #ifdef PTR_DEBUG
     std::cerr << "In swig_to_python_or_none\n";
-    std::cerr << "p refcnt: " << p->ob_refcnt << " address " << p->ob_type << "\n";
+    std::cerr << "p refcnt: " << p->ob_refcnt << " address " << p->ob_type
+              << "\n";
 #endif
     Py_INCREF(p);
     return p;
   }
 
-//-----------------------------------------------------------------------
-// See if underlying type is registered in swig_type_map. If so, return the
-// underlying type
-//-----------------------------------------------------------------------
+  //-----------------------------------------------------------------------
+  // See if underlying type is registered in swig_type_map. If so, return the
+  // underlying type
+  //-----------------------------------------------------------------------
 
   void* p = SwigTypeMapperBase::map_to_python(V);
   if(p)
-    return (PyObject*) p;
+    return (PyObject*)p;
 
-//-----------------------------------------------------------------------
-// Otherwise, return Py_None
-//-----------------------------------------------------------------------
+  //-----------------------------------------------------------------------
+  // Otherwise, return Py_None
+  //-----------------------------------------------------------------------
 
   Py_INCREF(Py_None);
   return Py_None;
 }
 
-template<typename T> inline PyObject*
-swig_to_python(const boost::shared_ptr<T>* V)
-{ return swig_to_python(*V); }
+template<typename T>
+inline PyObject* swig_to_python(const boost::shared_ptr<T>* V)
+{
+  return swig_to_python(*V);
+}
 
 inline PyObject*
 swig_to_python_or_none(const boost::shared_ptr<GenericObject>* V)
-{ return swig_to_python_or_none(*V); }
+{
+  return swig_to_python_or_none(*V);
+}
 
 //-----------------------------------------------------------------------
 /// Function to map from a vector shared point to a python object.
 //-----------------------------------------------------------------------
 
-template<typename T> inline PyObject*
-swig_to_python(const std::vector<boost::shared_ptr<T> >& V)
+template<typename T>
+inline PyObject* swig_to_python(const std::vector<boost::shared_ptr<T>>& V)
 {
   PyObject* res = PyList_New(V.size());
   if(!res)
@@ -135,14 +139,15 @@ swig_to_python(const std::vector<boost::shared_ptr<T> >& V)
   return res;
 }
 
-template<typename T> inline PyObject*
-swig_to_python(const std::vector<boost::shared_ptr<T> >* V)
+template<typename T>
+inline PyObject* swig_to_python(const std::vector<boost::shared_ptr<T>>* V)
 {
   return swig_to_python(*V);
 }
 
-template<typename T> inline PyObject*
-swig_to_python(const std::vector<std::vector<boost::shared_ptr<T> > >& V)
+template<typename T>
+inline PyObject*
+swig_to_python(const std::vector<std::vector<boost::shared_ptr<T>>>& V)
 {
   PyObject* res = PyList_New(V.size());
   if(!res)
@@ -152,8 +157,9 @@ swig_to_python(const std::vector<std::vector<boost::shared_ptr<T> > >& V)
   return res;
 }
 
-template<typename T> inline PyObject*
-swig_to_python(const std::vector<std::vector<boost::shared_ptr<T> > >* V)
+template<typename T>
+inline PyObject*
+swig_to_python(const std::vector<std::vector<boost::shared_ptr<T>>>* V)
 {
   return swig_to_python(*V);
 }

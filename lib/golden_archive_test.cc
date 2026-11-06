@@ -23,12 +23,13 @@ BOOST_FIXTURE_TEST_SUITE(golden_archive, GlobalFixture)
 
 #ifdef SKELETON_HAVE_BOOST_SERIALIZATION
 namespace {
-template<class T> boost::shared_ptr<T>
-read_golden(const std::string& Dir, const std::string& Name, bool Binary)
+template<class T>
+boost::shared_ptr<T> read_golden(const std::string& Dir,
+                                 const std::string& Name, bool Binary)
 {
   std::string f = Dir + "golden/" + Name + (Binary ? ".bin" : ".xml");
-  boost::shared_ptr<T> r = Binary ? serialize_read_binary<T>(f) :
-    serialize_read<T>(f);
+  boost::shared_ptr<T> r =
+      Binary ? serialize_read_binary<T>(f) : serialize_read<T>(f);
   BOOST_REQUIRE(r);
   return r;
 }
@@ -77,8 +78,8 @@ void check_string_array(const std::string& Dir, const std::string& Name,
     BOOST_CHECK_EQUAL(a.data()[i], "s" + std::to_string(i));
 }
 
-template<class T> void check_arrays(const std::string& Dir,
-                                    const std::string& Type, bool Binary)
+template<class T>
+void check_arrays(const std::string& Dir, const std::string& Type, bool Binary)
 {
   std::string b = "blitz_" + Type + "_array_";
   check_array<T, 1>(Dir, b + "1d", Binary);
@@ -92,13 +93,17 @@ template<class T> void check_arrays(const std::string& Dir,
 BOOST_AUTO_TEST_CASE(generic_objects)
 {
   for(bool binary : {false, true}) {
-    auto a = read_golden<GenericObjectA>(test_data_dir(), "generic_object_a", binary);
+    auto a = read_golden<GenericObjectA>(test_data_dir(), "generic_object_a",
+                                         binary);
     BOOST_CHECK_EQUAL(a->v(), 7);
-    auto b = read_golden<GenericObjectB>(test_data_dir(), "generic_object_b", binary);
+    auto b = read_golden<GenericObjectB>(test_data_dir(), "generic_object_b",
+                                         binary);
     BOOST_CHECK_EQUAL(b->a()->v(), 7);
-    auto b2 = read_golden<GenericObjectB2>(test_data_dir(), "generic_object_b2", binary);
+    auto b2 = read_golden<GenericObjectB2>(test_data_dir(), "generic_object_b2",
+                                           binary);
     BOOST_CHECK_EQUAL(b2->a().v(), 8);
-    auto c = read_golden<GenericObjectC>(test_data_dir(), "generic_object_c", binary);
+    auto c = read_golden<GenericObjectC>(test_data_dir(), "generic_object_c",
+                                         binary);
     BOOST_CHECK(!c->a());
   }
 }
@@ -125,23 +130,23 @@ BOOST_AUTO_TEST_CASE(array_sample)
     BOOST_CHECK_EQUAL(*a->scale(), 2.5);
     // Both empty; count is set in a default constructed ArraySample, so
     // this also checks that loading clears it.
-    auto e = read_golden<ArraySample>(test_data_dir(), "array_sample_empty",
-                                      binary);
+    auto e =
+        read_golden<ArraySample>(test_data_dir(), "array_sample_empty", binary);
     BOOST_CHECK(!e->count());
     BOOST_CHECK(!e->scale());
     BOOST_CHECK_EQUAL(e->position_[2], 3);
     BOOST_CHECK_EQUAL(e->matrix()(1, 2), 6);
     // Writing what we read gives the golden file byte for byte, so the
     // archive layout is unchanged too, not just readable.
-    for(auto [name, obj] : {std::pair{"array_sample", a},
-                            std::pair{"array_sample_empty", e}}) {
-      std::string f = test_data_dir() + "golden/" + name +
-        (binary ? ".bin" : ".xml");
+    for(auto [name, obj] :
+        {std::pair{"array_sample", a}, std::pair{"array_sample_empty", e}}) {
+      std::string f =
+          test_data_dir() + "golden/" + name + (binary ? ".bin" : ".xml");
       std::ifstream in(f, std::ios::binary);
       std::string golden((std::istreambuf_iterator<char>(in)),
                          std::istreambuf_iterator<char>());
-      std::string rewritten = binary ? serialize_write_binary(obj) :
-        serialize_write_string(obj);
+      std::string rewritten =
+          binary ? serialize_write_binary(obj) : serialize_write_string(obj);
       BOOST_CHECK_MESSAGE(rewritten == golden, f << " rewritten differs");
     }
   }
@@ -150,7 +155,8 @@ BOOST_AUTO_TEST_CASE(array_sample)
 BOOST_AUTO_TEST_CASE(generic_object_map)
 {
   for(bool binary : {false, true}) {
-    auto m = read_golden<GenericObjectMap>(test_data_dir(), "generic_object_map", binary);
+    auto m = read_golden<GenericObjectMap>(test_data_dir(),
+                                           "generic_object_map", binary);
     BOOST_CHECK_EQUAL(m->size(), 4u);
     auto a = m->get<GenericObjectA>("a");
     auto b = m->get<GenericObjectB>("b");
@@ -167,21 +173,25 @@ BOOST_AUTO_TEST_CASE(generic_object_map)
 BOOST_AUTO_TEST_CASE(director_example)
 {
   for(bool binary : {false, true}) {
-    auto e1 = read_golden<DirectorExample>(test_data_dir(), "director_example", binary);
+    auto e1 = read_golden<DirectorExample>(test_data_dir(), "director_example",
+                                           binary);
     BOOST_CHECK_EQUAL(e1->name(), "e1");
     BOOST_CHECK_EQUAL(e1->func(10), 15);
-    auto e2 = read_golden<DirectorExampleNested>(test_data_dir(), "director_example_nested", binary);
+    auto e2 = read_golden<DirectorExampleNested>(
+        test_data_dir(), "director_example_nested", binary);
     BOOST_CHECK_EQUAL(e2->name(), "e2");
     BOOST_CHECK_EQUAL(e2->func(10), 16);
     BOOST_CHECK_EQUAL(e2->obj()->name(), "e1");
-    auto m = read_golden<GenericObjectMap>(test_data_dir(), "director_example_map", binary);
+    auto m = read_golden<GenericObjectMap>(test_data_dir(),
+                                           "director_example_map", binary);
     auto m1 = m->get<DirectorExample>("e1");
     auto m2 = m->get<DirectorExampleNested>("e2");
     auto mw = m->get<DirectorExampleWeakPtr>("weak");
     BOOST_REQUIRE(m1 && m2 && mw);
     BOOST_CHECK(m2->obj().get() == m1.get());
     BOOST_CHECK(mw->a().get() == m1.get());
-    auto u = read_golden<DirectorExampleUser>(test_data_dir(), "director_example_user", binary);
+    auto u = read_golden<DirectorExampleUser>(test_data_dir(),
+                                              "director_example_user", binary);
     BOOST_CHECK_EQUAL(u->value()->name(), "e1");
     BOOST_REQUIRE_EQUAL(u->value_vec().size(), 2u);
     BOOST_CHECK_EQUAL(u->value_vec()[1]->name(), "e2");

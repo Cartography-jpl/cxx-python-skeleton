@@ -8,7 +8,7 @@ template<class Archive>
 void FileReferenceSample::save(Archive& ar, const unsigned int) const
 {
   SKELETON_GENERIC_BASE(FileReferenceSample);
-  ar & SKELETON_NVP_(fname);
+  ar& SKELETON_NVP_(fname);
 }
 
 // Like geocal's AirMspiIgc, we read the file when loading, so a relative
@@ -17,7 +17,7 @@ template<class Archive>
 void FileReferenceSample::load(Archive& ar, const unsigned int)
 {
   SKELETON_GENERIC_BASE(FileReferenceSample);
-  ar & SKELETON_NVP_(fname);
+  ar& SKELETON_NVP_(fname);
   read();
 }
 

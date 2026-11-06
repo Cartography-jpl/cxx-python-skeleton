@@ -1,0 +1,31 @@
+# Tuned to GeoCal's existing (Emacs GNU-ish) style
+BasedOnStyle: LLVM
+IndentWidth: 2
+ColumnLimit: 80
+UseTab: Never
+AccessModifierOffset: -2
+NamespaceIndentation: None
+PointerAlignment: Left
+ReferenceAlignment: Left
+SpaceBeforeParens: Never
+SpaceAfterTemplateKeyword: false
+BreakBeforeBraces: Custom
+BraceWrapping:
+  AfterFunction: true
+  AfterClass: false
+  AfterStruct: false
+  AfterNamespace: false
+  AfterControlStatement: Never
+  BeforeElse: false
+  BeforeCatch: false
+  SplitEmptyFunction: false
+AllowShortFunctionsOnASingleLine: All
+AllowShortIfStatementsOnASingleLine: WithoutElse
+AllowShortLoopsOnASingleLine: true
+AlwaysBreakTemplateDeclarations: Yes
+SortIncludes: Never
+ReflowComments: false
+Standard: c++20
+EmptyLineBeforeAccessModifier: Leave
+FixNamespaceComments: false
+ConstructorInitializerIndentWidth: 2

@@ -1,0 +1,17 @@
+# clang-tidy checks for "make lint" (the same file is used in swig-rules-skeleton
+# and geocal). These are the checks applied in phase S1.3 of
+# claude_notes/implementation_plan.md (swig-rules-skeleton), so new code keeps
+# to them. Add a check here only after the code has been cleaned up for it.
+Checks: >
+  -*,
+  modernize-use-override,
+  modernize-use-nullptr,
+  modernize-use-noexcept,
+  modernize-use-equals-default,
+  modernize-make-shared,
+  modernize-loop-convert,
+  modernize-deprecated-headers
+# Report on our headers too, but not on generated wrappers, vendored code or
+# copies of upstream code.
+HeaderFilterRegex: '.*/(lib|swig_rules/lib)/.*'
+ExcludeHeaderFilterRegex: '.*/(bindings|thirdparty|boost_fix)/.*|.*/Support/boost/.*'

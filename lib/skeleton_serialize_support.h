@@ -24,22 +24,24 @@
 
 // Do this a lot, so give a shortcut for this
 #define SKELETON_NVP(x) BOOST_SERIALIZATION_NVP(x)
-#define SKELETON_NVP_(x) boost::serialization::make_nvp(BOOST_PP_STRINGIZE(x), x ## _)
+#define SKELETON_NVP_(x)                                                       \
+  boost::serialization::make_nvp(BOOST_PP_STRINGIZE(x), x##_)
 #define SKELETON_NVP2(x, y) boost::serialization::make_nvp(x, y)
-#define SKELETON_IMPLEMENT(NAME) \
-BOOST_CLASS_EXPORT_IMPLEMENT(Skeleton::NAME); \
-template void NAME::serialize(boost::archive::polymorphic_oarchive& ar, \
-                                    const unsigned int version); \
-template void NAME::serialize(boost::archive::polymorphic_iarchive& ar, \
-                                    const unsigned int version);
-#define SKELETON_SPLIT_IMPLEMENT(NAME) \
-BOOST_CLASS_EXPORT_IMPLEMENT(Skeleton::NAME); \
-template void NAME::save(boost::archive::polymorphic_oarchive& ar, \
-                                    const unsigned int version) const; \
-template void NAME::load(boost::archive::polymorphic_iarchive& ar, \
-                                    const unsigned int version);
+#define SKELETON_IMPLEMENT(NAME)                                               \
+  BOOST_CLASS_EXPORT_IMPLEMENT(Skeleton::NAME);                                \
+  template void NAME::serialize(boost::archive::polymorphic_oarchive& ar,      \
+                                const unsigned int version);                   \
+  template void NAME::serialize(boost::archive::polymorphic_iarchive& ar,      \
+                                const unsigned int version);
+#define SKELETON_SPLIT_IMPLEMENT(NAME)                                         \
+  BOOST_CLASS_EXPORT_IMPLEMENT(Skeleton::NAME);                                \
+  template void NAME::save(boost::archive::polymorphic_oarchive& ar,           \
+                           const unsigned int version) const;                  \
+  template void NAME::load(boost::archive::polymorphic_iarchive& ar,           \
+                           const unsigned int version);
 
-#define SKELETON_BASE(NAME,BASE) boost::serialization::void_cast_register<Skeleton::NAME, Skeleton::BASE>();
+#define SKELETON_BASE(NAME, BASE)                                              \
+  boost::serialization::void_cast_register<Skeleton::NAME, Skeleton::BASE>();
 #define SKELETON_GENERIC_BASE(NAME) SKELETON_BASE(NAME, GenericObject);
 
 using boost::archive::polymorphic_iarchive;

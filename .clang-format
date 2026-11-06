@@ -1,0 +1,44 @@
+# Adopted in swig-rules-skeleton and geocal (maintainer, 2026-11-05). See
+# claude_notes/implementation_plan.md (swig-rules-skeleton), phase S1.6,
+# section 5b (how this configuration was found) and decision 21.
+#
+# The same file is used in swig-rules-skeleton and geocal. The options were
+# found with clang-format-auto-infer (github.com/ammen99/clang-format-auto-infer),
+# which searches for the configuration that changes the existing code the
+# least, starting from claude_notes/clang_format_trial.clang-format. Standard,
+# SortIncludes, QualifierAlignment and UseTab were fixed by hand, for
+# correctness (c++03 misparses C++20; reordering includes or qualifiers can
+# change meaning). Tested with clang-format 22.
+#
+# Not reproducible by any option: //--- doxygen blocks inside a class are
+# indented to the member level, and a "/****//**" banner becomes "/****/ /**".
+AccessModifierOffset: -2
+AllowShortFunctionsOnASingleLine: InlineOnly
+AllowShortIfStatementsOnASingleLine: Never
+AllowShortLoopsOnASingleLine: false
+AlwaysBreakTemplateDeclarations: false
+BasedOnStyle: LLVM
+BraceWrapping:
+  AfterClass: false
+  AfterControlStatement: Never
+  AfterFunction: true
+  AfterNamespace: false
+  AfterStruct: false
+  BeforeCatch: false
+  BeforeElse: false
+  SplitEmptyFunction: true
+BreakBeforeBraces: Custom
+ColumnLimit: 80
+ConstructorInitializerIndentWidth: 2
+EmptyLineBeforeAccessModifier: Leave
+FixNamespaceComments: false
+IndentWidth: 2
+NamespaceIndentation: None
+PointerAlignment: Left
+ReferenceAlignment: Left
+ReflowComments: false
+SortIncludes: Never
+SpaceAfterTemplateKeyword: false
+SpaceBeforeParens: Never
+Standard: c++20
+UseTab: Never

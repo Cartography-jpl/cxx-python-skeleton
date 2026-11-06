@@ -7,7 +7,7 @@
 #include <stdexcept>
 
 namespace Skeleton {
-/****************************************************************//**
+/****************************************************************/ /**
   A serialized class with fixed size array and optional members, the
   kind geocal has (boost::array is used in about 700 places there).
   Phase S3 of claude_notes/implementation_plan.md converts these to
@@ -22,19 +22,20 @@ class ArraySample : public Printable<ArraySample> {
 public:
   ArraySample()
     : position_{{1, 2, 3}}, matrix_{{{{1, 2, 3}}, {{4, 5, 6}}}}, count_(7)
-  {}
+  {
+  }
   ~ArraySample() override = default;
 
-//-----------------------------------------------------------------------
-/// A 3-vector. Public, because %python_attribute_boost_array uses the
-/// member directly.
-//-----------------------------------------------------------------------
+  //-----------------------------------------------------------------------
+  /// A 3-vector. Public, because %python_attribute_boost_array uses the
+  /// member directly.
+  //-----------------------------------------------------------------------
 
   boost::array<double, 3> position_;
 
-//-----------------------------------------------------------------------
-/// A 2 x 3 matrix, stored as an array of arrays.
-//-----------------------------------------------------------------------
+  //-----------------------------------------------------------------------
+  /// A 2 x 3 matrix, stored as an array of arrays.
+  //-----------------------------------------------------------------------
 
   blitz::Array<double, 2> matrix() const
   {
@@ -53,9 +54,9 @@ public:
         matrix_[i][j] = M(i, j);
   }
 
-//-----------------------------------------------------------------------
-/// Optional values. count is set by default, scale is empty.
-//-----------------------------------------------------------------------
+  //-----------------------------------------------------------------------
+  /// Optional values. count is set by default, scale is empty.
+  //-----------------------------------------------------------------------
 
   const boost::optional<int>& count() const { return count_; }
   void count(const boost::optional<int>& V) { count_ = V; }

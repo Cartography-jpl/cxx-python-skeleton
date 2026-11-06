@@ -8,7 +8,7 @@
 
 namespace Skeleton {
 
-/****************************************************************//**
+/****************************************************************/ /**
   This is a Mixin for classes that can be printed.
 
   There are two different functions we want to use for printing. For
@@ -30,10 +30,10 @@ namespace Skeleton {
 
 template<class T> class Printable : public virtual GenericObject {
 public:
-//-----------------------------------------------------------------------
-/// Print to string. This is primarily useful for SWIG wrappers to
-/// this class, e.g. a to_s method in ruby.
-//-----------------------------------------------------------------------
+  //-----------------------------------------------------------------------
+  /// Print to string. This is primarily useful for SWIG wrappers to
+  /// this class, e.g. a to_s method in ruby.
+  //-----------------------------------------------------------------------
 
   std::string print_to_string() const
   {
@@ -56,12 +56,15 @@ public:
       static_cast<const T*>(this)->print(Os);
   }
 
-//-----------------------------------------------------------------------
-/// Print to stream.
-//-----------------------------------------------------------------------
+  //-----------------------------------------------------------------------
+  /// Print to stream.
+  //-----------------------------------------------------------------------
 
   friend std::ostream& operator<<(std::ostream& Os, const T& P)
-  { P.print_wrapper(Os); return Os;}
+  {
+    P.print_wrapper(Os);
+    return Os;
+  }
 };
 
 //-----------------------------------------------------------------------
@@ -70,9 +73,8 @@ public:
 //-----------------------------------------------------------------------
 
 template<class T>
-concept PrintableObject = requires(const T& V, std::ostream& Os) {
-  V.print_wrapper(Os);
-};
+concept PrintableObject =
+    requires(const T& V, std::ostream& Os) { V.print_wrapper(Os); };
 }
 
 //-----------------------------------------------------------------------

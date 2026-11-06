@@ -8,7 +8,7 @@ template<class Archive>
 void GenericObjectA::serialize(Archive& ar, const unsigned int)
 {
   SKELETON_GENERIC_BASE(GenericObjectA);
-  ar & SKELETON_NVP_(v);
+  ar& SKELETON_NVP_(v);
   add_ptr_serialized_reference(this);
 }
 
@@ -16,21 +16,21 @@ template<class Archive>
 void GenericObjectB::serialize(Archive& ar, const unsigned int)
 {
   SKELETON_GENERIC_BASE(GenericObjectB);
-  ar & SKELETON_NVP_(a);
+  ar& SKELETON_NVP_(a);
 }
 
 template<class Archive>
 void GenericObjectB2::serialize(Archive& ar, const unsigned int)
 {
   SKELETON_GENERIC_BASE(GenericObjectB2);
-  ar & SKELETON_NVP_(a);
+  ar& SKELETON_NVP_(a);
 }
 
 template<class Archive>
 void GenericObjectC::serialize(Archive& ar, const unsigned int)
 {
   SKELETON_GENERIC_BASE(GenericObjectC);
-  ar & SKELETON_NVP_(a);
+  ar& SKELETON_NVP_(a);
 }
 
 SKELETON_IMPLEMENT(GenericObjectA);

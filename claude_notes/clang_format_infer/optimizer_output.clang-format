@@ -1,0 +1,30 @@
+AccessModifierOffset: -2
+AllowShortFunctionsOnASingleLine: InlineOnly
+AllowShortIfStatementsOnASingleLine: Never
+AllowShortLoopsOnASingleLine: false
+AlwaysBreakTemplateDeclarations: false
+BasedOnStyle: LLVM
+BraceWrapping:
+  AfterClass: false
+  AfterControlStatement: Never
+  AfterFunction: true
+  AfterNamespace: false
+  AfterStruct: false
+  BeforeCatch: false
+  BeforeElse: false
+  SplitEmptyFunction: true
+BreakBeforeBraces: Custom
+ColumnLimit: 80
+ConstructorInitializerIndentWidth: 2
+EmptyLineBeforeAccessModifier: Leave
+FixNamespaceComments: false
+IndentWidth: 2
+NamespaceIndentation: None
+PointerAlignment: Left
+ReferenceAlignment: Left
+ReflowComments: false
+SortIncludes: Never
+SpaceAfterTemplateKeyword: false
+SpaceBeforeParens: Never
+Standard: c++20
+UseTab: Never

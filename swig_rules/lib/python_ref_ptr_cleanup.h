@@ -6,7 +6,7 @@
 #include <iostream>
 #endif
 
-/****************************************************************//**
+/****************************************************************/ /**
   This handles the lifetime to a python object, incrementing the
   reference counter on creation and decrementing when we call
   operator() as a shared_ptr deleter.
@@ -61,38 +61,36 @@
 
 class PythonRefPtrCleanup {
 public:
-  PythonRefPtrCleanup(PyObject* Obj)
-  : obj(Obj)
+  PythonRefPtrCleanup(PyObject* Obj) : obj(Obj)
   {
-    Py_INCREF((PyObject*) obj);
-#ifdef  PTR_DEBUG
+    Py_INCREF((PyObject*)obj);
+#ifdef PTR_DEBUG
     std::cerr << "In PythonRefPtrCleanup constructor " << obj << " has count "
-              << Py_REFCNT((PyObject*) obj) << "\n";
+              << Py_REFCNT((PyObject*)obj) << "\n";
 #endif
   }
 
-  PythonRefPtrCleanup(const PythonRefPtrCleanup& V)
-    : obj(V.obj)
+  PythonRefPtrCleanup(const PythonRefPtrCleanup& V) : obj(V.obj)
   {
-  // Note we really don't want to increase reference count here. The
-  // object doesn't get decremented in the ~PythonRefPtrCleanup,
-  // rather just in operator(). So we don't really have an extra
-  // reference here.
-#ifdef  PTR_DEBUG
+    // Note we really don't want to increase reference count here. The
+    // object doesn't get decremented in the ~PythonRefPtrCleanup,
+    // rather just in operator(). So we don't really have an extra
+    // reference here.
+#ifdef PTR_DEBUG
     std::cerr << "In PythonRefPtrCleanup copy " << obj << " has count "
-              << Py_REFCNT((PyObject*) obj) << "\n";
+              << Py_REFCNT((PyObject*)obj) << "\n";
 #endif
   }
 
-//-----------------------------------------------------------------------
-/// Call by std::shared_ptr when its count gets to 0.
-/// p here is the pointer contained in the shared_ptr
-//-----------------------------------------------------------------------
+  //-----------------------------------------------------------------------
+  /// Call by std::shared_ptr when its count gets to 0.
+  /// p here is the pointer contained in the shared_ptr
+  //-----------------------------------------------------------------------
   void operator()(void* /* p */)
   {
-#ifdef  PTR_DEBUG
+#ifdef PTR_DEBUG
     std::cerr << "Start PythonRefPtrCleanup operator() " << obj << " has count "
-              << Py_REFCNT((PyObject*) obj) << "\n";
+              << Py_REFCNT((PyObject*)obj) << "\n";
 #endif
     Py_DECREF(obj);
   }

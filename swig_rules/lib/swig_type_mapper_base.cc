@@ -2,5 +2,5 @@
 
 using namespace SWIG_MAPPER_NAMESPACE;
 
-std::map<type_index, boost::shared_ptr<SwigTypeMapperBase> >
-SwigTypeMapperBase::swig_type_map;
+std::map<type_index, boost::shared_ptr<SwigTypeMapperBase>>
+    SwigTypeMapperBase::swig_type_map;

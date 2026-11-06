@@ -32,8 +32,7 @@ static void write_object(const std::string& Name,
   serialize_write_binary(outdir + "/" + Name + ".bin", Obj);
 }
 
-template<class T, int D>
-static void write_array(const std::string& Name)
+template<class T, int D> static void write_array(const std::string& Name)
 {
   blitz::TinyVector<int, D> shp;
   int sz = 1;
@@ -56,8 +55,7 @@ static void write_array(const std::string& Name)
   }
 }
 
-template<int D>
-static void write_array_string(const std::string& Name)
+template<int D> static void write_array_string(const std::string& Name)
 {
   blitz::TinyVector<int, D> shp;
   for(int i = 0; i < D; ++i)
@@ -77,8 +75,7 @@ static void write_array_string(const std::string& Name)
   }
 }
 
-template<class T>
-static void write_arrays(const std::string& Type)
+template<class T> static void write_arrays(const std::string& Type)
 {
   write_array<T, 1>("blitz_" + Type + "_array_1d");
   write_array<T, 2>("blitz_" + Type + "_array_2d");
@@ -151,8 +148,7 @@ int main(int argc, char** argv)
   auto as = boost::make_shared<ArraySample>();
   as->position_ = {{0.5, -1.25, 3e8}};
   blitz::Array<double, 2> mat(2, 3);
-  mat = 1.5, -2, 3,
-        4, 5, -6.5;
+  mat = 1.5, -2, 3, 4, 5, -6.5;
   as->matrix(mat);
   as->count(42);
   as->scale(2.5);

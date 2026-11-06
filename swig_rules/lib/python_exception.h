@@ -3,8 +3,7 @@
 #include <stdexcept>
 #include <string>
 
-class PythonException : public std::runtime_error
-{
+class PythonException : public std::runtime_error {
 public:
   PythonException();
   PythonException(const PythonException& other);

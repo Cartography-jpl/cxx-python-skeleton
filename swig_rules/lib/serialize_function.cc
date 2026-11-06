@@ -21,7 +21,7 @@
 #endif
 using namespace SWIG_MAPPER_NAMESPACE;
 
-/****************************************************************//**
+/****************************************************************/ /**
    This allows filtering stream to be created on top of an
    underlying ofstream. See boost::iostream documentation for details
    on how to create these. This class is intended to be used as a base
@@ -32,30 +32,31 @@ class FilteringOstream : public std::ostream {
 public:
   ~FilteringOstream() override = default;
 protected:
-
-//-----------------------------------------------------------------------
-/// Constructor. This opens the given file and sets up the stream
-/// buffer, but nothing is placed in the filter. The derived class should
-/// set up the streambuf.
-//-----------------------------------------------------------------------
+  //-----------------------------------------------------------------------
+  /// Constructor. This opens the given file and sets up the stream
+  /// buffer, but nothing is placed in the filter. The derived class should
+  /// set up the streambuf.
+  //-----------------------------------------------------------------------
 
   FilteringOstream(const std::string& Fname)
-    : std::ostream(&sb), f(Fname.c_str()) {}
+    : std::ostream(&sb), f(Fname.c_str())
+  {
+  }
 
-//-----------------------------------------------------------------------
-/// Underlying ofstream.
-//-----------------------------------------------------------------------
+  //-----------------------------------------------------------------------
+  /// Underlying ofstream.
+  //-----------------------------------------------------------------------
 
   std::ofstream f;
 
-//-----------------------------------------------------------------------
-/// Filtering streambuf.
-//-----------------------------------------------------------------------
+  //-----------------------------------------------------------------------
+  /// Filtering streambuf.
+  //-----------------------------------------------------------------------
 
   boost::iostreams::filtering_ostreambuf sb;
 };
 
-/****************************************************************//**
+/****************************************************************/ /**
    This allows filtering stream to created on top of an
    underlying ifstream. See boost::iostream documentation for details
    on how to create these. This class is intended to be used as a base
@@ -66,30 +67,31 @@ class FilteringIstream : public std::istream {
 public:
   ~FilteringIstream() override = default;
 protected:
-
-//-----------------------------------------------------------------------
-/// Constructor. This opens the given file and sets up the stream
-/// buffer, but nothing is placed in the filter. The derived class should
-/// set up the streambuf.
-//-----------------------------------------------------------------------
+  //-----------------------------------------------------------------------
+  /// Constructor. This opens the given file and sets up the stream
+  /// buffer, but nothing is placed in the filter. The derived class should
+  /// set up the streambuf.
+  //-----------------------------------------------------------------------
 
   FilteringIstream(const std::string& Fname)
-    : std::istream(&sb), f(Fname.c_str()) {}
+    : std::istream(&sb), f(Fname.c_str())
+  {
+  }
 
-//-----------------------------------------------------------------------
-/// Underlying ifstream.
-//-----------------------------------------------------------------------
+  //-----------------------------------------------------------------------
+  /// Underlying ifstream.
+  //-----------------------------------------------------------------------
 
   std::ifstream f;
 
-//-----------------------------------------------------------------------
-/// Filtering streambuf.
-//-----------------------------------------------------------------------
+  //-----------------------------------------------------------------------
+  /// Filtering streambuf.
+  //-----------------------------------------------------------------------
 
   boost::iostreams::filtering_istreambuf sb;
 };
 
-/****************************************************************//**
+/****************************************************************/ /**
 /// This opens a file for writing, possibly with automatic
 /// compression. We look at the File name, and if ends if ".gz" then
 /// we automatically gzip the file.
@@ -97,13 +99,12 @@ protected:
 
 class OstreamCompress : public FilteringOstream {
 public:
-//-----------------------------------------------------------------------
-/// This opens a file for writing, possibly with automatic
-/// compression. We look at the File name, and if ends if ".gz" then
-/// we automatically gzip the file.
-//-----------------------------------------------------------------------
-  OstreamCompress(const std::string& Fname)
-    : FilteringOstream(Fname)
+  //-----------------------------------------------------------------------
+  /// This opens a file for writing, possibly with automatic
+  /// compression. We look at the File name, and if ends if ".gz" then
+  /// we automatically gzip the file.
+  //-----------------------------------------------------------------------
+  OstreamCompress(const std::string& Fname) : FilteringOstream(Fname)
   {
     if(Fname.ends_with(".gz"))
       sb.push(boost::iostreams::gzip_compressor());
@@ -112,7 +113,7 @@ public:
   ~OstreamCompress() override = default;
 };
 
-/****************************************************************//**
+/****************************************************************/ /**
 /// This opens a file for reading, possibly with automatic
 /// decompression. We look at the File name, and if ends if ".gz" then
 /// we automatically gunzip the file.
@@ -123,16 +124,15 @@ public:
 
 class IstreamCompress : public FilteringIstream {
 public:
-//-----------------------------------------------------------------------
-/// This opens a file for reading, possibly with automatic
-/// decompression. We look at the File name, and if ends if ".gz" then
-/// we automatically gunzip the file.
-///
-/// See all also IfstreamCs which both handles decompression and
-/// stripping out comments.
-//-----------------------------------------------------------------------
-  IstreamCompress(const std::string& Fname)
-    : FilteringIstream(Fname)
+  //-----------------------------------------------------------------------
+  /// This opens a file for reading, possibly with automatic
+  /// decompression. We look at the File name, and if ends if ".gz" then
+  /// we automatically gunzip the file.
+  ///
+  /// See all also IfstreamCs which both handles decompression and
+  /// stripping out comments.
+  //-----------------------------------------------------------------------
+  IstreamCompress(const std::string& Fname) : FilteringIstream(Fname)
   {
     if(Fname.ends_with(".gz"))
       sb.push(boost::iostreams::gzip_decompressor());
@@ -203,7 +203,9 @@ static bool skip_weak_ptr_handling_val = false;
 //-----------------------------------------------------------------------
 
 bool SWIG_MAPPER_NAMESPACE::skip_weak_ptr_handling()
-{ return skip_weak_ptr_handling_val; }
+{
+  return skip_weak_ptr_handling_val;
+}
 
 //-----------------------------------------------------------------------
 /// As described in weak_ptr_serialize_support, we can optionally
@@ -217,14 +219,17 @@ bool SWIG_MAPPER_NAMESPACE::skip_weak_ptr_handling()
 //-----------------------------------------------------------------------
 
 void SWIG_MAPPER_NAMESPACE::skip_weak_ptr_handling(bool Skip)
-{ skip_weak_ptr_handling_val = Skip; }
+{
+  skip_weak_ptr_handling_val = Skip;
+}
 
 //-----------------------------------------------------------------------
 /// Function to go through serialization, marking all pointers we
 /// encounter.
 //-----------------------------------------------------------------------
 
-[[maybe_unused]] static void mark_pointer([[maybe_unused]] const boost::shared_ptr<GenericObject>& Obj)
+[[maybe_unused]] static void
+mark_pointer([[maybe_unused]] const boost::shared_ptr<GenericObject>& Obj)
 {
 #ifdef SWIG_HAVE_BOOST_SERIALIZATION
   // Clear even when skipping the first pass, otherwise the marks left
@@ -238,7 +243,8 @@ void SWIG_MAPPER_NAMESPACE::skip_weak_ptr_handling(bool Skip)
   oa << boost::serialization::make_nvp("geocal_object", Obj);
   // Don't actually want output, just side effect of marking pointers
 #else
-  throw std::runtime_error("SWIG_MAPPER_NAMESPACE was not built with boost::serialization support");
+  throw std::runtime_error(
+      "SWIG_MAPPER_NAMESPACE was not built with boost::serialization support");
 #endif
 }
 
@@ -253,8 +259,9 @@ void SWIG_MAPPER_NAMESPACE::skip_weak_ptr_handling(bool Skip)
 /// objects (e.g., can have a std::map if we end up needing it).
 //-----------------------------------------------------------------------
 
-void SWIG_MAPPER_NAMESPACE::serialize_write([[maybe_unused]] const std::string& Fname,
-                             [[maybe_unused]] const boost::shared_ptr<GenericObject>& Obj)
+void SWIG_MAPPER_NAMESPACE::serialize_write(
+    [[maybe_unused]] const std::string& Fname,
+    [[maybe_unused]] const boost::shared_ptr<GenericObject>& Obj)
 {
 #ifdef SWIG_HAVE_BOOST_SERIALIZATION
   PtrSerializeLock lock;
@@ -263,12 +270,14 @@ void SWIG_MAPPER_NAMESPACE::serialize_write([[maybe_unused]] const std::string& 
   boost::archive::polymorphic_xml_oarchive oa(os);
   oa << boost::serialization::make_nvp("geocal_object", Obj);
 #else
-  throw std::runtime_error("SWIG_MAPPER_NAMESPACE was not built with boost::serialization support");
+  throw std::runtime_error(
+      "SWIG_MAPPER_NAMESPACE was not built with boost::serialization support");
 #endif
 }
 
-void SWIG_MAPPER_NAMESPACE::serialize_write_binary([[maybe_unused]] const std::string& Fname,
-                             [[maybe_unused]] const boost::shared_ptr<GenericObject>& Obj)
+void SWIG_MAPPER_NAMESPACE::serialize_write_binary(
+    [[maybe_unused]] const std::string& Fname,
+    [[maybe_unused]] const boost::shared_ptr<GenericObject>& Obj)
 {
 #ifdef SWIG_HAVE_BOOST_SERIALIZATION
   PtrSerializeLock lock;
@@ -277,7 +286,8 @@ void SWIG_MAPPER_NAMESPACE::serialize_write_binary([[maybe_unused]] const std::s
   boost::archive::polymorphic_binary_oarchive oa(os);
   oa << boost::serialization::make_nvp("geocal_object", Obj);
 #else
-  throw std::runtime_error("SWIG_MAPPER_NAMESPACE was not built with boost::serialization support");
+  throw std::runtime_error(
+      "SWIG_MAPPER_NAMESPACE was not built with boost::serialization support");
 #endif
 }
 
@@ -285,8 +295,8 @@ void SWIG_MAPPER_NAMESPACE::serialize_write_binary([[maybe_unused]] const std::s
 /// Variation of serialize_write that writes to a string instead of a file.
 //-----------------------------------------------------------------------
 
-std::string SWIG_MAPPER_NAMESPACE::serialize_write_string
-([[maybe_unused]] const boost::shared_ptr<GenericObject>& Obj)
+std::string SWIG_MAPPER_NAMESPACE::serialize_write_string(
+    [[maybe_unused]] const boost::shared_ptr<GenericObject>& Obj)
 {
 #ifdef SWIG_HAVE_BOOST_SERIALIZATION
   PtrSerializeLock lock;
@@ -298,7 +308,8 @@ std::string SWIG_MAPPER_NAMESPACE::serialize_write_string
   }
   return os.str();
 #else
-  throw std::runtime_error("SWIG_MAPPER_NAMESPACE was not built with boost::serialization support");
+  throw std::runtime_error(
+      "SWIG_MAPPER_NAMESPACE was not built with boost::serialization support");
 #endif
 }
 
@@ -307,8 +318,8 @@ std::string SWIG_MAPPER_NAMESPACE::serialize_write_string
 /// instead of xml
 //-----------------------------------------------------------------------
 
-std::string SWIG_MAPPER_NAMESPACE::serialize_write_binary
-([[maybe_unused]] const boost::shared_ptr<GenericObject>& Obj)
+std::string SWIG_MAPPER_NAMESPACE::serialize_write_binary(
+    [[maybe_unused]] const boost::shared_ptr<GenericObject>& Obj)
 {
 #ifdef SWIG_HAVE_BOOST_SERIALIZATION
   PtrSerializeLock lock;
@@ -320,7 +331,8 @@ std::string SWIG_MAPPER_NAMESPACE::serialize_write_binary
   }
   return os.str();
 #else
-  throw std::runtime_error("SWIG_MAPPER_NAMESPACE was not built with boost::serialization support");
+  throw std::runtime_error(
+      "SWIG_MAPPER_NAMESPACE was not built with boost::serialization support");
 #endif
 }
 
@@ -329,8 +341,8 @@ std::string SWIG_MAPPER_NAMESPACE::serialize_write_binary
 /// than xml
 //-----------------------------------------------------------------------
 
-boost::shared_ptr<GenericObject>
-SWIG_MAPPER_NAMESPACE::serialize_read_binary([[maybe_unused]] const std::string& Data)
+boost::shared_ptr<GenericObject> SWIG_MAPPER_NAMESPACE::serialize_read_binary(
+    [[maybe_unused]] const std::string& Data)
 {
 #ifdef SWIG_HAVE_BOOST_SERIALIZATION
   std::istringstream is(Data);
@@ -339,7 +351,8 @@ SWIG_MAPPER_NAMESPACE::serialize_read_binary([[maybe_unused]] const std::string&
   ia >> boost::serialization::make_nvp("geocal_object", obj);
   return obj;
 #else
-  throw std::runtime_error("SWIG_MAPPER_NAMESPACE was not built with boost::serialization support");
+  throw std::runtime_error(
+      "SWIG_MAPPER_NAMESPACE was not built with boost::serialization support");
 #endif
 }
 
@@ -361,8 +374,8 @@ SWIG_MAPPER_NAMESPACE::serialize_read_binary([[maybe_unused]] const std::string&
 /// current directory.
 //-----------------------------------------------------------------------
 
-boost::shared_ptr<GenericObject>
-SWIG_MAPPER_NAMESPACE::serialize_read_generic([[maybe_unused]] const std::string& Fname)
+boost::shared_ptr<GenericObject> SWIG_MAPPER_NAMESPACE::serialize_read_generic(
+    [[maybe_unused]] const std::string& Fname)
 {
 #ifdef SWIG_HAVE_BOOST_SERIALIZATION
   IstreamCompress is(Fname.c_str());
@@ -378,12 +391,14 @@ SWIG_MAPPER_NAMESPACE::serialize_read_generic([[maybe_unused]] const std::string
   ia >> boost::serialization::make_nvp("geocal_object", obj);
   return obj;
 #else
-  throw std::runtime_error("SWIG_MAPPER_NAMESPACE was not built with boost::serialization support");
+  throw std::runtime_error(
+      "SWIG_MAPPER_NAMESPACE was not built with boost::serialization support");
 #endif
 }
 
 boost::shared_ptr<GenericObject>
-SWIG_MAPPER_NAMESPACE::serialize_read_binary_generic([[maybe_unused]] const std::string& Fname)
+SWIG_MAPPER_NAMESPACE::serialize_read_binary_generic(
+    [[maybe_unused]] const std::string& Fname)
 {
 #ifdef SWIG_HAVE_BOOST_SERIALIZATION
   IstreamCompress is(Fname.c_str());
@@ -399,7 +414,8 @@ SWIG_MAPPER_NAMESPACE::serialize_read_binary_generic([[maybe_unused]] const std:
   ia >> boost::serialization::make_nvp("geocal_object", obj);
   return obj;
 #else
-  throw std::runtime_error("SWIG_MAPPER_NAMESPACE was not built with boost::serialization support");
+  throw std::runtime_error(
+      "SWIG_MAPPER_NAMESPACE was not built with boost::serialization support");
 #endif
 }
 
@@ -409,7 +425,8 @@ SWIG_MAPPER_NAMESPACE::serialize_read_binary_generic([[maybe_unused]] const std:
 //-----------------------------------------------------------------------
 
 boost::shared_ptr<GenericObject>
-SWIG_MAPPER_NAMESPACE::serialize_read_generic_string([[maybe_unused]] const std::string& Data)
+SWIG_MAPPER_NAMESPACE::serialize_read_generic_string(
+    [[maybe_unused]] const std::string& Data)
 {
 #ifdef SWIG_HAVE_BOOST_SERIALIZATION
   std::istringstream is(Data);
@@ -418,6 +435,7 @@ SWIG_MAPPER_NAMESPACE::serialize_read_generic_string([[maybe_unused]] const std:
   ia >> boost::serialization::make_nvp("geocal_object", obj);
   return obj;
 #else
-  throw std::runtime_error("SWIG_MAPPER_NAMESPACE was not built with boost::serialization support");
+  throw std::runtime_error(
+      "SWIG_MAPPER_NAMESPACE was not built with boost::serialization support");
 #endif
 }

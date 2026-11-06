@@ -1,0 +1,5 @@
+# Generated SWIG wrappers
+bindings/**
+# Copies of upstream code, kept diffable against SWIG/Boost/Python
+swig_rules/lib/serialize_shared_ptr.h
+swig_rules/lib/python_lib_init.h

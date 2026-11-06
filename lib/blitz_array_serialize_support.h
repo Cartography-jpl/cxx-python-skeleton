@@ -11,38 +11,28 @@
 // We can extend the size and types supported as needed.
 #include <boost/serialization/split_free.hpp>
 namespace boost {
-  namespace serialization {
-    template<class Archive, class T>
-    void save(Archive& ar, const blitz::Array<T, 1>& A,
-              const unsigned version);
-    template<typename Archive, class T>
-    void load(Archive& ar, blitz::Array<T, 1>& A,
-              const unsigned version);
-    template<class Archive, class T>
-    void save(Archive& ar, const blitz::Array<T, 2>& A,
-              const unsigned version);
-    template<typename Archive, class T>
-    void load(Archive& ar, blitz::Array<T, 2>& A,
-              const unsigned version);
-    template<class Archive, class T>
-    void save(Archive& ar, const blitz::Array<T, 3>& A,
-              const unsigned version);
-    template<typename Archive, class T>
-    void load(Archive& ar, blitz::Array<T, 3>& A,
-              const unsigned version);
-    template<class Archive, class T>
-    void save(Archive& ar, const blitz::Array<T, 4>& A,
-              const unsigned version);
-    template<typename Archive, class T>
-    void load(Archive& ar, blitz::Array<T, 4>& A,
-              const unsigned version);
-    template<class Archive, class T>
-    void save(Archive& ar, const blitz::Array<T, 5>& A,
-              const unsigned version);
-    template<typename Archive, class T>
-    void load(Archive& ar, blitz::Array<T, 5>& A,
-              const unsigned version);
-  }
+namespace serialization {
+template<class Archive, class T>
+void save(Archive& ar, const blitz::Array<T, 1>& A, const unsigned version);
+template<typename Archive, class T>
+void load(Archive& ar, blitz::Array<T, 1>& A, const unsigned version);
+template<class Archive, class T>
+void save(Archive& ar, const blitz::Array<T, 2>& A, const unsigned version);
+template<typename Archive, class T>
+void load(Archive& ar, blitz::Array<T, 2>& A, const unsigned version);
+template<class Archive, class T>
+void save(Archive& ar, const blitz::Array<T, 3>& A, const unsigned version);
+template<typename Archive, class T>
+void load(Archive& ar, blitz::Array<T, 3>& A, const unsigned version);
+template<class Archive, class T>
+void save(Archive& ar, const blitz::Array<T, 4>& A, const unsigned version);
+template<typename Archive, class T>
+void load(Archive& ar, blitz::Array<T, 4>& A, const unsigned version);
+template<class Archive, class T>
+void save(Archive& ar, const blitz::Array<T, 5>& A, const unsigned version);
+template<typename Archive, class T>
+void load(Archive& ar, blitz::Array<T, 5>& A, const unsigned version);
+}
 }
 typedef blitz::Array<double, 1> blitz_double_array_1d;
 typedef blitz::Array<double, 2> blitz_double_array_2d;

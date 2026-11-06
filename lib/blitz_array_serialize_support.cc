@@ -7,7 +7,7 @@
 
 template<class Archive, class T>
 void boost::serialization::save(Archive& ar, const blitz::Array<T, 1>& A,
-                              const unsigned /* version */)
+                                const unsigned /* version */)
 {
   using boost::serialization::make_array;
   if(A.size() > 0 && !A.isStorageContiguous())
@@ -32,7 +32,7 @@ void boost::serialization::load(Archive& ar, blitz::Array<T, 1>& A,
 
 template<class Archive, class T>
 void boost::serialization::save(Archive& ar, const blitz::Array<T, 2>& A,
-                              const unsigned /* version */)
+                                const unsigned /* version */)
 {
   using boost::serialization::make_array;
   if(A.size() > 0 && !A.isStorageContiguous())
@@ -58,7 +58,7 @@ void boost::serialization::load(Archive& ar, blitz::Array<T, 2>& A,
 
 template<class Archive, class T>
 void boost::serialization::save(Archive& ar, const blitz::Array<T, 3>& A,
-                              const unsigned /* version */)
+                                const unsigned /* version */)
 {
   using boost::serialization::make_array;
   if(A.size() > 0 && !A.isStorageContiguous())
@@ -85,7 +85,7 @@ void boost::serialization::load(Archive& ar, blitz::Array<T, 3>& A,
 
 template<class Archive, class T>
 void boost::serialization::save(Archive& ar, const blitz::Array<T, 4>& A,
-                              const unsigned /* version */)
+                                const unsigned /* version */)
 {
   using boost::serialization::make_array;
   if(A.size() > 0 && !A.isStorageContiguous())
@@ -106,10 +106,8 @@ void boost::serialization::load(Archive& ar, blitz::Array<T, 4>& A,
 {
   using boost::serialization::make_array;
   blitz::TinyVector<int, 4> shp;
-  ar >> SKELETON_NVP2("shp0", shp(0))
-     >> SKELETON_NVP2("shp1", shp(1))
-     >> SKELETON_NVP2("shp2", shp(2))
-     >> SKELETON_NVP2("shp3", shp(3));
+  ar >> SKELETON_NVP2("shp0", shp(0)) >> SKELETON_NVP2("shp1", shp(1)) >>
+      SKELETON_NVP2("shp2", shp(2)) >> SKELETON_NVP2("shp3", shp(3));
   A.resize(shp);
   if(A.size() > 0)
     ar >> SKELETON_NVP2("data", make_array(A.data(), A.size()));
@@ -117,7 +115,7 @@ void boost::serialization::load(Archive& ar, blitz::Array<T, 4>& A,
 
 template<class Archive, class T>
 void boost::serialization::save(Archive& ar, const blitz::Array<T, 5>& A,
-                              const unsigned /* version */)
+                                const unsigned /* version */)
 {
   using boost::serialization::make_array;
   if(A.size() > 0 && !A.isStorageContiguous())
@@ -139,11 +137,9 @@ void boost::serialization::load(Archive& ar, blitz::Array<T, 5>& A,
 {
   using boost::serialization::make_array;
   blitz::TinyVector<int, 5> shp;
-  ar >> SKELETON_NVP2("shp0", shp(0))
-     >> SKELETON_NVP2("shp1", shp(1))
-     >> SKELETON_NVP2("shp2", shp(2))
-     >> SKELETON_NVP2("shp3", shp(3))
-     >> SKELETON_NVP2("shp4", shp(4));
+  ar >> SKELETON_NVP2("shp0", shp(0)) >> SKELETON_NVP2("shp1", shp(1)) >>
+      SKELETON_NVP2("shp2", shp(2)) >> SKELETON_NVP2("shp3", shp(3)) >>
+      SKELETON_NVP2("shp4", shp(4));
   A.resize(shp);
   if(A.size() > 0)
     ar >> SKELETON_NVP2("data", make_array(A.data(), A.size()));
@@ -360,32 +356,37 @@ template void boost::serialization::save(polymorphic_oarchive& ar,
 template void boost::serialization::load(polymorphic_iarchive& ar,
                                          blitz::Array<unsigned short int, 1>& A,
                                          const unsigned /* version */);
-template void boost::serialization::save(polymorphic_oarchive& ar,
-                                         const blitz::Array<unsigned short int, 1>& A,
-                                         const unsigned /* version */);
+template void
+boost::serialization::save(polymorphic_oarchive& ar,
+                           const blitz::Array<unsigned short int, 1>& A,
+                           const unsigned /* version */);
 template void boost::serialization::load(polymorphic_iarchive& ar,
                                          blitz::Array<unsigned short int, 2>& A,
                                          const unsigned /* version */);
-template void boost::serialization::save(polymorphic_oarchive& ar,
-                                         const blitz::Array<unsigned short int, 2>& A,
-                                         const unsigned /* version */);
+template void
+boost::serialization::save(polymorphic_oarchive& ar,
+                           const blitz::Array<unsigned short int, 2>& A,
+                           const unsigned /* version */);
 template void boost::serialization::load(polymorphic_iarchive& ar,
                                          blitz::Array<unsigned short int, 3>& A,
                                          const unsigned /* version */);
-template void boost::serialization::save(polymorphic_oarchive& ar,
-                                         const blitz::Array<unsigned short int, 3>& A,
-                                         const unsigned /* version */);
+template void
+boost::serialization::save(polymorphic_oarchive& ar,
+                           const blitz::Array<unsigned short int, 3>& A,
+                           const unsigned /* version */);
 template void boost::serialization::load(polymorphic_iarchive& ar,
                                          blitz::Array<unsigned short int, 4>& A,
                                          const unsigned /* version */);
-template void boost::serialization::save(polymorphic_oarchive& ar,
-                                         const blitz::Array<unsigned short int, 4>& A,
-                                         const unsigned /* version */);
+template void
+boost::serialization::save(polymorphic_oarchive& ar,
+                           const blitz::Array<unsigned short int, 4>& A,
+                           const unsigned /* version */);
 template void boost::serialization::load(polymorphic_iarchive& ar,
                                          blitz::Array<unsigned short int, 5>& A,
                                          const unsigned /* version */);
-template void boost::serialization::save(polymorphic_oarchive& ar,
-                                         const blitz::Array<unsigned short int, 5>& A,
-                                         const unsigned /* version */);
+template void
+boost::serialization::save(polymorphic_oarchive& ar,
+                           const blitz::Array<unsigned short int, 5>& A,
+                           const unsigned /* version */);
 
 #endif

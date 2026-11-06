@@ -106,6 +106,16 @@ configure/build/run tests against, e.g. (from inside it):
 It's fine to modify this environment's `pixi.toml`/add packages to it as needed to get a build working — it's
 disposable scratch space, not something to be precious about.
 
+## Formatting
+
+C++ (`.h`, `.cc` in `lib/` and `swig_rules/lib/`) is formatted with clang-format, using `.clang-format` at the
+repository root (clang-format 22 from the pixi env, pinned). Format what you change: `clang-format -i <files>`, or
+`make format` for everything; `make format-check` only checks, and `make lint` runs clang-tidy with the checks in
+`.clang-tidy` (fails on any finding; also writes the clangd `compile_commands.json`).
+`.clang-format-ignore` excludes the generated wrappers (`bindings/`) and copies of upstream code
+(`swig_rules/lib/serialize_shared_ptr.h`, `python_lib_init.h`), which keep their upstream style. `.i` and `.sample` files
+aren't formatted by clang-format; keep them in the same style by hand. Python uses `ruff format`.
+
 ## Tests
 
 **C++ tests** (Boost.Test, binary `skeleton_test_all`, built from `lib/test_all.cc` + `*_test.cc` files):

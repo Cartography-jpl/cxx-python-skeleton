@@ -38,7 +38,9 @@ ptpython = "*"
 ipython = "*"
 
 # Tooling for the modernization (see claude_notes/implementation_plan.md S0.4)
-clang-tools = "*"
+# Pinned: clang-format output differs a little between versions, and
+# "make format" should give the same result for everyone.
+clang-tools = "22.*"
 nanobind = "*"
 # Test coverage (claude_notes/implementation_plan.md section 4a, "make coverage")
 gcovr = "*"

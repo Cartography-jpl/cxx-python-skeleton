@@ -9,7 +9,7 @@
 
 namespace SWIG_MAPPER_NAMESPACE {
 
-/****************************************************************//**
+/****************************************************************/ /**
   This is the implementation of SwigTypeMapperBase.
 
   Important - you can only include this header file if you have
@@ -22,25 +22,22 @@ namespace SWIG_MAPPER_NAMESPACE {
 
 template<class T> class SwigTypeMapper : public SwigTypeMapperBase {
 public:
-  SwigTypeMapper(const char* Typename)
-  {
-    sinfo = SWIG_TypeQuery(Typename);
-  }
+  SwigTypeMapper(const char* Typename) { sinfo = SWIG_TypeQuery(Typename); }
   // We have the definition of this function in shared_ptr_type_mapper.i
-  bool
-  is_python_director_check(const boost::shared_ptr<GenericObject>& V) const override
+  bool is_python_director_check(
+      const boost::shared_ptr<GenericObject>& V) const override
   {
     boost::shared_ptr<Swig::Director> v2 =
-      boost::dynamic_pointer_cast<Swig::Director>(V);
+        boost::dynamic_pointer_cast<Swig::Director>(V);
     if(v2)
       return true;
     return false;
   }
-  boost::shared_ptr<GenericObject> do_swig_python_director_setup
-  (const boost::shared_ptr<GenericObject>& V) const override
+  boost::shared_ptr<GenericObject> do_swig_python_director_setup(
+      const boost::shared_ptr<GenericObject>& V) const override
   {
     boost::shared_ptr<Swig::Director> v2 =
-      boost::dynamic_pointer_cast<Swig::Director>(V);
+        boost::dynamic_pointer_cast<Swig::Director>(V);
     if(!v2)
       return V;
     PyObject* pobj = v2->swig_get_self();
@@ -49,7 +46,8 @@ public:
     Py_DECREF(pobj);
 #ifdef PTR_DEBUG
     std::cerr << "in do_swig_python_director_setup\n";
-    std::cerr << "pobj refcnt: " << pobj->ob_refcnt << " address " << pobj->ob_type << "\n";
+    std::cerr << "pobj refcnt: " << pobj->ob_refcnt << " address "
+              << pobj->ob_type << "\n";
 #endif
     return r;
   }
@@ -57,8 +55,7 @@ public:
   {
     boost::shared_ptr<T> v2 = boost::dynamic_pointer_cast<T>(V);
     boost::shared_ptr<T>* v3 = v2 ? new boost::shared_ptr<T>(v2) : nullptr;
-    return SWIG_NewPointerObj(SWIG_as_voidptr(v3), sinfo,
-                              SWIG_POINTER_OWN);
+    return SWIG_NewPointerObj(SWIG_as_voidptr(v3), sinfo, SWIG_POINTER_OWN);
   }
   ~SwigTypeMapper() override = default;
 private:
@@ -75,7 +72,8 @@ private:
     static PyObject* dumps_name = nullptr;
     if(!dumps_name)
       dumps_name = PyUnicode_FromString("dumps");
-    PyObject* res = PyObject_CallMethodObjArgs(cpickle_module(), dumps_name, obj, NULL);
+    PyObject* res =
+        PyObject_CallMethodObjArgs(cpickle_module(), dumps_name, obj, NULL);
     if(PyErr_Occurred()) {
       throw PythonException();
     }
@@ -92,7 +90,8 @@ private:
     if(!loads_name)
       loads_name = PyUnicode_FromString("loads");
     PyObject* data = PyBytes_FromStringAndSize(S.c_str(), S.size());
-    PyObject* res = PyObject_CallMethodObjArgs(cpickle_module(), loads_name, data, NULL);
+    PyObject* res =
+        PyObject_CallMethodObjArgs(cpickle_module(), loads_name, data, NULL);
     Py_DECREF(data);
     if(PyErr_Occurred()) {
       throw PythonException();

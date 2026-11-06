@@ -11,7 +11,7 @@ BOOST_FIXTURE_TEST_SUITE(printable, GlobalFixture)
 
 class Test : public Printable<Test> {
 public:
-  void print(std::ostream& Os) const {Os << "Test";}
+  void print(std::ostream& Os) const { Os << "Test"; }
 };
 
 // Output shorter than 4 characters. print_to_string used to start
@@ -19,7 +19,7 @@ public:
 // "Alah".
 class ShortTest : public Printable<ShortTest> {
 public:
-  void print(std::ostream& Os) const {Os << "A";}
+  void print(std::ostream& Os) const { Os << "A"; }
 };
 
 class EmptyTest : public Printable<EmptyTest> {
@@ -31,14 +31,13 @@ public:
 // printing.
 class DescTest : public Printable<DescTest> {
 public:
-  void print(std::ostream& Os) const {Os << "print";}
+  void print(std::ostream& Os) const { Os << "print"; }
   std::string desc() const override { return "desc"; }
 };
 
 // Derived from a Printable class, not from Printable<DerivedTest>
 // itself. "<<" and std::format both use Test's print.
-class DerivedTest : public Test {
-};
+class DerivedTest : public Test {};
 
 template<class T> std::string stream_string(const T& V)
 {

@@ -65,3 +65,44 @@ coverage:
 	@echo "Coverage report in coverage/index.html and coverage/python/index.html"
 
 .PHONY: coverage
+
+#=================================================================
+# C++ formatting and lint. "make format" formats the C++ with clang-format
+# (.clang-format and .clang-format-ignore at the top of the source tree),
+# "make format-check" only checks it (fails if a file isn't formatted).
+# "make lint" runs clang-tidy with the checks in .clang-tidy and fails on any
+# finding. clang-format and clang-tidy come from the pixi env (clang-tools);
+# keep the same clang-format version for everyone, since the formatting
+# differs slightly between versions. The file lists come from git, so these
+# work in a git checkout only. The python code has the same targets in
+# python/Makefile (ruff).
+#
+# lint also writes compile_commands.json (with the extra flags clangd needs,
+# see script/make_compile_commands.py), so it can be linked into the source
+# tree for clangd. clang-tidy runs on the library, test and generator
+# sources in the source tree (not files generated in the build directory,
+# and not the SWIG wrappers); headers that only the wrappers include aren't
+# checked.
+CLANG_FORMAT = clang-format
+CLANG_TIDY_FLAGS = --quiet --warnings-as-errors='*' \
+  --config-file=$(abs_top_srcdir)/.clang-tidy
+LINT_NJOB = 10
+FORMAT_FILES = 'lib/*.h' 'lib/*.cc' 'swig_rules/lib/*.h' 'swig_rules/lib/*.cc'
+
+format:
+	cd $(srcdir) && git ls-files $(FORMAT_FILES) | xargs -r $(CLANG_FORMAT) -i
+
+format-check:
+	cd $(srcdir) && git ls-files $(FORMAT_FILES) | \
+	  xargs -r $(CLANG_FORMAT) --dry-run --Werror
+
+lint:
+	$(PYTHON) $(srcdir)/script/make_compile_commands.py --clangd \
+	  libskeleton.la skeleton_test_all golden_archive_generator _swig_wrap.la
+	$(PYTHON) -c 'import json, os; src = os.path.realpath("$(abs_top_srcdir)") + "/"; [print(e["file"]) for e in json.load(open("compile_commands.json")) if os.path.realpath(e["file"]).startswith(src) and not e["file"].endswith("_wrap.cc")]' \
+	  > lint_files.txt
+	@test -s lint_files.txt || { echo "lint: no source files found in compile_commands.json"; exit 1; }
+	xargs -r -P $(LINT_NJOB) -n 1 sh $(srcdir)/script/run_clang_tidy.sh $(CLANG_TIDY_FLAGS) < lint_files.txt
+	@echo "clang-tidy: no findings in $$(wc -l < lint_files.txt) files"
+
+.PHONY: format format-check lint

@@ -33,11 +33,10 @@ BOOST_AUTO_TEST_CASE(copy)
 BOOST_AUTO_TEST_CASE(print)
 {
   Exception e("x");
-  BOOST_CHECK_EQUAL(e.print_to_string(),
-                    "Skeleton Exception:\n"
-                    "=========================\n"
-                    "x\n"
-                    "=========================\n");
+  BOOST_CHECK_EQUAL(e.print_to_string(), "Skeleton Exception:\n"
+                                         "=========================\n"
+                                         "x\n"
+                                         "=========================\n");
 }
 
 BOOST_AUTO_TEST_CASE(throw_catch)
@@ -93,7 +92,8 @@ BOOST_AUTO_TEST_CASE(format_constructor)
   }
   // A Printable object as a format argument.
   Exception e3("{}", Exception("inner"));
-  BOOST_CHECK_EQUAL(std::string(e3.what()), Exception("inner").print_to_string());
+  BOOST_CHECK_EQUAL(std::string(e3.what()),
+                    Exception("inner").print_to_string());
 }
 
 BOOST_AUTO_TEST_CASE(manipulators)
@@ -120,13 +120,13 @@ BOOST_AUTO_TEST_CASE(source_location)
   int line = __LINE__ + 1;
   Exception e("x");
   BOOST_CHECK_EQUAL(e.source_location().line(), line);
-  BOOST_CHECK(std::string_view(e.source_location().file_name()).ends_with(
-                "skeleton_exception_test.cc"));
+  BOOST_CHECK(std::string_view(e.source_location().file_name())
+                  .ends_with("skeleton_exception_test.cc"));
   line = __LINE__ + 1;
   Exception e2("x = {}", 1);
   BOOST_CHECK_EQUAL(e2.source_location().line(), line);
-  BOOST_CHECK(std::string_view(e2.source_location().file_name()).ends_with(
-                "skeleton_exception_test.cc"));
+  BOOST_CHECK(std::string_view(e2.source_location().file_name())
+                  .ends_with("skeleton_exception_test.cc"));
   line = __LINE__ + 1;
   Exception e3;
   BOOST_CHECK_EQUAL(e3.source_location().line(), line);

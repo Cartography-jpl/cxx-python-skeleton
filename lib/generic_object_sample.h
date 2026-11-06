@@ -5,16 +5,16 @@
 #include <boost/weak_ptr.hpp>
 
 namespace Skeleton {
-/****************************************************************//**
+/****************************************************************/ /**
   Simple set of classes for testing serialization support in python
 *******************************************************************/
 class GenericObjectA : public Printable<GenericObjectA> {
 public:
   GenericObjectA(int V) : v_(V) {}
   GenericObjectA() = default;
-  void print(std::ostream& Os) const {Os << "A";}
-  int v() const { return v_;}
-  void v(int V) { v_ = V;}
+  void print(std::ostream& Os) const { Os << "A"; }
+  int v() const { return v_; }
+  void v(int V) { v_ = V; }
 private:
   int v_;
   friend class boost::serialization::access;
@@ -25,9 +25,9 @@ private:
 class GenericObjectB : public Printable<GenericObjectB> {
 public:
   GenericObjectB(const boost::shared_ptr<GenericObjectA>& V) : a_(V) {}
-  void print(std::ostream& Os) const {Os << "B";}
-  const boost::shared_ptr<GenericObjectA>& a() const { return a_;}
-  void a(const boost::shared_ptr<GenericObjectA>& V) { a_ = V;}
+  void print(std::ostream& Os) const { Os << "B"; }
+  const boost::shared_ptr<GenericObjectA>& a() const { return a_; }
+  void a(const boost::shared_ptr<GenericObjectA>& V) { a_ = V; }
 private:
   boost::shared_ptr<GenericObjectA> a_;
   GenericObjectB() = default;
@@ -39,9 +39,9 @@ private:
 class GenericObjectB2 : public Printable<GenericObjectB2> {
 public:
   GenericObjectB2(const GenericObjectA& V) : a_(V) {}
-  void print(std::ostream& Os) const {Os << "B2";}
-  const GenericObjectA& a() const { return a_;}
-  void a(const GenericObjectA& V) { a_ = V;}
+  void print(std::ostream& Os) const { Os << "B2"; }
+  const GenericObjectA& a() const { return a_; }
+  void a(const GenericObjectA& V) { a_ = V; }
 private:
   GenericObjectA a_;
   GenericObjectB2() = default;
@@ -53,9 +53,9 @@ private:
 class GenericObjectC : public Printable<GenericObjectC> {
 public:
   GenericObjectC(const boost::shared_ptr<GenericObjectA>& V) : a_(V) {}
-  void print(std::ostream& Os) const {Os << "C";}
-  boost::shared_ptr<GenericObjectA> a() const { return a_.lock();}
-  void a(const boost::shared_ptr<GenericObjectA>& V) { a_ = V;}
+  void print(std::ostream& Os) const { Os << "C"; }
+  boost::shared_ptr<GenericObjectA> a() const { return a_.lock(); }
+  void a(const boost::shared_ptr<GenericObjectA>& V) { a_ = V; }
 private:
   boost::weak_ptr<GenericObjectA> a_;
   GenericObjectC() = default;

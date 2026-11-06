@@ -5,7 +5,10 @@ Run from the build directory:
 
     python <srcdir>/script/make_compile_commands.py [--clangd] [make targets...]
 
-The default targets are the library and the C++ unit test program.
+The default targets are the skeleton's library and C++ unit test program
+(libskeleton.la skeleton_test_all); other projects pass their own (geocal:
+libgeocal.la geocal_test_all _swig_wrap.la). The same file is used in
+swig-rules-skeleton and geocal.
 
 --clangd adds the flags the conda clang needs to parse code built with the
 conda gcc (the same ones script/run_clang_tidy.sh passes): the conda gcc
@@ -71,7 +74,10 @@ for line in out.splitlines():
     except ValueError:
         continue
     srcs = [a for a in args if re.search(r"\.(cc|cpp|cxx|c)$", a)]
-    if not srcs or args[0] not in ("g++", "gcc", "c++", "cc") and "g++" not in args[0]:
+    # The compiler may have a prefix, e.g. conda's activated compiler is
+    # x86_64-conda-linux-gnu-c++.
+    compiler = os.path.basename(args[0])
+    if not srcs or not compiler.endswith(("g++", "gcc", "c++", "cc", "clang", "clang++")):
         continue
     # Drop dependency tracking and output options clang doesn't need.
     keep, skip = [], 0

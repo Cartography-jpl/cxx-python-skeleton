@@ -14,8 +14,14 @@ using namespace Skeleton;
 
 static std::atomic<bool> capture_stacktrace_flag{true};
 
-void Exception::capture_stacktrace(bool V) { capture_stacktrace_flag = V; }
-bool Exception::capture_stacktrace() { return capture_stacktrace_flag; }
+void Exception::capture_stacktrace(bool V)
+{
+  capture_stacktrace_flag = V;
+}
+bool Exception::capture_stacktrace()
+{
+  return capture_stacktrace_flag;
+}
 
 //-----------------------------------------------------------------------
 /// Record the return addresses of the current stack. Only the addresses
@@ -43,8 +49,8 @@ std::string Exception::stacktrace() const
 {
   std::string res;
   for(std::size_t i = 0; i < trace_.size(); ++i)
-    res += std::format("{:2}# {}\n", i,
-                       boost::stacktrace::to_string(
-                         boost::stacktrace::frame(trace_[i])));
+    res += std::format(
+        "{:2}# {}\n", i,
+        boost::stacktrace::to_string(boost::stacktrace::frame(trace_[i])));
   return res;
 }

@@ -6,7 +6,7 @@
 #include <boost/serialization/nvp.hpp>
 #include <boost/serialization/split_free.hpp>
 
-/****************************************************************//**
+/****************************************************************/ /**
   There is a complication in serializing a boost::weak_ptr. Normally
   when you encounter a boost::shared_ptr you want to serialize the
   object, e.g. object A contains a boost:shared_ptr pointing to object
@@ -64,42 +64,40 @@
 *******************************************************************/
 
 namespace SWIG_MAPPER_NAMESPACE {
-  void clear_ptr_serialized_reference();
-  void add_ptr_serialized_reference(const GenericObject* P);
-  bool is_ptr_serialized(const GenericObject* P);
+void clear_ptr_serialized_reference();
+void add_ptr_serialized_reference(const GenericObject* P);
+bool is_ptr_serialized(const GenericObject* P);
 
-  /// The pointer-tracking state above is process-global and unguarded.
-  /// A serialize_write* call is really a two-pass sequence -- a mark
-  /// pass that populates this state, followed by the real archive
-  /// write that reads it back -- so it isn't enough to lock each
-  /// individual call above; the whole mark+write sequence for one
-  /// object needs to be atomic with respect to other threads doing the
-  /// same. Construct one of these (and hold it for that whole
-  /// sequence) to make concurrent serialize_write* calls from
-  /// different threads safe. RAII: locks in the constructor, unlocks
-  /// in the destructor. Backed by a recursive_mutex because
-  /// serialize_write* can itself recurse on the same thread (e.g. a
-  /// SWIG director object being pickled can trigger another
-  /// serialize_write_binary call on a framework object it holds
-  /// before the outer call finishes); only the outermost lock clears
-  /// the mark state, see clear_ptr_serialized_reference().
-  class PtrSerializeLock {
-  public:
-    PtrSerializeLock();
-    ~PtrSerializeLock();
-    PtrSerializeLock(const PtrSerializeLock&) = delete;
-    PtrSerializeLock& operator=(const PtrSerializeLock&) = delete;
-  };
+/// The pointer-tracking state above is process-global and unguarded.
+/// A serialize_write* call is really a two-pass sequence -- a mark
+/// pass that populates this state, followed by the real archive
+/// write that reads it back -- so it isn't enough to lock each
+/// individual call above; the whole mark+write sequence for one
+/// object needs to be atomic with respect to other threads doing the
+/// same. Construct one of these (and hold it for that whole
+/// sequence) to make concurrent serialize_write* calls from
+/// different threads safe. RAII: locks in the constructor, unlocks
+/// in the destructor. Backed by a recursive_mutex because
+/// serialize_write* can itself recurse on the same thread (e.g. a
+/// SWIG director object being pickled can trigger another
+/// serialize_write_binary call on a framework object it holds
+/// before the outer call finishes); only the outermost lock clears
+/// the mark state, see clear_ptr_serialized_reference().
+class PtrSerializeLock {
+public:
+  PtrSerializeLock();
+  ~PtrSerializeLock();
+  PtrSerializeLock(const PtrSerializeLock&) = delete;
+  PtrSerializeLock& operator=(const PtrSerializeLock&) = delete;
+};
 }
 
 namespace boost {
-namespace serialization{
+namespace serialization {
 
 template<class Archive, class T>
-inline void save
-(Archive& ar,
- const boost::weak_ptr<T>& t,
- const unsigned int /* file_version */
+inline void save(Archive& ar, const boost::weak_ptr<T>& t,
+                 const unsigned int /* file_version */
 )
 {
   boost::shared_ptr<T> sp = t.lock();
@@ -113,10 +111,8 @@ inline void save
 }
 
 template<class Archive, class T>
-inline void load
-(Archive& ar,
- boost::weak_ptr<T>& t,
- const unsigned int /* file_version */
+inline void load(Archive& ar, boost::weak_ptr<T>& t,
+                 const unsigned int /* file_version */
 )
 {
   boost::shared_ptr<T> sp;
@@ -125,12 +121,8 @@ inline void load
 }
 
 template<class Archive, class T>
-inline void serialize
-(
- Archive& ar,
- boost::weak_ptr<T>& t,
- const unsigned int file_version
- )
+inline void serialize(Archive& ar, boost::weak_ptr<T>& t,
+                      const unsigned int file_version)
 {
   boost::serialization::split_free(ar, t, file_version);
 }
