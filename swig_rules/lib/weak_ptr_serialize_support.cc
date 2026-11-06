@@ -1,4 +1,5 @@
 #include "weak_ptr_serialize_support.h"
+#include "director_hook.h"
 #include <set>
 #include <mutex>
 #include <iostream>
@@ -53,4 +54,10 @@ SWIG_MAPPER_NAMESPACE::PtrSerializeLock::~PtrSerializeLock()
 {
   --ptr_serialize_depth;
   ptr_referenced_mutex.unlock();
+}
+
+SWIG_MAPPER_NAMESPACE::DirectorHook& SWIG_MAPPER_NAMESPACE::director_hook()
+{
+  static DirectorHook h = nullptr;
+  return h;
 }

@@ -36,35 +36,26 @@
 
 # Nothing here yet, but put in place as a placeholder
 
-# You can include this automake file to add the swig rules stuff. Should
-# define the variables:
+# Rules shared by projects using swig_rules. Since phase S6 of
+# claude_notes/implementation_plan.md the python bindings use nanobind
+# (swig_rules/nanobind/nanobind.am); the name swig_rules is historical.
+
+# Automake rules for a nanobind python extension module, the nanobind
+# replacement for swig_rules.am. Include from the top level .am file,
+# after setting:
 #
-# swigincdir for where these should be installed to
-#       (e.g., ${prefix}/share/geocal/swig)
-# swigrules for where the source is located
-#       (e.g., ${geocal_topdir}/swig_rules)
-# swigsrc where we are putting the swig files we generate
-#       (e.g., ${geocal_topdir}/bindings/python/swig)
-# pkgpythonswigdir for where we are installing swig
-#       (e.g., $(prefix)/@pythondir@/geocal_swig)
-# FULL_SWIG_SRC list of all swig source files, including some we
-#       might not compile (e.g., require HDF5 library without this being
-#       present)
-# COMPILE_SWIG_SRC list of all swig source files that we are compiling,
-#       so subset of FULL_SWIG_SRC
-# CONDITIONAL_SWIG_SRC list of swig source files, with conditionals included
-#       so for example $(SWIG_SRC) HAVE_HDF5 $(SWIG_SRC_HDF5). If you
-#       don't have any conditional code, this can just be set to FULL_SWIG_SRC
-# SWIG_PYI list of .pyi files to include for typing
-# MOSTLYCLEANFILES should already be defined (we add to it)
-# SWIG_CPPFLAGS the flags we should use when compiling swig code,
-#       so a list of -I options.
-# PYTHON_CPPFLAGS flags needed to compile against python
-# PYTHON_NUMPY_CPPFLAGS flags needs to compile against numpy
-# SWIG_TYPE_TABLE_NAME the swig table name (e.g., geocal)
-# SWIG_MODULE_NAME the swig model name (e.g., geocal)
-# SWIG_LIBADD the libraries to link swig against (e.g., libgeocal.la)
-# DOXYGEN the program doxygen
+#   NB_SRC              binding source files (the *_nb.cc files and the
+#                       file with NB_MODULE)
+#   NB_LIBADD           the C++ library the bindings wrap
+#   NB_MAPPER_NAMESPACE namespace of GenericObject (SWIG_MAPPER_NAMESPACE)
+#   NB_DOXYGEN_INPUT    headers to take docstrings from
+#   pkgpythonswigdir    where the python package goes
+#   pkgpythonswig_LTLIBRARIES (set, possibly empty, before this file and
+#                       before adding other modules to it)
+#
+# The module is <package>/_swig_wrap (the name is historical), with the
+# python files from swig_rules/ next to it. configure needs AC_NANOBIND
+# (config/m4/ac_nanobind.m4).
 
 
 
@@ -147,15 +138,21 @@ POST_UNINSTALL = :
 build_triplet = @build@
 host_triplet = @host@
 bin_PROGRAMS =
-@HAVE_SWIG_TRUE@@MAINTAINER_MODE_TRUE@am__append_1 = $(addprefix \
-@HAVE_SWIG_TRUE@@MAINTAINER_MODE_TRUE@	$(srcdir)/, \
-@HAVE_SWIG_TRUE@@MAINTAINER_MODE_TRUE@	$(COMPILE_SWIG_SRC)) \
-@HAVE_SWIG_TRUE@@MAINTAINER_MODE_TRUE@	$(addprefix $(srcdir)/, \
-@HAVE_SWIG_TRUE@@MAINTAINER_MODE_TRUE@	$(ADDITONAL_SWIG_SRC)) \
-@HAVE_SWIG_TRUE@@MAINTAINER_MODE_TRUE@	$(srcdir)/$(swigsrc)/swig_wrap.cc
-@HAVE_BOOST_SERIALIZATION_TRUE@am__append_2 = -DSWIG_HAVE_BOOST_SERIALIZATION
+@BUILD_PYTHON_BINDINGS_TRUE@am__append_1 = python-check-build
+@BUILD_PYTHON_BINDINGS_TRUE@am__append_2 = clean-nb-pkg
+@HAVE_BOOST_SERIALIZATION_TRUE@am__append_3 = -DSWIG_HAVE_BOOST_SERIALIZATION
 check_PROGRAMS = skeleton_test_all$(EXEEXT) \
 	golden_archive_generator$(EXEEXT)
+
+# A second extension module using the main one's types (cross-module test,
+# python/tests/unit/downstream_test.py).
+@BUILD_PYTHON_BINDINGS_TRUE@am__append_4 = _skeleton_downstream.la \
+@BUILD_PYTHON_BINDINGS_TRUE@	_swig_wrap.la
+
+# nanobind's own source, with its own flags (none of our warnings).
+@BUILD_PYTHON_BINDINGS_TRUE@am__append_5 = libnanobind_core.la
+@BUILD_PYTHON_BINDINGS_TRUE@am__append_6 = nb_docstrings.cc \
+@BUILD_PYTHON_BINDINGS_TRUE@	nb_pyi/_swig_wrap.pyi
 subdir = .
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps =  \
@@ -167,6 +164,7 @@ am__aclocal_m4_deps =  \
 	$(top_srcdir)/config/m4/ac_doxygen.m4 \
 	$(top_srcdir)/config/m4/ac_enable_debug.m4 \
 	$(top_srcdir)/config/m4/ac_handle_with_arg.m4 \
+	$(top_srcdir)/config/m4/ac_nanobind.m4 \
 	$(top_srcdir)/config/m4/ac_python_module_with_version.m4 \
 	$(top_srcdir)/config/m4/ac_python_pytest.m4 \
 	$(top_srcdir)/config/m4/ac_python_sphinx.m4 \
@@ -181,11 +179,8 @@ am__aclocal_m4_deps =  \
 	$(top_srcdir)/config/m4/ax_boost_system.m4 \
 	$(top_srcdir)/config/m4/ax_check_gnu_make.m4 \
 	$(top_srcdir)/config/m4/ax_cxx_compile_stdcxx.m4 \
-	$(top_srcdir)/config/m4/ax_pkg_swig.m4 \
 	$(top_srcdir)/config/m4/ax_pthread.m4 \
 	$(top_srcdir)/config/m4/ax_python_devel.m4 \
-	$(top_srcdir)/config/m4/ax_swig_enable_cxx.m4 \
-	$(top_srcdir)/config/m4/ax_swig_python.m4 \
 	$(top_srcdir)/config/m4/libtool.m4 \
 	$(top_srcdir)/config/m4/loc_msg.m4 \
 	$(top_srcdir)/config/m4/ltoptions.m4 \
@@ -197,10 +192,9 @@ am__configure_deps = $(am__aclocal_m4_deps) $(CONFIGURE_DEPENDENCIES) \
 	$(ACLOCAL_M4)
 DIST_COMMON = $(srcdir)/Makefile.am $(top_srcdir)/configure \
 	$(am__configure_deps) $(dist_bin_SCRIPTS) \
-	$(dist_installskeleton_SCRIPTS) $(pkgpythonswig_PYTHON) \
-	$(include_HEADERS) $(skeletoninc_HEADERS) \
-	$(skeletonswiginc_HEADERS) $(swiginc_HEADERS) \
-	$(am__DIST_COMMON)
+	$(dist_installskeleton_SCRIPTS) \
+	$(am__pkgpythonswig_PYTHON_DIST) $(include_HEADERS) \
+	$(skeletoninc_HEADERS) $(am__DIST_COMMON)
 am__CONFIG_DISTCLEAN_FILES = config.status config.cache config.log \
  configure.lineno config.status.lineno
 mkinstalldirs = $(install_sh) -d
@@ -215,8 +209,7 @@ am__installdirs = "$(DESTDIR)$(bindir)" "$(DESTDIR)$(libdir)" \
 	"$(DESTDIR)$(installskeletondir)" \
 	"$(DESTDIR)$(pkgpythonswigdir)" "$(DESTDIR)$(pkgconfigdir)" \
 	"$(DESTDIR)$(pkgpythonswigdir)" "$(DESTDIR)$(includedir)" \
-	"$(DESTDIR)$(skeletonincdir)" \
-	"$(DESTDIR)$(skeletonswigincdir)" "$(DESTDIR)$(swigincdir)"
+	"$(DESTDIR)$(skeletonincdir)"
 PROGRAMS = $(bin_PROGRAMS)
 am__vpath_adj_setup = srcdirstrip=`echo "$(srcdir)" | sed 's|.|.|g'`;
 am__vpath_adj = case $$p in \
@@ -246,46 +239,89 @@ am__uninstall_files_from_dir = { \
   }
 LTLIBRARIES = $(lib_LTLIBRARIES) $(noinst_LTLIBRARIES) \
 	$(pkgpythonswig_LTLIBRARIES)
-_swig_wrap_la_DEPENDENCIES = $(SWIG_LIBADD)
+@BUILD_PYTHON_BINDINGS_TRUE@_skeleton_downstream_la_DEPENDENCIES =  \
+@BUILD_PYTHON_BINDINGS_TRUE@	libnanobind_core.la libskeleton.la
+am___skeleton_downstream_la_SOURCES_DIST = @srclib@/downstream_nb.cc
 am__dirstamp = $(am__leading_dot)dirstamp
-am__objects_1 = @swigsrc@/_swig_wrap_la-skeleton_exception_wrap.lo \
-	@swigsrc@/_swig_wrap_la-generic_object_wrap.lo \
-	@swigsrc@/_swig_wrap_la-generic_object_sample_wrap.lo \
-	@swigsrc@/_swig_wrap_la-director_example_wrap.lo \
-	@swigsrc@/_swig_wrap_la-generic_object_map_wrap.lo \
-	@swigsrc@/_swig_wrap_la-iostream_swig_wrap.lo \
-	@swigsrc@/_swig_wrap_la-serialize_function_wrap.lo \
-	@swigsrc@/_swig_wrap_la-numpy_sample_wrap.lo \
-	@swigsrc@/_swig_wrap_la-exception_sample_wrap.lo \
-	@swigsrc@/_swig_wrap_la-array_typemap_sample_wrap.lo \
-	@swigsrc@/_swig_wrap_la-swig_rules_sample_wrap.lo \
-	@swigsrc@/_swig_wrap_la-file_reference_sample_wrap.lo \
-	@swigsrc@/_swig_wrap_la-array_sample_wrap.lo \
-	@swigsrc@/_swig_wrap_la-observer_wrap.lo \
-	@swigsrc@/_swig_wrap_la-observer_example_wrap.lo \
-	@swigsrc@/_swig_wrap_la-with_parameter_like_wrap.lo \
-	@swigsrc@/_swig_wrap_la-multi_base_example_wrap.lo \
-	@swigsrc@/_swig_wrap_la-virtual_diamond_example_wrap.lo \
-	@swigsrc@/_swig_wrap_la-overload_example_wrap.lo \
-	@swigsrc@/_swig_wrap_la-thread_example_wrap.lo
-am__objects_2 = $(am__objects_1)
-am__objects_3 = @swigsrc@/_swig_wrap_la-swig_array_wrap.lo \
-	@swigsrc@/_swig_wrap_la-swig_boost_array_wrap.lo \
-	@swigsrc@/_swig_wrap_la-swig_std_wrap.lo
-am__swig_wrap_la_OBJECTS = $(am__objects_2) $(am__objects_3) \
-	@swigsrc@/_swig_wrap_la-swig_wrap.lo
-_swig_wrap_la_OBJECTS = $(am__swig_wrap_la_OBJECTS)
+@BUILD_PYTHON_BINDINGS_TRUE@am__skeleton_downstream_la_OBJECTS = @srclib@/_skeleton_downstream_la-downstream_nb.lo
+_skeleton_downstream_la_OBJECTS =  \
+	$(am__skeleton_downstream_la_OBJECTS)
 AM_V_lt = $(am__v_lt_@AM_V@)
 am__v_lt_ = $(am__v_lt_@AM_DEFAULT_V@)
 am__v_lt_0 = --silent
 am__v_lt_1 = 
+_skeleton_downstream_la_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CXX \
+	$(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=link $(CXXLD) \
+	$(_skeleton_downstream_la_CXXFLAGS) $(CXXFLAGS) \
+	$(_skeleton_downstream_la_LDFLAGS) $(LDFLAGS) -o $@
+@BUILD_PYTHON_BINDINGS_TRUE@am__skeleton_downstream_la_rpath = -rpath \
+@BUILD_PYTHON_BINDINGS_TRUE@	$(pkgpythonswigdir)
+@BUILD_PYTHON_BINDINGS_TRUE@_swig_wrap_la_DEPENDENCIES =  \
+@BUILD_PYTHON_BINDINGS_TRUE@	libnanobind_core.la $(NB_LIBADD)
+am___swig_wrap_la_SOURCES_DIST = @srclib@/array_sample_nb.cc \
+	@srclib@/array_typemap_sample_nb.cc \
+	@srclib@/director_example_nb.cc \
+	@srclib@/exception_sample_nb.cc \
+	@srclib@/file_reference_sample_nb.cc \
+	@srclib@/generic_object_map_nb.cc \
+	@srclib@/generic_object_nb.cc \
+	@srclib@/generic_object_sample_nb.cc \
+	@srclib@/iostream_swig_nb.cc @srclib@/multi_base_example_nb.cc \
+	@srclib@/numpy_sample_nb.cc @srclib@/observer_example_nb.cc \
+	@srclib@/observer_nb.cc @srclib@/overload_example_nb.cc \
+	@srclib@/serialize_function_nb.cc \
+	@srclib@/skeleton_exception_nb.cc \
+	@srclib@/swig_rules_sample_nb.cc @srclib@/thread_example_nb.cc \
+	@srclib@/virtual_diamond_example_nb.cc \
+	@srclib@/with_parameter_like_nb.cc \
+	@srclib@/skeleton_nb_module.cc \
+	@swigrules@/nanobind/swig_rules_nb.cc
+am__objects_1 = @srclib@/_swig_wrap_la-array_sample_nb.lo \
+	@srclib@/_swig_wrap_la-array_typemap_sample_nb.lo \
+	@srclib@/_swig_wrap_la-director_example_nb.lo \
+	@srclib@/_swig_wrap_la-exception_sample_nb.lo \
+	@srclib@/_swig_wrap_la-file_reference_sample_nb.lo \
+	@srclib@/_swig_wrap_la-generic_object_map_nb.lo \
+	@srclib@/_swig_wrap_la-generic_object_nb.lo \
+	@srclib@/_swig_wrap_la-generic_object_sample_nb.lo \
+	@srclib@/_swig_wrap_la-iostream_swig_nb.lo \
+	@srclib@/_swig_wrap_la-multi_base_example_nb.lo \
+	@srclib@/_swig_wrap_la-numpy_sample_nb.lo \
+	@srclib@/_swig_wrap_la-observer_example_nb.lo \
+	@srclib@/_swig_wrap_la-observer_nb.lo \
+	@srclib@/_swig_wrap_la-overload_example_nb.lo \
+	@srclib@/_swig_wrap_la-serialize_function_nb.lo \
+	@srclib@/_swig_wrap_la-skeleton_exception_nb.lo \
+	@srclib@/_swig_wrap_la-swig_rules_sample_nb.lo \
+	@srclib@/_swig_wrap_la-thread_example_nb.lo \
+	@srclib@/_swig_wrap_la-virtual_diamond_example_nb.lo \
+	@srclib@/_swig_wrap_la-with_parameter_like_nb.lo \
+	@srclib@/_swig_wrap_la-skeleton_nb_module.lo
+@BUILD_PYTHON_BINDINGS_TRUE@am__swig_wrap_la_OBJECTS =  \
+@BUILD_PYTHON_BINDINGS_TRUE@	$(am__objects_1) \
+@BUILD_PYTHON_BINDINGS_TRUE@	@swigrules@/nanobind/_swig_wrap_la-swig_rules_nb.lo
+@BUILD_PYTHON_BINDINGS_TRUE@nodist__swig_wrap_la_OBJECTS =  \
+@BUILD_PYTHON_BINDINGS_TRUE@	_swig_wrap_la-nb_docstrings.lo
+_swig_wrap_la_OBJECTS = $(am__swig_wrap_la_OBJECTS) \
+	$(nodist__swig_wrap_la_OBJECTS)
 _swig_wrap_la_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CXX \
 	$(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=link $(CXXLD) \
 	$(_swig_wrap_la_CXXFLAGS) $(CXXFLAGS) $(_swig_wrap_la_LDFLAGS) \
 	$(LDFLAGS) -o $@
+@BUILD_PYTHON_BINDINGS_TRUE@am__swig_wrap_la_rpath = -rpath \
+@BUILD_PYTHON_BINDINGS_TRUE@	$(pkgpythonswigdir)
+libnanobind_core_la_LIBADD =
+am__libnanobind_core_la_SOURCES_DIST =  \
+	@swigrules@/nanobind/nb_combined.cc
+@BUILD_PYTHON_BINDINGS_TRUE@am_libnanobind_core_la_OBJECTS = @swigrules@/nanobind/libnanobind_core_la-nb_combined.lo
+libnanobind_core_la_OBJECTS = $(am_libnanobind_core_la_OBJECTS)
+libnanobind_core_la_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CXX \
+	$(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=link $(CXXLD) \
+	$(libnanobind_core_la_CXXFLAGS) $(CXXFLAGS) $(AM_LDFLAGS) \
+	$(LDFLAGS) -o $@
+@BUILD_PYTHON_BINDINGS_TRUE@am_libnanobind_core_la_rpath =
 libskeleton_la_LIBADD =
 am_libskeleton_la_OBJECTS =  \
-	@swigrules@/lib/libskeleton_la-swig_type_mapper_base.lo \
 	@swigrules@/lib/libskeleton_la-serialize_function.lo \
 	@swigrules@/lib/libskeleton_la-weak_ptr_serialize_support.lo \
 	@srclib@/libskeleton_la-generic_object.lo \
@@ -302,6 +338,7 @@ am_libskeleton_la_OBJECTS =  \
 	@srclib@/libskeleton_la-with_parameter_like.lo \
 	@srclib@/libskeleton_la-multi_base_example.lo \
 	@srclib@/libskeleton_la-virtual_diamond_example.lo \
+	@srclib@/libskeleton_la-blitz_mdspan.lo \
 	@srclib@/libskeleton_la-thread_example.lo
 libskeleton_la_OBJECTS = $(am_libskeleton_la_OBJECTS)
 libskeleton_la_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CXX \
@@ -329,7 +366,8 @@ am_skeleton_test_all_OBJECTS =  \
 	@srclib@/skeleton_test_all-observer_test.$(OBJEXT) \
 	@srclib@/skeleton_test_all-multi_base_example_test.$(OBJEXT) \
 	@srclib@/skeleton_test_all-array_sample_test.$(OBJEXT) \
-	@srclib@/skeleton_test_all-thread_example_test.$(OBJEXT)
+	@srclib@/skeleton_test_all-thread_example_test.$(OBJEXT) \
+	@srclib@/skeleton_test_all-blitz_mdspan_test.$(OBJEXT)
 skeleton_test_all_OBJECTS = $(am_skeleton_test_all_OBJECTS)
 skeleton_test_all_DEPENDENCIES = libskeleton.la
 skeleton_test_all_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CXX \
@@ -352,9 +390,33 @@ am__v_at_1 =
 DEFAULT_INCLUDES = 
 depcomp = $(SHELL) $(top_srcdir)/config/depcomp
 am__maybe_remake_depfiles = depfiles
-am__depfiles_remade = @srclib@/$(DEPDIR)/golden_archive_generator-golden_archive_generator.Po \
+am__depfiles_remade = ./$(DEPDIR)/_swig_wrap_la-nb_docstrings.Plo \
+	@srclib@/$(DEPDIR)/_skeleton_downstream_la-downstream_nb.Plo \
+	@srclib@/$(DEPDIR)/_swig_wrap_la-array_sample_nb.Plo \
+	@srclib@/$(DEPDIR)/_swig_wrap_la-array_typemap_sample_nb.Plo \
+	@srclib@/$(DEPDIR)/_swig_wrap_la-director_example_nb.Plo \
+	@srclib@/$(DEPDIR)/_swig_wrap_la-exception_sample_nb.Plo \
+	@srclib@/$(DEPDIR)/_swig_wrap_la-file_reference_sample_nb.Plo \
+	@srclib@/$(DEPDIR)/_swig_wrap_la-generic_object_map_nb.Plo \
+	@srclib@/$(DEPDIR)/_swig_wrap_la-generic_object_nb.Plo \
+	@srclib@/$(DEPDIR)/_swig_wrap_la-generic_object_sample_nb.Plo \
+	@srclib@/$(DEPDIR)/_swig_wrap_la-iostream_swig_nb.Plo \
+	@srclib@/$(DEPDIR)/_swig_wrap_la-multi_base_example_nb.Plo \
+	@srclib@/$(DEPDIR)/_swig_wrap_la-numpy_sample_nb.Plo \
+	@srclib@/$(DEPDIR)/_swig_wrap_la-observer_example_nb.Plo \
+	@srclib@/$(DEPDIR)/_swig_wrap_la-observer_nb.Plo \
+	@srclib@/$(DEPDIR)/_swig_wrap_la-overload_example_nb.Plo \
+	@srclib@/$(DEPDIR)/_swig_wrap_la-serialize_function_nb.Plo \
+	@srclib@/$(DEPDIR)/_swig_wrap_la-skeleton_exception_nb.Plo \
+	@srclib@/$(DEPDIR)/_swig_wrap_la-skeleton_nb_module.Plo \
+	@srclib@/$(DEPDIR)/_swig_wrap_la-swig_rules_sample_nb.Plo \
+	@srclib@/$(DEPDIR)/_swig_wrap_la-thread_example_nb.Plo \
+	@srclib@/$(DEPDIR)/_swig_wrap_la-virtual_diamond_example_nb.Plo \
+	@srclib@/$(DEPDIR)/_swig_wrap_la-with_parameter_like_nb.Plo \
+	@srclib@/$(DEPDIR)/golden_archive_generator-golden_archive_generator.Po \
 	@srclib@/$(DEPDIR)/libskeleton_la-array_sample.Plo \
 	@srclib@/$(DEPDIR)/libskeleton_la-blitz_array_serialize_support.Plo \
+	@srclib@/$(DEPDIR)/libskeleton_la-blitz_mdspan.Plo \
 	@srclib@/$(DEPDIR)/libskeleton_la-director_example.Plo \
 	@srclib@/$(DEPDIR)/libskeleton_la-file_reference_sample.Plo \
 	@srclib@/$(DEPDIR)/libskeleton_la-generic_object.Plo \
@@ -370,6 +432,7 @@ am__depfiles_remade = @srclib@/$(DEPDIR)/golden_archive_generator-golden_archive
 	@srclib@/$(DEPDIR)/libskeleton_la-with_parameter_like.Plo \
 	@srclib@/$(DEPDIR)/skeleton_test_all-array_sample_test.Po \
 	@srclib@/$(DEPDIR)/skeleton_test_all-blitz_array_serialize_support_test.Po \
+	@srclib@/$(DEPDIR)/skeleton_test_all-blitz_mdspan_test.Po \
 	@srclib@/$(DEPDIR)/skeleton_test_all-generic_object_map_test.Po \
 	@srclib@/$(DEPDIR)/skeleton_test_all-global_fixture.Po \
 	@srclib@/$(DEPDIR)/skeleton_test_all-global_fixture_default.Po \
@@ -382,32 +445,9 @@ am__depfiles_remade = @srclib@/$(DEPDIR)/golden_archive_generator-golden_archive
 	@srclib@/$(DEPDIR)/skeleton_test_all-test_all.Po \
 	@srclib@/$(DEPDIR)/skeleton_test_all-thread_example_test.Po \
 	@swigrules@/lib/$(DEPDIR)/libskeleton_la-serialize_function.Plo \
-	@swigrules@/lib/$(DEPDIR)/libskeleton_la-swig_type_mapper_base.Plo \
 	@swigrules@/lib/$(DEPDIR)/libskeleton_la-weak_ptr_serialize_support.Plo \
-	@swigsrc@/$(DEPDIR)/_swig_wrap_la-array_sample_wrap.Plo \
-	@swigsrc@/$(DEPDIR)/_swig_wrap_la-array_typemap_sample_wrap.Plo \
-	@swigsrc@/$(DEPDIR)/_swig_wrap_la-director_example_wrap.Plo \
-	@swigsrc@/$(DEPDIR)/_swig_wrap_la-exception_sample_wrap.Plo \
-	@swigsrc@/$(DEPDIR)/_swig_wrap_la-file_reference_sample_wrap.Plo \
-	@swigsrc@/$(DEPDIR)/_swig_wrap_la-generic_object_map_wrap.Plo \
-	@swigsrc@/$(DEPDIR)/_swig_wrap_la-generic_object_sample_wrap.Plo \
-	@swigsrc@/$(DEPDIR)/_swig_wrap_la-generic_object_wrap.Plo \
-	@swigsrc@/$(DEPDIR)/_swig_wrap_la-iostream_swig_wrap.Plo \
-	@swigsrc@/$(DEPDIR)/_swig_wrap_la-multi_base_example_wrap.Plo \
-	@swigsrc@/$(DEPDIR)/_swig_wrap_la-numpy_sample_wrap.Plo \
-	@swigsrc@/$(DEPDIR)/_swig_wrap_la-observer_example_wrap.Plo \
-	@swigsrc@/$(DEPDIR)/_swig_wrap_la-observer_wrap.Plo \
-	@swigsrc@/$(DEPDIR)/_swig_wrap_la-overload_example_wrap.Plo \
-	@swigsrc@/$(DEPDIR)/_swig_wrap_la-serialize_function_wrap.Plo \
-	@swigsrc@/$(DEPDIR)/_swig_wrap_la-skeleton_exception_wrap.Plo \
-	@swigsrc@/$(DEPDIR)/_swig_wrap_la-swig_array_wrap.Plo \
-	@swigsrc@/$(DEPDIR)/_swig_wrap_la-swig_boost_array_wrap.Plo \
-	@swigsrc@/$(DEPDIR)/_swig_wrap_la-swig_rules_sample_wrap.Plo \
-	@swigsrc@/$(DEPDIR)/_swig_wrap_la-swig_std_wrap.Plo \
-	@swigsrc@/$(DEPDIR)/_swig_wrap_la-swig_wrap.Plo \
-	@swigsrc@/$(DEPDIR)/_swig_wrap_la-thread_example_wrap.Plo \
-	@swigsrc@/$(DEPDIR)/_swig_wrap_la-virtual_diamond_example_wrap.Plo \
-	@swigsrc@/$(DEPDIR)/_swig_wrap_la-with_parameter_like_wrap.Plo
+	@swigrules@/nanobind/$(DEPDIR)/_swig_wrap_la-swig_rules_nb.Plo \
+	@swigrules@/nanobind/$(DEPDIR)/libnanobind_core_la-nb_combined.Plo
 am__mv = mv -f
 CXXCOMPILE = $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) \
 	$(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS)
@@ -427,25 +467,29 @@ AM_V_CXXLD = $(am__v_CXXLD_@AM_V@)
 am__v_CXXLD_ = $(am__v_CXXLD_@AM_DEFAULT_V@)
 am__v_CXXLD_0 = @echo "  CXXLD   " $@;
 am__v_CXXLD_1 = 
-SOURCES = $(_swig_wrap_la_SOURCES) $(libskeleton_la_SOURCES) \
-	$(golden_archive_generator_SOURCES) \
+SOURCES = $(_skeleton_downstream_la_SOURCES) $(_swig_wrap_la_SOURCES) \
+	$(nodist__swig_wrap_la_SOURCES) $(libnanobind_core_la_SOURCES) \
+	$(libskeleton_la_SOURCES) $(golden_archive_generator_SOURCES) \
 	$(skeleton_test_all_SOURCES)
-DIST_SOURCES = $(_swig_wrap_la_SOURCES) $(libskeleton_la_SOURCES) \
-	$(golden_archive_generator_SOURCES) \
+DIST_SOURCES = $(am___skeleton_downstream_la_SOURCES_DIST) \
+	$(am___swig_wrap_la_SOURCES_DIST) \
+	$(am__libnanobind_core_la_SOURCES_DIST) \
+	$(libskeleton_la_SOURCES) $(golden_archive_generator_SOURCES) \
 	$(skeleton_test_all_SOURCES)
 am__can_run_installinfo = \
   case $$AM_UPDATE_INFO_DIR in \
     n|no|NO) false;; \
     *) (install-info --version) >/dev/null 2>&1;; \
   esac
+am__pkgpythonswig_PYTHON_DIST = @swigrules@/__init__.py \
+	@swigrules@/all.py @swigrules@/_nanobind_support.py
 am__py_compile = PYTHON=$(PYTHON) $(SHELL) $(py_compile)
 am__pep3147_tweak = \
   sed -e 's|\.py$$||' -e 's|[^/]*$$|__pycache__/&.*.pyc __pycache__/&.*.pyo|'
 py_compile = $(top_srcdir)/config/py-compile
 DATA = $(installskeleton_DATA) $(nodist_pkgpythonswig_DATA) \
 	$(pkgconfig_DATA) $(pkgpythonswig_DATA)
-HEADERS = $(include_HEADERS) $(skeletoninc_HEADERS) \
-	$(skeletonswiginc_HEADERS) $(swiginc_HEADERS)
+HEADERS = $(include_HEADERS) $(skeletoninc_HEADERS)
 am__tagged_files = $(HEADERS) $(SOURCES) $(TAGS_FILES) $(LISP)
 # Read a list of newline-separated strings from the standard input,
 # and print each of them once, without duplicates.  Input order is
@@ -647,11 +691,11 @@ TEST_LOGS = $(am__test_logs2:.test.log=.log)
 TEST_LOG_DRIVER = $(SHELL) $(top_srcdir)/config/test-driver
 TEST_LOG_COMPILE = $(TEST_LOG_COMPILER) $(AM_TEST_LOG_FLAGS) \
 	$(TEST_LOG_FLAGS)
-am__DIST_COMMON = $(srcdir)/Makefile.in \
-	$(srcdir)/bindings/python/python.am $(srcdir)/common.am \
+am__DIST_COMMON = $(srcdir)/Makefile.in $(srcdir)/common.am \
 	$(srcdir)/include.am $(srcdir)/lib/lib.am \
 	$(srcdir)/python/bin/bin.am $(srcdir)/python/python.am \
 	$(srcdir)/script/script.am $(srcdir)/skeleton.am \
+	$(srcdir)/swig_rules/nanobind/nanobind.am \
 	$(srcdir)/swig_rules/swig_rules.am \
 	$(srcdir)/unit_test_data/unit_test_data.am \
 	$(top_srcdir)/config/compile $(top_srcdir)/config/config.guess \
@@ -697,8 +741,6 @@ AUTOCONF = @AUTOCONF@
 AUTOHEADER = @AUTOHEADER@
 AUTOMAKE = @AUTOMAKE@
 AWK = @AWK@
-AX_SWIG_PYTHON_CPPFLAGS = @AX_SWIG_PYTHON_CPPFLAGS@
-AX_SWIG_PYTHON_OPT = @AX_SWIG_PYTHON_OPT@
 BLITZ_CFLAGS = @BLITZ_CFLAGS@
 BLITZ_LIBS = @BLITZ_LIBS@
 BOOST_CPPFLAGS = @BOOST_CPPFLAGS@
@@ -759,6 +801,9 @@ MAINT = @MAINT@
 MAKEINFO = @MAKEINFO@
 MANIFEST_TOOL = @MANIFEST_TOOL@
 MKDIR_P = @MKDIR_P@
+NANOBIND_CPPFLAGS = @NANOBIND_CPPFLAGS@
+NANOBIND_SRCDIR = @NANOBIND_SRCDIR@
+NANOBIND_VERSION = @NANOBIND_VERSION@
 NM = @NM@
 NMEDIT = @NMEDIT@
 OBJDUMP = @OBJDUMP@
@@ -797,9 +842,6 @@ SET_MAKE = @SET_MAKE@
 SHELL = @SHELL@
 SPHINXBUILD = @SPHINXBUILD@
 STRIP = @STRIP@
-SWIG = @SWIG@
-SWIG_LIB = @SWIG_LIB@
-SWIG_PYTHON_OPT = @SWIG_PYTHON_OPT@
 VERSION = @VERSION@
 abs_builddir = @abs_builddir@
 abs_srcdir = @abs_srcdir@
@@ -893,10 +935,10 @@ noop =
 
 # Set up for the library
 lib_LTLIBRARIES = libskeleton.la
-noinst_LTLIBRARIES = 
+noinst_LTLIBRARIES = $(am__append_5)
 dist_bin_SCRIPTS = 
 AM_LDFLAGS = 
-BUILT_SOURCES = complain_if_afids $(am__append_1)
+BUILT_SOURCES = complain_if_afids
 include_HEADERS = 
 # Automake doesn't seem to include two directories of m4 macros, so explicitly
 # add
@@ -904,39 +946,33 @@ include_HEADERS =
 # Test files
 EXTRA_DIST = README.md bootstrap config/m4_local/README config/m4 \
 	@srcscript@/make_compile_commands.py \
-	@srcscript@/run_clang_tidy.sh @swigrules@/doxy2swig.py \
-	@swigrules@/create_python_init.py \
-	@swigrules@/doxygen_single.cfg @swigrules@/README.md \
-	@swigrules@/swig_wrap.tmpl \
+	@srcscript@/run_clang_tidy.sh @swigrules@/README.md \
 	@swigrules@/lib/generic_object.cc.sample \
 	@swigrules@/lib/generic_object.h.sample \
-	@swigrules@/lib/generic_object.i.sample \
 	@swigrules@/lib/generic_object_map.cc.sample \
 	@swigrules@/lib/generic_object_map.h.sample \
-	@swigrules@/lib/generic_object_map.i.sample \
-	@swigrules@/lib/common.i.sample \
 	@swigrules@/lib/printable.h.sample \
 	@swigrules@/lib/DirectorNotes.md \
 	@swigrules@/lib/serialize_support.h.sample \
 	@swigrules@/lib/blitz_array_serialize_support.h.sample \
 	@swigrules@/lib/blitz_array_serialize_support.cc.sample \
-	@swigrules@/lib/serialize_function.i.sample \
 	@swigrules@/python/swig_shelve.py.sample \
-	@swigrules@/python/swig_shelve_test.py.sample $(patsubst \
-	%_wrap.cc, %.py, $(FULL_SWIG_SRC)) $(patsubst %_wrap.cc, %.py, \
-	$(ADDITONAL_SWIG_SRC)) $(FULL_SWIG_SRC) $(ADDITONAL_SWIG_SRC) \
-	$(SWIG_PYI) $(srcdir)/$(swigsrc)/*_wrap.h @srclib@/test_all.sh \
-	@srclib@/unit_test_support.h @srclib@/global_fixture.h
+	@swigrules@/python/swig_shelve_test.py.sample \
+	@srclib@/test_all.sh @srclib@/skeleton_nb_opaque.h \
+	@srclib@/skeleton_nb_init.inc @srclib@/unit_test_support.h \
+	@srclib@/global_fixture.h \
+	@swigrules@/nanobind/i_to_nanobind.py \
+	@swigrules@/nanobind/doxy2nanobind.py \
+	@swigrules@/nanobind/doxygen_nanobind.cfg \
+	@swigrules@/nanobind/README.md
 CYTHON_SRC = 
 pkgconfig_DATA = 
-MOSTLYCLEANFILES = swig_pyi/__init__.pyi
+MOSTLYCLEANFILES = $(am__append_6)
 # Hand-written .pyi stubs for SWIG modules (see swig_rules/swig_rules.am)
 SWIG_PYI = 
-
-# Allow files to be include in other directories
 # To pick up generated skeleton_config.h file
-AM_CPPFLAGS = -I$(srcdir)/@swigrules@/include \
-	-I$(srcdir)/@swigrules@/lib -I$(srcdir)/@srclib@ -I@srclib@
+AM_CPPFLAGS = -I$(srcdir)/@swigrules@/lib -I$(srcdir)/@srclib@ \
+	-I@srclib@
 
 #=================================================================
 # Some flags needed for GCC compilers.
@@ -955,16 +991,15 @@ AM_CPPFLAGS = -I$(srcdir)/@swigrules@/include \
 INSTALL_DATA_HOOK = 
 INSTALL_EXEC_HOOK = python-install
 UNINSTALL_HOOK = 
-CLEAN_HOOK = 
+CLEAN_HOOK = $(am__append_2)
 INSTALLCHECK_HOOK = python-check
-CHECK_HOOK = 
+CHECK_HOOK = $(am__append_1)
 TESTS = @srclib@/test_all.sh
 check_PROGRAM = 
 check_DATA = 
 
 # Build these up as we go
-libskeleton_la_SOURCES = @swigrules@/lib/swig_type_mapper_base.cc \
-	@swigrules@/lib/serialize_function.cc \
+libskeleton_la_SOURCES = @swigrules@/lib/serialize_function.cc \
 	@swigrules@/lib/weak_ptr_serialize_support.cc \
 	@srclib@/generic_object.cc @srclib@/generic_object_sample.cc \
 	@srclib@/director_example.cc @srclib@/generic_object_map.cc \
@@ -973,26 +1008,28 @@ libskeleton_la_SOURCES = @swigrules@/lib/swig_type_mapper_base.cc \
 	@srclib@/file_reference_sample.cc @srclib@/array_sample.cc \
 	@srclib@/observer.cc @srclib@/observer_example.cc \
 	@srclib@/with_parameter_like.cc @srclib@/multi_base_example.cc \
-	@srclib@/virtual_diamond_example.cc @srclib@/thread_example.cc
-SWIG_SRC = @swigsrc@/skeleton_exception_wrap.cc \
-	@swigsrc@/generic_object_wrap.cc \
-	@swigsrc@/generic_object_sample_wrap.cc \
-	@swigsrc@/director_example_wrap.cc \
-	@swigsrc@/generic_object_map_wrap.cc \
-	@swigsrc@/iostream_swig_wrap.cc \
-	@swigsrc@/serialize_function_wrap.cc \
-	@swigsrc@/numpy_sample_wrap.cc \
-	@swigsrc@/exception_sample_wrap.cc \
-	@swigsrc@/array_typemap_sample_wrap.cc \
-	@swigsrc@/swig_rules_sample_wrap.cc \
-	@swigsrc@/file_reference_sample_wrap.cc \
-	@swigsrc@/array_sample_wrap.cc @swigsrc@/observer_wrap.cc \
-	@swigsrc@/observer_example_wrap.cc \
-	@swigsrc@/with_parameter_like_wrap.cc \
-	@swigsrc@/multi_base_example_wrap.cc \
-	@swigsrc@/virtual_diamond_example_wrap.cc \
-	@swigsrc@/overload_example_wrap.cc \
-	@swigsrc@/thread_example_wrap.cc
+	@srclib@/virtual_diamond_example.cc @srclib@/blitz_mdspan.cc \
+	@srclib@/thread_example.cc
+# Python binding sources (nanobind), swig_rules/nanobind/nanobind.am
+
+# Python bindings (nanobind), see swig_rules/nanobind/nanobind.am
+NB_SRC = @srclib@/array_sample_nb.cc \
+	@srclib@/array_typemap_sample_nb.cc \
+	@srclib@/director_example_nb.cc \
+	@srclib@/exception_sample_nb.cc \
+	@srclib@/file_reference_sample_nb.cc \
+	@srclib@/generic_object_map_nb.cc \
+	@srclib@/generic_object_nb.cc \
+	@srclib@/generic_object_sample_nb.cc \
+	@srclib@/iostream_swig_nb.cc @srclib@/multi_base_example_nb.cc \
+	@srclib@/numpy_sample_nb.cc @srclib@/observer_example_nb.cc \
+	@srclib@/observer_nb.cc @srclib@/overload_example_nb.cc \
+	@srclib@/serialize_function_nb.cc \
+	@srclib@/skeleton_exception_nb.cc \
+	@srclib@/swig_rules_sample_nb.cc @srclib@/thread_example_nb.cc \
+	@srclib@/virtual_diamond_example_nb.cc \
+	@srclib@/with_parameter_like_nb.cc \
+	@srclib@/skeleton_nb_module.cc
 # Only the compiled Boost libraries libskeleton uses: iostreams (gzip) and
 # serialization. regex and filesystem were replaced by std in phase S2 of
 # claude_notes/implementation_plan.md; configure still looks for them
@@ -1006,17 +1043,14 @@ libskeleton_la_LDFLAGS = -R $(BOOST_LIBDIR) -L$(BOOST_LIBDIR) \
 	$(BLITZ_LIBS) -ldl
 skeletonincdir = @includedir@/skeleton
 
+# The C++ code from swig_rules/lib, compiled into the library.
+
 #=================================================================
 # List of source files
 # Samples for consumer patterns (phase S5)
-skeletoninc_HEADERS = @swigrules@/lib/swig_type_mapper_base.h \
-	@swigrules@/lib/python_lib_init.h \
-	@swigrules@/lib/python_exception.h \
-	@swigrules@/lib/python_ref_ptr_cleanup.h \
-	@swigrules@/lib/swig_type_mapper.h \
-	@swigrules@/lib/swig_to_python.h \
-	@swigrules@/lib/serialize_function.h \
+skeletoninc_HEADERS = @swigrules@/lib/serialize_function.h \
 	@swigrules@/lib/serialize_shared_ptr.h \
+	@swigrules@/lib/director_hook.h \
 	@swigrules@/lib/weak_ptr_serialize_support.h \
 	@srclib@/skeleton_serialize_support.h \
 	@srclib@/generic_object.h @srclib@/generic_object_sample.h \
@@ -1032,21 +1066,8 @@ skeletoninc_HEADERS = @swigrules@/lib/swig_type_mapper_base.h \
 	@srclib@/observer_example.h @srclib@/with_parameter_like.h \
 	@srclib@/multi_base_example.h \
 	@srclib@/virtual_diamond_example.h @srclib@/overload_example.h \
-	@srclib@/thread_example.h
-
-# Files that contain SWIG wrapper information.
-skeletonswiginc_HEADERS = @srclib@/skeleton_common.i \
-	@srclib@/skeleton_shared_ptr.i @srclib@/skeleton_exception.i \
-	@srclib@/generic_object.i @srclib@/generic_object_sample.i \
-	@srclib@/director_example.i @srclib@/generic_object_map.i \
-	@srclib@/iostream_swig.i @srclib@/serialize_function.i \
-	@srclib@/numpy_sample.i @srclib@/exception_sample.i \
-	@srclib@/array_typemap_sample.i @srclib@/swig_rules_sample.i \
-	@srclib@/file_reference_sample.i @srclib@/array_sample.i \
-	@srclib@/observer.i @srclib@/observer_example.i \
-	@srclib@/with_parameter_like.i @srclib@/multi_base_example.i \
-	@srclib@/virtual_diamond_example.i @srclib@/overload_example.i \
-	@srclib@/thread_example.i
+	@srclib@/thread_example.h @srclib@/skeleton_mdspan.h \
+	@srclib@/blitz_mdspan.h
 skeleton_test_all_SOURCES = @srclib@/test_all.cc \
 	@srclib@/global_fixture.cc @srclib@/global_fixture_default.cc \
 	@srclib@/generic_object_map_test.cc @srclib@/printable_test.cc \
@@ -1055,15 +1076,15 @@ skeleton_test_all_SOURCES = @srclib@/test_all.cc \
 	@srclib@/golden_archive_test.cc \
 	@srclib@/serialize_function_test.cc @srclib@/observer_test.cc \
 	@srclib@/multi_base_example_test.cc \
-	@srclib@/array_sample_test.cc @srclib@/thread_example_test.cc
+	@srclib@/array_sample_test.cc @srclib@/thread_example_test.cc \
+	@srclib@/blitz_mdspan_test.cc
 dist_installskeleton_SCRIPTS = 
-SWIG_FLAG = -O
 
 # Make sure we don't have any pyc or pycache files floating around
 DIST_HOOK = dist-clean-up-python
 libskeleton_la_CPPFLAGS = $(AM_CPPFLAGS) $(BOOST_CPPFLAGS) \
 	$(BLITZ_CFLAGS) -DSWIG_MAPPER_NAMESPACE=Skeleton \
-	$(am__append_2)
+	$(am__append_3)
 
 #=================================================================
 # Test coverage report. This needs a build configured with
@@ -1092,16 +1113,17 @@ GCOVR = gcovr
 #
 # lint also writes compile_commands.json (with the extra flags clangd needs,
 # see script/make_compile_commands.py), so it can be linked into the source
-# tree for clangd. clang-tidy runs on the library, test and generator
-# sources in the source tree (not files generated in the build directory,
-# and not the SWIG wrappers); headers that only the wrappers include aren't
-# checked.
+# tree for clangd. clang-tidy runs on the library, test, generator and
+# python binding sources in the source tree (not files generated in the
+# build directory, and not nanobind's own source, nb_combined.cc).
 CLANG_FORMAT = clang-format
 CLANG_TIDY_FLAGS = --quiet --warnings-as-errors='*' \
   --config-file=$(abs_top_srcdir)/.clang-tidy
 
 LINT_NJOB = 10
-FORMAT_FILES = 'lib/*.h' 'lib/*.cc' 'swig_rules/lib/*.h' 'swig_rules/lib/*.cc'
+FORMAT_FILES = 'lib/*.h' 'lib/*.cc' 'swig_rules/lib/*.h' 'swig_rules/lib/*.cc' \
+  'swig_rules/nanobind/*.h' 'swig_rules/nanobind/*.cc'
+
 installskeleton_DATA = @srcscript@/setup_skeleton.csh @srcscript@/setup_skeleton.sh
 
 # The skeleton python package is installed via pip rather than being
@@ -1120,58 +1142,10 @@ PYTEST_NJOB = 10
 # PYTEST_EXTRAFLAGS="--timeout=20"
 PYTEST_EXTRAFLAGS = 
 PYTEST_FLAGS = -q -n $(PYTEST_NJOB)
-swiginc_HEADERS = @swigrules@/include/director_serialization.i \
-	@swigrules@/include/my_shared_ptr.i \
-	@swigrules@/include/shared_ptr_type_mapper.i \
-	@swigrules@/include/swig_array.i \
-	@swigrules@/include/swig_array_inc.i \
-	@swigrules@/include/swig_boost_array.i \
-	@swigrules@/include/swig_boost_array_inc.i \
-	@swigrules@/include/swig_boost_optional.i \
-	@swigrules@/include/swig_exception.i \
-	@swigrules@/include/swig_iostream.i \
-	@swigrules@/include/swig_iostream_inc.i \
-	@swigrules@/include/swig_pickle.i \
-	@swigrules@/include/swig_print.i \
-	@swigrules@/include/swig_python_attribute.i \
-	@swigrules@/include/swig_rational.i \
-	@swigrules@/include/swig_std.i \
-	@swigrules@/include/swig_vector_shared_ptr.i
-ADDITONAL_SWIG_SRC = @swigsrc@/swig_array_wrap.cc \
-	@swigsrc@/swig_boost_array_wrap.cc @swigsrc@/swig_std_wrap.cc
-pkgpythonswig_PYTHON = @swigrules@/__init__.py @swigrules@/all.py \
-	$(patsubst %_wrap.cc, %.py, $(COMPILE_SWIG_SRC)) $(patsubst \
-	%_wrap.cc, %.py, $(ADDITONAL_SWIG_SRC))
-pkgpythonswig_LTLIBRARIES = _swig_wrap.la
-pkgpythonswig_DATA = $(SWIG_PYI) @swigrules@/py.typed
 
-# __init__.py pulls in every module with exec, which mypy can't
-# follow. Generate a __init__.pyi stub that explicitly star imports each
-# module we install, so type checkers see all the classes. This is
-# generated from the same lists used to install the .py files, so it
-# stays in sync.
-SWIG_INIT_PYI_MODULES = $(notdir $(patsubst %_wrap.cc,%,$(COMPILE_SWIG_SRC) $(ADDITONAL_SWIG_SRC)))
-nodist_pkgpythonswig_DATA = swig_pyi/__init__.pyi
-_swig_wrap_la_CPPFLAGS = $(PYTHON_CPPFLAGS) $(PYTHON_NUMPY_CPPFLAGS) \
-	$(SWIG_CPPFLAGS) -DSWIG_TYPE_TABLE=$(SWIG_TYPE_TABLE_NAME)
-# SWIG's own generated code for the std::ios manipulators (in
-# swig_std_wrap.cc) casts between function pointer types, which
-# -Wextra warns about. Generated code we can't change, so turn just that
-# warning off for the wrappers. (gcc gives the specific -Wno- priority
-# over -Wextra, whatever the order on the command line.)
-_swig_wrap_la_CXXFLAGS = $(AM_CXXFLAGS) -Wno-cast-function-type
-_swig_wrap_la_LDFLAGS = -module -avoid-version
-_swig_wrap_la_LIBADD = $(SWIG_LIBADD)
-_swig_wrap_la_SOURCES = $(COMPILE_SWIG_SRC) $(ADDITONAL_SWIG_SRC) \
-	@swigsrc@/swig_wrap.cc
+# Where the python package with the extension module goes.
 pkgpythonswigdir = $(prefix)/@pythondir@/skeleton_swig
-COMPILE_SWIG_SRC = $(SWIG_SRC)
-FULL_SWIG_SRC = $(SWIG_SRC)
-CONDITIONAL_SWIG_SRC = $(SWIG_SRC)
-SWIG_CPPFLAGS = $(AM_CPPFLAGS)
-SWIG_TYPE_TABLE_NAME = skeleton
-SWIG_MODULE_NAME = skeleton
-SWIG_LIBADD = libskeleton.la
+pkgpythonswig_LTLIBRARIES = $(am__append_4)
 #=================================================================
 # LDFLAGS for programs run from the build tree and never installed (the
 # unit tests, the golden archive generator). The -rpath makes them use the
@@ -1189,11 +1163,49 @@ UNINSTALLED_PROGRAM_LINK_FLAGS = -no-install -Wl,-rpath,$(abs_top_builddir)/.lib
 skeleton_test_all_LDADD = libskeleton.la 
 skeleton_test_all_LDFLAGS = $(UNINSTALLED_PROGRAM_LINK_FLAGS)
 skeleton_test_all_CPPFLAGS = $(AM_CPPFLAGS)
+NB_LIBADD = libskeleton.la
+@BUILD_PYTHON_BINDINGS_TRUE@_skeleton_downstream_la_SOURCES = @srclib@/downstream_nb.cc
+@BUILD_PYTHON_BINDINGS_TRUE@_skeleton_downstream_la_CPPFLAGS = $(_swig_wrap_la_CPPFLAGS)
+@BUILD_PYTHON_BINDINGS_TRUE@_skeleton_downstream_la_CXXFLAGS = $(_swig_wrap_la_CXXFLAGS)
+@BUILD_PYTHON_BINDINGS_TRUE@_skeleton_downstream_la_LDFLAGS = $(_swig_wrap_la_LDFLAGS)
+@BUILD_PYTHON_BINDINGS_TRUE@_skeleton_downstream_la_LIBADD = libnanobind_core.la libskeleton.la
+NB_MAPPER_NAMESPACE = Skeleton
+NB_DOXYGEN_INPUT = $(addprefix $(srcdir)/, $(filter %.h, $(skeletoninc_HEADERS)))
 golden_archive_generator_SOURCES = @srclib@/golden_archive_generator.cc
 golden_archive_generator_LDADD = libskeleton.la
 golden_archive_generator_LDFLAGS = $(UNINSTALLED_PROGRAM_LINK_FLAGS)
 golden_archive_generator_CPPFLAGS = $(AM_CPPFLAGS) $(BOOST_CPPFLAGS) \
 	$(BLITZ_CFLAGS) -DSWIG_MAPPER_NAMESPACE=Skeleton
+@BUILD_PYTHON_BINDINGS_TRUE@libnanobind_core_la_SOURCES = @swigrules@/nanobind/nb_combined.cc
+@BUILD_PYTHON_BINDINGS_TRUE@libnanobind_core_la_CPPFLAGS = $(PYTHON_CPPFLAGS) $(NANOBIND_CPPFLAGS) -I$(NANOBIND_SRCDIR)
+@BUILD_PYTHON_BINDINGS_TRUE@libnanobind_core_la_CXXFLAGS = -std=c++20 -O2 -fPIC -fvisibility=hidden -fno-strict-aliasing
+@BUILD_PYTHON_BINDINGS_TRUE@_swig_wrap_la_SOURCES = $(NB_SRC) \
+@BUILD_PYTHON_BINDINGS_TRUE@	@swigrules@/nanobind/swig_rules_nb.cc
+@BUILD_PYTHON_BINDINGS_TRUE@nodist__swig_wrap_la_SOURCES = nb_docstrings.cc
+@BUILD_PYTHON_BINDINGS_TRUE@_swig_wrap_la_CPPFLAGS = $(AM_CPPFLAGS) \
+@BUILD_PYTHON_BINDINGS_TRUE@	$(PYTHON_CPPFLAGS) \
+@BUILD_PYTHON_BINDINGS_TRUE@	$(NANOBIND_CPPFLAGS) \
+@BUILD_PYTHON_BINDINGS_TRUE@	-I$(srcdir)/@swigrules@/nanobind \
+@BUILD_PYTHON_BINDINGS_TRUE@	-I$(srcdir)/@swigrules@/lib \
+@BUILD_PYTHON_BINDINGS_TRUE@	-DSWIG_MAPPER_NAMESPACE=$(NB_MAPPER_NAMESPACE) \
+@BUILD_PYTHON_BINDINGS_TRUE@	-DSWIG_RULES_NB_PACKAGE='"$(notdir \
+@BUILD_PYTHON_BINDINGS_TRUE@	$(pkgpythonswigdir))"' \
+@BUILD_PYTHON_BINDINGS_TRUE@	-DSWIG_HAVE_BOOST_SERIALIZATION
+# Not -fvisibility=hidden (nanobind recommends it, and nanobind's own code
+# above has it): the binding code instantiates Boost.Serialization
+# templates for library classes (director serialization), and with hidden
+# visibility the module gets its own copies of their singletons, separate
+# from the library's, which breaks serialization of those classes.
+@BUILD_PYTHON_BINDINGS_TRUE@_swig_wrap_la_CXXFLAGS = $(AM_CXXFLAGS)
+# No -lpython: the interpreter provides the symbols.
+@BUILD_PYTHON_BINDINGS_TRUE@_swig_wrap_la_LDFLAGS = -module -avoid-version -shared
+@BUILD_PYTHON_BINDINGS_TRUE@_swig_wrap_la_LIBADD = libnanobind_core.la $(NB_LIBADD)
+@BUILD_PYTHON_BINDINGS_TRUE@pkgpythonswig_PYTHON =  \
+@BUILD_PYTHON_BINDINGS_TRUE@	@swigrules@/__init__.py \
+@BUILD_PYTHON_BINDINGS_TRUE@	@swigrules@/all.py \
+@BUILD_PYTHON_BINDINGS_TRUE@	@swigrules@/_nanobind_support.py
+@BUILD_PYTHON_BINDINGS_TRUE@pkgpythonswig_DATA = @swigrules@/py.typed
+@BUILD_PYTHON_BINDINGS_TRUE@nodist_pkgpythonswig_DATA = nb_pyi/_swig_wrap.pyi
 all: $(BUILT_SOURCES)
 	$(MAKE) $(AM_MAKEFLAGS) all-am
 
@@ -1201,7 +1213,7 @@ all: $(BUILT_SOURCES)
 .SUFFIXES: .cc .lo .log .o .obj .test .test$(EXEEXT) .trs
 am--refresh: Makefile
 	@:
-$(srcdir)/Makefile.in: @MAINTAINER_MODE_TRUE@ $(srcdir)/Makefile.am $(srcdir)/common.am $(srcdir)/include.am $(srcdir)/skeleton.am $(srcdir)/script/script.am $(srcdir)/python/python.am $(srcdir)/python/bin/bin.am $(srcdir)/swig_rules/swig_rules.am $(srcdir)/bindings/python/python.am $(srcdir)/lib/lib.am $(srcdir)/unit_test_data/unit_test_data.am $(am__configure_deps)
+$(srcdir)/Makefile.in: @MAINTAINER_MODE_TRUE@ $(srcdir)/Makefile.am $(srcdir)/common.am $(srcdir)/include.am $(srcdir)/skeleton.am $(srcdir)/script/script.am $(srcdir)/python/python.am $(srcdir)/python/bin/bin.am $(srcdir)/swig_rules/swig_rules.am $(srcdir)/lib/lib.am $(srcdir)/swig_rules/nanobind/nanobind.am $(srcdir)/unit_test_data/unit_test_data.am $(am__configure_deps)
 	@for dep in $?; do \
 	  case '$(am__configure_deps)' in \
 	    *$$dep*) \
@@ -1223,7 +1235,7 @@ Makefile: $(srcdir)/Makefile.in $(top_builddir)/config.status
 	    echo ' cd $(top_builddir) && $(SHELL) ./config.status $@ $(am__maybe_remake_depfiles)'; \
 	    cd $(top_builddir) && $(SHELL) ./config.status $@ $(am__maybe_remake_depfiles);; \
 	esac;
-$(srcdir)/common.am $(srcdir)/include.am $(srcdir)/skeleton.am $(srcdir)/script/script.am $(srcdir)/python/python.am $(srcdir)/python/bin/bin.am $(srcdir)/swig_rules/swig_rules.am $(srcdir)/bindings/python/python.am $(srcdir)/lib/lib.am $(srcdir)/unit_test_data/unit_test_data.am $(am__empty):
+$(srcdir)/common.am $(srcdir)/include.am $(srcdir)/skeleton.am $(srcdir)/script/script.am $(srcdir)/python/python.am $(srcdir)/python/bin/bin.am $(srcdir)/swig_rules/swig_rules.am $(srcdir)/lib/lib.am $(srcdir)/swig_rules/nanobind/nanobind.am $(srcdir)/unit_test_data/unit_test_data.am $(am__empty):
 
 $(top_builddir)/config.status: $(top_srcdir)/configure $(CONFIG_STATUS_DEPENDENCIES)
 	$(SHELL) ./config.status --recheck
@@ -1377,84 +1389,89 @@ clean-pkgpythonswigLTLIBRARIES:
 	      sort -u`; \
 	echo rm -f $${locs}; \
 	$(am__rm_f) $${locs}
-@swigsrc@/$(am__dirstamp):
-	@$(MKDIR_P) @swigsrc@
-	@: >>@swigsrc@/$(am__dirstamp)
-@swigsrc@/$(DEPDIR)/$(am__dirstamp):
-	@$(MKDIR_P) @swigsrc@/$(DEPDIR)
-	@: >>@swigsrc@/$(DEPDIR)/$(am__dirstamp)
-@swigsrc@/_swig_wrap_la-skeleton_exception_wrap.lo:  \
-	@swigsrc@/$(am__dirstamp) @swigsrc@/$(DEPDIR)/$(am__dirstamp)
-@swigsrc@/_swig_wrap_la-generic_object_wrap.lo:  \
-	@swigsrc@/$(am__dirstamp) @swigsrc@/$(DEPDIR)/$(am__dirstamp)
-@swigsrc@/_swig_wrap_la-generic_object_sample_wrap.lo:  \
-	@swigsrc@/$(am__dirstamp) @swigsrc@/$(DEPDIR)/$(am__dirstamp)
-@swigsrc@/_swig_wrap_la-director_example_wrap.lo:  \
-	@swigsrc@/$(am__dirstamp) @swigsrc@/$(DEPDIR)/$(am__dirstamp)
-@swigsrc@/_swig_wrap_la-generic_object_map_wrap.lo:  \
-	@swigsrc@/$(am__dirstamp) @swigsrc@/$(DEPDIR)/$(am__dirstamp)
-@swigsrc@/_swig_wrap_la-iostream_swig_wrap.lo:  \
-	@swigsrc@/$(am__dirstamp) @swigsrc@/$(DEPDIR)/$(am__dirstamp)
-@swigsrc@/_swig_wrap_la-serialize_function_wrap.lo:  \
-	@swigsrc@/$(am__dirstamp) @swigsrc@/$(DEPDIR)/$(am__dirstamp)
-@swigsrc@/_swig_wrap_la-numpy_sample_wrap.lo:  \
-	@swigsrc@/$(am__dirstamp) @swigsrc@/$(DEPDIR)/$(am__dirstamp)
-@swigsrc@/_swig_wrap_la-exception_sample_wrap.lo:  \
-	@swigsrc@/$(am__dirstamp) @swigsrc@/$(DEPDIR)/$(am__dirstamp)
-@swigsrc@/_swig_wrap_la-array_typemap_sample_wrap.lo:  \
-	@swigsrc@/$(am__dirstamp) @swigsrc@/$(DEPDIR)/$(am__dirstamp)
-@swigsrc@/_swig_wrap_la-swig_rules_sample_wrap.lo:  \
-	@swigsrc@/$(am__dirstamp) @swigsrc@/$(DEPDIR)/$(am__dirstamp)
-@swigsrc@/_swig_wrap_la-file_reference_sample_wrap.lo:  \
-	@swigsrc@/$(am__dirstamp) @swigsrc@/$(DEPDIR)/$(am__dirstamp)
-@swigsrc@/_swig_wrap_la-array_sample_wrap.lo:  \
-	@swigsrc@/$(am__dirstamp) @swigsrc@/$(DEPDIR)/$(am__dirstamp)
-@swigsrc@/_swig_wrap_la-observer_wrap.lo: @swigsrc@/$(am__dirstamp) \
-	@swigsrc@/$(DEPDIR)/$(am__dirstamp)
-@swigsrc@/_swig_wrap_la-observer_example_wrap.lo:  \
-	@swigsrc@/$(am__dirstamp) @swigsrc@/$(DEPDIR)/$(am__dirstamp)
-@swigsrc@/_swig_wrap_la-with_parameter_like_wrap.lo:  \
-	@swigsrc@/$(am__dirstamp) @swigsrc@/$(DEPDIR)/$(am__dirstamp)
-@swigsrc@/_swig_wrap_la-multi_base_example_wrap.lo:  \
-	@swigsrc@/$(am__dirstamp) @swigsrc@/$(DEPDIR)/$(am__dirstamp)
-@swigsrc@/_swig_wrap_la-virtual_diamond_example_wrap.lo:  \
-	@swigsrc@/$(am__dirstamp) @swigsrc@/$(DEPDIR)/$(am__dirstamp)
-@swigsrc@/_swig_wrap_la-overload_example_wrap.lo:  \
-	@swigsrc@/$(am__dirstamp) @swigsrc@/$(DEPDIR)/$(am__dirstamp)
-@swigsrc@/_swig_wrap_la-thread_example_wrap.lo:  \
-	@swigsrc@/$(am__dirstamp) @swigsrc@/$(DEPDIR)/$(am__dirstamp)
-@swigsrc@/_swig_wrap_la-swig_array_wrap.lo: @swigsrc@/$(am__dirstamp) \
-	@swigsrc@/$(DEPDIR)/$(am__dirstamp)
-@swigsrc@/_swig_wrap_la-swig_boost_array_wrap.lo:  \
-	@swigsrc@/$(am__dirstamp) @swigsrc@/$(DEPDIR)/$(am__dirstamp)
-@swigsrc@/_swig_wrap_la-swig_std_wrap.lo: @swigsrc@/$(am__dirstamp) \
-	@swigsrc@/$(DEPDIR)/$(am__dirstamp)
-@swigsrc@/_swig_wrap_la-swig_wrap.lo: @swigsrc@/$(am__dirstamp) \
-	@swigsrc@/$(DEPDIR)/$(am__dirstamp)
-
-_swig_wrap.la: $(_swig_wrap_la_OBJECTS) $(_swig_wrap_la_DEPENDENCIES) $(EXTRA__swig_wrap_la_DEPENDENCIES) 
-	$(AM_V_CXXLD)$(_swig_wrap_la_LINK) -rpath $(pkgpythonswigdir) $(_swig_wrap_la_OBJECTS) $(_swig_wrap_la_LIBADD) $(LIBS)
-@swigrules@/lib/$(am__dirstamp):
-	@$(MKDIR_P) @swigrules@/lib
-	@: >>@swigrules@/lib/$(am__dirstamp)
-@swigrules@/lib/$(DEPDIR)/$(am__dirstamp):
-	@$(MKDIR_P) @swigrules@/lib/$(DEPDIR)
-	@: >>@swigrules@/lib/$(DEPDIR)/$(am__dirstamp)
-@swigrules@/lib/libskeleton_la-swig_type_mapper_base.lo:  \
-	@swigrules@/lib/$(am__dirstamp) \
-	@swigrules@/lib/$(DEPDIR)/$(am__dirstamp)
-@swigrules@/lib/libskeleton_la-serialize_function.lo:  \
-	@swigrules@/lib/$(am__dirstamp) \
-	@swigrules@/lib/$(DEPDIR)/$(am__dirstamp)
-@swigrules@/lib/libskeleton_la-weak_ptr_serialize_support.lo:  \
-	@swigrules@/lib/$(am__dirstamp) \
-	@swigrules@/lib/$(DEPDIR)/$(am__dirstamp)
 @srclib@/$(am__dirstamp):
 	@$(MKDIR_P) @srclib@
 	@: >>@srclib@/$(am__dirstamp)
 @srclib@/$(DEPDIR)/$(am__dirstamp):
 	@$(MKDIR_P) @srclib@/$(DEPDIR)
 	@: >>@srclib@/$(DEPDIR)/$(am__dirstamp)
+@srclib@/_skeleton_downstream_la-downstream_nb.lo:  \
+	@srclib@/$(am__dirstamp) @srclib@/$(DEPDIR)/$(am__dirstamp)
+
+_skeleton_downstream.la: $(_skeleton_downstream_la_OBJECTS) $(_skeleton_downstream_la_DEPENDENCIES) $(EXTRA__skeleton_downstream_la_DEPENDENCIES) 
+	$(AM_V_CXXLD)$(_skeleton_downstream_la_LINK) $(am__skeleton_downstream_la_rpath) $(_skeleton_downstream_la_OBJECTS) $(_skeleton_downstream_la_LIBADD) $(LIBS)
+@srclib@/_swig_wrap_la-array_sample_nb.lo: @srclib@/$(am__dirstamp) \
+	@srclib@/$(DEPDIR)/$(am__dirstamp)
+@srclib@/_swig_wrap_la-array_typemap_sample_nb.lo:  \
+	@srclib@/$(am__dirstamp) @srclib@/$(DEPDIR)/$(am__dirstamp)
+@srclib@/_swig_wrap_la-director_example_nb.lo:  \
+	@srclib@/$(am__dirstamp) @srclib@/$(DEPDIR)/$(am__dirstamp)
+@srclib@/_swig_wrap_la-exception_sample_nb.lo:  \
+	@srclib@/$(am__dirstamp) @srclib@/$(DEPDIR)/$(am__dirstamp)
+@srclib@/_swig_wrap_la-file_reference_sample_nb.lo:  \
+	@srclib@/$(am__dirstamp) @srclib@/$(DEPDIR)/$(am__dirstamp)
+@srclib@/_swig_wrap_la-generic_object_map_nb.lo:  \
+	@srclib@/$(am__dirstamp) @srclib@/$(DEPDIR)/$(am__dirstamp)
+@srclib@/_swig_wrap_la-generic_object_nb.lo: @srclib@/$(am__dirstamp) \
+	@srclib@/$(DEPDIR)/$(am__dirstamp)
+@srclib@/_swig_wrap_la-generic_object_sample_nb.lo:  \
+	@srclib@/$(am__dirstamp) @srclib@/$(DEPDIR)/$(am__dirstamp)
+@srclib@/_swig_wrap_la-iostream_swig_nb.lo: @srclib@/$(am__dirstamp) \
+	@srclib@/$(DEPDIR)/$(am__dirstamp)
+@srclib@/_swig_wrap_la-multi_base_example_nb.lo:  \
+	@srclib@/$(am__dirstamp) @srclib@/$(DEPDIR)/$(am__dirstamp)
+@srclib@/_swig_wrap_la-numpy_sample_nb.lo: @srclib@/$(am__dirstamp) \
+	@srclib@/$(DEPDIR)/$(am__dirstamp)
+@srclib@/_swig_wrap_la-observer_example_nb.lo:  \
+	@srclib@/$(am__dirstamp) @srclib@/$(DEPDIR)/$(am__dirstamp)
+@srclib@/_swig_wrap_la-observer_nb.lo: @srclib@/$(am__dirstamp) \
+	@srclib@/$(DEPDIR)/$(am__dirstamp)
+@srclib@/_swig_wrap_la-overload_example_nb.lo:  \
+	@srclib@/$(am__dirstamp) @srclib@/$(DEPDIR)/$(am__dirstamp)
+@srclib@/_swig_wrap_la-serialize_function_nb.lo:  \
+	@srclib@/$(am__dirstamp) @srclib@/$(DEPDIR)/$(am__dirstamp)
+@srclib@/_swig_wrap_la-skeleton_exception_nb.lo:  \
+	@srclib@/$(am__dirstamp) @srclib@/$(DEPDIR)/$(am__dirstamp)
+@srclib@/_swig_wrap_la-swig_rules_sample_nb.lo:  \
+	@srclib@/$(am__dirstamp) @srclib@/$(DEPDIR)/$(am__dirstamp)
+@srclib@/_swig_wrap_la-thread_example_nb.lo: @srclib@/$(am__dirstamp) \
+	@srclib@/$(DEPDIR)/$(am__dirstamp)
+@srclib@/_swig_wrap_la-virtual_diamond_example_nb.lo:  \
+	@srclib@/$(am__dirstamp) @srclib@/$(DEPDIR)/$(am__dirstamp)
+@srclib@/_swig_wrap_la-with_parameter_like_nb.lo:  \
+	@srclib@/$(am__dirstamp) @srclib@/$(DEPDIR)/$(am__dirstamp)
+@srclib@/_swig_wrap_la-skeleton_nb_module.lo:  \
+	@srclib@/$(am__dirstamp) @srclib@/$(DEPDIR)/$(am__dirstamp)
+@swigrules@/nanobind/$(am__dirstamp):
+	@$(MKDIR_P) @swigrules@/nanobind
+	@: >>@swigrules@/nanobind/$(am__dirstamp)
+@swigrules@/nanobind/$(DEPDIR)/$(am__dirstamp):
+	@$(MKDIR_P) @swigrules@/nanobind/$(DEPDIR)
+	@: >>@swigrules@/nanobind/$(DEPDIR)/$(am__dirstamp)
+@swigrules@/nanobind/_swig_wrap_la-swig_rules_nb.lo:  \
+	@swigrules@/nanobind/$(am__dirstamp) \
+	@swigrules@/nanobind/$(DEPDIR)/$(am__dirstamp)
+
+_swig_wrap.la: $(_swig_wrap_la_OBJECTS) $(_swig_wrap_la_DEPENDENCIES) $(EXTRA__swig_wrap_la_DEPENDENCIES) 
+	$(AM_V_CXXLD)$(_swig_wrap_la_LINK) $(am__swig_wrap_la_rpath) $(_swig_wrap_la_OBJECTS) $(_swig_wrap_la_LIBADD) $(LIBS)
+@swigrules@/nanobind/libnanobind_core_la-nb_combined.lo:  \
+	@swigrules@/nanobind/$(am__dirstamp) \
+	@swigrules@/nanobind/$(DEPDIR)/$(am__dirstamp)
+
+libnanobind_core.la: $(libnanobind_core_la_OBJECTS) $(libnanobind_core_la_DEPENDENCIES) $(EXTRA_libnanobind_core_la_DEPENDENCIES) 
+	$(AM_V_CXXLD)$(libnanobind_core_la_LINK) $(am_libnanobind_core_la_rpath) $(libnanobind_core_la_OBJECTS) $(libnanobind_core_la_LIBADD) $(LIBS)
+@swigrules@/lib/$(am__dirstamp):
+	@$(MKDIR_P) @swigrules@/lib
+	@: >>@swigrules@/lib/$(am__dirstamp)
+@swigrules@/lib/$(DEPDIR)/$(am__dirstamp):
+	@$(MKDIR_P) @swigrules@/lib/$(DEPDIR)
+	@: >>@swigrules@/lib/$(DEPDIR)/$(am__dirstamp)
+@swigrules@/lib/libskeleton_la-serialize_function.lo:  \
+	@swigrules@/lib/$(am__dirstamp) \
+	@swigrules@/lib/$(DEPDIR)/$(am__dirstamp)
+@swigrules@/lib/libskeleton_la-weak_ptr_serialize_support.lo:  \
+	@swigrules@/lib/$(am__dirstamp) \
+	@swigrules@/lib/$(DEPDIR)/$(am__dirstamp)
 @srclib@/libskeleton_la-generic_object.lo: @srclib@/$(am__dirstamp) \
 	@srclib@/$(DEPDIR)/$(am__dirstamp)
 @srclib@/libskeleton_la-generic_object_sample.lo:  \
@@ -1483,6 +1500,8 @@ _swig_wrap.la: $(_swig_wrap_la_OBJECTS) $(_swig_wrap_la_DEPENDENCIES) $(EXTRA__s
 	@srclib@/$(am__dirstamp) @srclib@/$(DEPDIR)/$(am__dirstamp)
 @srclib@/libskeleton_la-virtual_diamond_example.lo:  \
 	@srclib@/$(am__dirstamp) @srclib@/$(DEPDIR)/$(am__dirstamp)
+@srclib@/libskeleton_la-blitz_mdspan.lo: @srclib@/$(am__dirstamp) \
+	@srclib@/$(DEPDIR)/$(am__dirstamp)
 @srclib@/libskeleton_la-thread_example.lo: @srclib@/$(am__dirstamp) \
 	@srclib@/$(DEPDIR)/$(am__dirstamp)
 
@@ -1519,6 +1538,8 @@ golden_archive_generator$(EXEEXT): $(golden_archive_generator_OBJECTS) $(golden_
 @srclib@/skeleton_test_all-array_sample_test.$(OBJEXT):  \
 	@srclib@/$(am__dirstamp) @srclib@/$(DEPDIR)/$(am__dirstamp)
 @srclib@/skeleton_test_all-thread_example_test.$(OBJEXT):  \
+	@srclib@/$(am__dirstamp) @srclib@/$(DEPDIR)/$(am__dirstamp)
+@srclib@/skeleton_test_all-blitz_mdspan_test.$(OBJEXT):  \
 	@srclib@/$(am__dirstamp) @srclib@/$(DEPDIR)/$(am__dirstamp)
 
 skeleton_test_all$(EXEEXT): $(skeleton_test_all_OBJECTS) $(skeleton_test_all_DEPENDENCIES) $(EXTRA_skeleton_test_all_DEPENDENCIES) 
@@ -1601,15 +1622,39 @@ mostlyclean-compile:
 	-rm -f @srclib@/*.lo
 	-rm -f @swigrules@/lib/*.$(OBJEXT)
 	-rm -f @swigrules@/lib/*.lo
-	-rm -f @swigsrc@/*.$(OBJEXT)
-	-rm -f @swigsrc@/*.lo
+	-rm -f @swigrules@/nanobind/*.$(OBJEXT)
+	-rm -f @swigrules@/nanobind/*.lo
 
 distclean-compile:
 	-rm -f *.tab.c
 
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/_swig_wrap_la-nb_docstrings.Plo@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@@srclib@/$(DEPDIR)/_skeleton_downstream_la-downstream_nb.Plo@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@@srclib@/$(DEPDIR)/_swig_wrap_la-array_sample_nb.Plo@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@@srclib@/$(DEPDIR)/_swig_wrap_la-array_typemap_sample_nb.Plo@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@@srclib@/$(DEPDIR)/_swig_wrap_la-director_example_nb.Plo@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@@srclib@/$(DEPDIR)/_swig_wrap_la-exception_sample_nb.Plo@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@@srclib@/$(DEPDIR)/_swig_wrap_la-file_reference_sample_nb.Plo@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@@srclib@/$(DEPDIR)/_swig_wrap_la-generic_object_map_nb.Plo@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@@srclib@/$(DEPDIR)/_swig_wrap_la-generic_object_nb.Plo@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@@srclib@/$(DEPDIR)/_swig_wrap_la-generic_object_sample_nb.Plo@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@@srclib@/$(DEPDIR)/_swig_wrap_la-iostream_swig_nb.Plo@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@@srclib@/$(DEPDIR)/_swig_wrap_la-multi_base_example_nb.Plo@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@@srclib@/$(DEPDIR)/_swig_wrap_la-numpy_sample_nb.Plo@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@@srclib@/$(DEPDIR)/_swig_wrap_la-observer_example_nb.Plo@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@@srclib@/$(DEPDIR)/_swig_wrap_la-observer_nb.Plo@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@@srclib@/$(DEPDIR)/_swig_wrap_la-overload_example_nb.Plo@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@@srclib@/$(DEPDIR)/_swig_wrap_la-serialize_function_nb.Plo@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@@srclib@/$(DEPDIR)/_swig_wrap_la-skeleton_exception_nb.Plo@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@@srclib@/$(DEPDIR)/_swig_wrap_la-skeleton_nb_module.Plo@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@@srclib@/$(DEPDIR)/_swig_wrap_la-swig_rules_sample_nb.Plo@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@@srclib@/$(DEPDIR)/_swig_wrap_la-thread_example_nb.Plo@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@@srclib@/$(DEPDIR)/_swig_wrap_la-virtual_diamond_example_nb.Plo@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@@srclib@/$(DEPDIR)/_swig_wrap_la-with_parameter_like_nb.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@@srclib@/$(DEPDIR)/golden_archive_generator-golden_archive_generator.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@@srclib@/$(DEPDIR)/libskeleton_la-array_sample.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@@srclib@/$(DEPDIR)/libskeleton_la-blitz_array_serialize_support.Plo@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@@srclib@/$(DEPDIR)/libskeleton_la-blitz_mdspan.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@@srclib@/$(DEPDIR)/libskeleton_la-director_example.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@@srclib@/$(DEPDIR)/libskeleton_la-file_reference_sample.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@@srclib@/$(DEPDIR)/libskeleton_la-generic_object.Plo@am__quote@ # am--include-marker
@@ -1625,6 +1670,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@@srclib@/$(DEPDIR)/libskeleton_la-with_parameter_like.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@@srclib@/$(DEPDIR)/skeleton_test_all-array_sample_test.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@@srclib@/$(DEPDIR)/skeleton_test_all-blitz_array_serialize_support_test.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@@srclib@/$(DEPDIR)/skeleton_test_all-blitz_mdspan_test.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@@srclib@/$(DEPDIR)/skeleton_test_all-generic_object_map_test.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@@srclib@/$(DEPDIR)/skeleton_test_all-global_fixture.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@@srclib@/$(DEPDIR)/skeleton_test_all-global_fixture_default.Po@am__quote@ # am--include-marker
@@ -1637,32 +1683,9 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@@srclib@/$(DEPDIR)/skeleton_test_all-test_all.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@@srclib@/$(DEPDIR)/skeleton_test_all-thread_example_test.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@@swigrules@/lib/$(DEPDIR)/libskeleton_la-serialize_function.Plo@am__quote@ # am--include-marker
-@AMDEP_TRUE@@am__include@ @am__quote@@swigrules@/lib/$(DEPDIR)/libskeleton_la-swig_type_mapper_base.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@@swigrules@/lib/$(DEPDIR)/libskeleton_la-weak_ptr_serialize_support.Plo@am__quote@ # am--include-marker
-@AMDEP_TRUE@@am__include@ @am__quote@@swigsrc@/$(DEPDIR)/_swig_wrap_la-array_sample_wrap.Plo@am__quote@ # am--include-marker
-@AMDEP_TRUE@@am__include@ @am__quote@@swigsrc@/$(DEPDIR)/_swig_wrap_la-array_typemap_sample_wrap.Plo@am__quote@ # am--include-marker
-@AMDEP_TRUE@@am__include@ @am__quote@@swigsrc@/$(DEPDIR)/_swig_wrap_la-director_example_wrap.Plo@am__quote@ # am--include-marker
-@AMDEP_TRUE@@am__include@ @am__quote@@swigsrc@/$(DEPDIR)/_swig_wrap_la-exception_sample_wrap.Plo@am__quote@ # am--include-marker
-@AMDEP_TRUE@@am__include@ @am__quote@@swigsrc@/$(DEPDIR)/_swig_wrap_la-file_reference_sample_wrap.Plo@am__quote@ # am--include-marker
-@AMDEP_TRUE@@am__include@ @am__quote@@swigsrc@/$(DEPDIR)/_swig_wrap_la-generic_object_map_wrap.Plo@am__quote@ # am--include-marker
-@AMDEP_TRUE@@am__include@ @am__quote@@swigsrc@/$(DEPDIR)/_swig_wrap_la-generic_object_sample_wrap.Plo@am__quote@ # am--include-marker
-@AMDEP_TRUE@@am__include@ @am__quote@@swigsrc@/$(DEPDIR)/_swig_wrap_la-generic_object_wrap.Plo@am__quote@ # am--include-marker
-@AMDEP_TRUE@@am__include@ @am__quote@@swigsrc@/$(DEPDIR)/_swig_wrap_la-iostream_swig_wrap.Plo@am__quote@ # am--include-marker
-@AMDEP_TRUE@@am__include@ @am__quote@@swigsrc@/$(DEPDIR)/_swig_wrap_la-multi_base_example_wrap.Plo@am__quote@ # am--include-marker
-@AMDEP_TRUE@@am__include@ @am__quote@@swigsrc@/$(DEPDIR)/_swig_wrap_la-numpy_sample_wrap.Plo@am__quote@ # am--include-marker
-@AMDEP_TRUE@@am__include@ @am__quote@@swigsrc@/$(DEPDIR)/_swig_wrap_la-observer_example_wrap.Plo@am__quote@ # am--include-marker
-@AMDEP_TRUE@@am__include@ @am__quote@@swigsrc@/$(DEPDIR)/_swig_wrap_la-observer_wrap.Plo@am__quote@ # am--include-marker
-@AMDEP_TRUE@@am__include@ @am__quote@@swigsrc@/$(DEPDIR)/_swig_wrap_la-overload_example_wrap.Plo@am__quote@ # am--include-marker
-@AMDEP_TRUE@@am__include@ @am__quote@@swigsrc@/$(DEPDIR)/_swig_wrap_la-serialize_function_wrap.Plo@am__quote@ # am--include-marker
-@AMDEP_TRUE@@am__include@ @am__quote@@swigsrc@/$(DEPDIR)/_swig_wrap_la-skeleton_exception_wrap.Plo@am__quote@ # am--include-marker
-@AMDEP_TRUE@@am__include@ @am__quote@@swigsrc@/$(DEPDIR)/_swig_wrap_la-swig_array_wrap.Plo@am__quote@ # am--include-marker
-@AMDEP_TRUE@@am__include@ @am__quote@@swigsrc@/$(DEPDIR)/_swig_wrap_la-swig_boost_array_wrap.Plo@am__quote@ # am--include-marker
-@AMDEP_TRUE@@am__include@ @am__quote@@swigsrc@/$(DEPDIR)/_swig_wrap_la-swig_rules_sample_wrap.Plo@am__quote@ # am--include-marker
-@AMDEP_TRUE@@am__include@ @am__quote@@swigsrc@/$(DEPDIR)/_swig_wrap_la-swig_std_wrap.Plo@am__quote@ # am--include-marker
-@AMDEP_TRUE@@am__include@ @am__quote@@swigsrc@/$(DEPDIR)/_swig_wrap_la-swig_wrap.Plo@am__quote@ # am--include-marker
-@AMDEP_TRUE@@am__include@ @am__quote@@swigsrc@/$(DEPDIR)/_swig_wrap_la-thread_example_wrap.Plo@am__quote@ # am--include-marker
-@AMDEP_TRUE@@am__include@ @am__quote@@swigsrc@/$(DEPDIR)/_swig_wrap_la-virtual_diamond_example_wrap.Plo@am__quote@ # am--include-marker
-@AMDEP_TRUE@@am__include@ @am__quote@@swigsrc@/$(DEPDIR)/_swig_wrap_la-with_parameter_like_wrap.Plo@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@@swigrules@/nanobind/$(DEPDIR)/_swig_wrap_la-swig_rules_nb.Plo@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@@swigrules@/nanobind/$(DEPDIR)/libnanobind_core_la-nb_combined.Plo@am__quote@ # am--include-marker
 
 $(am__depfiles_remade):
 	@$(MKDIR_P) $(@D)
@@ -1694,180 +1717,180 @@ am--depfiles: $(am__depfiles_remade)
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LTCXXCOMPILE) -c -o $@ $<
 
-@swigsrc@/_swig_wrap_la-skeleton_exception_wrap.lo: @swigsrc@/skeleton_exception_wrap.cc
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(_swig_wrap_la_CPPFLAGS) $(CPPFLAGS) $(_swig_wrap_la_CXXFLAGS) $(CXXFLAGS) -MT @swigsrc@/_swig_wrap_la-skeleton_exception_wrap.lo -MD -MP -MF @swigsrc@/$(DEPDIR)/_swig_wrap_la-skeleton_exception_wrap.Tpo -c -o @swigsrc@/_swig_wrap_la-skeleton_exception_wrap.lo `test -f '@swigsrc@/skeleton_exception_wrap.cc' || echo '$(srcdir)/'`@swigsrc@/skeleton_exception_wrap.cc
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) @swigsrc@/$(DEPDIR)/_swig_wrap_la-skeleton_exception_wrap.Tpo @swigsrc@/$(DEPDIR)/_swig_wrap_la-skeleton_exception_wrap.Plo
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='@swigsrc@/skeleton_exception_wrap.cc' object='@swigsrc@/_swig_wrap_la-skeleton_exception_wrap.lo' libtool=yes @AMDEPBACKSLASH@
+@srclib@/_skeleton_downstream_la-downstream_nb.lo: @srclib@/downstream_nb.cc
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(_skeleton_downstream_la_CPPFLAGS) $(CPPFLAGS) $(_skeleton_downstream_la_CXXFLAGS) $(CXXFLAGS) -MT @srclib@/_skeleton_downstream_la-downstream_nb.lo -MD -MP -MF @srclib@/$(DEPDIR)/_skeleton_downstream_la-downstream_nb.Tpo -c -o @srclib@/_skeleton_downstream_la-downstream_nb.lo `test -f '@srclib@/downstream_nb.cc' || echo '$(srcdir)/'`@srclib@/downstream_nb.cc
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) @srclib@/$(DEPDIR)/_skeleton_downstream_la-downstream_nb.Tpo @srclib@/$(DEPDIR)/_skeleton_downstream_la-downstream_nb.Plo
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='@srclib@/downstream_nb.cc' object='@srclib@/_skeleton_downstream_la-downstream_nb.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(_swig_wrap_la_CPPFLAGS) $(CPPFLAGS) $(_swig_wrap_la_CXXFLAGS) $(CXXFLAGS) -c -o @swigsrc@/_swig_wrap_la-skeleton_exception_wrap.lo `test -f '@swigsrc@/skeleton_exception_wrap.cc' || echo '$(srcdir)/'`@swigsrc@/skeleton_exception_wrap.cc
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(_skeleton_downstream_la_CPPFLAGS) $(CPPFLAGS) $(_skeleton_downstream_la_CXXFLAGS) $(CXXFLAGS) -c -o @srclib@/_skeleton_downstream_la-downstream_nb.lo `test -f '@srclib@/downstream_nb.cc' || echo '$(srcdir)/'`@srclib@/downstream_nb.cc
 
-@swigsrc@/_swig_wrap_la-generic_object_wrap.lo: @swigsrc@/generic_object_wrap.cc
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(_swig_wrap_la_CPPFLAGS) $(CPPFLAGS) $(_swig_wrap_la_CXXFLAGS) $(CXXFLAGS) -MT @swigsrc@/_swig_wrap_la-generic_object_wrap.lo -MD -MP -MF @swigsrc@/$(DEPDIR)/_swig_wrap_la-generic_object_wrap.Tpo -c -o @swigsrc@/_swig_wrap_la-generic_object_wrap.lo `test -f '@swigsrc@/generic_object_wrap.cc' || echo '$(srcdir)/'`@swigsrc@/generic_object_wrap.cc
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) @swigsrc@/$(DEPDIR)/_swig_wrap_la-generic_object_wrap.Tpo @swigsrc@/$(DEPDIR)/_swig_wrap_la-generic_object_wrap.Plo
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='@swigsrc@/generic_object_wrap.cc' object='@swigsrc@/_swig_wrap_la-generic_object_wrap.lo' libtool=yes @AMDEPBACKSLASH@
+@srclib@/_swig_wrap_la-array_sample_nb.lo: @srclib@/array_sample_nb.cc
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(_swig_wrap_la_CPPFLAGS) $(CPPFLAGS) $(_swig_wrap_la_CXXFLAGS) $(CXXFLAGS) -MT @srclib@/_swig_wrap_la-array_sample_nb.lo -MD -MP -MF @srclib@/$(DEPDIR)/_swig_wrap_la-array_sample_nb.Tpo -c -o @srclib@/_swig_wrap_la-array_sample_nb.lo `test -f '@srclib@/array_sample_nb.cc' || echo '$(srcdir)/'`@srclib@/array_sample_nb.cc
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) @srclib@/$(DEPDIR)/_swig_wrap_la-array_sample_nb.Tpo @srclib@/$(DEPDIR)/_swig_wrap_la-array_sample_nb.Plo
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='@srclib@/array_sample_nb.cc' object='@srclib@/_swig_wrap_la-array_sample_nb.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(_swig_wrap_la_CPPFLAGS) $(CPPFLAGS) $(_swig_wrap_la_CXXFLAGS) $(CXXFLAGS) -c -o @swigsrc@/_swig_wrap_la-generic_object_wrap.lo `test -f '@swigsrc@/generic_object_wrap.cc' || echo '$(srcdir)/'`@swigsrc@/generic_object_wrap.cc
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(_swig_wrap_la_CPPFLAGS) $(CPPFLAGS) $(_swig_wrap_la_CXXFLAGS) $(CXXFLAGS) -c -o @srclib@/_swig_wrap_la-array_sample_nb.lo `test -f '@srclib@/array_sample_nb.cc' || echo '$(srcdir)/'`@srclib@/array_sample_nb.cc
 
-@swigsrc@/_swig_wrap_la-generic_object_sample_wrap.lo: @swigsrc@/generic_object_sample_wrap.cc
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(_swig_wrap_la_CPPFLAGS) $(CPPFLAGS) $(_swig_wrap_la_CXXFLAGS) $(CXXFLAGS) -MT @swigsrc@/_swig_wrap_la-generic_object_sample_wrap.lo -MD -MP -MF @swigsrc@/$(DEPDIR)/_swig_wrap_la-generic_object_sample_wrap.Tpo -c -o @swigsrc@/_swig_wrap_la-generic_object_sample_wrap.lo `test -f '@swigsrc@/generic_object_sample_wrap.cc' || echo '$(srcdir)/'`@swigsrc@/generic_object_sample_wrap.cc
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) @swigsrc@/$(DEPDIR)/_swig_wrap_la-generic_object_sample_wrap.Tpo @swigsrc@/$(DEPDIR)/_swig_wrap_la-generic_object_sample_wrap.Plo
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='@swigsrc@/generic_object_sample_wrap.cc' object='@swigsrc@/_swig_wrap_la-generic_object_sample_wrap.lo' libtool=yes @AMDEPBACKSLASH@
+@srclib@/_swig_wrap_la-array_typemap_sample_nb.lo: @srclib@/array_typemap_sample_nb.cc
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(_swig_wrap_la_CPPFLAGS) $(CPPFLAGS) $(_swig_wrap_la_CXXFLAGS) $(CXXFLAGS) -MT @srclib@/_swig_wrap_la-array_typemap_sample_nb.lo -MD -MP -MF @srclib@/$(DEPDIR)/_swig_wrap_la-array_typemap_sample_nb.Tpo -c -o @srclib@/_swig_wrap_la-array_typemap_sample_nb.lo `test -f '@srclib@/array_typemap_sample_nb.cc' || echo '$(srcdir)/'`@srclib@/array_typemap_sample_nb.cc
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) @srclib@/$(DEPDIR)/_swig_wrap_la-array_typemap_sample_nb.Tpo @srclib@/$(DEPDIR)/_swig_wrap_la-array_typemap_sample_nb.Plo
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='@srclib@/array_typemap_sample_nb.cc' object='@srclib@/_swig_wrap_la-array_typemap_sample_nb.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(_swig_wrap_la_CPPFLAGS) $(CPPFLAGS) $(_swig_wrap_la_CXXFLAGS) $(CXXFLAGS) -c -o @swigsrc@/_swig_wrap_la-generic_object_sample_wrap.lo `test -f '@swigsrc@/generic_object_sample_wrap.cc' || echo '$(srcdir)/'`@swigsrc@/generic_object_sample_wrap.cc
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(_swig_wrap_la_CPPFLAGS) $(CPPFLAGS) $(_swig_wrap_la_CXXFLAGS) $(CXXFLAGS) -c -o @srclib@/_swig_wrap_la-array_typemap_sample_nb.lo `test -f '@srclib@/array_typemap_sample_nb.cc' || echo '$(srcdir)/'`@srclib@/array_typemap_sample_nb.cc
 
-@swigsrc@/_swig_wrap_la-director_example_wrap.lo: @swigsrc@/director_example_wrap.cc
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(_swig_wrap_la_CPPFLAGS) $(CPPFLAGS) $(_swig_wrap_la_CXXFLAGS) $(CXXFLAGS) -MT @swigsrc@/_swig_wrap_la-director_example_wrap.lo -MD -MP -MF @swigsrc@/$(DEPDIR)/_swig_wrap_la-director_example_wrap.Tpo -c -o @swigsrc@/_swig_wrap_la-director_example_wrap.lo `test -f '@swigsrc@/director_example_wrap.cc' || echo '$(srcdir)/'`@swigsrc@/director_example_wrap.cc
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) @swigsrc@/$(DEPDIR)/_swig_wrap_la-director_example_wrap.Tpo @swigsrc@/$(DEPDIR)/_swig_wrap_la-director_example_wrap.Plo
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='@swigsrc@/director_example_wrap.cc' object='@swigsrc@/_swig_wrap_la-director_example_wrap.lo' libtool=yes @AMDEPBACKSLASH@
+@srclib@/_swig_wrap_la-director_example_nb.lo: @srclib@/director_example_nb.cc
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(_swig_wrap_la_CPPFLAGS) $(CPPFLAGS) $(_swig_wrap_la_CXXFLAGS) $(CXXFLAGS) -MT @srclib@/_swig_wrap_la-director_example_nb.lo -MD -MP -MF @srclib@/$(DEPDIR)/_swig_wrap_la-director_example_nb.Tpo -c -o @srclib@/_swig_wrap_la-director_example_nb.lo `test -f '@srclib@/director_example_nb.cc' || echo '$(srcdir)/'`@srclib@/director_example_nb.cc
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) @srclib@/$(DEPDIR)/_swig_wrap_la-director_example_nb.Tpo @srclib@/$(DEPDIR)/_swig_wrap_la-director_example_nb.Plo
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='@srclib@/director_example_nb.cc' object='@srclib@/_swig_wrap_la-director_example_nb.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(_swig_wrap_la_CPPFLAGS) $(CPPFLAGS) $(_swig_wrap_la_CXXFLAGS) $(CXXFLAGS) -c -o @swigsrc@/_swig_wrap_la-director_example_wrap.lo `test -f '@swigsrc@/director_example_wrap.cc' || echo '$(srcdir)/'`@swigsrc@/director_example_wrap.cc
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(_swig_wrap_la_CPPFLAGS) $(CPPFLAGS) $(_swig_wrap_la_CXXFLAGS) $(CXXFLAGS) -c -o @srclib@/_swig_wrap_la-director_example_nb.lo `test -f '@srclib@/director_example_nb.cc' || echo '$(srcdir)/'`@srclib@/director_example_nb.cc
 
-@swigsrc@/_swig_wrap_la-generic_object_map_wrap.lo: @swigsrc@/generic_object_map_wrap.cc
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(_swig_wrap_la_CPPFLAGS) $(CPPFLAGS) $(_swig_wrap_la_CXXFLAGS) $(CXXFLAGS) -MT @swigsrc@/_swig_wrap_la-generic_object_map_wrap.lo -MD -MP -MF @swigsrc@/$(DEPDIR)/_swig_wrap_la-generic_object_map_wrap.Tpo -c -o @swigsrc@/_swig_wrap_la-generic_object_map_wrap.lo `test -f '@swigsrc@/generic_object_map_wrap.cc' || echo '$(srcdir)/'`@swigsrc@/generic_object_map_wrap.cc
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) @swigsrc@/$(DEPDIR)/_swig_wrap_la-generic_object_map_wrap.Tpo @swigsrc@/$(DEPDIR)/_swig_wrap_la-generic_object_map_wrap.Plo
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='@swigsrc@/generic_object_map_wrap.cc' object='@swigsrc@/_swig_wrap_la-generic_object_map_wrap.lo' libtool=yes @AMDEPBACKSLASH@
+@srclib@/_swig_wrap_la-exception_sample_nb.lo: @srclib@/exception_sample_nb.cc
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(_swig_wrap_la_CPPFLAGS) $(CPPFLAGS) $(_swig_wrap_la_CXXFLAGS) $(CXXFLAGS) -MT @srclib@/_swig_wrap_la-exception_sample_nb.lo -MD -MP -MF @srclib@/$(DEPDIR)/_swig_wrap_la-exception_sample_nb.Tpo -c -o @srclib@/_swig_wrap_la-exception_sample_nb.lo `test -f '@srclib@/exception_sample_nb.cc' || echo '$(srcdir)/'`@srclib@/exception_sample_nb.cc
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) @srclib@/$(DEPDIR)/_swig_wrap_la-exception_sample_nb.Tpo @srclib@/$(DEPDIR)/_swig_wrap_la-exception_sample_nb.Plo
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='@srclib@/exception_sample_nb.cc' object='@srclib@/_swig_wrap_la-exception_sample_nb.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(_swig_wrap_la_CPPFLAGS) $(CPPFLAGS) $(_swig_wrap_la_CXXFLAGS) $(CXXFLAGS) -c -o @swigsrc@/_swig_wrap_la-generic_object_map_wrap.lo `test -f '@swigsrc@/generic_object_map_wrap.cc' || echo '$(srcdir)/'`@swigsrc@/generic_object_map_wrap.cc
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(_swig_wrap_la_CPPFLAGS) $(CPPFLAGS) $(_swig_wrap_la_CXXFLAGS) $(CXXFLAGS) -c -o @srclib@/_swig_wrap_la-exception_sample_nb.lo `test -f '@srclib@/exception_sample_nb.cc' || echo '$(srcdir)/'`@srclib@/exception_sample_nb.cc
 
-@swigsrc@/_swig_wrap_la-iostream_swig_wrap.lo: @swigsrc@/iostream_swig_wrap.cc
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(_swig_wrap_la_CPPFLAGS) $(CPPFLAGS) $(_swig_wrap_la_CXXFLAGS) $(CXXFLAGS) -MT @swigsrc@/_swig_wrap_la-iostream_swig_wrap.lo -MD -MP -MF @swigsrc@/$(DEPDIR)/_swig_wrap_la-iostream_swig_wrap.Tpo -c -o @swigsrc@/_swig_wrap_la-iostream_swig_wrap.lo `test -f '@swigsrc@/iostream_swig_wrap.cc' || echo '$(srcdir)/'`@swigsrc@/iostream_swig_wrap.cc
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) @swigsrc@/$(DEPDIR)/_swig_wrap_la-iostream_swig_wrap.Tpo @swigsrc@/$(DEPDIR)/_swig_wrap_la-iostream_swig_wrap.Plo
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='@swigsrc@/iostream_swig_wrap.cc' object='@swigsrc@/_swig_wrap_la-iostream_swig_wrap.lo' libtool=yes @AMDEPBACKSLASH@
+@srclib@/_swig_wrap_la-file_reference_sample_nb.lo: @srclib@/file_reference_sample_nb.cc
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(_swig_wrap_la_CPPFLAGS) $(CPPFLAGS) $(_swig_wrap_la_CXXFLAGS) $(CXXFLAGS) -MT @srclib@/_swig_wrap_la-file_reference_sample_nb.lo -MD -MP -MF @srclib@/$(DEPDIR)/_swig_wrap_la-file_reference_sample_nb.Tpo -c -o @srclib@/_swig_wrap_la-file_reference_sample_nb.lo `test -f '@srclib@/file_reference_sample_nb.cc' || echo '$(srcdir)/'`@srclib@/file_reference_sample_nb.cc
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) @srclib@/$(DEPDIR)/_swig_wrap_la-file_reference_sample_nb.Tpo @srclib@/$(DEPDIR)/_swig_wrap_la-file_reference_sample_nb.Plo
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='@srclib@/file_reference_sample_nb.cc' object='@srclib@/_swig_wrap_la-file_reference_sample_nb.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(_swig_wrap_la_CPPFLAGS) $(CPPFLAGS) $(_swig_wrap_la_CXXFLAGS) $(CXXFLAGS) -c -o @swigsrc@/_swig_wrap_la-iostream_swig_wrap.lo `test -f '@swigsrc@/iostream_swig_wrap.cc' || echo '$(srcdir)/'`@swigsrc@/iostream_swig_wrap.cc
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(_swig_wrap_la_CPPFLAGS) $(CPPFLAGS) $(_swig_wrap_la_CXXFLAGS) $(CXXFLAGS) -c -o @srclib@/_swig_wrap_la-file_reference_sample_nb.lo `test -f '@srclib@/file_reference_sample_nb.cc' || echo '$(srcdir)/'`@srclib@/file_reference_sample_nb.cc
 
-@swigsrc@/_swig_wrap_la-serialize_function_wrap.lo: @swigsrc@/serialize_function_wrap.cc
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(_swig_wrap_la_CPPFLAGS) $(CPPFLAGS) $(_swig_wrap_la_CXXFLAGS) $(CXXFLAGS) -MT @swigsrc@/_swig_wrap_la-serialize_function_wrap.lo -MD -MP -MF @swigsrc@/$(DEPDIR)/_swig_wrap_la-serialize_function_wrap.Tpo -c -o @swigsrc@/_swig_wrap_la-serialize_function_wrap.lo `test -f '@swigsrc@/serialize_function_wrap.cc' || echo '$(srcdir)/'`@swigsrc@/serialize_function_wrap.cc
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) @swigsrc@/$(DEPDIR)/_swig_wrap_la-serialize_function_wrap.Tpo @swigsrc@/$(DEPDIR)/_swig_wrap_la-serialize_function_wrap.Plo
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='@swigsrc@/serialize_function_wrap.cc' object='@swigsrc@/_swig_wrap_la-serialize_function_wrap.lo' libtool=yes @AMDEPBACKSLASH@
+@srclib@/_swig_wrap_la-generic_object_map_nb.lo: @srclib@/generic_object_map_nb.cc
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(_swig_wrap_la_CPPFLAGS) $(CPPFLAGS) $(_swig_wrap_la_CXXFLAGS) $(CXXFLAGS) -MT @srclib@/_swig_wrap_la-generic_object_map_nb.lo -MD -MP -MF @srclib@/$(DEPDIR)/_swig_wrap_la-generic_object_map_nb.Tpo -c -o @srclib@/_swig_wrap_la-generic_object_map_nb.lo `test -f '@srclib@/generic_object_map_nb.cc' || echo '$(srcdir)/'`@srclib@/generic_object_map_nb.cc
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) @srclib@/$(DEPDIR)/_swig_wrap_la-generic_object_map_nb.Tpo @srclib@/$(DEPDIR)/_swig_wrap_la-generic_object_map_nb.Plo
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='@srclib@/generic_object_map_nb.cc' object='@srclib@/_swig_wrap_la-generic_object_map_nb.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(_swig_wrap_la_CPPFLAGS) $(CPPFLAGS) $(_swig_wrap_la_CXXFLAGS) $(CXXFLAGS) -c -o @swigsrc@/_swig_wrap_la-serialize_function_wrap.lo `test -f '@swigsrc@/serialize_function_wrap.cc' || echo '$(srcdir)/'`@swigsrc@/serialize_function_wrap.cc
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(_swig_wrap_la_CPPFLAGS) $(CPPFLAGS) $(_swig_wrap_la_CXXFLAGS) $(CXXFLAGS) -c -o @srclib@/_swig_wrap_la-generic_object_map_nb.lo `test -f '@srclib@/generic_object_map_nb.cc' || echo '$(srcdir)/'`@srclib@/generic_object_map_nb.cc
 
-@swigsrc@/_swig_wrap_la-numpy_sample_wrap.lo: @swigsrc@/numpy_sample_wrap.cc
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(_swig_wrap_la_CPPFLAGS) $(CPPFLAGS) $(_swig_wrap_la_CXXFLAGS) $(CXXFLAGS) -MT @swigsrc@/_swig_wrap_la-numpy_sample_wrap.lo -MD -MP -MF @swigsrc@/$(DEPDIR)/_swig_wrap_la-numpy_sample_wrap.Tpo -c -o @swigsrc@/_swig_wrap_la-numpy_sample_wrap.lo `test -f '@swigsrc@/numpy_sample_wrap.cc' || echo '$(srcdir)/'`@swigsrc@/numpy_sample_wrap.cc
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) @swigsrc@/$(DEPDIR)/_swig_wrap_la-numpy_sample_wrap.Tpo @swigsrc@/$(DEPDIR)/_swig_wrap_la-numpy_sample_wrap.Plo
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='@swigsrc@/numpy_sample_wrap.cc' object='@swigsrc@/_swig_wrap_la-numpy_sample_wrap.lo' libtool=yes @AMDEPBACKSLASH@
+@srclib@/_swig_wrap_la-generic_object_nb.lo: @srclib@/generic_object_nb.cc
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(_swig_wrap_la_CPPFLAGS) $(CPPFLAGS) $(_swig_wrap_la_CXXFLAGS) $(CXXFLAGS) -MT @srclib@/_swig_wrap_la-generic_object_nb.lo -MD -MP -MF @srclib@/$(DEPDIR)/_swig_wrap_la-generic_object_nb.Tpo -c -o @srclib@/_swig_wrap_la-generic_object_nb.lo `test -f '@srclib@/generic_object_nb.cc' || echo '$(srcdir)/'`@srclib@/generic_object_nb.cc
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) @srclib@/$(DEPDIR)/_swig_wrap_la-generic_object_nb.Tpo @srclib@/$(DEPDIR)/_swig_wrap_la-generic_object_nb.Plo
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='@srclib@/generic_object_nb.cc' object='@srclib@/_swig_wrap_la-generic_object_nb.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(_swig_wrap_la_CPPFLAGS) $(CPPFLAGS) $(_swig_wrap_la_CXXFLAGS) $(CXXFLAGS) -c -o @swigsrc@/_swig_wrap_la-numpy_sample_wrap.lo `test -f '@swigsrc@/numpy_sample_wrap.cc' || echo '$(srcdir)/'`@swigsrc@/numpy_sample_wrap.cc
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(_swig_wrap_la_CPPFLAGS) $(CPPFLAGS) $(_swig_wrap_la_CXXFLAGS) $(CXXFLAGS) -c -o @srclib@/_swig_wrap_la-generic_object_nb.lo `test -f '@srclib@/generic_object_nb.cc' || echo '$(srcdir)/'`@srclib@/generic_object_nb.cc
 
-@swigsrc@/_swig_wrap_la-exception_sample_wrap.lo: @swigsrc@/exception_sample_wrap.cc
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(_swig_wrap_la_CPPFLAGS) $(CPPFLAGS) $(_swig_wrap_la_CXXFLAGS) $(CXXFLAGS) -MT @swigsrc@/_swig_wrap_la-exception_sample_wrap.lo -MD -MP -MF @swigsrc@/$(DEPDIR)/_swig_wrap_la-exception_sample_wrap.Tpo -c -o @swigsrc@/_swig_wrap_la-exception_sample_wrap.lo `test -f '@swigsrc@/exception_sample_wrap.cc' || echo '$(srcdir)/'`@swigsrc@/exception_sample_wrap.cc
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) @swigsrc@/$(DEPDIR)/_swig_wrap_la-exception_sample_wrap.Tpo @swigsrc@/$(DEPDIR)/_swig_wrap_la-exception_sample_wrap.Plo
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='@swigsrc@/exception_sample_wrap.cc' object='@swigsrc@/_swig_wrap_la-exception_sample_wrap.lo' libtool=yes @AMDEPBACKSLASH@
+@srclib@/_swig_wrap_la-generic_object_sample_nb.lo: @srclib@/generic_object_sample_nb.cc
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(_swig_wrap_la_CPPFLAGS) $(CPPFLAGS) $(_swig_wrap_la_CXXFLAGS) $(CXXFLAGS) -MT @srclib@/_swig_wrap_la-generic_object_sample_nb.lo -MD -MP -MF @srclib@/$(DEPDIR)/_swig_wrap_la-generic_object_sample_nb.Tpo -c -o @srclib@/_swig_wrap_la-generic_object_sample_nb.lo `test -f '@srclib@/generic_object_sample_nb.cc' || echo '$(srcdir)/'`@srclib@/generic_object_sample_nb.cc
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) @srclib@/$(DEPDIR)/_swig_wrap_la-generic_object_sample_nb.Tpo @srclib@/$(DEPDIR)/_swig_wrap_la-generic_object_sample_nb.Plo
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='@srclib@/generic_object_sample_nb.cc' object='@srclib@/_swig_wrap_la-generic_object_sample_nb.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(_swig_wrap_la_CPPFLAGS) $(CPPFLAGS) $(_swig_wrap_la_CXXFLAGS) $(CXXFLAGS) -c -o @swigsrc@/_swig_wrap_la-exception_sample_wrap.lo `test -f '@swigsrc@/exception_sample_wrap.cc' || echo '$(srcdir)/'`@swigsrc@/exception_sample_wrap.cc
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(_swig_wrap_la_CPPFLAGS) $(CPPFLAGS) $(_swig_wrap_la_CXXFLAGS) $(CXXFLAGS) -c -o @srclib@/_swig_wrap_la-generic_object_sample_nb.lo `test -f '@srclib@/generic_object_sample_nb.cc' || echo '$(srcdir)/'`@srclib@/generic_object_sample_nb.cc
 
-@swigsrc@/_swig_wrap_la-array_typemap_sample_wrap.lo: @swigsrc@/array_typemap_sample_wrap.cc
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(_swig_wrap_la_CPPFLAGS) $(CPPFLAGS) $(_swig_wrap_la_CXXFLAGS) $(CXXFLAGS) -MT @swigsrc@/_swig_wrap_la-array_typemap_sample_wrap.lo -MD -MP -MF @swigsrc@/$(DEPDIR)/_swig_wrap_la-array_typemap_sample_wrap.Tpo -c -o @swigsrc@/_swig_wrap_la-array_typemap_sample_wrap.lo `test -f '@swigsrc@/array_typemap_sample_wrap.cc' || echo '$(srcdir)/'`@swigsrc@/array_typemap_sample_wrap.cc
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) @swigsrc@/$(DEPDIR)/_swig_wrap_la-array_typemap_sample_wrap.Tpo @swigsrc@/$(DEPDIR)/_swig_wrap_la-array_typemap_sample_wrap.Plo
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='@swigsrc@/array_typemap_sample_wrap.cc' object='@swigsrc@/_swig_wrap_la-array_typemap_sample_wrap.lo' libtool=yes @AMDEPBACKSLASH@
+@srclib@/_swig_wrap_la-iostream_swig_nb.lo: @srclib@/iostream_swig_nb.cc
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(_swig_wrap_la_CPPFLAGS) $(CPPFLAGS) $(_swig_wrap_la_CXXFLAGS) $(CXXFLAGS) -MT @srclib@/_swig_wrap_la-iostream_swig_nb.lo -MD -MP -MF @srclib@/$(DEPDIR)/_swig_wrap_la-iostream_swig_nb.Tpo -c -o @srclib@/_swig_wrap_la-iostream_swig_nb.lo `test -f '@srclib@/iostream_swig_nb.cc' || echo '$(srcdir)/'`@srclib@/iostream_swig_nb.cc
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) @srclib@/$(DEPDIR)/_swig_wrap_la-iostream_swig_nb.Tpo @srclib@/$(DEPDIR)/_swig_wrap_la-iostream_swig_nb.Plo
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='@srclib@/iostream_swig_nb.cc' object='@srclib@/_swig_wrap_la-iostream_swig_nb.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(_swig_wrap_la_CPPFLAGS) $(CPPFLAGS) $(_swig_wrap_la_CXXFLAGS) $(CXXFLAGS) -c -o @swigsrc@/_swig_wrap_la-array_typemap_sample_wrap.lo `test -f '@swigsrc@/array_typemap_sample_wrap.cc' || echo '$(srcdir)/'`@swigsrc@/array_typemap_sample_wrap.cc
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(_swig_wrap_la_CPPFLAGS) $(CPPFLAGS) $(_swig_wrap_la_CXXFLAGS) $(CXXFLAGS) -c -o @srclib@/_swig_wrap_la-iostream_swig_nb.lo `test -f '@srclib@/iostream_swig_nb.cc' || echo '$(srcdir)/'`@srclib@/iostream_swig_nb.cc
 
-@swigsrc@/_swig_wrap_la-swig_rules_sample_wrap.lo: @swigsrc@/swig_rules_sample_wrap.cc
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(_swig_wrap_la_CPPFLAGS) $(CPPFLAGS) $(_swig_wrap_la_CXXFLAGS) $(CXXFLAGS) -MT @swigsrc@/_swig_wrap_la-swig_rules_sample_wrap.lo -MD -MP -MF @swigsrc@/$(DEPDIR)/_swig_wrap_la-swig_rules_sample_wrap.Tpo -c -o @swigsrc@/_swig_wrap_la-swig_rules_sample_wrap.lo `test -f '@swigsrc@/swig_rules_sample_wrap.cc' || echo '$(srcdir)/'`@swigsrc@/swig_rules_sample_wrap.cc
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) @swigsrc@/$(DEPDIR)/_swig_wrap_la-swig_rules_sample_wrap.Tpo @swigsrc@/$(DEPDIR)/_swig_wrap_la-swig_rules_sample_wrap.Plo
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='@swigsrc@/swig_rules_sample_wrap.cc' object='@swigsrc@/_swig_wrap_la-swig_rules_sample_wrap.lo' libtool=yes @AMDEPBACKSLASH@
+@srclib@/_swig_wrap_la-multi_base_example_nb.lo: @srclib@/multi_base_example_nb.cc
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(_swig_wrap_la_CPPFLAGS) $(CPPFLAGS) $(_swig_wrap_la_CXXFLAGS) $(CXXFLAGS) -MT @srclib@/_swig_wrap_la-multi_base_example_nb.lo -MD -MP -MF @srclib@/$(DEPDIR)/_swig_wrap_la-multi_base_example_nb.Tpo -c -o @srclib@/_swig_wrap_la-multi_base_example_nb.lo `test -f '@srclib@/multi_base_example_nb.cc' || echo '$(srcdir)/'`@srclib@/multi_base_example_nb.cc
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) @srclib@/$(DEPDIR)/_swig_wrap_la-multi_base_example_nb.Tpo @srclib@/$(DEPDIR)/_swig_wrap_la-multi_base_example_nb.Plo
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='@srclib@/multi_base_example_nb.cc' object='@srclib@/_swig_wrap_la-multi_base_example_nb.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(_swig_wrap_la_CPPFLAGS) $(CPPFLAGS) $(_swig_wrap_la_CXXFLAGS) $(CXXFLAGS) -c -o @swigsrc@/_swig_wrap_la-swig_rules_sample_wrap.lo `test -f '@swigsrc@/swig_rules_sample_wrap.cc' || echo '$(srcdir)/'`@swigsrc@/swig_rules_sample_wrap.cc
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(_swig_wrap_la_CPPFLAGS) $(CPPFLAGS) $(_swig_wrap_la_CXXFLAGS) $(CXXFLAGS) -c -o @srclib@/_swig_wrap_la-multi_base_example_nb.lo `test -f '@srclib@/multi_base_example_nb.cc' || echo '$(srcdir)/'`@srclib@/multi_base_example_nb.cc
 
-@swigsrc@/_swig_wrap_la-file_reference_sample_wrap.lo: @swigsrc@/file_reference_sample_wrap.cc
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(_swig_wrap_la_CPPFLAGS) $(CPPFLAGS) $(_swig_wrap_la_CXXFLAGS) $(CXXFLAGS) -MT @swigsrc@/_swig_wrap_la-file_reference_sample_wrap.lo -MD -MP -MF @swigsrc@/$(DEPDIR)/_swig_wrap_la-file_reference_sample_wrap.Tpo -c -o @swigsrc@/_swig_wrap_la-file_reference_sample_wrap.lo `test -f '@swigsrc@/file_reference_sample_wrap.cc' || echo '$(srcdir)/'`@swigsrc@/file_reference_sample_wrap.cc
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) @swigsrc@/$(DEPDIR)/_swig_wrap_la-file_reference_sample_wrap.Tpo @swigsrc@/$(DEPDIR)/_swig_wrap_la-file_reference_sample_wrap.Plo
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='@swigsrc@/file_reference_sample_wrap.cc' object='@swigsrc@/_swig_wrap_la-file_reference_sample_wrap.lo' libtool=yes @AMDEPBACKSLASH@
+@srclib@/_swig_wrap_la-numpy_sample_nb.lo: @srclib@/numpy_sample_nb.cc
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(_swig_wrap_la_CPPFLAGS) $(CPPFLAGS) $(_swig_wrap_la_CXXFLAGS) $(CXXFLAGS) -MT @srclib@/_swig_wrap_la-numpy_sample_nb.lo -MD -MP -MF @srclib@/$(DEPDIR)/_swig_wrap_la-numpy_sample_nb.Tpo -c -o @srclib@/_swig_wrap_la-numpy_sample_nb.lo `test -f '@srclib@/numpy_sample_nb.cc' || echo '$(srcdir)/'`@srclib@/numpy_sample_nb.cc
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) @srclib@/$(DEPDIR)/_swig_wrap_la-numpy_sample_nb.Tpo @srclib@/$(DEPDIR)/_swig_wrap_la-numpy_sample_nb.Plo
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='@srclib@/numpy_sample_nb.cc' object='@srclib@/_swig_wrap_la-numpy_sample_nb.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(_swig_wrap_la_CPPFLAGS) $(CPPFLAGS) $(_swig_wrap_la_CXXFLAGS) $(CXXFLAGS) -c -o @swigsrc@/_swig_wrap_la-file_reference_sample_wrap.lo `test -f '@swigsrc@/file_reference_sample_wrap.cc' || echo '$(srcdir)/'`@swigsrc@/file_reference_sample_wrap.cc
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(_swig_wrap_la_CPPFLAGS) $(CPPFLAGS) $(_swig_wrap_la_CXXFLAGS) $(CXXFLAGS) -c -o @srclib@/_swig_wrap_la-numpy_sample_nb.lo `test -f '@srclib@/numpy_sample_nb.cc' || echo '$(srcdir)/'`@srclib@/numpy_sample_nb.cc
 
-@swigsrc@/_swig_wrap_la-array_sample_wrap.lo: @swigsrc@/array_sample_wrap.cc
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(_swig_wrap_la_CPPFLAGS) $(CPPFLAGS) $(_swig_wrap_la_CXXFLAGS) $(CXXFLAGS) -MT @swigsrc@/_swig_wrap_la-array_sample_wrap.lo -MD -MP -MF @swigsrc@/$(DEPDIR)/_swig_wrap_la-array_sample_wrap.Tpo -c -o @swigsrc@/_swig_wrap_la-array_sample_wrap.lo `test -f '@swigsrc@/array_sample_wrap.cc' || echo '$(srcdir)/'`@swigsrc@/array_sample_wrap.cc
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) @swigsrc@/$(DEPDIR)/_swig_wrap_la-array_sample_wrap.Tpo @swigsrc@/$(DEPDIR)/_swig_wrap_la-array_sample_wrap.Plo
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='@swigsrc@/array_sample_wrap.cc' object='@swigsrc@/_swig_wrap_la-array_sample_wrap.lo' libtool=yes @AMDEPBACKSLASH@
+@srclib@/_swig_wrap_la-observer_example_nb.lo: @srclib@/observer_example_nb.cc
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(_swig_wrap_la_CPPFLAGS) $(CPPFLAGS) $(_swig_wrap_la_CXXFLAGS) $(CXXFLAGS) -MT @srclib@/_swig_wrap_la-observer_example_nb.lo -MD -MP -MF @srclib@/$(DEPDIR)/_swig_wrap_la-observer_example_nb.Tpo -c -o @srclib@/_swig_wrap_la-observer_example_nb.lo `test -f '@srclib@/observer_example_nb.cc' || echo '$(srcdir)/'`@srclib@/observer_example_nb.cc
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) @srclib@/$(DEPDIR)/_swig_wrap_la-observer_example_nb.Tpo @srclib@/$(DEPDIR)/_swig_wrap_la-observer_example_nb.Plo
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='@srclib@/observer_example_nb.cc' object='@srclib@/_swig_wrap_la-observer_example_nb.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(_swig_wrap_la_CPPFLAGS) $(CPPFLAGS) $(_swig_wrap_la_CXXFLAGS) $(CXXFLAGS) -c -o @swigsrc@/_swig_wrap_la-array_sample_wrap.lo `test -f '@swigsrc@/array_sample_wrap.cc' || echo '$(srcdir)/'`@swigsrc@/array_sample_wrap.cc
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(_swig_wrap_la_CPPFLAGS) $(CPPFLAGS) $(_swig_wrap_la_CXXFLAGS) $(CXXFLAGS) -c -o @srclib@/_swig_wrap_la-observer_example_nb.lo `test -f '@srclib@/observer_example_nb.cc' || echo '$(srcdir)/'`@srclib@/observer_example_nb.cc
 
-@swigsrc@/_swig_wrap_la-observer_wrap.lo: @swigsrc@/observer_wrap.cc
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(_swig_wrap_la_CPPFLAGS) $(CPPFLAGS) $(_swig_wrap_la_CXXFLAGS) $(CXXFLAGS) -MT @swigsrc@/_swig_wrap_la-observer_wrap.lo -MD -MP -MF @swigsrc@/$(DEPDIR)/_swig_wrap_la-observer_wrap.Tpo -c -o @swigsrc@/_swig_wrap_la-observer_wrap.lo `test -f '@swigsrc@/observer_wrap.cc' || echo '$(srcdir)/'`@swigsrc@/observer_wrap.cc
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) @swigsrc@/$(DEPDIR)/_swig_wrap_la-observer_wrap.Tpo @swigsrc@/$(DEPDIR)/_swig_wrap_la-observer_wrap.Plo
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='@swigsrc@/observer_wrap.cc' object='@swigsrc@/_swig_wrap_la-observer_wrap.lo' libtool=yes @AMDEPBACKSLASH@
+@srclib@/_swig_wrap_la-observer_nb.lo: @srclib@/observer_nb.cc
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(_swig_wrap_la_CPPFLAGS) $(CPPFLAGS) $(_swig_wrap_la_CXXFLAGS) $(CXXFLAGS) -MT @srclib@/_swig_wrap_la-observer_nb.lo -MD -MP -MF @srclib@/$(DEPDIR)/_swig_wrap_la-observer_nb.Tpo -c -o @srclib@/_swig_wrap_la-observer_nb.lo `test -f '@srclib@/observer_nb.cc' || echo '$(srcdir)/'`@srclib@/observer_nb.cc
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) @srclib@/$(DEPDIR)/_swig_wrap_la-observer_nb.Tpo @srclib@/$(DEPDIR)/_swig_wrap_la-observer_nb.Plo
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='@srclib@/observer_nb.cc' object='@srclib@/_swig_wrap_la-observer_nb.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(_swig_wrap_la_CPPFLAGS) $(CPPFLAGS) $(_swig_wrap_la_CXXFLAGS) $(CXXFLAGS) -c -o @swigsrc@/_swig_wrap_la-observer_wrap.lo `test -f '@swigsrc@/observer_wrap.cc' || echo '$(srcdir)/'`@swigsrc@/observer_wrap.cc
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(_swig_wrap_la_CPPFLAGS) $(CPPFLAGS) $(_swig_wrap_la_CXXFLAGS) $(CXXFLAGS) -c -o @srclib@/_swig_wrap_la-observer_nb.lo `test -f '@srclib@/observer_nb.cc' || echo '$(srcdir)/'`@srclib@/observer_nb.cc
 
-@swigsrc@/_swig_wrap_la-observer_example_wrap.lo: @swigsrc@/observer_example_wrap.cc
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(_swig_wrap_la_CPPFLAGS) $(CPPFLAGS) $(_swig_wrap_la_CXXFLAGS) $(CXXFLAGS) -MT @swigsrc@/_swig_wrap_la-observer_example_wrap.lo -MD -MP -MF @swigsrc@/$(DEPDIR)/_swig_wrap_la-observer_example_wrap.Tpo -c -o @swigsrc@/_swig_wrap_la-observer_example_wrap.lo `test -f '@swigsrc@/observer_example_wrap.cc' || echo '$(srcdir)/'`@swigsrc@/observer_example_wrap.cc
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) @swigsrc@/$(DEPDIR)/_swig_wrap_la-observer_example_wrap.Tpo @swigsrc@/$(DEPDIR)/_swig_wrap_la-observer_example_wrap.Plo
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='@swigsrc@/observer_example_wrap.cc' object='@swigsrc@/_swig_wrap_la-observer_example_wrap.lo' libtool=yes @AMDEPBACKSLASH@
+@srclib@/_swig_wrap_la-overload_example_nb.lo: @srclib@/overload_example_nb.cc
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(_swig_wrap_la_CPPFLAGS) $(CPPFLAGS) $(_swig_wrap_la_CXXFLAGS) $(CXXFLAGS) -MT @srclib@/_swig_wrap_la-overload_example_nb.lo -MD -MP -MF @srclib@/$(DEPDIR)/_swig_wrap_la-overload_example_nb.Tpo -c -o @srclib@/_swig_wrap_la-overload_example_nb.lo `test -f '@srclib@/overload_example_nb.cc' || echo '$(srcdir)/'`@srclib@/overload_example_nb.cc
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) @srclib@/$(DEPDIR)/_swig_wrap_la-overload_example_nb.Tpo @srclib@/$(DEPDIR)/_swig_wrap_la-overload_example_nb.Plo
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='@srclib@/overload_example_nb.cc' object='@srclib@/_swig_wrap_la-overload_example_nb.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(_swig_wrap_la_CPPFLAGS) $(CPPFLAGS) $(_swig_wrap_la_CXXFLAGS) $(CXXFLAGS) -c -o @swigsrc@/_swig_wrap_la-observer_example_wrap.lo `test -f '@swigsrc@/observer_example_wrap.cc' || echo '$(srcdir)/'`@swigsrc@/observer_example_wrap.cc
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(_swig_wrap_la_CPPFLAGS) $(CPPFLAGS) $(_swig_wrap_la_CXXFLAGS) $(CXXFLAGS) -c -o @srclib@/_swig_wrap_la-overload_example_nb.lo `test -f '@srclib@/overload_example_nb.cc' || echo '$(srcdir)/'`@srclib@/overload_example_nb.cc
 
-@swigsrc@/_swig_wrap_la-with_parameter_like_wrap.lo: @swigsrc@/with_parameter_like_wrap.cc
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(_swig_wrap_la_CPPFLAGS) $(CPPFLAGS) $(_swig_wrap_la_CXXFLAGS) $(CXXFLAGS) -MT @swigsrc@/_swig_wrap_la-with_parameter_like_wrap.lo -MD -MP -MF @swigsrc@/$(DEPDIR)/_swig_wrap_la-with_parameter_like_wrap.Tpo -c -o @swigsrc@/_swig_wrap_la-with_parameter_like_wrap.lo `test -f '@swigsrc@/with_parameter_like_wrap.cc' || echo '$(srcdir)/'`@swigsrc@/with_parameter_like_wrap.cc
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) @swigsrc@/$(DEPDIR)/_swig_wrap_la-with_parameter_like_wrap.Tpo @swigsrc@/$(DEPDIR)/_swig_wrap_la-with_parameter_like_wrap.Plo
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='@swigsrc@/with_parameter_like_wrap.cc' object='@swigsrc@/_swig_wrap_la-with_parameter_like_wrap.lo' libtool=yes @AMDEPBACKSLASH@
+@srclib@/_swig_wrap_la-serialize_function_nb.lo: @srclib@/serialize_function_nb.cc
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(_swig_wrap_la_CPPFLAGS) $(CPPFLAGS) $(_swig_wrap_la_CXXFLAGS) $(CXXFLAGS) -MT @srclib@/_swig_wrap_la-serialize_function_nb.lo -MD -MP -MF @srclib@/$(DEPDIR)/_swig_wrap_la-serialize_function_nb.Tpo -c -o @srclib@/_swig_wrap_la-serialize_function_nb.lo `test -f '@srclib@/serialize_function_nb.cc' || echo '$(srcdir)/'`@srclib@/serialize_function_nb.cc
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) @srclib@/$(DEPDIR)/_swig_wrap_la-serialize_function_nb.Tpo @srclib@/$(DEPDIR)/_swig_wrap_la-serialize_function_nb.Plo
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='@srclib@/serialize_function_nb.cc' object='@srclib@/_swig_wrap_la-serialize_function_nb.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(_swig_wrap_la_CPPFLAGS) $(CPPFLAGS) $(_swig_wrap_la_CXXFLAGS) $(CXXFLAGS) -c -o @swigsrc@/_swig_wrap_la-with_parameter_like_wrap.lo `test -f '@swigsrc@/with_parameter_like_wrap.cc' || echo '$(srcdir)/'`@swigsrc@/with_parameter_like_wrap.cc
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(_swig_wrap_la_CPPFLAGS) $(CPPFLAGS) $(_swig_wrap_la_CXXFLAGS) $(CXXFLAGS) -c -o @srclib@/_swig_wrap_la-serialize_function_nb.lo `test -f '@srclib@/serialize_function_nb.cc' || echo '$(srcdir)/'`@srclib@/serialize_function_nb.cc
 
-@swigsrc@/_swig_wrap_la-multi_base_example_wrap.lo: @swigsrc@/multi_base_example_wrap.cc
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(_swig_wrap_la_CPPFLAGS) $(CPPFLAGS) $(_swig_wrap_la_CXXFLAGS) $(CXXFLAGS) -MT @swigsrc@/_swig_wrap_la-multi_base_example_wrap.lo -MD -MP -MF @swigsrc@/$(DEPDIR)/_swig_wrap_la-multi_base_example_wrap.Tpo -c -o @swigsrc@/_swig_wrap_la-multi_base_example_wrap.lo `test -f '@swigsrc@/multi_base_example_wrap.cc' || echo '$(srcdir)/'`@swigsrc@/multi_base_example_wrap.cc
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) @swigsrc@/$(DEPDIR)/_swig_wrap_la-multi_base_example_wrap.Tpo @swigsrc@/$(DEPDIR)/_swig_wrap_la-multi_base_example_wrap.Plo
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='@swigsrc@/multi_base_example_wrap.cc' object='@swigsrc@/_swig_wrap_la-multi_base_example_wrap.lo' libtool=yes @AMDEPBACKSLASH@
+@srclib@/_swig_wrap_la-skeleton_exception_nb.lo: @srclib@/skeleton_exception_nb.cc
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(_swig_wrap_la_CPPFLAGS) $(CPPFLAGS) $(_swig_wrap_la_CXXFLAGS) $(CXXFLAGS) -MT @srclib@/_swig_wrap_la-skeleton_exception_nb.lo -MD -MP -MF @srclib@/$(DEPDIR)/_swig_wrap_la-skeleton_exception_nb.Tpo -c -o @srclib@/_swig_wrap_la-skeleton_exception_nb.lo `test -f '@srclib@/skeleton_exception_nb.cc' || echo '$(srcdir)/'`@srclib@/skeleton_exception_nb.cc
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) @srclib@/$(DEPDIR)/_swig_wrap_la-skeleton_exception_nb.Tpo @srclib@/$(DEPDIR)/_swig_wrap_la-skeleton_exception_nb.Plo
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='@srclib@/skeleton_exception_nb.cc' object='@srclib@/_swig_wrap_la-skeleton_exception_nb.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(_swig_wrap_la_CPPFLAGS) $(CPPFLAGS) $(_swig_wrap_la_CXXFLAGS) $(CXXFLAGS) -c -o @swigsrc@/_swig_wrap_la-multi_base_example_wrap.lo `test -f '@swigsrc@/multi_base_example_wrap.cc' || echo '$(srcdir)/'`@swigsrc@/multi_base_example_wrap.cc
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(_swig_wrap_la_CPPFLAGS) $(CPPFLAGS) $(_swig_wrap_la_CXXFLAGS) $(CXXFLAGS) -c -o @srclib@/_swig_wrap_la-skeleton_exception_nb.lo `test -f '@srclib@/skeleton_exception_nb.cc' || echo '$(srcdir)/'`@srclib@/skeleton_exception_nb.cc
 
-@swigsrc@/_swig_wrap_la-virtual_diamond_example_wrap.lo: @swigsrc@/virtual_diamond_example_wrap.cc
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(_swig_wrap_la_CPPFLAGS) $(CPPFLAGS) $(_swig_wrap_la_CXXFLAGS) $(CXXFLAGS) -MT @swigsrc@/_swig_wrap_la-virtual_diamond_example_wrap.lo -MD -MP -MF @swigsrc@/$(DEPDIR)/_swig_wrap_la-virtual_diamond_example_wrap.Tpo -c -o @swigsrc@/_swig_wrap_la-virtual_diamond_example_wrap.lo `test -f '@swigsrc@/virtual_diamond_example_wrap.cc' || echo '$(srcdir)/'`@swigsrc@/virtual_diamond_example_wrap.cc
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) @swigsrc@/$(DEPDIR)/_swig_wrap_la-virtual_diamond_example_wrap.Tpo @swigsrc@/$(DEPDIR)/_swig_wrap_la-virtual_diamond_example_wrap.Plo
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='@swigsrc@/virtual_diamond_example_wrap.cc' object='@swigsrc@/_swig_wrap_la-virtual_diamond_example_wrap.lo' libtool=yes @AMDEPBACKSLASH@
+@srclib@/_swig_wrap_la-swig_rules_sample_nb.lo: @srclib@/swig_rules_sample_nb.cc
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(_swig_wrap_la_CPPFLAGS) $(CPPFLAGS) $(_swig_wrap_la_CXXFLAGS) $(CXXFLAGS) -MT @srclib@/_swig_wrap_la-swig_rules_sample_nb.lo -MD -MP -MF @srclib@/$(DEPDIR)/_swig_wrap_la-swig_rules_sample_nb.Tpo -c -o @srclib@/_swig_wrap_la-swig_rules_sample_nb.lo `test -f '@srclib@/swig_rules_sample_nb.cc' || echo '$(srcdir)/'`@srclib@/swig_rules_sample_nb.cc
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) @srclib@/$(DEPDIR)/_swig_wrap_la-swig_rules_sample_nb.Tpo @srclib@/$(DEPDIR)/_swig_wrap_la-swig_rules_sample_nb.Plo
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='@srclib@/swig_rules_sample_nb.cc' object='@srclib@/_swig_wrap_la-swig_rules_sample_nb.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(_swig_wrap_la_CPPFLAGS) $(CPPFLAGS) $(_swig_wrap_la_CXXFLAGS) $(CXXFLAGS) -c -o @swigsrc@/_swig_wrap_la-virtual_diamond_example_wrap.lo `test -f '@swigsrc@/virtual_diamond_example_wrap.cc' || echo '$(srcdir)/'`@swigsrc@/virtual_diamond_example_wrap.cc
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(_swig_wrap_la_CPPFLAGS) $(CPPFLAGS) $(_swig_wrap_la_CXXFLAGS) $(CXXFLAGS) -c -o @srclib@/_swig_wrap_la-swig_rules_sample_nb.lo `test -f '@srclib@/swig_rules_sample_nb.cc' || echo '$(srcdir)/'`@srclib@/swig_rules_sample_nb.cc
 
-@swigsrc@/_swig_wrap_la-overload_example_wrap.lo: @swigsrc@/overload_example_wrap.cc
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(_swig_wrap_la_CPPFLAGS) $(CPPFLAGS) $(_swig_wrap_la_CXXFLAGS) $(CXXFLAGS) -MT @swigsrc@/_swig_wrap_la-overload_example_wrap.lo -MD -MP -MF @swigsrc@/$(DEPDIR)/_swig_wrap_la-overload_example_wrap.Tpo -c -o @swigsrc@/_swig_wrap_la-overload_example_wrap.lo `test -f '@swigsrc@/overload_example_wrap.cc' || echo '$(srcdir)/'`@swigsrc@/overload_example_wrap.cc
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) @swigsrc@/$(DEPDIR)/_swig_wrap_la-overload_example_wrap.Tpo @swigsrc@/$(DEPDIR)/_swig_wrap_la-overload_example_wrap.Plo
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='@swigsrc@/overload_example_wrap.cc' object='@swigsrc@/_swig_wrap_la-overload_example_wrap.lo' libtool=yes @AMDEPBACKSLASH@
+@srclib@/_swig_wrap_la-thread_example_nb.lo: @srclib@/thread_example_nb.cc
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(_swig_wrap_la_CPPFLAGS) $(CPPFLAGS) $(_swig_wrap_la_CXXFLAGS) $(CXXFLAGS) -MT @srclib@/_swig_wrap_la-thread_example_nb.lo -MD -MP -MF @srclib@/$(DEPDIR)/_swig_wrap_la-thread_example_nb.Tpo -c -o @srclib@/_swig_wrap_la-thread_example_nb.lo `test -f '@srclib@/thread_example_nb.cc' || echo '$(srcdir)/'`@srclib@/thread_example_nb.cc
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) @srclib@/$(DEPDIR)/_swig_wrap_la-thread_example_nb.Tpo @srclib@/$(DEPDIR)/_swig_wrap_la-thread_example_nb.Plo
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='@srclib@/thread_example_nb.cc' object='@srclib@/_swig_wrap_la-thread_example_nb.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(_swig_wrap_la_CPPFLAGS) $(CPPFLAGS) $(_swig_wrap_la_CXXFLAGS) $(CXXFLAGS) -c -o @swigsrc@/_swig_wrap_la-overload_example_wrap.lo `test -f '@swigsrc@/overload_example_wrap.cc' || echo '$(srcdir)/'`@swigsrc@/overload_example_wrap.cc
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(_swig_wrap_la_CPPFLAGS) $(CPPFLAGS) $(_swig_wrap_la_CXXFLAGS) $(CXXFLAGS) -c -o @srclib@/_swig_wrap_la-thread_example_nb.lo `test -f '@srclib@/thread_example_nb.cc' || echo '$(srcdir)/'`@srclib@/thread_example_nb.cc
 
-@swigsrc@/_swig_wrap_la-thread_example_wrap.lo: @swigsrc@/thread_example_wrap.cc
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(_swig_wrap_la_CPPFLAGS) $(CPPFLAGS) $(_swig_wrap_la_CXXFLAGS) $(CXXFLAGS) -MT @swigsrc@/_swig_wrap_la-thread_example_wrap.lo -MD -MP -MF @swigsrc@/$(DEPDIR)/_swig_wrap_la-thread_example_wrap.Tpo -c -o @swigsrc@/_swig_wrap_la-thread_example_wrap.lo `test -f '@swigsrc@/thread_example_wrap.cc' || echo '$(srcdir)/'`@swigsrc@/thread_example_wrap.cc
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) @swigsrc@/$(DEPDIR)/_swig_wrap_la-thread_example_wrap.Tpo @swigsrc@/$(DEPDIR)/_swig_wrap_la-thread_example_wrap.Plo
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='@swigsrc@/thread_example_wrap.cc' object='@swigsrc@/_swig_wrap_la-thread_example_wrap.lo' libtool=yes @AMDEPBACKSLASH@
+@srclib@/_swig_wrap_la-virtual_diamond_example_nb.lo: @srclib@/virtual_diamond_example_nb.cc
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(_swig_wrap_la_CPPFLAGS) $(CPPFLAGS) $(_swig_wrap_la_CXXFLAGS) $(CXXFLAGS) -MT @srclib@/_swig_wrap_la-virtual_diamond_example_nb.lo -MD -MP -MF @srclib@/$(DEPDIR)/_swig_wrap_la-virtual_diamond_example_nb.Tpo -c -o @srclib@/_swig_wrap_la-virtual_diamond_example_nb.lo `test -f '@srclib@/virtual_diamond_example_nb.cc' || echo '$(srcdir)/'`@srclib@/virtual_diamond_example_nb.cc
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) @srclib@/$(DEPDIR)/_swig_wrap_la-virtual_diamond_example_nb.Tpo @srclib@/$(DEPDIR)/_swig_wrap_la-virtual_diamond_example_nb.Plo
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='@srclib@/virtual_diamond_example_nb.cc' object='@srclib@/_swig_wrap_la-virtual_diamond_example_nb.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(_swig_wrap_la_CPPFLAGS) $(CPPFLAGS) $(_swig_wrap_la_CXXFLAGS) $(CXXFLAGS) -c -o @swigsrc@/_swig_wrap_la-thread_example_wrap.lo `test -f '@swigsrc@/thread_example_wrap.cc' || echo '$(srcdir)/'`@swigsrc@/thread_example_wrap.cc
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(_swig_wrap_la_CPPFLAGS) $(CPPFLAGS) $(_swig_wrap_la_CXXFLAGS) $(CXXFLAGS) -c -o @srclib@/_swig_wrap_la-virtual_diamond_example_nb.lo `test -f '@srclib@/virtual_diamond_example_nb.cc' || echo '$(srcdir)/'`@srclib@/virtual_diamond_example_nb.cc
 
-@swigsrc@/_swig_wrap_la-swig_array_wrap.lo: @swigsrc@/swig_array_wrap.cc
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(_swig_wrap_la_CPPFLAGS) $(CPPFLAGS) $(_swig_wrap_la_CXXFLAGS) $(CXXFLAGS) -MT @swigsrc@/_swig_wrap_la-swig_array_wrap.lo -MD -MP -MF @swigsrc@/$(DEPDIR)/_swig_wrap_la-swig_array_wrap.Tpo -c -o @swigsrc@/_swig_wrap_la-swig_array_wrap.lo `test -f '@swigsrc@/swig_array_wrap.cc' || echo '$(srcdir)/'`@swigsrc@/swig_array_wrap.cc
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) @swigsrc@/$(DEPDIR)/_swig_wrap_la-swig_array_wrap.Tpo @swigsrc@/$(DEPDIR)/_swig_wrap_la-swig_array_wrap.Plo
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='@swigsrc@/swig_array_wrap.cc' object='@swigsrc@/_swig_wrap_la-swig_array_wrap.lo' libtool=yes @AMDEPBACKSLASH@
+@srclib@/_swig_wrap_la-with_parameter_like_nb.lo: @srclib@/with_parameter_like_nb.cc
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(_swig_wrap_la_CPPFLAGS) $(CPPFLAGS) $(_swig_wrap_la_CXXFLAGS) $(CXXFLAGS) -MT @srclib@/_swig_wrap_la-with_parameter_like_nb.lo -MD -MP -MF @srclib@/$(DEPDIR)/_swig_wrap_la-with_parameter_like_nb.Tpo -c -o @srclib@/_swig_wrap_la-with_parameter_like_nb.lo `test -f '@srclib@/with_parameter_like_nb.cc' || echo '$(srcdir)/'`@srclib@/with_parameter_like_nb.cc
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) @srclib@/$(DEPDIR)/_swig_wrap_la-with_parameter_like_nb.Tpo @srclib@/$(DEPDIR)/_swig_wrap_la-with_parameter_like_nb.Plo
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='@srclib@/with_parameter_like_nb.cc' object='@srclib@/_swig_wrap_la-with_parameter_like_nb.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(_swig_wrap_la_CPPFLAGS) $(CPPFLAGS) $(_swig_wrap_la_CXXFLAGS) $(CXXFLAGS) -c -o @swigsrc@/_swig_wrap_la-swig_array_wrap.lo `test -f '@swigsrc@/swig_array_wrap.cc' || echo '$(srcdir)/'`@swigsrc@/swig_array_wrap.cc
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(_swig_wrap_la_CPPFLAGS) $(CPPFLAGS) $(_swig_wrap_la_CXXFLAGS) $(CXXFLAGS) -c -o @srclib@/_swig_wrap_la-with_parameter_like_nb.lo `test -f '@srclib@/with_parameter_like_nb.cc' || echo '$(srcdir)/'`@srclib@/with_parameter_like_nb.cc
 
-@swigsrc@/_swig_wrap_la-swig_boost_array_wrap.lo: @swigsrc@/swig_boost_array_wrap.cc
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(_swig_wrap_la_CPPFLAGS) $(CPPFLAGS) $(_swig_wrap_la_CXXFLAGS) $(CXXFLAGS) -MT @swigsrc@/_swig_wrap_la-swig_boost_array_wrap.lo -MD -MP -MF @swigsrc@/$(DEPDIR)/_swig_wrap_la-swig_boost_array_wrap.Tpo -c -o @swigsrc@/_swig_wrap_la-swig_boost_array_wrap.lo `test -f '@swigsrc@/swig_boost_array_wrap.cc' || echo '$(srcdir)/'`@swigsrc@/swig_boost_array_wrap.cc
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) @swigsrc@/$(DEPDIR)/_swig_wrap_la-swig_boost_array_wrap.Tpo @swigsrc@/$(DEPDIR)/_swig_wrap_la-swig_boost_array_wrap.Plo
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='@swigsrc@/swig_boost_array_wrap.cc' object='@swigsrc@/_swig_wrap_la-swig_boost_array_wrap.lo' libtool=yes @AMDEPBACKSLASH@
+@srclib@/_swig_wrap_la-skeleton_nb_module.lo: @srclib@/skeleton_nb_module.cc
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(_swig_wrap_la_CPPFLAGS) $(CPPFLAGS) $(_swig_wrap_la_CXXFLAGS) $(CXXFLAGS) -MT @srclib@/_swig_wrap_la-skeleton_nb_module.lo -MD -MP -MF @srclib@/$(DEPDIR)/_swig_wrap_la-skeleton_nb_module.Tpo -c -o @srclib@/_swig_wrap_la-skeleton_nb_module.lo `test -f '@srclib@/skeleton_nb_module.cc' || echo '$(srcdir)/'`@srclib@/skeleton_nb_module.cc
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) @srclib@/$(DEPDIR)/_swig_wrap_la-skeleton_nb_module.Tpo @srclib@/$(DEPDIR)/_swig_wrap_la-skeleton_nb_module.Plo
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='@srclib@/skeleton_nb_module.cc' object='@srclib@/_swig_wrap_la-skeleton_nb_module.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(_swig_wrap_la_CPPFLAGS) $(CPPFLAGS) $(_swig_wrap_la_CXXFLAGS) $(CXXFLAGS) -c -o @swigsrc@/_swig_wrap_la-swig_boost_array_wrap.lo `test -f '@swigsrc@/swig_boost_array_wrap.cc' || echo '$(srcdir)/'`@swigsrc@/swig_boost_array_wrap.cc
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(_swig_wrap_la_CPPFLAGS) $(CPPFLAGS) $(_swig_wrap_la_CXXFLAGS) $(CXXFLAGS) -c -o @srclib@/_swig_wrap_la-skeleton_nb_module.lo `test -f '@srclib@/skeleton_nb_module.cc' || echo '$(srcdir)/'`@srclib@/skeleton_nb_module.cc
 
-@swigsrc@/_swig_wrap_la-swig_std_wrap.lo: @swigsrc@/swig_std_wrap.cc
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(_swig_wrap_la_CPPFLAGS) $(CPPFLAGS) $(_swig_wrap_la_CXXFLAGS) $(CXXFLAGS) -MT @swigsrc@/_swig_wrap_la-swig_std_wrap.lo -MD -MP -MF @swigsrc@/$(DEPDIR)/_swig_wrap_la-swig_std_wrap.Tpo -c -o @swigsrc@/_swig_wrap_la-swig_std_wrap.lo `test -f '@swigsrc@/swig_std_wrap.cc' || echo '$(srcdir)/'`@swigsrc@/swig_std_wrap.cc
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) @swigsrc@/$(DEPDIR)/_swig_wrap_la-swig_std_wrap.Tpo @swigsrc@/$(DEPDIR)/_swig_wrap_la-swig_std_wrap.Plo
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='@swigsrc@/swig_std_wrap.cc' object='@swigsrc@/_swig_wrap_la-swig_std_wrap.lo' libtool=yes @AMDEPBACKSLASH@
+@swigrules@/nanobind/_swig_wrap_la-swig_rules_nb.lo: @swigrules@/nanobind/swig_rules_nb.cc
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(_swig_wrap_la_CPPFLAGS) $(CPPFLAGS) $(_swig_wrap_la_CXXFLAGS) $(CXXFLAGS) -MT @swigrules@/nanobind/_swig_wrap_la-swig_rules_nb.lo -MD -MP -MF @swigrules@/nanobind/$(DEPDIR)/_swig_wrap_la-swig_rules_nb.Tpo -c -o @swigrules@/nanobind/_swig_wrap_la-swig_rules_nb.lo `test -f '@swigrules@/nanobind/swig_rules_nb.cc' || echo '$(srcdir)/'`@swigrules@/nanobind/swig_rules_nb.cc
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) @swigrules@/nanobind/$(DEPDIR)/_swig_wrap_la-swig_rules_nb.Tpo @swigrules@/nanobind/$(DEPDIR)/_swig_wrap_la-swig_rules_nb.Plo
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='@swigrules@/nanobind/swig_rules_nb.cc' object='@swigrules@/nanobind/_swig_wrap_la-swig_rules_nb.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(_swig_wrap_la_CPPFLAGS) $(CPPFLAGS) $(_swig_wrap_la_CXXFLAGS) $(CXXFLAGS) -c -o @swigsrc@/_swig_wrap_la-swig_std_wrap.lo `test -f '@swigsrc@/swig_std_wrap.cc' || echo '$(srcdir)/'`@swigsrc@/swig_std_wrap.cc
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(_swig_wrap_la_CPPFLAGS) $(CPPFLAGS) $(_swig_wrap_la_CXXFLAGS) $(CXXFLAGS) -c -o @swigrules@/nanobind/_swig_wrap_la-swig_rules_nb.lo `test -f '@swigrules@/nanobind/swig_rules_nb.cc' || echo '$(srcdir)/'`@swigrules@/nanobind/swig_rules_nb.cc
 
-@swigsrc@/_swig_wrap_la-swig_wrap.lo: @swigsrc@/swig_wrap.cc
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(_swig_wrap_la_CPPFLAGS) $(CPPFLAGS) $(_swig_wrap_la_CXXFLAGS) $(CXXFLAGS) -MT @swigsrc@/_swig_wrap_la-swig_wrap.lo -MD -MP -MF @swigsrc@/$(DEPDIR)/_swig_wrap_la-swig_wrap.Tpo -c -o @swigsrc@/_swig_wrap_la-swig_wrap.lo `test -f '@swigsrc@/swig_wrap.cc' || echo '$(srcdir)/'`@swigsrc@/swig_wrap.cc
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) @swigsrc@/$(DEPDIR)/_swig_wrap_la-swig_wrap.Tpo @swigsrc@/$(DEPDIR)/_swig_wrap_la-swig_wrap.Plo
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='@swigsrc@/swig_wrap.cc' object='@swigsrc@/_swig_wrap_la-swig_wrap.lo' libtool=yes @AMDEPBACKSLASH@
+_swig_wrap_la-nb_docstrings.lo: nb_docstrings.cc
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(_swig_wrap_la_CPPFLAGS) $(CPPFLAGS) $(_swig_wrap_la_CXXFLAGS) $(CXXFLAGS) -MT _swig_wrap_la-nb_docstrings.lo -MD -MP -MF $(DEPDIR)/_swig_wrap_la-nb_docstrings.Tpo -c -o _swig_wrap_la-nb_docstrings.lo `test -f 'nb_docstrings.cc' || echo '$(srcdir)/'`nb_docstrings.cc
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/_swig_wrap_la-nb_docstrings.Tpo $(DEPDIR)/_swig_wrap_la-nb_docstrings.Plo
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='nb_docstrings.cc' object='_swig_wrap_la-nb_docstrings.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(_swig_wrap_la_CPPFLAGS) $(CPPFLAGS) $(_swig_wrap_la_CXXFLAGS) $(CXXFLAGS) -c -o @swigsrc@/_swig_wrap_la-swig_wrap.lo `test -f '@swigsrc@/swig_wrap.cc' || echo '$(srcdir)/'`@swigsrc@/swig_wrap.cc
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(_swig_wrap_la_CPPFLAGS) $(CPPFLAGS) $(_swig_wrap_la_CXXFLAGS) $(CXXFLAGS) -c -o _swig_wrap_la-nb_docstrings.lo `test -f 'nb_docstrings.cc' || echo '$(srcdir)/'`nb_docstrings.cc
 
-@swigrules@/lib/libskeleton_la-swig_type_mapper_base.lo: @swigrules@/lib/swig_type_mapper_base.cc
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libskeleton_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT @swigrules@/lib/libskeleton_la-swig_type_mapper_base.lo -MD -MP -MF @swigrules@/lib/$(DEPDIR)/libskeleton_la-swig_type_mapper_base.Tpo -c -o @swigrules@/lib/libskeleton_la-swig_type_mapper_base.lo `test -f '@swigrules@/lib/swig_type_mapper_base.cc' || echo '$(srcdir)/'`@swigrules@/lib/swig_type_mapper_base.cc
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) @swigrules@/lib/$(DEPDIR)/libskeleton_la-swig_type_mapper_base.Tpo @swigrules@/lib/$(DEPDIR)/libskeleton_la-swig_type_mapper_base.Plo
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='@swigrules@/lib/swig_type_mapper_base.cc' object='@swigrules@/lib/libskeleton_la-swig_type_mapper_base.lo' libtool=yes @AMDEPBACKSLASH@
+@swigrules@/nanobind/libnanobind_core_la-nb_combined.lo: @swigrules@/nanobind/nb_combined.cc
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libnanobind_core_la_CPPFLAGS) $(CPPFLAGS) $(libnanobind_core_la_CXXFLAGS) $(CXXFLAGS) -MT @swigrules@/nanobind/libnanobind_core_la-nb_combined.lo -MD -MP -MF @swigrules@/nanobind/$(DEPDIR)/libnanobind_core_la-nb_combined.Tpo -c -o @swigrules@/nanobind/libnanobind_core_la-nb_combined.lo `test -f '@swigrules@/nanobind/nb_combined.cc' || echo '$(srcdir)/'`@swigrules@/nanobind/nb_combined.cc
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) @swigrules@/nanobind/$(DEPDIR)/libnanobind_core_la-nb_combined.Tpo @swigrules@/nanobind/$(DEPDIR)/libnanobind_core_la-nb_combined.Plo
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='@swigrules@/nanobind/nb_combined.cc' object='@swigrules@/nanobind/libnanobind_core_la-nb_combined.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libskeleton_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o @swigrules@/lib/libskeleton_la-swig_type_mapper_base.lo `test -f '@swigrules@/lib/swig_type_mapper_base.cc' || echo '$(srcdir)/'`@swigrules@/lib/swig_type_mapper_base.cc
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libnanobind_core_la_CPPFLAGS) $(CPPFLAGS) $(libnanobind_core_la_CXXFLAGS) $(CXXFLAGS) -c -o @swigrules@/nanobind/libnanobind_core_la-nb_combined.lo `test -f '@swigrules@/nanobind/nb_combined.cc' || echo '$(srcdir)/'`@swigrules@/nanobind/nb_combined.cc
 
 @swigrules@/lib/libskeleton_la-serialize_function.lo: @swigrules@/lib/serialize_function.cc
 @am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libskeleton_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT @swigrules@/lib/libskeleton_la-serialize_function.lo -MD -MP -MF @swigrules@/lib/$(DEPDIR)/libskeleton_la-serialize_function.Tpo -c -o @swigrules@/lib/libskeleton_la-serialize_function.lo `test -f '@swigrules@/lib/serialize_function.cc' || echo '$(srcdir)/'`@swigrules@/lib/serialize_function.cc
@@ -1980,6 +2003,13 @@ am--depfiles: $(am__depfiles_remade)
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='@srclib@/virtual_diamond_example.cc' object='@srclib@/libskeleton_la-virtual_diamond_example.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libskeleton_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o @srclib@/libskeleton_la-virtual_diamond_example.lo `test -f '@srclib@/virtual_diamond_example.cc' || echo '$(srcdir)/'`@srclib@/virtual_diamond_example.cc
+
+@srclib@/libskeleton_la-blitz_mdspan.lo: @srclib@/blitz_mdspan.cc
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libskeleton_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT @srclib@/libskeleton_la-blitz_mdspan.lo -MD -MP -MF @srclib@/$(DEPDIR)/libskeleton_la-blitz_mdspan.Tpo -c -o @srclib@/libskeleton_la-blitz_mdspan.lo `test -f '@srclib@/blitz_mdspan.cc' || echo '$(srcdir)/'`@srclib@/blitz_mdspan.cc
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) @srclib@/$(DEPDIR)/libskeleton_la-blitz_mdspan.Tpo @srclib@/$(DEPDIR)/libskeleton_la-blitz_mdspan.Plo
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='@srclib@/blitz_mdspan.cc' object='@srclib@/libskeleton_la-blitz_mdspan.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libskeleton_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o @srclib@/libskeleton_la-blitz_mdspan.lo `test -f '@srclib@/blitz_mdspan.cc' || echo '$(srcdir)/'`@srclib@/blitz_mdspan.cc
 
 @srclib@/libskeleton_la-thread_example.lo: @srclib@/thread_example.cc
 @am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libskeleton_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT @srclib@/libskeleton_la-thread_example.lo -MD -MP -MF @srclib@/$(DEPDIR)/libskeleton_la-thread_example.Tpo -c -o @srclib@/libskeleton_la-thread_example.lo `test -f '@srclib@/thread_example.cc' || echo '$(srcdir)/'`@srclib@/thread_example.cc
@@ -2184,6 +2214,20 @@ am--depfiles: $(am__depfiles_remade)
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(skeleton_test_all_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o @srclib@/skeleton_test_all-thread_example_test.obj `if test -f '@srclib@/thread_example_test.cc'; then $(CYGPATH_W) '@srclib@/thread_example_test.cc'; else $(CYGPATH_W) '$(srcdir)/@srclib@/thread_example_test.cc'; fi`
 
+@srclib@/skeleton_test_all-blitz_mdspan_test.o: @srclib@/blitz_mdspan_test.cc
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(skeleton_test_all_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT @srclib@/skeleton_test_all-blitz_mdspan_test.o -MD -MP -MF @srclib@/$(DEPDIR)/skeleton_test_all-blitz_mdspan_test.Tpo -c -o @srclib@/skeleton_test_all-blitz_mdspan_test.o `test -f '@srclib@/blitz_mdspan_test.cc' || echo '$(srcdir)/'`@srclib@/blitz_mdspan_test.cc
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) @srclib@/$(DEPDIR)/skeleton_test_all-blitz_mdspan_test.Tpo @srclib@/$(DEPDIR)/skeleton_test_all-blitz_mdspan_test.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='@srclib@/blitz_mdspan_test.cc' object='@srclib@/skeleton_test_all-blitz_mdspan_test.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(skeleton_test_all_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o @srclib@/skeleton_test_all-blitz_mdspan_test.o `test -f '@srclib@/blitz_mdspan_test.cc' || echo '$(srcdir)/'`@srclib@/blitz_mdspan_test.cc
+
+@srclib@/skeleton_test_all-blitz_mdspan_test.obj: @srclib@/blitz_mdspan_test.cc
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(skeleton_test_all_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT @srclib@/skeleton_test_all-blitz_mdspan_test.obj -MD -MP -MF @srclib@/$(DEPDIR)/skeleton_test_all-blitz_mdspan_test.Tpo -c -o @srclib@/skeleton_test_all-blitz_mdspan_test.obj `if test -f '@srclib@/blitz_mdspan_test.cc'; then $(CYGPATH_W) '@srclib@/blitz_mdspan_test.cc'; else $(CYGPATH_W) '$(srcdir)/@srclib@/blitz_mdspan_test.cc'; fi`
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) @srclib@/$(DEPDIR)/skeleton_test_all-blitz_mdspan_test.Tpo @srclib@/$(DEPDIR)/skeleton_test_all-blitz_mdspan_test.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='@srclib@/blitz_mdspan_test.cc' object='@srclib@/skeleton_test_all-blitz_mdspan_test.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(skeleton_test_all_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o @srclib@/skeleton_test_all-blitz_mdspan_test.obj `if test -f '@srclib@/blitz_mdspan_test.cc'; then $(CYGPATH_W) '@srclib@/blitz_mdspan_test.cc'; else $(CYGPATH_W) '$(srcdir)/@srclib@/blitz_mdspan_test.cc'; fi`
+
 mostlyclean-libtool:
 	-rm -f *.lo
 
@@ -2191,7 +2235,7 @@ clean-libtool:
 	-rm -rf .libs _libs
 	-rm -rf @srclib@/.libs @srclib@/_libs
 	-rm -rf @swigrules@/lib/.libs @swigrules@/lib/_libs
-	-rm -rf @swigsrc@/.libs @swigsrc@/_libs
+	-rm -rf @swigrules@/nanobind/.libs @swigrules@/nanobind/_libs
 
 distclean-libtool:
 	-rm -f libtool config.lt
@@ -2362,48 +2406,6 @@ uninstall-skeletonincHEADERS:
 	@list='$(skeletoninc_HEADERS)'; test -n "$(skeletonincdir)" || list=; \
 	files=`for p in $$list; do echo $$p; done | sed -e 's|^.*/||'`; \
 	dir='$(DESTDIR)$(skeletonincdir)'; $(am__uninstall_files_from_dir)
-install-skeletonswigincHEADERS: $(skeletonswiginc_HEADERS)
-	@$(NORMAL_INSTALL)
-	@list='$(skeletonswiginc_HEADERS)'; test -n "$(skeletonswigincdir)" || list=; \
-	if test -n "$$list"; then \
-	  echo " $(MKDIR_P) '$(DESTDIR)$(skeletonswigincdir)'"; \
-	  $(MKDIR_P) "$(DESTDIR)$(skeletonswigincdir)" || exit 1; \
-	fi; \
-	for p in $$list; do \
-	  if test -f "$$p"; then d=; else d="$(srcdir)/"; fi; \
-	  echo "$$d$$p"; \
-	done | $(am__base_list) | \
-	while read files; do \
-	  echo " $(INSTALL_HEADER) $$files '$(DESTDIR)$(skeletonswigincdir)'"; \
-	  $(INSTALL_HEADER) $$files "$(DESTDIR)$(skeletonswigincdir)" || exit $$?; \
-	done
-
-uninstall-skeletonswigincHEADERS:
-	@$(NORMAL_UNINSTALL)
-	@list='$(skeletonswiginc_HEADERS)'; test -n "$(skeletonswigincdir)" || list=; \
-	files=`for p in $$list; do echo $$p; done | sed -e 's|^.*/||'`; \
-	dir='$(DESTDIR)$(skeletonswigincdir)'; $(am__uninstall_files_from_dir)
-install-swigincHEADERS: $(swiginc_HEADERS)
-	@$(NORMAL_INSTALL)
-	@list='$(swiginc_HEADERS)'; test -n "$(swigincdir)" || list=; \
-	if test -n "$$list"; then \
-	  echo " $(MKDIR_P) '$(DESTDIR)$(swigincdir)'"; \
-	  $(MKDIR_P) "$(DESTDIR)$(swigincdir)" || exit 1; \
-	fi; \
-	for p in $$list; do \
-	  if test -f "$$p"; then d=; else d="$(srcdir)/"; fi; \
-	  echo "$$d$$p"; \
-	done | $(am__base_list) | \
-	while read files; do \
-	  echo " $(INSTALL_HEADER) $$files '$(DESTDIR)$(swigincdir)'"; \
-	  $(INSTALL_HEADER) $$files "$(DESTDIR)$(swigincdir)" || exit $$?; \
-	done
-
-uninstall-swigincHEADERS:
-	@$(NORMAL_UNINSTALL)
-	@list='$(swiginc_HEADERS)'; test -n "$(swigincdir)" || list=; \
-	files=`for p in $$list; do echo $$p; done | sed -e 's|^.*/||'`; \
-	dir='$(DESTDIR)$(swigincdir)'; $(am__uninstall_files_from_dir)
 
 ID: $(am__tagged_files)
 	$(am__define_uniq_tagged_files); mkid -fID $$unique
@@ -2837,7 +2839,7 @@ install-checkPROGRAMS: install-libLTLIBRARIES
 install-pkgpythonswigLTLIBRARIES: install-libLTLIBRARIES
 
 installdirs:
-	for dir in "$(DESTDIR)$(bindir)" "$(DESTDIR)$(libdir)" "$(DESTDIR)$(pkgpythonswigdir)" "$(DESTDIR)$(bindir)" "$(DESTDIR)$(installskeletondir)" "$(DESTDIR)$(pkgpythonswigdir)" "$(DESTDIR)$(installskeletondir)" "$(DESTDIR)$(pkgpythonswigdir)" "$(DESTDIR)$(pkgconfigdir)" "$(DESTDIR)$(pkgpythonswigdir)" "$(DESTDIR)$(includedir)" "$(DESTDIR)$(skeletonincdir)" "$(DESTDIR)$(skeletonswigincdir)" "$(DESTDIR)$(swigincdir)"; do \
+	for dir in "$(DESTDIR)$(bindir)" "$(DESTDIR)$(libdir)" "$(DESTDIR)$(pkgpythonswigdir)" "$(DESTDIR)$(bindir)" "$(DESTDIR)$(installskeletondir)" "$(DESTDIR)$(pkgpythonswigdir)" "$(DESTDIR)$(installskeletondir)" "$(DESTDIR)$(pkgpythonswigdir)" "$(DESTDIR)$(pkgconfigdir)" "$(DESTDIR)$(pkgpythonswigdir)" "$(DESTDIR)$(includedir)" "$(DESTDIR)$(skeletonincdir)"; do \
 	  test -z "$$dir" || $(MKDIR_P) "$$dir"; \
 	done
 install: $(BUILT_SOURCES)
@@ -2876,8 +2878,8 @@ distclean-generic:
 	-$(am__rm_f) @srclib@/$(am__dirstamp)
 	-$(am__rm_f) @swigrules@/lib/$(DEPDIR)/$(am__dirstamp)
 	-$(am__rm_f) @swigrules@/lib/$(am__dirstamp)
-	-$(am__rm_f) @swigsrc@/$(DEPDIR)/$(am__dirstamp)
-	-$(am__rm_f) @swigsrc@/$(am__dirstamp)
+	-$(am__rm_f) @swigrules@/nanobind/$(DEPDIR)/$(am__dirstamp)
+	-$(am__rm_f) @swigrules@/nanobind/$(am__dirstamp)
 
 maintainer-clean-generic:
 	@echo "This command is intended for maintainers to use"
@@ -2892,9 +2894,33 @@ clean-am: clean-binPROGRAMS clean-checkPROGRAMS clean-generic \
 
 distclean: distclean-am
 	-rm -f $(am__CONFIG_DISTCLEAN_FILES)
+	-rm -f ./$(DEPDIR)/_swig_wrap_la-nb_docstrings.Plo
+	-rm -f @srclib@/$(DEPDIR)/_skeleton_downstream_la-downstream_nb.Plo
+	-rm -f @srclib@/$(DEPDIR)/_swig_wrap_la-array_sample_nb.Plo
+	-rm -f @srclib@/$(DEPDIR)/_swig_wrap_la-array_typemap_sample_nb.Plo
+	-rm -f @srclib@/$(DEPDIR)/_swig_wrap_la-director_example_nb.Plo
+	-rm -f @srclib@/$(DEPDIR)/_swig_wrap_la-exception_sample_nb.Plo
+	-rm -f @srclib@/$(DEPDIR)/_swig_wrap_la-file_reference_sample_nb.Plo
+	-rm -f @srclib@/$(DEPDIR)/_swig_wrap_la-generic_object_map_nb.Plo
+	-rm -f @srclib@/$(DEPDIR)/_swig_wrap_la-generic_object_nb.Plo
+	-rm -f @srclib@/$(DEPDIR)/_swig_wrap_la-generic_object_sample_nb.Plo
+	-rm -f @srclib@/$(DEPDIR)/_swig_wrap_la-iostream_swig_nb.Plo
+	-rm -f @srclib@/$(DEPDIR)/_swig_wrap_la-multi_base_example_nb.Plo
+	-rm -f @srclib@/$(DEPDIR)/_swig_wrap_la-numpy_sample_nb.Plo
+	-rm -f @srclib@/$(DEPDIR)/_swig_wrap_la-observer_example_nb.Plo
+	-rm -f @srclib@/$(DEPDIR)/_swig_wrap_la-observer_nb.Plo
+	-rm -f @srclib@/$(DEPDIR)/_swig_wrap_la-overload_example_nb.Plo
+	-rm -f @srclib@/$(DEPDIR)/_swig_wrap_la-serialize_function_nb.Plo
+	-rm -f @srclib@/$(DEPDIR)/_swig_wrap_la-skeleton_exception_nb.Plo
+	-rm -f @srclib@/$(DEPDIR)/_swig_wrap_la-skeleton_nb_module.Plo
+	-rm -f @srclib@/$(DEPDIR)/_swig_wrap_la-swig_rules_sample_nb.Plo
+	-rm -f @srclib@/$(DEPDIR)/_swig_wrap_la-thread_example_nb.Plo
+	-rm -f @srclib@/$(DEPDIR)/_swig_wrap_la-virtual_diamond_example_nb.Plo
+	-rm -f @srclib@/$(DEPDIR)/_swig_wrap_la-with_parameter_like_nb.Plo
 	-rm -f @srclib@/$(DEPDIR)/golden_archive_generator-golden_archive_generator.Po
 	-rm -f @srclib@/$(DEPDIR)/libskeleton_la-array_sample.Plo
 	-rm -f @srclib@/$(DEPDIR)/libskeleton_la-blitz_array_serialize_support.Plo
+	-rm -f @srclib@/$(DEPDIR)/libskeleton_la-blitz_mdspan.Plo
 	-rm -f @srclib@/$(DEPDIR)/libskeleton_la-director_example.Plo
 	-rm -f @srclib@/$(DEPDIR)/libskeleton_la-file_reference_sample.Plo
 	-rm -f @srclib@/$(DEPDIR)/libskeleton_la-generic_object.Plo
@@ -2910,6 +2936,7 @@ distclean: distclean-am
 	-rm -f @srclib@/$(DEPDIR)/libskeleton_la-with_parameter_like.Plo
 	-rm -f @srclib@/$(DEPDIR)/skeleton_test_all-array_sample_test.Po
 	-rm -f @srclib@/$(DEPDIR)/skeleton_test_all-blitz_array_serialize_support_test.Po
+	-rm -f @srclib@/$(DEPDIR)/skeleton_test_all-blitz_mdspan_test.Po
 	-rm -f @srclib@/$(DEPDIR)/skeleton_test_all-generic_object_map_test.Po
 	-rm -f @srclib@/$(DEPDIR)/skeleton_test_all-global_fixture.Po
 	-rm -f @srclib@/$(DEPDIR)/skeleton_test_all-global_fixture_default.Po
@@ -2922,32 +2949,9 @@ distclean: distclean-am
 	-rm -f @srclib@/$(DEPDIR)/skeleton_test_all-test_all.Po
 	-rm -f @srclib@/$(DEPDIR)/skeleton_test_all-thread_example_test.Po
 	-rm -f @swigrules@/lib/$(DEPDIR)/libskeleton_la-serialize_function.Plo
-	-rm -f @swigrules@/lib/$(DEPDIR)/libskeleton_la-swig_type_mapper_base.Plo
 	-rm -f @swigrules@/lib/$(DEPDIR)/libskeleton_la-weak_ptr_serialize_support.Plo
-	-rm -f @swigsrc@/$(DEPDIR)/_swig_wrap_la-array_sample_wrap.Plo
-	-rm -f @swigsrc@/$(DEPDIR)/_swig_wrap_la-array_typemap_sample_wrap.Plo
-	-rm -f @swigsrc@/$(DEPDIR)/_swig_wrap_la-director_example_wrap.Plo
-	-rm -f @swigsrc@/$(DEPDIR)/_swig_wrap_la-exception_sample_wrap.Plo
-	-rm -f @swigsrc@/$(DEPDIR)/_swig_wrap_la-file_reference_sample_wrap.Plo
-	-rm -f @swigsrc@/$(DEPDIR)/_swig_wrap_la-generic_object_map_wrap.Plo
-	-rm -f @swigsrc@/$(DEPDIR)/_swig_wrap_la-generic_object_sample_wrap.Plo
-	-rm -f @swigsrc@/$(DEPDIR)/_swig_wrap_la-generic_object_wrap.Plo
-	-rm -f @swigsrc@/$(DEPDIR)/_swig_wrap_la-iostream_swig_wrap.Plo
-	-rm -f @swigsrc@/$(DEPDIR)/_swig_wrap_la-multi_base_example_wrap.Plo
-	-rm -f @swigsrc@/$(DEPDIR)/_swig_wrap_la-numpy_sample_wrap.Plo
-	-rm -f @swigsrc@/$(DEPDIR)/_swig_wrap_la-observer_example_wrap.Plo
-	-rm -f @swigsrc@/$(DEPDIR)/_swig_wrap_la-observer_wrap.Plo
-	-rm -f @swigsrc@/$(DEPDIR)/_swig_wrap_la-overload_example_wrap.Plo
-	-rm -f @swigsrc@/$(DEPDIR)/_swig_wrap_la-serialize_function_wrap.Plo
-	-rm -f @swigsrc@/$(DEPDIR)/_swig_wrap_la-skeleton_exception_wrap.Plo
-	-rm -f @swigsrc@/$(DEPDIR)/_swig_wrap_la-swig_array_wrap.Plo
-	-rm -f @swigsrc@/$(DEPDIR)/_swig_wrap_la-swig_boost_array_wrap.Plo
-	-rm -f @swigsrc@/$(DEPDIR)/_swig_wrap_la-swig_rules_sample_wrap.Plo
-	-rm -f @swigsrc@/$(DEPDIR)/_swig_wrap_la-swig_std_wrap.Plo
-	-rm -f @swigsrc@/$(DEPDIR)/_swig_wrap_la-swig_wrap.Plo
-	-rm -f @swigsrc@/$(DEPDIR)/_swig_wrap_la-thread_example_wrap.Plo
-	-rm -f @swigsrc@/$(DEPDIR)/_swig_wrap_la-virtual_diamond_example_wrap.Plo
-	-rm -f @swigsrc@/$(DEPDIR)/_swig_wrap_la-with_parameter_like_wrap.Plo
+	-rm -f @swigrules@/nanobind/$(DEPDIR)/_swig_wrap_la-swig_rules_nb.Plo
+	-rm -f @swigrules@/nanobind/$(DEPDIR)/libnanobind_core_la-nb_combined.Plo
 	-rm -f Makefile
 distclean-am: clean-am distclean-compile distclean-generic \
 	distclean-hdr distclean-libtool distclean-tags
@@ -2968,8 +2972,7 @@ install-data-am: install-dist_installskeletonSCRIPTS \
 	install-includeHEADERS install-installskeletonDATA \
 	install-nodist_pkgpythonswigDATA install-pkgconfigDATA \
 	install-pkgpythonswigDATA install-pkgpythonswigLTLIBRARIES \
-	install-pkgpythonswigPYTHON install-skeletonincHEADERS \
-	install-skeletonswigincHEADERS install-swigincHEADERS
+	install-pkgpythonswigPYTHON install-skeletonincHEADERS
 	@$(NORMAL_INSTALL)
 	$(MAKE) $(AM_MAKEFLAGS) install-data-hook
 install-dvi: install-dvi-am
@@ -3003,9 +3006,33 @@ installcheck-am: installcheck-local
 maintainer-clean: maintainer-clean-am
 	-rm -f $(am__CONFIG_DISTCLEAN_FILES)
 	-rm -rf $(top_srcdir)/autom4te.cache
+	-rm -f ./$(DEPDIR)/_swig_wrap_la-nb_docstrings.Plo
+	-rm -f @srclib@/$(DEPDIR)/_skeleton_downstream_la-downstream_nb.Plo
+	-rm -f @srclib@/$(DEPDIR)/_swig_wrap_la-array_sample_nb.Plo
+	-rm -f @srclib@/$(DEPDIR)/_swig_wrap_la-array_typemap_sample_nb.Plo
+	-rm -f @srclib@/$(DEPDIR)/_swig_wrap_la-director_example_nb.Plo
+	-rm -f @srclib@/$(DEPDIR)/_swig_wrap_la-exception_sample_nb.Plo
+	-rm -f @srclib@/$(DEPDIR)/_swig_wrap_la-file_reference_sample_nb.Plo
+	-rm -f @srclib@/$(DEPDIR)/_swig_wrap_la-generic_object_map_nb.Plo
+	-rm -f @srclib@/$(DEPDIR)/_swig_wrap_la-generic_object_nb.Plo
+	-rm -f @srclib@/$(DEPDIR)/_swig_wrap_la-generic_object_sample_nb.Plo
+	-rm -f @srclib@/$(DEPDIR)/_swig_wrap_la-iostream_swig_nb.Plo
+	-rm -f @srclib@/$(DEPDIR)/_swig_wrap_la-multi_base_example_nb.Plo
+	-rm -f @srclib@/$(DEPDIR)/_swig_wrap_la-numpy_sample_nb.Plo
+	-rm -f @srclib@/$(DEPDIR)/_swig_wrap_la-observer_example_nb.Plo
+	-rm -f @srclib@/$(DEPDIR)/_swig_wrap_la-observer_nb.Plo
+	-rm -f @srclib@/$(DEPDIR)/_swig_wrap_la-overload_example_nb.Plo
+	-rm -f @srclib@/$(DEPDIR)/_swig_wrap_la-serialize_function_nb.Plo
+	-rm -f @srclib@/$(DEPDIR)/_swig_wrap_la-skeleton_exception_nb.Plo
+	-rm -f @srclib@/$(DEPDIR)/_swig_wrap_la-skeleton_nb_module.Plo
+	-rm -f @srclib@/$(DEPDIR)/_swig_wrap_la-swig_rules_sample_nb.Plo
+	-rm -f @srclib@/$(DEPDIR)/_swig_wrap_la-thread_example_nb.Plo
+	-rm -f @srclib@/$(DEPDIR)/_swig_wrap_la-virtual_diamond_example_nb.Plo
+	-rm -f @srclib@/$(DEPDIR)/_swig_wrap_la-with_parameter_like_nb.Plo
 	-rm -f @srclib@/$(DEPDIR)/golden_archive_generator-golden_archive_generator.Po
 	-rm -f @srclib@/$(DEPDIR)/libskeleton_la-array_sample.Plo
 	-rm -f @srclib@/$(DEPDIR)/libskeleton_la-blitz_array_serialize_support.Plo
+	-rm -f @srclib@/$(DEPDIR)/libskeleton_la-blitz_mdspan.Plo
 	-rm -f @srclib@/$(DEPDIR)/libskeleton_la-director_example.Plo
 	-rm -f @srclib@/$(DEPDIR)/libskeleton_la-file_reference_sample.Plo
 	-rm -f @srclib@/$(DEPDIR)/libskeleton_la-generic_object.Plo
@@ -3021,6 +3048,7 @@ maintainer-clean: maintainer-clean-am
 	-rm -f @srclib@/$(DEPDIR)/libskeleton_la-with_parameter_like.Plo
 	-rm -f @srclib@/$(DEPDIR)/skeleton_test_all-array_sample_test.Po
 	-rm -f @srclib@/$(DEPDIR)/skeleton_test_all-blitz_array_serialize_support_test.Po
+	-rm -f @srclib@/$(DEPDIR)/skeleton_test_all-blitz_mdspan_test.Po
 	-rm -f @srclib@/$(DEPDIR)/skeleton_test_all-generic_object_map_test.Po
 	-rm -f @srclib@/$(DEPDIR)/skeleton_test_all-global_fixture.Po
 	-rm -f @srclib@/$(DEPDIR)/skeleton_test_all-global_fixture_default.Po
@@ -3033,32 +3061,9 @@ maintainer-clean: maintainer-clean-am
 	-rm -f @srclib@/$(DEPDIR)/skeleton_test_all-test_all.Po
 	-rm -f @srclib@/$(DEPDIR)/skeleton_test_all-thread_example_test.Po
 	-rm -f @swigrules@/lib/$(DEPDIR)/libskeleton_la-serialize_function.Plo
-	-rm -f @swigrules@/lib/$(DEPDIR)/libskeleton_la-swig_type_mapper_base.Plo
 	-rm -f @swigrules@/lib/$(DEPDIR)/libskeleton_la-weak_ptr_serialize_support.Plo
-	-rm -f @swigsrc@/$(DEPDIR)/_swig_wrap_la-array_sample_wrap.Plo
-	-rm -f @swigsrc@/$(DEPDIR)/_swig_wrap_la-array_typemap_sample_wrap.Plo
-	-rm -f @swigsrc@/$(DEPDIR)/_swig_wrap_la-director_example_wrap.Plo
-	-rm -f @swigsrc@/$(DEPDIR)/_swig_wrap_la-exception_sample_wrap.Plo
-	-rm -f @swigsrc@/$(DEPDIR)/_swig_wrap_la-file_reference_sample_wrap.Plo
-	-rm -f @swigsrc@/$(DEPDIR)/_swig_wrap_la-generic_object_map_wrap.Plo
-	-rm -f @swigsrc@/$(DEPDIR)/_swig_wrap_la-generic_object_sample_wrap.Plo
-	-rm -f @swigsrc@/$(DEPDIR)/_swig_wrap_la-generic_object_wrap.Plo
-	-rm -f @swigsrc@/$(DEPDIR)/_swig_wrap_la-iostream_swig_wrap.Plo
-	-rm -f @swigsrc@/$(DEPDIR)/_swig_wrap_la-multi_base_example_wrap.Plo
-	-rm -f @swigsrc@/$(DEPDIR)/_swig_wrap_la-numpy_sample_wrap.Plo
-	-rm -f @swigsrc@/$(DEPDIR)/_swig_wrap_la-observer_example_wrap.Plo
-	-rm -f @swigsrc@/$(DEPDIR)/_swig_wrap_la-observer_wrap.Plo
-	-rm -f @swigsrc@/$(DEPDIR)/_swig_wrap_la-overload_example_wrap.Plo
-	-rm -f @swigsrc@/$(DEPDIR)/_swig_wrap_la-serialize_function_wrap.Plo
-	-rm -f @swigsrc@/$(DEPDIR)/_swig_wrap_la-skeleton_exception_wrap.Plo
-	-rm -f @swigsrc@/$(DEPDIR)/_swig_wrap_la-swig_array_wrap.Plo
-	-rm -f @swigsrc@/$(DEPDIR)/_swig_wrap_la-swig_boost_array_wrap.Plo
-	-rm -f @swigsrc@/$(DEPDIR)/_swig_wrap_la-swig_rules_sample_wrap.Plo
-	-rm -f @swigsrc@/$(DEPDIR)/_swig_wrap_la-swig_std_wrap.Plo
-	-rm -f @swigsrc@/$(DEPDIR)/_swig_wrap_la-swig_wrap.Plo
-	-rm -f @swigsrc@/$(DEPDIR)/_swig_wrap_la-thread_example_wrap.Plo
-	-rm -f @swigsrc@/$(DEPDIR)/_swig_wrap_la-virtual_diamond_example_wrap.Plo
-	-rm -f @swigsrc@/$(DEPDIR)/_swig_wrap_la-with_parameter_like_wrap.Plo
+	-rm -f @swigrules@/nanobind/$(DEPDIR)/_swig_wrap_la-swig_rules_nb.Plo
+	-rm -f @swigrules@/nanobind/$(DEPDIR)/libnanobind_core_la-nb_combined.Plo
 	-rm -f Makefile
 maintainer-clean-am: distclean-am maintainer-clean-generic
 
@@ -3080,8 +3085,7 @@ uninstall-am: uninstall-binPROGRAMS uninstall-dist_binSCRIPTS \
 	uninstall-installskeletonDATA uninstall-libLTLIBRARIES \
 	uninstall-nodist_pkgpythonswigDATA uninstall-pkgconfigDATA \
 	uninstall-pkgpythonswigDATA uninstall-pkgpythonswigLTLIBRARIES \
-	uninstall-pkgpythonswigPYTHON uninstall-skeletonincHEADERS \
-	uninstall-skeletonswigincHEADERS uninstall-swigincHEADERS
+	uninstall-pkgpythonswigPYTHON uninstall-skeletonincHEADERS
 	@$(NORMAL_INSTALL)
 	$(MAKE) $(AM_MAKEFLAGS) uninstall-hook
 .MAKE: all check check-am install install-am install-data-am \
@@ -3109,20 +3113,18 @@ uninstall-am: uninstall-binPROGRAMS uninstall-dist_binSCRIPTS \
 	install-pkgconfigDATA install-pkgpythonswigDATA \
 	install-pkgpythonswigLTLIBRARIES install-pkgpythonswigPYTHON \
 	install-ps install-ps-am install-skeletonincHEADERS \
-	install-skeletonswigincHEADERS install-strip \
-	install-swigincHEADERS installcheck installcheck-am \
-	installcheck-local installdirs maintainer-clean \
-	maintainer-clean-generic mostlyclean mostlyclean-compile \
-	mostlyclean-generic mostlyclean-libtool pdf pdf-am ps ps-am \
-	recheck tags tags-am uninstall uninstall-am \
-	uninstall-binPROGRAMS uninstall-dist_binSCRIPTS \
+	install-strip installcheck installcheck-am installcheck-local \
+	installdirs maintainer-clean maintainer-clean-generic \
+	mostlyclean mostlyclean-compile mostlyclean-generic \
+	mostlyclean-libtool pdf pdf-am ps ps-am recheck tags tags-am \
+	uninstall uninstall-am uninstall-binPROGRAMS \
+	uninstall-dist_binSCRIPTS \
 	uninstall-dist_installskeletonSCRIPTS uninstall-hook \
 	uninstall-includeHEADERS uninstall-installskeletonDATA \
 	uninstall-libLTLIBRARIES uninstall-nodist_pkgpythonswigDATA \
 	uninstall-pkgconfigDATA uninstall-pkgpythonswigDATA \
 	uninstall-pkgpythonswigLTLIBRARIES \
-	uninstall-pkgpythonswigPYTHON uninstall-skeletonincHEADERS \
-	uninstall-skeletonswigincHEADERS uninstall-swigincHEADERS
+	uninstall-pkgpythonswigPYTHON uninstall-skeletonincHEADERS
 
 .PRECIOUS: Makefile
 
@@ -3177,8 +3179,9 @@ format-check:
 
 lint:
 	$(PYTHON) $(srcdir)/script/make_compile_commands.py --clangd \
-	  libskeleton.la skeleton_test_all golden_archive_generator _swig_wrap.la
-	$(PYTHON) -c 'import json, os; src = os.path.realpath("$(abs_top_srcdir)") + "/"; [print(e["file"]) for e in json.load(open("compile_commands.json")) if os.path.realpath(e["file"]).startswith(src) and not e["file"].endswith("_wrap.cc")]' \
+	  libskeleton.la skeleton_test_all golden_archive_generator _swig_wrap.la \
+	  _skeleton_downstream.la
+	$(PYTHON) -c 'import json, os; src = os.path.realpath("$(abs_top_srcdir)") + "/"; [print(e["file"]) for e in json.load(open("compile_commands.json")) if os.path.realpath(e["file"]).startswith(src) and not e["file"].endswith("nb_combined.cc")]' \
 	  > lint_files.txt
 	@test -s lint_files.txt || { echo "lint: no source files found in compile_commands.json"; exit 1; }
 	xargs -r -P $(LINT_NJOB) -n 1 sh $(srcdir)/script/run_clang_tidy.sh $(CLANG_TIDY_FLAGS) < lint_files.txt
@@ -3219,72 +3222,32 @@ python-check: script/setup_skeleton.sh
 	source $< && \
         $(PYTEST) $(PYTEST_FLAGS) $(PYTEST_EXTRAFLAGS) $(srcdir)/@srcpython@/tests $(EXTRA_PYTHON_TEST)
 
-# Allow searchs for .i in this directory
-vpath %.i $(srcdir)/@swigrules@/include
-vpath %.i $(srcdir)/@swigrules@/lib
-swig_pyi/__init__.pyi: Makefile
-	$(MKDIR_P) swig_pyi
-	{ echo "# Generated by make from the list of swig modules, do not edit."; \
-	  for m in $(SWIG_INIT_PYI_MODULES); do echo "from .$$m import *"; done; } > $@.tmp
-	mv $@.tmp $@
+#=================================================================
+# The python tests against the build tree (part of "make check", no
+# install needed): the extension modules from .libs and the python
+# packages from the source tree, in nb_pkg/. libskeleton is preloaded,
+# since the modules' RPATH (conda links with --disable-new-dtags) would
+# otherwise find an installed libskeleton first, as in ST.11.
+@BUILD_PYTHON_BINDINGS_TRUE@python-check-build: all
+@BUILD_PYTHON_BINDINGS_TRUE@	rm -rf nb_pkg && $(MKDIR_P) nb_pkg/skeleton_swig
+@BUILD_PYTHON_BINDINGS_TRUE@	for f in __init__.py all.py _nanobind_support.py py.typed; do \
+@BUILD_PYTHON_BINDINGS_TRUE@	  ln -s $(abs_top_srcdir)/@swigrules@/$$f nb_pkg/skeleton_swig/$$f; done
+@BUILD_PYTHON_BINDINGS_TRUE@	for m in _swig_wrap _skeleton_downstream; do \
+@BUILD_PYTHON_BINDINGS_TRUE@	  ln -s $(abs_builddir)/.libs/$$m.so nb_pkg/skeleton_swig/$$m.so; done
+@BUILD_PYTHON_BINDINGS_TRUE@	ln -s $(abs_top_srcdir)/@srcpython@/skeleton nb_pkg/skeleton
+@BUILD_PYTHON_BINDINGS_TRUE@	cd $(srcdir)/@srcpython@ && \
+@BUILD_PYTHON_BINDINGS_TRUE@	  PYTHONPATH=$(abs_builddir)/nb_pkg:$$PYTHONPATH \
+@BUILD_PYTHON_BINDINGS_TRUE@	  LD_PRELOAD=$(abs_builddir)/.libs/libskeleton.so \
+@BUILD_PYTHON_BINDINGS_TRUE@	  $(PYTEST) $(PYTEST_FLAGS) -p no:cacheprovider $(PYTEST_EXTRAFLAGS) tests $(EXTRA_PYTHON_TEST)
+@BUILD_PYTHON_BINDINGS_TRUE@clean-nb-pkg:
+@BUILD_PYTHON_BINDINGS_TRUE@	rm -rf nb_pkg
 
-# Only generate these files in maintainer mode, otherwise consider them
-# as input.
-
-@HAVE_SWIG_TRUE@@MAINTAINER_MODE_TRUE@$(swigsrc)/%_wrap.Pcc : %.i %.cc %.h $(SWIG_TARGET)
-@HAVE_SWIG_TRUE@@MAINTAINER_MODE_TRUE@	$(SWIG) $(SWIG_PYTHON_OPT) $(SWIG_FLAG) $(AM_CPPFLAGS) -MM -MF $(builddir)/$@.tmp -module $* -o $(srcdir)/$(swigsrc)/$*_wrap.cc $<
-@HAVE_SWIG_TRUE@@MAINTAINER_MODE_TRUE@	sed 's,\($*_wrap\)\.cc[ :]*,\1.cc $@ : ,g' < $@.tmp > $@
-@HAVE_SWIG_TRUE@@MAINTAINER_MODE_TRUE@	rm $@.tmp
-@HAVE_SWIG_TRUE@@MAINTAINER_MODE_TRUE@	echo "$(swigsrc)/$*_wrap.cc: $(<D)/$*.cc" >> $@
-@HAVE_SWIG_TRUE@@MAINTAINER_MODE_TRUE@	echo "$(swigsrc)/$*_wrap.cc: $(<D)/$*.h" >> $@
-
-@HAVE_SWIG_TRUE@@MAINTAINER_MODE_TRUE@$(swigsrc)/%_wrap.Pcc : %.i %.h $(SWIG_TARGET)
-@HAVE_SWIG_TRUE@@MAINTAINER_MODE_TRUE@	$(SWIG) $(SWIG_PYTHON_OPT) $(SWIG_FLAG) $(AM_CPPFLAGS) -MM -MF $(builddir)/$@.tmp -module $* -o $(srcdir)/$(swigsrc)/$*_wrap.cc $<
-@HAVE_SWIG_TRUE@@MAINTAINER_MODE_TRUE@	sed 's,\($*_wrap\)\.cc[ :]*,\1.cc $@ : ,g' < $@.tmp > $@
-@HAVE_SWIG_TRUE@@MAINTAINER_MODE_TRUE@	rm $@.tmp
-@HAVE_SWIG_TRUE@@MAINTAINER_MODE_TRUE@	echo "$(swigsrc)/$*_wrap.cc: $(<D)/$*.h" >> $@
-
-@HAVE_SWIG_TRUE@@MAINTAINER_MODE_TRUE@$(swigsrc)/%_wrap.Pcc : %.i $(SWIG_TARGET)
-@HAVE_SWIG_TRUE@@MAINTAINER_MODE_TRUE@	$(SWIG) $(SWIG_PYTHON_OPT) $(SWIG_FLAG) $(AM_CPPFLAGS) -MM -MF $(builddir)/$@.tmp -module $* -o $(srcdir)/$(swigsrc)/$*_wrap.cc $<
-@HAVE_SWIG_TRUE@@MAINTAINER_MODE_TRUE@	sed 's,\($*_wrap\)\.cc[ :]*,\1.cc $@ : ,g' < $@.tmp > $@
-@HAVE_SWIG_TRUE@@MAINTAINER_MODE_TRUE@	rm $@.tmp
-
-@HAVE_SWIG_TRUE@@MAINTAINER_MODE_TRUE@$(srcdir)/$(swigsrc)/swig_wrap.cc: @swigrules@/swig_wrap.tmpl @swigrules@/create_python_init.py Makefile $(PYTHON_TARGET)
-@HAVE_SWIG_TRUE@@MAINTAINER_MODE_TRUE@	export LD_LIBRARY_PATH="${PYTHON_LDPATH}${LD_LIBRARY_PATH}" && \
-@HAVE_SWIG_TRUE@@MAINTAINER_MODE_TRUE@        $(PYTHON) $(srcdir)/$(swigrules)/create_python_init.py $< $@ swig $(SWIG_MODULE_NAME) $(patsubst %_wrap.cc,%,$(notdir $(ADDITONAL_SWIG_SRC) $(CONDITIONAL_SWIG_SRC)))
-
-@HAVE_SWIG_TRUE@@MAINTAINER_MODE_TRUE@$(srcdir)/$(swigsrc)/%_wrap.cc: %.i %.h %.cc $(DOXYGEN_TARGET) $(SWIG_TARGET)
-@HAVE_SWIG_TRUE@@MAINTAINER_MODE_TRUE@	mkdir -p $*_doc
-@HAVE_SWIG_TRUE@@MAINTAINER_MODE_TRUE@	OUTDIR=$*_doc INPUT="$(<D)/$*.h $(<D)/$*.cc" $(DOXYGEN) $(srcdir)/$(swigrules)/doxygen_single.cfg
-@HAVE_SWIG_TRUE@@MAINTAINER_MODE_TRUE@	export LD_LIBRARY_PATH="${PYTHON_LDPATH}${LD_LIBRARY_PATH}" && \
-@HAVE_SWIG_TRUE@@MAINTAINER_MODE_TRUE@        $(PYTHON) $(srcdir)/$(swigrules)/doxy2swig.py $*_doc/xml/index.xml $*_doc.i
-@HAVE_SWIG_TRUE@@MAINTAINER_MODE_TRUE@	rm -r $*_doc
-@HAVE_SWIG_TRUE@@MAINTAINER_MODE_TRUE@	echo "%include \"$*.i\"" >> $*_doc.i
-@HAVE_SWIG_TRUE@@MAINTAINER_MODE_TRUE@	$(SWIG) $(SWIG_PYTHON_OPT) $(SWIG_FLAG) $(AM_CPPFLAGS) -module $* -o $(srcdir)/$(swigsrc)/$*_wrap.cc $*_doc.i 
-@HAVE_SWIG_TRUE@@MAINTAINER_MODE_TRUE@	rm $*_doc.i
-
-@HAVE_SWIG_TRUE@@MAINTAINER_MODE_TRUE@$(srcdir)/$(swigsrc)/%_wrap.cc: %.i %.h $(DOXYGEN_TARGET) $(SWIG_TARGET)
-@HAVE_SWIG_TRUE@@MAINTAINER_MODE_TRUE@	mkdir -p $*_doc
-@HAVE_SWIG_TRUE@@MAINTAINER_MODE_TRUE@	OUTDIR=$*_doc INPUT="$(<D)/$*.h" $(DOXYGEN) $(srcdir)/$(swigrules)/doxygen_single.cfg
-@HAVE_SWIG_TRUE@@MAINTAINER_MODE_TRUE@	export LD_LIBRARY_PATH="${PYTHON_LDPATH}${LD_LIBRARY_PATH}" && \
-@HAVE_SWIG_TRUE@@MAINTAINER_MODE_TRUE@        $(PYTHON) $(srcdir)/$(swigrules)/doxy2swig.py $*_doc/xml/index.xml $*_doc.i
-@HAVE_SWIG_TRUE@@MAINTAINER_MODE_TRUE@	rm -r $*_doc
-@HAVE_SWIG_TRUE@@MAINTAINER_MODE_TRUE@	echo "%include \"$*.i\"" >> $*_doc.i
-@HAVE_SWIG_TRUE@@MAINTAINER_MODE_TRUE@	$(SWIG) $(SWIG_PYTHON_OPT) $(SWIG_FLAG) $(AM_CPPFLAGS) -module $* -o $(srcdir)/$(swigsrc)/$*_wrap.cc $*_doc.i 
-@HAVE_SWIG_TRUE@@MAINTAINER_MODE_TRUE@	rm $*_doc.i
-
-@HAVE_SWIG_TRUE@@MAINTAINER_MODE_TRUE@$(srcdir)/$(swigsrc)/%_wrap.cc: %.i $(SWIG_TARGET)
-@HAVE_SWIG_TRUE@@MAINTAINER_MODE_TRUE@	$(SWIG) $(SWIG_PYTHON_OPT) $(SWIG_FLAG) $(AM_CPPFLAGS) -module $* -o $(srcdir)/$(swigsrc)/$*_wrap.cc $<
-
-@HAVE_SWIG_TRUE@@MAINTAINER_MODE_TRUE@-include $(patsubst %.cc, %.Pcc, $(COMPILE_SWIG_SRC))
-@HAVE_SWIG_TRUE@@MAINTAINER_MODE_TRUE@-include $(patsubst %.cc, %.Pcc, $(ADDITONAL_SWIG_SRC))
-
-# Shortcut for building just python
-install-python-2: install-libLTLIBRARIES install-python-skeleton install-pkgpythonswigLTLIBRARIES install-pkgpythonswigPYTHON
+# Shortcut for building and installing just the library and python
+install-python-2: install-libLTLIBRARIES install-python-skeleton install-pkgpythonswigLTLIBRARIES install-pkgpythonswigPYTHON install-pkgpythonswigDATA install-nodist_pkgpythonswigDATA
 	$(noop)
 
 install-python: all
-	$(MAKE) -j 1 install-python-2 
+	$(MAKE) -j 1 install-python-2
 
 golden-archives: golden_archive_generator
 	source script/setup_skeleton.sh && \
@@ -3316,6 +3279,26 @@ skeleton-check-am: skeleton_test_all
 vpath %.cc $(srcdir)/@srclib@
 vpath %.h $(srcdir)/@srclib@
 vpath %.i $(srcdir)/@srclib@
+
+# Docstrings from the doxygen documentation of NB_DOXYGEN_INPUT. Without
+# doxygen, the table is empty.
+@BUILD_PYTHON_BINDINGS_TRUE@nb_docstrings.cc: $(NB_DOXYGEN_INPUT) @swigrules@/nanobind/doxy2nanobind.py @swigrules@/nanobind/doxygen_nanobind.cfg
+@BUILD_PYTHON_BINDINGS_TRUE@	rm -rf nb_doc && mkdir -p nb_doc
+@BUILD_PYTHON_BINDINGS_TRUE@	if test -n "$(DOXYGEN)" -a "$(DOXYGEN)" != "no"; then \
+@BUILD_PYTHON_BINDINGS_TRUE@	  OUTDIR=nb_doc INPUT="$(NB_DOXYGEN_INPUT)" $(DOXYGEN) $(srcdir)/@swigrules@/nanobind/doxygen_nanobind.cfg > /dev/null; \
+@BUILD_PYTHON_BINDINGS_TRUE@	fi
+@BUILD_PYTHON_BINDINGS_TRUE@	$(PYTHON) $(srcdir)/@swigrules@/nanobind/doxy2nanobind.py nb_doc/xml $@.tmp
+@BUILD_PYTHON_BINDINGS_TRUE@	mv $@.tmp $@
+@BUILD_PYTHON_BINDINGS_TRUE@	rm -rf nb_doc
+
+# Python stubs (.pyi) for mypy and editors, from the built module.
+@BUILD_PYTHON_BINDINGS_TRUE@nb_pyi/_swig_wrap.pyi: _swig_wrap.la
+@BUILD_PYTHON_BINDINGS_TRUE@	rm -rf nb_pyi && mkdir -p nb_pyi/$(notdir $(pkgpythonswigdir))
+@BUILD_PYTHON_BINDINGS_TRUE@	cp $(srcdir)/@swigrules@/__init__.py $(srcdir)/@swigrules@/_nanobind_support.py nb_pyi/$(notdir $(pkgpythonswigdir))/
+@BUILD_PYTHON_BINDINGS_TRUE@	cp .libs/_swig_wrap$(PYTHON_EXT_SUFFIX_SO) nb_pyi/$(notdir $(pkgpythonswigdir))/ 2>/dev/null || cp .libs/_swig_wrap.so nb_pyi/$(notdir $(pkgpythonswigdir))/
+@BUILD_PYTHON_BINDINGS_TRUE@	cd nb_pyi && PYTHONPATH=.:$${PYTHONPATH} LD_LIBRARY_PATH=$(abs_top_builddir)/.libs:$${LD_LIBRARY_PATH} \
+@BUILD_PYTHON_BINDINGS_TRUE@	  $(PYTHON) -m nanobind.stubgen -m $(notdir $(pkgpythonswigdir))._swig_wrap -o _swig_wrap.pyi -q
+@BUILD_PYTHON_BINDINGS_TRUE@	rm -rf nb_pyi/$(notdir $(pkgpythonswigdir))
 
 # Nothing here yet, but put in place as a placeholder
 

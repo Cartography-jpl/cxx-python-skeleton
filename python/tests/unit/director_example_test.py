@@ -365,7 +365,11 @@ def test_director_lifetime_shelve(isolated_dir, serial):
     print("All done with euser_s")
 
 
-@pytest.mark.xfail(strict=True, reason="nested C++/Python identity: redesigned in S6")
+@pytest.mark.xfail(
+    strict=True,
+    reason="nested C++/Python identity in a pickle: C++ objects in a python subclass's "
+    "__dict__ are pickled as separate archives (re-entrant pickling, set aside, decision 3)",
+)
 def test_director_example_object_tracking(isolated_dir, serial):
     """Check that both the C++ objects and python objects correctly handle
     duplicates in pickling and shelving"""
@@ -441,11 +445,21 @@ def test_director_example_weak_ptr(isolated_dir, serial):
     assert a2.func(10) == 5 + 10 + 2 * 6
     assert c2.a() is None
 
-    # Also check handling of weak_ptr
-    assert c.a() is not None
+    # A weak_ptr to an object owned only by python. Under SWIG
+    # (SHARED_PTR_NO_OWN) this stayed valid while a lived. With nanobind it
+    # expires at once: no C++ shared_ptr owns a, the one made for the
+    # constructor call was released when it returned
+    # (claude_notes/implementation_plan.md S6.1 item 4, decision 6).
+    assert c.a() is None
+    assert c.expired()
+    # With a C++ owner (here a DirectorExampleUser) it works.
+    owner = DirectorExampleUser()
+    owner.set_value(a)
+    c = DirectorExampleWeakPtr(a)
+    assert c.a() is a
     assert not c.expired()
     assert c.use_count() == 1
-    a = None
+    owner = None
     assert c.expired()
     assert c.use_count() == 0
     assert c.a() is None

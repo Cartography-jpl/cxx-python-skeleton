@@ -13,5 +13,5 @@ Checks: >
   modernize-deprecated-headers
 # Report on our headers too, but not on generated wrappers, vendored code or
 # copies of upstream code.
-HeaderFilterRegex: '.*/(lib|swig_rules/lib)/.*'
-ExcludeHeaderFilterRegex: '.*/(bindings|thirdparty|boost_fix)/.*|.*/Support/boost/.*'
+HeaderFilterRegex: '.*/(lib|swig_rules/lib|swig_rules/nanobind)/.*'
+ExcludeHeaderFilterRegex: '.*/(bindings|thirdparty|boost_fix)/.*|.*/Support/boost/.*|.*/gc_shared_ptr.h'

@@ -53,13 +53,10 @@ def test_input_layout(make, layout):
     assert ColumnMajorSample.sum(a) == a.sum()
 
 
-@pytest.mark.xfail(
-    strict=True,
-    raises=TypeError,
-    reason="swig_array.i has no typemap for a non-const blitz::Array& argument",
-)
 @pytest.mark.parametrize("make", [lambda a: a, np.asfortranarray, lambda a: a[:, ::2]])
 def test_scale_in_place(make):
+    """A non-const blitz::Array& argument shares python's memory (under SWIG
+    this was a TypeError, swig_array.i had no typemap for it)."""
     a = make(np.arange(12.0).reshape(3, 4))
     b = a.copy()
     ColumnMajorSample.scale_in_place(a, 2)

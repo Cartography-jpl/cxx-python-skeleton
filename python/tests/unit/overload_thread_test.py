@@ -59,12 +59,11 @@ def run_director_script():
     )
 
 
-@pytest.mark.xfail(
-    strict=True,
-    reason="SWIG wrappers are built without -threads: a python override called "
-    "on a C++ worker thread has no GIL (recorded in S5; nanobind fixes this in S6)",
-)
 def test_thread_python_override():
+    """A python override called on C++ worker threads, and a python exception
+    raised there, reaching the caller. Under SWIG (no -threads, no GIL
+    handling) this segfaulted (recorded in S5). nanobind's trampoline takes
+    the GIL; ThreadExample.run releases it while it waits."""
     r = run_director_script()
     assert r.returncode == 0, r.stderr
     assert "sum 6" in r.stdout

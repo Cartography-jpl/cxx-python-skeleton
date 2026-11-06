@@ -1,0 +1,76 @@
+# Automake rules for a nanobind python extension module, the nanobind
+# replacement for swig_rules.am. Include from the top level .am file,
+# after setting:
+#
+#   NB_SRC              binding source files (the *_nb.cc files and the
+#                       file with NB_MODULE)
+#   NB_LIBADD           the C++ library the bindings wrap
+#   NB_MAPPER_NAMESPACE namespace of GenericObject (SWIG_MAPPER_NAMESPACE)
+#   NB_DOXYGEN_INPUT    headers to take docstrings from
+#   pkgpythonswigdir    where the python package goes
+#   pkgpythonswig_LTLIBRARIES (set, possibly empty, before this file and
+#                       before adding other modules to it)
+#
+# The module is <package>/_swig_wrap (the name is historical), with the
+# python files from swig_rules/ next to it. configure needs AC_NANOBIND
+# (config/m4/ac_nanobind.m4).
+
+if BUILD_PYTHON_BINDINGS
+# nanobind's own source, with its own flags (none of our warnings).
+noinst_LTLIBRARIES += libnanobind_core.la
+libnanobind_core_la_SOURCES = @swigrules@/nanobind/nb_combined.cc
+libnanobind_core_la_CPPFLAGS = $(PYTHON_CPPFLAGS) $(NANOBIND_CPPFLAGS) -I$(NANOBIND_SRCDIR)
+libnanobind_core_la_CXXFLAGS = -std=c++20 -O2 -fPIC -fvisibility=hidden -fno-strict-aliasing
+
+pkgpythonswig_LTLIBRARIES += _swig_wrap.la
+_swig_wrap_la_SOURCES = $(NB_SRC)
+_swig_wrap_la_SOURCES+= @swigrules@/nanobind/swig_rules_nb.cc
+nodist__swig_wrap_la_SOURCES = nb_docstrings.cc
+_swig_wrap_la_CPPFLAGS = $(AM_CPPFLAGS) $(PYTHON_CPPFLAGS) $(NANOBIND_CPPFLAGS)
+_swig_wrap_la_CPPFLAGS+= -I$(srcdir)/@swigrules@/nanobind -I$(srcdir)/@swigrules@/lib
+_swig_wrap_la_CPPFLAGS+= -DSWIG_MAPPER_NAMESPACE=$(NB_MAPPER_NAMESPACE)
+_swig_wrap_la_CPPFLAGS+= -DSWIG_RULES_NB_PACKAGE='"$(notdir $(pkgpythonswigdir))"'
+_swig_wrap_la_CPPFLAGS+= -DSWIG_HAVE_BOOST_SERIALIZATION
+# Not -fvisibility=hidden (nanobind recommends it, and nanobind's own code
+# above has it): the binding code instantiates Boost.Serialization
+# templates for library classes (director serialization), and with hidden
+# visibility the module gets its own copies of their singletons, separate
+# from the library's, which breaks serialization of those classes.
+_swig_wrap_la_CXXFLAGS = $(AM_CXXFLAGS)
+# No -lpython: the interpreter provides the symbols.
+_swig_wrap_la_LDFLAGS = -module -avoid-version -shared
+_swig_wrap_la_LIBADD = libnanobind_core.la $(NB_LIBADD)
+
+pkgpythonswig_PYTHON = @swigrules@/__init__.py
+pkgpythonswig_PYTHON+= @swigrules@/all.py
+pkgpythonswig_PYTHON+= @swigrules@/_nanobind_support.py
+pkgpythonswig_DATA = @swigrules@/py.typed
+
+# Docstrings from the doxygen documentation of NB_DOXYGEN_INPUT. Without
+# doxygen, the table is empty.
+nb_docstrings.cc: $(NB_DOXYGEN_INPUT) @swigrules@/nanobind/doxy2nanobind.py @swigrules@/nanobind/doxygen_nanobind.cfg
+	rm -rf nb_doc && mkdir -p nb_doc
+	if test -n "$(DOXYGEN)" -a "$(DOXYGEN)" != "no"; then \
+	  OUTDIR=nb_doc INPUT="$(NB_DOXYGEN_INPUT)" $(DOXYGEN) $(srcdir)/@swigrules@/nanobind/doxygen_nanobind.cfg > /dev/null; \
+	fi
+	$(PYTHON) $(srcdir)/@swigrules@/nanobind/doxy2nanobind.py nb_doc/xml $@.tmp
+	mv $@.tmp $@
+	rm -rf nb_doc
+MOSTLYCLEANFILES += nb_docstrings.cc
+
+# Python stubs (.pyi) for mypy and editors, from the built module.
+nb_pyi/_swig_wrap.pyi: _swig_wrap.la
+	rm -rf nb_pyi && mkdir -p nb_pyi/$(notdir $(pkgpythonswigdir))
+	cp $(srcdir)/@swigrules@/__init__.py $(srcdir)/@swigrules@/_nanobind_support.py nb_pyi/$(notdir $(pkgpythonswigdir))/
+	cp .libs/_swig_wrap$(PYTHON_EXT_SUFFIX_SO) nb_pyi/$(notdir $(pkgpythonswigdir))/ 2>/dev/null || cp .libs/_swig_wrap.so nb_pyi/$(notdir $(pkgpythonswigdir))/
+	cd nb_pyi && PYTHONPATH=.:$${PYTHONPATH} LD_LIBRARY_PATH=$(abs_top_builddir)/.libs:$${LD_LIBRARY_PATH} \
+	  $(PYTHON) -m nanobind.stubgen -m $(notdir $(pkgpythonswigdir))._swig_wrap -o _swig_wrap.pyi -q
+	rm -rf nb_pyi/$(notdir $(pkgpythonswigdir))
+nodist_pkgpythonswig_DATA = nb_pyi/_swig_wrap.pyi
+MOSTLYCLEANFILES += nb_pyi/_swig_wrap.pyi
+endif
+
+EXTRA_DIST+= @swigrules@/nanobind/i_to_nanobind.py
+EXTRA_DIST+= @swigrules@/nanobind/doxy2nanobind.py
+EXTRA_DIST+= @swigrules@/nanobind/doxygen_nanobind.cfg
+EXTRA_DIST+= @swigrules@/nanobind/README.md

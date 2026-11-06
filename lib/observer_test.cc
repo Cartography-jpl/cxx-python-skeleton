@@ -110,31 +110,24 @@ BOOST_AUTO_TEST_CASE(cache_observer)
   BOOST_CHECK_EQUAL(o->number_cache_observer(), 0);
 }
 
-namespace {
-// An observer with enable_shared_from_this (GenericObject gets it in S6).
-class SharedObserver : public ObserverExample,
-                       public std::enable_shared_from_this<SharedObserver> {
-public:
-  SharedObserver() : ObserverExample("shared") {}
-};
-}
-
 BOOST_AUTO_TEST_CASE(shared_from_this_owner)
 {
-  // this_obj (to_ptr in the Observer constructor) and to_ptr/const_pointer
-  // must not claim weak_this: shared_from_this() returns the real owner.
-  auto p = std::make_shared<SharedObserver>();
+  // GenericObject has enable_shared_from_this. this_obj (to_ptr in the
+  // Observer constructor) and to_ptr/const_pointer must not claim
+  // weak_this: shared_from_this() returns the real owner.
+  auto p = std::make_shared<ObserverExample>("shared");
   auto np = to_ptr(*p);
   auto cp = const_pointer(*p);
   ObservableExample o;
   o.add_observer(*p);
   auto s = p->shared_from_this();
+  BOOST_CHECK(s.get() == static_cast<GenericObject*>(p.get()));
   BOOST_CHECK(!s.owner_before(p) && !p.owner_before(s));
   BOOST_CHECK_EQUAL(p.use_count(), 2);
   BOOST_CHECK(np.owner_before(p) || p.owner_before(np));
   BOOST_CHECK(cp.get() == p.get());
   // An object not owned by a shared_ptr has no shared_from_this.
-  SharedObserver stack_obs;
+  ObserverExample stack_obs("stack");
   BOOST_CHECK(stack_obs.weak_from_this().expired());
   o.add_observer(stack_obs);
   o.value(1);

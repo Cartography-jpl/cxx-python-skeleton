@@ -656,17 +656,17 @@ ac_subst_vars='am__EXEEXT_FALSE
 am__EXEEXT_TRUE
 LTLIBOBJS
 LIBOBJS
+BUILD_PYTHON_BINDINGS_FALSE
+BUILD_PYTHON_BINDINGS_TRUE
 WITH_DOCUMENTATION_FALSE
 WITH_DOCUMENTATION_TRUE
 HAVE_BOOST_SERIALIZATION_FALSE
 HAVE_BOOST_SERIALIZATION_TRUE
-SWIG_PYTHON_OPT
-AX_SWIG_PYTHON_CPPFLAGS
-AX_SWIG_PYTHON_OPT
-HAVE_SWIG_FALSE
-HAVE_SWIG_TRUE
-SWIG_LIB
-SWIG
+HAVE_NANOBIND_FALSE
+HAVE_NANOBIND_TRUE
+NANOBIND_VERSION
+NANOBIND_SRCDIR
+NANOBIND_CPPFLAGS
 python_editable_mode_default
 unittestdata
 skeletonpkgpythondir
@@ -895,8 +895,8 @@ with_boost_iostreams
 with_boost_serialization
 with_blitz
 enable_python_editable_mode
-with_swig
 with_documentation
+with_python_bindings
 '
       ac_precious_vars='build_alias
 host_alias
@@ -1624,10 +1624,6 @@ Optional Packages:
   --with-blitz[=DIR]      use Blitz++ (default is yes if found) - it is
                           possible to specify the root directory for Blitz++
                           (optional).
-  --without-swig          Bypass running SWIG to update SWIG wrappers. The
-                          SWIG wrappers can take a bit of time to create and
-                          compile, so if you aren't working directly with them
-                          it can be useful to turn off during development.
   --without-boost-serialization
                           Do not include code to support doing boost
                           serialization with GeoCal objects
@@ -1635,6 +1631,9 @@ Optional Packages:
                           is useful for a build environment that is used for
                           development, but you'll want all of your "real"
                           build environments to also update the documentation.
+  --without-python-bindings
+                          Build only the C++ library and its tests, not the
+                          nanobind python extension module
 
 Some influential environment variables:
   CC          C compiler command
@@ -26604,174 +26603,41 @@ fi
 
 
 #=================================================================
-# Option to bypass running SWIG to update SWIG wrappers. The SWIG
-# wrappers can take a bit of time to create and compile, so if you
-# aren't working directly with them it can be useful to turn off during
-# development.
+# nanobind, for the python bindings (they replaced SWIG in phase S6 of
+# claude_notes/implementation_plan.md).
 
-# Check whether --with-swig was given.
-if test ${with_swig+y}
-then :
-  withval=$with_swig; SWIG=/fake_so_fail
-fi
-
-
-have_swig=no
-
-        # Find path to the "swig" executable.
-        for ac_prog in swig swig3.0 swig2.0
-do
-  # Extract the first word of "$ac_prog", so it can be a program name with args.
-set dummy $ac_prog; ac_word=$2
-{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for $ac_word" >&5
-printf %s "checking for $ac_word... " >&6; }
-if test ${ac_cv_path_SWIG+y}
-then :
-  printf %s "(cached) " >&6
-else case e in #(
-  e) case $SWIG in
-  [\\/]* | ?:[\\/]*)
-  ac_cv_path_SWIG="$SWIG" # Let the user override the test with a path.
-  ;;
-  *)
-  as_save_IFS=$IFS; IFS=$PATH_SEPARATOR
-for as_dir in $PATH
-do
-  IFS=$as_save_IFS
-  case $as_dir in #(((
-    '') as_dir=./ ;;
-    */) ;;
-    *) as_dir=$as_dir/ ;;
-  esac
-    for ac_exec_ext in '' $ac_executable_extensions; do
-  if as_fn_executable_p "$as_dir$ac_word$ac_exec_ext"; then
-    ac_cv_path_SWIG="$as_dir$ac_word$ac_exec_ext"
-    printf "%s\n" "$as_me:${as_lineno-$LINENO}: found $as_dir$ac_word$ac_exec_ext" >&5
-    break 2
+{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for nanobind" >&5
+printf %s "checking for nanobind... " >&6; }
+have_nanobind=no
+NANOBIND_CPPFLAGS=""
+NANOBIND_SRCDIR=""
+NANOBIND_VERSION=""
+if test -n "$PYTHON"; then
+  nb_inc=`$PYTHON -c "import nanobind; print(nanobind.include_dir())" 2>/dev/null`
+  nb_src=`$PYTHON -c "import nanobind; print(nanobind.source_dir())" 2>/dev/null`
+  NANOBIND_VERSION=`$PYTHON -c "import nanobind; print(nanobind.__version__)" 2>/dev/null`
+  if test -n "$nb_inc" -a -f "$nb_src/nb_combined.cpp"; then
+    have_nanobind=yes
+    NANOBIND_CPPFLAGS="-isystem $nb_inc -isystem $nb_src/../ext/robin_map/include"
+    NANOBIND_SRCDIR="$nb_src"
   fi
-done
-  done
-IFS=$as_save_IFS
-
-  ;;
-esac ;;
-esac
 fi
-SWIG=$ac_cv_path_SWIG
-if test -n "$SWIG"; then
-  { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $SWIG" >&5
-printf "%s\n" "$SWIG" >&6; }
+{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $have_nanobind $NANOBIND_VERSION" >&5
+printf "%s\n" "$have_nanobind $NANOBIND_VERSION" >&6; }
+if test "$have_nanobind" != "yes" -a "optional" = "required"; then
+  as_fn_error $? "nanobind is required (pip or conda install nanobind for $PYTHON)" "$LINENO" 5
+fi
+
+
+
+ if test "$have_nanobind" = "yes"; then
+  HAVE_NANOBIND_TRUE=
+  HAVE_NANOBIND_FALSE='#'
 else
-  { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no" >&5
-printf "%s\n" "no" >&6; }
+  HAVE_NANOBIND_TRUE='#'
+  HAVE_NANOBIND_FALSE=
 fi
 
-
-  test -n "$SWIG" && break
-done
-
-        if test -z "$SWIG" ; then
-                { printf "%s\n" "$as_me:${as_lineno-$LINENO}: WARNING: cannot find 'swig' program. You should look at http://www.swig.org" >&5
-printf "%s\n" "$as_me: WARNING: cannot find 'swig' program. You should look at http://www.swig.org" >&2;}
-        elif test -z "" ; then
-                have_swig=yes
-	else
-                { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking SWIG version" >&5
-printf %s "checking SWIG version... " >&6; }
-                swig_version=`$SWIG -version 2>&1 | grep 'SWIG Version' | sed 's/.*\([0-9][0-9]*\.[0-9][0-9]*\.[0-9][0-9]*\).*/\1/g'`
-                { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $swig_version" >&5
-printf "%s\n" "$swig_version" >&6; }
-                if test -n "$swig_version" ; then
-                        # Calculate the required version number components
-                        required=
-                        required_major=`echo $required | sed 's/[^0-9].*//'`
-                        if test -z "$required_major" ; then
-                                required_major=0
-                        fi
-                        required=`echo $required. | sed 's/[0-9]*[^0-9]//'`
-                        required_minor=`echo $required | sed 's/[^0-9].*//'`
-                        if test -z "$required_minor" ; then
-                                required_minor=0
-                        fi
-                        required=`echo $required. | sed 's/[0-9]*[^0-9]//'`
-                        required_patch=`echo $required | sed 's/[^0-9].*//'`
-                        if test -z "$required_patch" ; then
-                                required_patch=0
-                        fi
-                        # Calculate the available version number components
-                        available=$swig_version
-                        available_major=`echo $available | sed 's/[^0-9].*//'`
-                        if test -z "$available_major" ; then
-                                available_major=0
-                        fi
-                        available=`echo $available | sed 's/[0-9]*[^0-9]//'`
-                        available_minor=`echo $available | sed 's/[^0-9].*//'`
-                        if test -z "$available_minor" ; then
-                                available_minor=0
-                        fi
-                        available=`echo $available | sed 's/[0-9]*[^0-9]//'`
-                        available_patch=`echo $available | sed 's/[^0-9].*//'`
-                        if test -z "$available_patch" ; then
-                                available_patch=0
-                        fi
-                        # Convert the version tuple into a single number for easier comparison.
-                        # Using base 100 should be safe since SWIG internally uses BCD values
-                        # to encode its version number.
-                        required_swig_vernum=`expr $required_major \* 10000 \
-                            \+ $required_minor \* 100 \+ $required_patch`
-                        available_swig_vernum=`expr $available_major \* 10000 \
-                            \+ $available_minor \* 100 \+ $available_patch`
-
-                        if test $available_swig_vernum -lt $required_swig_vernum; then
-                                { printf "%s\n" "$as_me:${as_lineno-$LINENO}: WARNING: SWIG version >=  is required.  You have $swig_version." >&5
-printf "%s\n" "$as_me: WARNING: SWIG version >=  is required.  You have $swig_version." >&2;}
-                                SWIG=''
-                                { printf "%s\n" "$as_me:${as_lineno-$LINENO}: WARNING: cannot find 'swig' program. You should look at http://www.swig.org" >&5
-printf "%s\n" "$as_me: WARNING: cannot find 'swig' program. You should look at http://www.swig.org" >&2;}
-                        else
-                                { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for SWIG library" >&5
-printf %s "checking for SWIG library... " >&6; }
-                                SWIG_LIB=`$SWIG -swiglib | tr '\r\n' '  '`
-                                { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $SWIG_LIB" >&5
-printf "%s\n" "$SWIG_LIB" >&6; }
-                                have_swig=yes
-                        fi
-                else
-                        { printf "%s\n" "$as_me:${as_lineno-$LINENO}: WARNING: cannot determine SWIG version" >&5
-printf "%s\n" "$as_me: WARNING: cannot determine SWIG version" >&2;}
-                        SWIG=''
-                        { printf "%s\n" "$as_me:${as_lineno-$LINENO}: WARNING: cannot find 'swig' program. You should look at http://www.swig.org" >&5
-printf "%s\n" "$as_me: WARNING: cannot find 'swig' program. You should look at http://www.swig.org" >&2;}
-                fi
-        fi
-
-
- if test "$have_swig" = "yes"; then
-  HAVE_SWIG_TRUE=
-  HAVE_SWIG_FALSE='#'
-else
-  HAVE_SWIG_TRUE='#'
-  HAVE_SWIG_FALSE=
-fi
-
-
-
-
-        if test "z$SWIG" != "z"; then
-                SWIG="$SWIG -c++"
-        fi
-
-
-
-
-        test "x" != "xno" || swig_shadow=" -noproxy"
-        AX_SWIG_PYTHON_OPT=-python$swig_shadow
-
-        AX_SWIG_PYTHON_CPPFLAGS=$PYTHON_CPPFLAGS
-
-
-# swig_rules.am uses the older name for this variable
-SWIG_PYTHON_OPT=$AX_SWIG_PYTHON_OPT
 
 
 #=================================================================
@@ -26829,19 +26695,31 @@ else
 fi
 
 
-if test "$have_swig" = "yes" -a "$USE_MAINTAINER_MODE" != "no"; then
-  generate_swig="yes"
-else
-  generate_swig="no"
+#=================================================================
+# The python bindings need nanobind and boost serialization (pickling).
+# Without either, only the C++ library and its tests are built.
+
+# Check whether --with-python-bindings was given.
+if test ${with_python_bindings+y}
+then :
+  withval=$with_python_bindings;
+else case e in #(
+  e) with_python_bindings=yes ;;
+esac
 fi
 
-if test "$generate_swig" = "yes" -a "$have_doxygen" != "yes"; then
-     as_fn_error $? "
-Skeleton requires doxygen if you are also generating SWIG python bindings.
-You can try specifying the location using --with-doxygen if configure
-couldn't find this. Or you can turn off the use of swig using
---without-swig." "$LINENO" 5
+build_python_bindings=no
+if test "$with_python_bindings" != "no" -a "$have_nanobind" = "yes" -a "$with_boost_serialization" = "yes"; then
+  build_python_bindings=yes
 fi
+ if test "$build_python_bindings" = "yes"; then
+  BUILD_PYTHON_BINDINGS_TRUE=
+  BUILD_PYTHON_BINDINGS_FALSE='#'
+else
+  BUILD_PYTHON_BINDINGS_TRUE='#'
+  BUILD_PYTHON_BINDINGS_FALSE=
+fi
+
 
 ac_config_files="$ac_config_files Makefile"
 
@@ -27030,8 +26908,8 @@ if test -z "${HAVE_BLITZ_TRUE}" && test -z "${HAVE_BLITZ_FALSE}"; then
   as_fn_error $? "conditional \"HAVE_BLITZ\" was never defined.
 Usually this means the macro was only invoked conditionally." "$LINENO" 5
 fi
-if test -z "${HAVE_SWIG_TRUE}" && test -z "${HAVE_SWIG_FALSE}"; then
-  as_fn_error $? "conditional \"HAVE_SWIG\" was never defined.
+if test -z "${HAVE_NANOBIND_TRUE}" && test -z "${HAVE_NANOBIND_FALSE}"; then
+  as_fn_error $? "conditional \"HAVE_NANOBIND\" was never defined.
 Usually this means the macro was only invoked conditionally." "$LINENO" 5
 fi
 if test -z "${HAVE_BOOST_SERIALIZATION_TRUE}" && test -z "${HAVE_BOOST_SERIALIZATION_FALSE}"; then
@@ -27040,6 +26918,10 @@ Usually this means the macro was only invoked conditionally." "$LINENO" 5
 fi
 if test -z "${WITH_DOCUMENTATION_TRUE}" && test -z "${WITH_DOCUMENTATION_FALSE}"; then
   as_fn_error $? "conditional \"WITH_DOCUMENTATION\" was never defined.
+Usually this means the macro was only invoked conditionally." "$LINENO" 5
+fi
+if test -z "${BUILD_PYTHON_BINDINGS_TRUE}" && test -z "${BUILD_PYTHON_BINDINGS_FALSE}"; then
+  as_fn_error $? "conditional \"BUILD_PYTHON_BINDINGS\" was never defined.
 Usually this means the macro was only invoked conditionally." "$LINENO" 5
 fi
 
@@ -29494,7 +29376,7 @@ echo "  CXX compiler:                  ${CXX} ${CXXFLAGS}"
 echo ""
 
 
-echo "  Generate SWIG wrappers:        ${generate_swig}"
+echo "  Build python bindings:         ${build_python_bindings} (nanobind ${NANOBIND_VERSION})"
 
 
 echo "  Install documentation:         ${with_documentation}"

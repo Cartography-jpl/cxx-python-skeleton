@@ -28,6 +28,10 @@ public:
     throw std::out_of_range(Msg);
   }
   //-----------------------------------------------------------------------
+  /// Throw a Skeleton::TypeError (python TypeError).
+  //-----------------------------------------------------------------------
+  void throw_type_error(const std::string& Msg) const { throw TypeError(Msg); }
+  //-----------------------------------------------------------------------
   /// Throw something not derived from std::exception at all.
   //-----------------------------------------------------------------------
   void throw_unknown() const { throw 1; }

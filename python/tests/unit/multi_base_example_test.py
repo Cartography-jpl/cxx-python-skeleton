@@ -57,8 +57,11 @@ def test_isinstance(cam):
 
 
 def test_isinstance_secondary_base(cam):
-    """SWIG binds every base, so the secondary base is a python base class."""
-    assert isinstance(cam, WithParameterLike)
+    """nanobind binds one base, so the secondary base isn't a python base
+    class (it was under SWIG). Its methods are bound on the class, and the
+    object can be passed for it (test_argument)."""
+    assert not isinstance(cam, WithParameterLike)
+    assert cam.parameter_sum() == 10
 
 
 def test_observer_and_parameter(cam):
@@ -129,8 +132,10 @@ def test_diamond_pickle(diamond):
 
 
 def test_identity(cam):
-    """Recorded: SWIG gives a new python wrapper each time the same C++
-    object is returned (nanobind is expected to return the same object)."""
+    """The same C++ object returned twice is the same python object, also
+    through another base (under SWIG each return was a new wrapper)."""
     m = MultiBaseExample(cam)
-    assert m.camera is not m.camera
-    assert m.camera.focal_length == m.camera.focal_length
+    assert m.camera is m.camera
+    assert m.camera is cam
+    assert m.camera_as_with_parameter() is cam
+    assert m.camera_as_generic() is cam

@@ -5,15 +5,15 @@ from pathlib import Path
 
 import pytest
 from skeleton.swig_shelve import read_shelve
-from skeleton_swig.array_sample import ArraySample
-from skeleton_swig.director_example import (
+from skeleton import ArraySample
+from skeleton import (
     DirectorExample,
     DirectorExampleNested,
     DirectorExampleUser,
     DirectorExampleWeakPtr,
 )
-from skeleton_swig.generic_object_map import GenericObjectMap
-from skeleton_swig.generic_object_sample import (
+from skeleton import GenericObjectMap
+from skeleton import (
     GenericObjectA,
     GenericObjectB,
     GenericObjectB2,
@@ -130,3 +130,46 @@ def test_multi_base(ext):
     d = get("diamond", ext)
     assert d.root_name() == "Diamond d"
     assert d.parameter_sum() == 3
+
+
+def test_python_director_written_by_swig():
+    """Shelves with a python subclass of a C++ class, written by the SWIG
+    bindings (phase S5). The archive has the python class and __dict__ in
+    the form SWIG wrote; the nanobind bindings read it."""
+    from fixtures.director_golden import GoldenPythonDirector
+
+    p = read_shelve(str(golden / "director_python.xml"))
+    assert type(p) is GoldenPythonDirector
+    assert p.v2 == 6
+    assert p.name() == "golden"
+    assert p.func(10) == 5 + 10 + 2 * 6
+    u = read_shelve(str(golden / "director_python_user.xml"))
+    assert type(u.value()) is GoldenPythonDirector
+    assert u.apply_func(10) == 27
+    assert u.apply_func(10, 0) == 11
+    assert u.apply_func(10, 1) == 27
+    # The same python object both times (one C++ object in the archive)
+    assert u.value() is u.value_vec()[1]
+
+
+def test_python_director_rewrite(tmp_path):
+    """Written again by nanobind, it reads back the same."""
+    from fixtures.director_golden import GoldenPythonDirector
+    from skeleton import write_shelve
+
+    p = read_shelve(str(golden / "director_python.xml"))
+    write_shelve(str(tmp_path / "p.xml"), p)
+    p2 = read_shelve(str(tmp_path / "p.xml"))
+    assert type(p2) is GoldenPythonDirector
+    assert p2.func(10) == 27
+    # The same archive as SWIG wrote, apart from the pickle of the python
+    # part (SWIG's had a "this" entry in the __dict__), which decodes to the
+    # same class and state.
+    import re
+
+    from skeleton_swig._nanobind_support import director_loads
+
+    pat = re.compile(rb"<python_object>(.*?)</python_object>", re.S)
+    new, old = (tmp_path / "p.xml").read_bytes(), (golden / "director_python.xml").read_bytes()
+    assert pat.sub(b"", new) == pat.sub(b"", old)
+    assert director_loads(pat.search(new).group(1)) == director_loads(pat.search(old).group(1))

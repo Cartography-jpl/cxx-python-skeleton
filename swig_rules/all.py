@@ -1,11 +1,4 @@
-import os as _os
-import glob as _glob
+# Everything from the extension module, for "from <package>.all import *".
+# Kept from the SWIG bindings, where each .i file was its own module.
 
-for _i in _glob.glob(_os.path.dirname(__file__) + "/*.py"):
-    mname = _os.path.basename(_i).split('.')[0]
-    if(mname != "all"):
-        exec(f"from .{mname} import *")
-
-del _os
-del _glob
-del _i
+from ._swig_wrap import *  # noqa: F403

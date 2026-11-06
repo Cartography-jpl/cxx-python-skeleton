@@ -1,6 +1,6 @@
 #include <iostream>
 #include <memory>
-#include "swig_type_mapper_base.h"
+#include "director_hook.h"
 // Workaround for a Boost.Serialization bug (boostorg/serialization issue
 // #319, still in Boost 1.90): shared_ptr_helper.hpp declares, at namespace
 // scope,
@@ -35,8 +35,8 @@
 /// as for boost::shared_ptr: version 1, not tracked, the pointer as
 /// "px", so archives written with boost::shared_ptr still load and
 /// writing again gives the same bytes).
-/// We need to have our own copy to add support for handling SWIG
-/// directors.
+/// We need to have our own copy to add support for python subclasses
+/// of C++ classes (director_hook.h).
 //-----------------------------------------------------------------------
 
 namespace boost {
@@ -101,12 +101,14 @@ public:
                             null_deleter()), r);
     std::shared_ptr<SWIG_MAPPER_NAMESPACE::GenericObject> v2 =
       std::dynamic_pointer_cast<SWIG_MAPPER_NAMESPACE::GenericObject>(t2);
-    if(v2 && SWIG_MAPPER_NAMESPACE::SwigTypeMapperBase::is_python_director(v2)) {
-      std::shared_ptr<T> t = std::dynamic_pointer_cast<T>(SWIG_MAPPER_NAMESPACE::SwigTypeMapperBase::swig_python_director_setup(v2));
-      std::shared_ptr<T>::operator=(t);
+    std::shared_ptr<SWIG_MAPPER_NAMESPACE::GenericObject> v3;
+    if(v2 && SWIG_MAPPER_NAMESPACE::director_hook())
+      v3 = SWIG_MAPPER_NAMESPACE::director_hook()(v2);
+    if(v3) {
+      std::shared_ptr<T>::operator=(std::dynamic_pointer_cast<T>(v3));
     } else {
       std::shared_ptr<T>::reset(r);
-    }      
+    }
   }
 };
   

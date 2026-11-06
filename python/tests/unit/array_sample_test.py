@@ -7,7 +7,6 @@ import pickle
 import numpy as np
 import pytest
 from skeleton import ArraySample
-from skeleton_swig.swig_boost_array import Array_bool_20, Array_double_3
 
 
 def test_defaults():
@@ -82,14 +81,3 @@ def test_std_array_return():
     v = a.position()
     v[0] = 99
     assert a.position_[0] == 0.5
-
-
-def test_boost_array_print_to_string():
-    """print_to_string of the wrapped boost::array classes returns a str
-    (it used to return an opaque, leaked std::string*)."""
-    a = Array_double_3()
-    a.set([1.5, 2, -3])
-    assert a.print_to_string() == "1.5 2 -3 "
-    b = Array_bool_20()
-    b.set([True] + [False] * 19)
-    assert b.print_to_string() == "1 " + "0 " * 19

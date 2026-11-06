@@ -9,6 +9,7 @@
 #undef PACKAGE_VERSION
 #undef VERSION
 #include "skeleton_config.h"
+#include <memory>
 #include <string>
 
 namespace boost {
@@ -39,11 +40,20 @@ class access;
 
 namespace Skeleton {
 /****************************************************************/ /**
-  For use with SWIG, it is useful to have a base class that
-  everything can be cast to. This class doesn't provide any
-  functionality, other than allowing casts.
+  A base class that everything exposed to python can be cast to.
+
+  It derives from std::enable_shared_from_this, so the python bindings
+  can find the shared_ptr that already owns an object: without that,
+  nanobind makes a new control block for every python to C++
+  conversion, and a weak_ptr to an object passed in from python expires
+  at once (claude_notes/implementation_plan.md §2.1). It is a virtual
+  base of most classes, so use std::dynamic_pointer_cast on the result
+  of shared_from_this().
+
+  Non-owning pointers to a GenericObject must be made with to_ptr /
+  const_pointer (null_deleter.h), which leave weak_this alone.
 *******************************************************************/
-class GenericObject {
+class GenericObject : public std::enable_shared_from_this<GenericObject> {
 public:
   // Have a virtual member function, which forces RTTI information to
   // be available.

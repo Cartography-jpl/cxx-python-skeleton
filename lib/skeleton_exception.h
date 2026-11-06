@@ -161,6 +161,18 @@ private:
   char fill_ = ' ';
 };
 
+/****************************************************************/ /**
+  An Exception for an argument of the wrong type. The python bindings
+  turn it into a python TypeError (it isn't nanobind's nb::type_error,
+  so the C++ library doesn't depend on python).
+*******************************************************************/
+
+class TypeError : public Exception {
+public:
+  using Exception::Exception;
+  ~TypeError() noexcept override = default;
+};
+
 /** \defgroup Error Error checking routines */
 /*@{*/
 //-----------------------------------------------------------------------

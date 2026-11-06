@@ -55,23 +55,9 @@ fi
 AC_SUBST([python_editable_mode_default])
 
 #=================================================================
-# Option to bypass running SWIG to update SWIG wrappers. The SWIG
-# wrappers can take a bit of time to create and compile, so if you
-# aren't working directly with them it can be useful to turn off during
-# development.
-AC_ARG_WITH([swig],
-           [AS_HELP_STRING([--without-swig],
-             [Bypass running SWIG to update SWIG wrappers. The SWIG wrappers can take a bit of time to create and compile, so if you aren't working directly with them it can be useful to turn off during development.])],
-           [SWIG=/fake_so_fail],
-           [])
-
-have_swig=no
-AX_PKG_SWIG([], [have_swig=yes], [AC_MSG_WARN([cannot find 'swig' program. You should look at http://www.swig.org])])
-AM_CONDITIONAL([HAVE_SWIG], [test "$have_swig" = "yes"])
-AX_SWIG_ENABLE_CXX
-AX_SWIG_PYTHON
-# swig_rules.am uses the older name for this variable
-AC_SUBST([SWIG_PYTHON_OPT], [$AX_SWIG_PYTHON_OPT])
+# nanobind, for the python bindings (they replaced SWIG in phase S6 of
+# claude_notes/implementation_plan.md).
+AC_NANOBIND(optional)
 
 #=================================================================
 # Turn off use of boost serialization of desired. Don't have a use
@@ -102,19 +88,19 @@ if test "$have_doxygen" != "yes"; then
 fi
 AM_CONDITIONAL([WITH_DOCUMENTATION], [test x$with_documentation = xyes])
 
-if test "$have_swig" = "yes" -a "$USE_MAINTAINER_MODE" != "no"; then
-  generate_swig="yes"
-else
-  generate_swig="no" 
+#=================================================================
+# The python bindings need nanobind and boost serialization (pickling).
+# Without either, only the C++ library and its tests are built.
+AC_ARG_WITH([python-bindings],
+           [AS_HELP_STRING([--without-python-bindings],
+             [Build only the C++ library and its tests, not the nanobind python extension module])],
+           [],
+           [with_python_bindings=yes])
+build_python_bindings=no
+if test "$with_python_bindings" != "no" -a "$have_nanobind" = "yes" -a "$with_boost_serialization" = "yes"; then
+  build_python_bindings=yes
 fi
-
-if test "$generate_swig" = "yes" -a "$have_doxygen" != "yes"; then
-     AC_MSG_ERROR([
-Skeleton requires doxygen if you are also generating SWIG python bindings.
-You can try specifying the location using --with-doxygen if configure
-couldn't find this. Or you can turn off the use of swig using 
---without-swig.])
-fi
+AM_CONDITIONAL([BUILD_PYTHON_BINDINGS], [test "$build_python_bindings" = "yes"])
 
 AC_CONFIG_FILES([Makefile])
 AC_OUTPUT
@@ -130,7 +116,7 @@ LOC_MSG([  Installation directory:        ${prefix}])
 LOC_MSG([  Build debug version:           ${enable_debug}])
 LOC_MSG([  CXX compiler:                  ${CXX} ${CXXFLAGS}])
 LOC_MSG()
-LOC_MSG([  Generate SWIG wrappers:        ${generate_swig}])
+LOC_MSG([  Build python bindings:         ${build_python_bindings} (nanobind ${NANOBIND_VERSION})])
 LOC_MSG([  Install documentation:         ${with_documentation}])
 
 

@@ -21,7 +21,7 @@ from collections.abc import MutableMapping as DictMixin
 from pathlib import Path
 from typing import Any
 
-import skeleton_swig.serialize_function as skelswig
+import skeleton_swig as skelswig
 
 # Allow jsonpickle to be used, if available.
 try:

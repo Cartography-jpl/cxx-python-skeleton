@@ -17,7 +17,7 @@ from skeleton import (
     GenericObjectMap,
     IostreamSwig,
 )
-from skeleton_swig.skeleton_exception import Exception as SkeletonException
+from skeleton_swig import Exception as SkeletonException
 
 
 def test_str():
@@ -31,6 +31,10 @@ def test_str():
     assert str(DirectorExampleUser()) == "DirectorExampleUser"
     e = DirectorExample(1, "e1")
     assert str(e) == "DirectorExample:\n  name:         e1\n  value_to_add: 1"
+    # The weak_ptr needs a C++ owner of e (nanobind, see
+    # test_director_example_weak_ptr), here the DirectorExampleUser.
+    owner = DirectorExampleUser()
+    owner.set_value(e)
     assert str(DirectorExampleWeakPtr(e)) == (
         "----------------------\n"
         "DirectorExampleWeakPtr\n"
@@ -96,12 +100,11 @@ class PythonRaises(ExceptionSample):
 
 def test_python_exception_seen_from_cpp():
     """When a python override raises and C++ catches the exception, what()
-    has the python error and traceback. (The text is the SWIG
-    PythonException format; the nanobind version should give the same
-    information.)"""
+    has the python error and traceback. (The format differs: SWIG's
+    PythonException started with "Python error occured:", nanobind's
+    python_error is the python traceback text.)"""
     assert ExceptionSample().value_error_message() == ""
     msg = PythonRaises().value_error_message()
-    assert msg.startswith("Python error occured:\n")
     assert "ValueError: raised in python" in msg
     assert "Traceback" in msg
     assert "in value" in msg
@@ -120,3 +123,23 @@ def test_exception_stacktrace():
     st = e.stacktrace()
     assert st.startswith(" 0# ")
     assert len(st.splitlines()) > 1
+
+
+def test_type_error():
+    """Skeleton::TypeError (a library exception) becomes a python TypeError."""
+    with pytest.raises(TypeError, match="wrong type"):
+        ExceptionSample().throw_type_error("wrong type")
+
+
+def test_raised_exception_stacktrace():
+    """A Skeleton::Exception raised into python carries the C++ exception
+    (with its stack trace) and source location (attributes cpp_exception
+    and cpp_source)."""
+    with pytest.raises(RuntimeError) as e_info:
+        ExceptionSample().throw_skeleton_exception("with trace")
+    e = e_info.value
+    assert str(e) == "with trace"
+    assert "exception_sample.h:" in e.cpp_source
+    assert "throw_skeleton_exception" in e.cpp_source
+    assert e.cpp_exception.what() == "with trace"
+    assert e.cpp_exception.stacktrace().startswith(" 0# ")

@@ -55,4 +55,28 @@ python-check: script/setup_skeleton.sh
 
 INSTALLCHECK_HOOK+= python-check
 
+#=================================================================
+# The python tests against the build tree (part of "make check", no
+# install needed): the extension modules from .libs and the python
+# packages from the source tree, in nb_pkg/. libskeleton is preloaded,
+# since the modules' RPATH (conda links with --disable-new-dtags) would
+# otherwise find an installed libskeleton first, as in ST.11.
+if BUILD_PYTHON_BINDINGS
+python-check-build: all
+	rm -rf nb_pkg && $(MKDIR_P) nb_pkg/skeleton_swig
+	for f in __init__.py all.py _nanobind_support.py py.typed; do \
+	  ln -s $(abs_top_srcdir)/@swigrules@/$$f nb_pkg/skeleton_swig/$$f; done
+	for m in _swig_wrap _skeleton_downstream; do \
+	  ln -s $(abs_builddir)/.libs/$$m.so nb_pkg/skeleton_swig/$$m.so; done
+	ln -s $(abs_top_srcdir)/@srcpython@/skeleton nb_pkg/skeleton
+	cd $(srcdir)/@srcpython@ && \
+	  PYTHONPATH=$(abs_builddir)/nb_pkg:$$PYTHONPATH \
+	  LD_PRELOAD=$(abs_builddir)/.libs/libskeleton.so \
+	  $(PYTEST) $(PYTEST_FLAGS) -p no:cacheprovider $(PYTEST_EXTRAFLAGS) tests $(EXTRA_PYTHON_TEST)
+CHECK_HOOK+= python-check-build
+clean-nb-pkg:
+	rm -rf nb_pkg
+CLEAN_HOOK+= clean-nb-pkg
+endif
+
 include python/bin/bin.am

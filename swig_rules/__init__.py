@@ -1,24 +1,5 @@
-# Just import any files we find in this directory, rather than listing
-# everything
+# The python extension module (nanobind). Everything is in the one
+# module _swig_wrap (the name is historical: these were SWIG bindings
+# until phase S6 of claude_notes/implementation_plan.md).
 
-from ._swig_wrap import *
-
-# Pull this into all.py. Not sure if we want to do this always or not,
-# but this at least gives a way for external inclusion to only include
-# a portion of this.
-
-# Geocal is set up to assume everything is in the top module. Not sure how
-# to sort this out, but for now just continue doing this. It isn't clear
-# how useful the "all.py" is anyways.
-if False:
-#if True:
-    import os as _os
-    import glob as _glob
-
-    for _i in _glob.glob(_os.path.dirname(__file__) + "/*.py"):
-        exec('from .' + _os.path.basename(_i).split('.')[0] + ' import *')
-
-    del _os
-    del _glob
-    del _i
-
+from ._swig_wrap import *  # noqa: F403

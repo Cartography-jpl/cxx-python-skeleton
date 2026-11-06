@@ -2,14 +2,13 @@
 
 # Build these up as we go
 libskeleton_la_SOURCES = 
-SWIG_SRC=
+# Python binding sources (nanobind), swig_rules/nanobind/nanobind.am
+NB_SRC =
 libskeleton_la_LDFLAGS =
 skeletonincdir = @includedir@/skeleton
 skeletoninc_HEADERS =
-skeletonswiginc_HEADERS =
 skeleton_test_all_SOURCES = 
 dist_installskeleton_SCRIPTS = 
-SWIG_FLAG =
 DIST_HOOK = 
 libskeleton_la_CPPFLAGS = $(AM_CPPFLAGS) $(BOOST_CPPFLAGS) $(BLITZ_CFLAGS)
 
@@ -79,15 +78,15 @@ coverage:
 #
 # lint also writes compile_commands.json (with the extra flags clangd needs,
 # see script/make_compile_commands.py), so it can be linked into the source
-# tree for clangd. clang-tidy runs on the library, test and generator
-# sources in the source tree (not files generated in the build directory,
-# and not the SWIG wrappers); headers that only the wrappers include aren't
-# checked.
+# tree for clangd. clang-tidy runs on the library, test, generator and
+# python binding sources in the source tree (not files generated in the
+# build directory, and not nanobind's own source, nb_combined.cc).
 CLANG_FORMAT = clang-format
 CLANG_TIDY_FLAGS = --quiet --warnings-as-errors='*' \
   --config-file=$(abs_top_srcdir)/.clang-tidy
 LINT_NJOB = 10
-FORMAT_FILES = 'lib/*.h' 'lib/*.cc' 'swig_rules/lib/*.h' 'swig_rules/lib/*.cc'
+FORMAT_FILES = 'lib/*.h' 'lib/*.cc' 'swig_rules/lib/*.h' 'swig_rules/lib/*.cc' \
+  'swig_rules/nanobind/*.h' 'swig_rules/nanobind/*.cc'
 
 format:
 	cd $(srcdir) && git ls-files $(FORMAT_FILES) | xargs -r $(CLANG_FORMAT) -i
@@ -98,8 +97,9 @@ format-check:
 
 lint:
 	$(PYTHON) $(srcdir)/script/make_compile_commands.py --clangd \
-	  libskeleton.la skeleton_test_all golden_archive_generator _swig_wrap.la
-	$(PYTHON) -c 'import json, os; src = os.path.realpath("$(abs_top_srcdir)") + "/"; [print(e["file"]) for e in json.load(open("compile_commands.json")) if os.path.realpath(e["file"]).startswith(src) and not e["file"].endswith("_wrap.cc")]' \
+	  libskeleton.la skeleton_test_all golden_archive_generator _swig_wrap.la \
+	  _skeleton_downstream.la
+	$(PYTHON) -c 'import json, os; src = os.path.realpath("$(abs_top_srcdir)") + "/"; [print(e["file"]) for e in json.load(open("compile_commands.json")) if os.path.realpath(e["file"]).startswith(src) and not e["file"].endswith("nb_combined.cc")]' \
 	  > lint_files.txt
 	@test -s lint_files.txt || { echo "lint: no source files found in compile_commands.json"; exit 1; }
 	xargs -r -P $(LINT_NJOB) -n 1 sh $(srcdir)/script/run_clang_tidy.sh $(CLANG_TIDY_FLAGS) < lint_files.txt

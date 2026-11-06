@@ -34,10 +34,10 @@
 // call. See
 // https://gcc.gnu.org/onlinedocs/cpp/Argument-Prescan.html#Argument-Prescan
 // for details on these somewhat arcane rules for the c preprocessor
-#define CONCATE(s,t) s ## t
-#define XINIT_NAME_PYTHON3(x) CONCATE(PyInit_,x)
+#define CONCATE(s, t) s##t
+#define XINIT_NAME_PYTHON3(x) CONCATE(PyInit_, x)
 #define INIT_NAME_PYTHON3 XINIT_NAME_PYTHON3(PYTHON_MODULE_NAME)
-#define XINIT_NAME_PYTHON2(x) CONCATE(init,x)
+#define XINIT_NAME_PYTHON2(x) CONCATE(init, x)
 #define INIT_NAME_PYTHON2 XINIT_NAME_PYTHON2(PYTHON_MODULE_NAME)
 #define str(s) #s
 #define XPYTHON_MODULE_NAME_STRING(s) str(s)
@@ -57,38 +57,39 @@ static void module_init(PyObject* module);
 
 // Python 2 and 3 have different name for their swig init functions
 #if PY_MAJOR_VERSION > 2
-#define INIT_FUNC(S) PyInit_ ## S
-#define INIT_TYPE PyObject *
+#define INIT_FUNC(S) PyInit_##S
+#define INIT_TYPE PyObject*
 #define INIT_MODULE init_extension_module3
 #else
-#define INIT_FUNC(S) init ## S
+#define INIT_FUNC(S) init##S
 #define INIT_TYPE void
 #define INIT_MODULE init_extension_module2
 #endif
 
 extern "C" {
 #if PY_MAJOR_VERSION > 2
-  PyObject * INIT_NAME_PYTHON3(void);
+PyObject* INIT_NAME_PYTHON3(void);
 #else
-  void INIT_NAME_PYTHON2(void);
+void INIT_NAME_PYTHON2(void);
 #endif
 }
 
 // Used throughout SWIG wrapper, define here because it is convenient.
 PythonException::PythonException()
-  : std::runtime_error(""),
-    type(nullptr), value(nullptr), tb(nullptr), desc("Python error that I can't parse")
+  : std::runtime_error(""), type(nullptr), value(nullptr), tb(nullptr),
+    desc("Python error that I can't parse")
 {
-  PyErr_Fetch((PyObject**) &type, (PyObject**)&value, (PyObject**)&tb);
+  PyErr_Fetch((PyObject**)&type, (PyObject**)&value, (PyObject**)&tb);
   // Normalize before touching value -- PyErr_Fetch can hand back a NULL
   // value (e.g. an exception set via PyErr_SetNone/PyErr_SetObject with
   // no instance yet), and PyObject_Str(NULL) below would be undefined
   // behavior. Normalizing first guarantees value is a real instance
   // (assuming type is non-NULL, i.e. an exception was actually pending).
-  PyErr_NormalizeException((PyObject**)&type, (PyObject**)&value, (PyObject**)&tb);
-  PyObject * val_str = value ? PyObject_Str((PyObject*) value) : nullptr;
-  PyObject * temp_bytes = val_str ? PyUnicode_AsEncodedString(val_str, "ASCII",
-                                                      "ignore") : nullptr;
+  PyErr_NormalizeException((PyObject**)&type, (PyObject**)&value,
+                           (PyObject**)&tb);
+  PyObject* val_str = value ? PyObject_Str((PyObject*)value) : nullptr;
+  PyObject* temp_bytes =
+      val_str ? PyUnicode_AsEncodedString(val_str, "ASCII", "ignore") : nullptr;
   Py_XDECREF(val_str);
   if(temp_bytes) {
     desc = PyBytes_AS_STRING(temp_bytes); // Borrowed pointer
@@ -98,17 +99,15 @@ PythonException::PythonException()
   PyObject* mod = PyImport_ImportModule("traceback");
   PyObject* err_str_list = nullptr;
   if(tb) {
-    err_str_list = PyObject_CallMethodObjArgs(mod,
-              Text_FromUTF8("format_exception"), type, value, tb, NULL);
+    err_str_list = PyObject_CallMethodObjArgs(
+        mod, Text_FromUTF8("format_exception"), type, value, tb, NULL);
   }
   if(err_str_list) {
-    PyObject* err_str =
-      PyObject_CallMethodObjArgs(Text_FromUTF8(""),
-                                 Text_FromUTF8("join"),
-                                 err_str_list, NULL);
+    PyObject* err_str = PyObject_CallMethodObjArgs(
+        Text_FromUTF8(""), Text_FromUTF8("join"), err_str_list, NULL);
     if(err_str) {
-      PyObject * temp_bytes = PyUnicode_AsEncodedString(err_str, "ASCII",
-                                                        "strict");
+      PyObject* temp_bytes =
+          PyUnicode_AsEncodedString(err_str, "ASCII", "strict");
       if(temp_bytes) {
         desc = PyBytes_AS_STRING(temp_bytes); // Borrowed pointer
         Py_DECREF(temp_bytes);
@@ -156,11 +155,13 @@ PythonException::~PythonException()
 }
 
 const char* PythonException::what() const noexcept
-{ return desc.c_str(); }
+{
+  return desc.c_str();
+}
 
 void PythonException::restore_python_exception() const
 {
-  PyErr_Restore((PyObject *)type, (PyObject *)value, (PyObject *)tb);
+  PyErr_Restore((PyObject*)type, (PyObject*)value, (PyObject*)tb);
   // After restore, we no longer own these objects. Set to 0 so we
   // don't try to delete these in the destructor
   type = nullptr;
@@ -170,9 +171,10 @@ void PythonException::restore_python_exception() const
 
 #if PY_MAJOR_VERSION > 2
 // Version for python 3
-static void init_extension_module3(PyObject* package, const char *modulename,
-                                  PyObject * (*initfunction)(void)) {
-  PyObject *module = initfunction();
+static void init_extension_module3(PyObject* package, const char* modulename,
+                                   PyObject* (*initfunction)(void))
+{
+  PyObject* module = initfunction();
   // Starting with SWIG 4.4/4.5, the generated PyInit_X function uses PEP 489
   // multi-phase initialization, so it returns a PyModuleDef wrapper (a
   // "moduledef" object) rather than a fully executed module. Since we call
@@ -180,36 +182,40 @@ static void init_extension_module3(PyObject* package, const char *modulename,
   // machinery, we need to finish that initialization ourselves. Older SWIG
   // versions return an already-executed module here, which is not a
   // PyModuleDef, so this is a no-op in that case.
-  if (module && PyObject_TypeCheck(module, &PyModuleDef_Type)) {
-    PyModuleDef *def = (PyModuleDef *)module;
+  if(module && PyObject_TypeCheck(module, &PyModuleDef_Type)) {
+    PyModuleDef* def = (PyModuleDef*)module;
     // PyModule_FromDefAndSpec reads attributes off the spec, so a NULL spec
     // segfaults here rather than being handled gracefully -- build a
     // minimal real ModuleSpec (no loader) instead.
-    PyObject *machinery = PyImport_ImportModule("importlib.machinery");
-    PyObject *spec_cls = machinery ? PyObject_GetAttrString(machinery, "ModuleSpec") : nullptr;
-    PyObject *spec = spec_cls ? PyObject_CallFunctionObjArgs(spec_cls, Text_FromUTF8(modulename), Py_None, NULL) : nullptr;
+    PyObject* machinery = PyImport_ImportModule("importlib.machinery");
+    PyObject* spec_cls =
+        machinery ? PyObject_GetAttrString(machinery, "ModuleSpec") : nullptr;
+    PyObject* spec =
+        spec_cls ? PyObject_CallFunctionObjArgs(
+                       spec_cls, Text_FromUTF8(modulename), Py_None, NULL)
+                 : nullptr;
     module = spec ? PyModule_FromDefAndSpec(def, spec) : nullptr;
-    if (module && PyModule_ExecDef(module, def) < 0) {
+    if(module && PyModule_ExecDef(module, def) < 0) {
       Py_CLEAR(module);
     }
     Py_XDECREF(spec);
     Py_XDECREF(spec_cls);
     Py_XDECREF(machinery);
   }
-  if (!module) {
+  if(!module) {
     std::cerr << "Initialisation failed for module " << modulename << "\n";
-    if (PyErr_Occurred()) {
+    if(PyErr_Occurred()) {
       PyErr_Print();
     }
     return;
   }
-  PyObject *module_dic = PyImport_GetModuleDict();
+  PyObject* module_dic = PyImport_GetModuleDict();
   PyDict_SetItem(module_dic, Text_FromUTF8(modulename), module);
 #ifdef DO_CYTHON
   // For cython, we create list rather than add to a package
   PyList_Append(package, Text_FromUTF8(modulename));
 #else
-  if(PyModule_AddObject(package, (char *)modulename, module)) {
+  if(PyModule_AddObject(package, (char*)modulename, module)) {
     std::cerr << "Initialisation in PyImport_AddObject failed for module "
               << modulename << "\n";
     return;
@@ -219,9 +225,10 @@ static void init_extension_module3(PyObject* package, const char *modulename,
 }
 #else
 // Version for python 2
-static void init_extension_module2(PyObject* package, const char *modulename,
-                                  void (*initfunction)(void)) {
-  PyObject *module = PyImport_AddModule((char *)modulename);
+static void init_extension_module2(PyObject* package, const char* modulename,
+                                   void (*initfunction)(void))
+{
+  PyObject* module = PyImport_AddModule((char*)modulename);
   if(!module) {
     std::cerr << "Initialisation in PyImport_AddModule failed for module "
               << modulename << "\n";
@@ -231,7 +238,7 @@ static void init_extension_module2(PyObject* package, const char *modulename,
   // For cython, we create list rather than add to a package
   PyList_Append(package, Text_FromUTF8(modulename));
 #else
-  if(PyModule_AddObject(package, (char *)modulename, module)) {
+  if(PyModule_AddObject(package, (char*)modulename, module)) {
     std::cerr << "Initialisation in PyImport_AddObject failed for module "
               << modulename << "\n";
     return;
@@ -242,12 +249,11 @@ static void init_extension_module2(PyObject* package, const char *modulename,
 }
 #endif
 
-
 // This next blob of code comes from
 // https://wiki.python.org/moin/PortingExtensionModulesToPy3k
 
 struct module_state {
-    PyObject *error;
+  PyObject* error;
 };
 
 #if PY_MAJOR_VERSION >= 3
@@ -257,74 +263,71 @@ struct module_state {
 static struct module_state _state;
 #endif
 
-static PyObject *
-error_out(PyObject *m, PyObject * /* args */) {
-    struct module_state *st = GETSTATE(m);
-    PyErr_SetString(st->error, "something bad happened");
-    return nullptr;
+static PyObject* error_out(PyObject* m, PyObject* /* args */)
+{
+  struct module_state* st = GETSTATE(m);
+  PyErr_SetString(st->error, "something bad happened");
+  return nullptr;
 }
 
 static PyMethodDef wrap_methods[] = {
     {"error_out", (PyCFunction)error_out, METH_NOARGS, nullptr},
-    {nullptr, nullptr, METH_NOARGS, nullptr}
-};
+    {nullptr, nullptr, METH_NOARGS, nullptr}};
 
 #if PY_MAJOR_VERSION >= 3
 
-static int wrap_traverse(PyObject *m, visitproc visit, void *arg) {
-    Py_VISIT(GETSTATE(m)->error);
-    return 0;
+static int wrap_traverse(PyObject* m, visitproc visit, void* arg)
+{
+  Py_VISIT(GETSTATE(m)->error);
+  return 0;
 }
 
-static int wrap_clear(PyObject *m) {
-    Py_CLEAR(GETSTATE(m)->error);
-    return 0;
+static int wrap_clear(PyObject* m)
+{
+  Py_CLEAR(GETSTATE(m)->error);
+  return 0;
 }
 
-
-static struct PyModuleDef moduledef = {
-        PyModuleDef_HEAD_INIT,
-        PYTHON_MODULE_NAME_STRING,
-        nullptr,
-        sizeof(struct module_state),
-        wrap_methods,
-        nullptr,
-        wrap_traverse,
-        wrap_clear,
-        nullptr
-};
+static struct PyModuleDef moduledef = {PyModuleDef_HEAD_INIT,
+                                       PYTHON_MODULE_NAME_STRING,
+                                       nullptr,
+                                       sizeof(struct module_state),
+                                       wrap_methods,
+                                       nullptr,
+                                       wrap_traverse,
+                                       wrap_clear,
+                                       nullptr};
 
 #define INITERROR return NULL
 
-PyObject *
-INIT_NAME_PYTHON3(void)
+PyObject* INIT_NAME_PYTHON3(void)
 
 #else
 #define INITERROR return
 
-void
-  INIT_NAME_PYTHON2(void)
+void INIT_NAME_PYTHON2(void)
 #endif
 {
 #if PY_MAJOR_VERSION >= 3
-    PyObject *module = PyModule_Create(&moduledef);
+  PyObject* module = PyModule_Create(&moduledef);
 #else
-    PyObject *module = Py_InitModule(PYTHON_MODULE_NAME_STRING, wrap_methods);
+  PyObject* module = Py_InitModule(PYTHON_MODULE_NAME_STRING, wrap_methods);
 #endif
 
-    if (module == nullptr) {
-        std::cerr << "Initialization failed\n";
-        INITERROR;
-    }
-    struct module_state *st = GETSTATE(module);
+  if(module == nullptr) {
+    std::cerr << "Initialization failed\n";
+    INITERROR;
+  }
+  struct module_state* st = GETSTATE(module);
 
-    st->error = PyErr_NewException(PYTHON_MODULE_NAME_STRING ".Error", nullptr, nullptr);
-    if (st->error == nullptr) {
-        Py_DECREF(module);
-        INITERROR;
-    }
-    module_init(module);
+  st->error =
+      PyErr_NewException(PYTHON_MODULE_NAME_STRING ".Error", nullptr, nullptr);
+  if(st->error == nullptr) {
+    Py_DECREF(module);
+    INITERROR;
+  }
+  module_init(module);
 #if PY_MAJOR_VERSION >= 3
-    return module;
+  return module;
 #endif
 }

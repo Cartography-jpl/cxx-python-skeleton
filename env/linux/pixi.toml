@@ -46,6 +46,13 @@ clang-tools = "22.*"
 # which would also pull in the clang compiler driver and a newer binutils.
 clang-22 = "22.*"
 nanobind = "*"
+# mdspan (Kokkos reference implementation) for the numpy <-> Blitz bridge
+# (lib/skeleton_mdspan.h). Pinned to this snapshot: 0.6.0 only has
+# std::experimental (claude_notes/implementation_plan.md S6.1 item 7).
+mdspan = "==0.6.1.dev20260223"
+# For the CMake reference build of the nanobind module (CMakeLists.txt)
+cmake = "*"
+ninja = "*"
 # Test coverage (claude_notes/implementation_plan.md section 4a, "make coverage")
 gcovr = "*"
 pytest-cov = "*"
