@@ -38,7 +38,7 @@ namespace boost {
 
 namespace Skeleton {
 /****************************************************************//**
-  For use with SWIG, it is useful to have a base class that 
+  For use with SWIG, it is useful to have a base class that
   everything can be cast to. This class doesn't provide any
   functionality, other than allowing casts.
 *******************************************************************/
@@ -50,7 +50,7 @@ public:
 private:
   friend class boost::serialization::access;
   template<class Archive>
-  void serialize(Archive & ar, const unsigned int version);
+  void serialize(Archive& ar, const unsigned int version);
 };
 
 }

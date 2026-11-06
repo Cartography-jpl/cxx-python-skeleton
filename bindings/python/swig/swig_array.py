@@ -1467,7 +1467,7 @@ class BlitzArray_uchar_8(object):
 # Register BlitzArray_uchar_8 in _swig_array:
 _swig_array.BlitzArray_uchar_8_swigregister(BlitzArray_uchar_8)
 
-__all__ = []  
+__all__ = []
 for t in ("double", "bool", "int", "uint", "float", "short", "ushort", "char", "uchar"):
     for d in range(1,8+1):
         __all__.append("BlitzArray_%s_%d" % (t, d))

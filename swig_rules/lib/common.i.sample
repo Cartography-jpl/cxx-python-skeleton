@@ -17,7 +17,7 @@
 // The effect of this is just to change the "import" line in the swig
 // generated python code.
 
-#if SWIG_VERSION < 0x040000  
+#if SWIG_VERSION < 0x040000
 %module(directors="1", allprotected="1") foo
 #else
 %module(moduleimport="from ._swig_wrap import $module", directors="1", allprotected="1") foo
@@ -60,9 +60,8 @@
 %define %skeleton_director_serialization(BNAME, TYPE...)
 %{
 #define Q(x) #x
-#define QUOTE(x) Q(x)  
+#define QUOTE(x) Q(x)
 #include QUOTE(BNAME ## _wrap.h)
 %}
 %director_serialization(Skeleton, skeleton_serialize_support.h, TYPE)
 %enddef
-

@@ -5,7 +5,7 @@ using namespace Skeleton;
 
 #ifdef SKELETON_HAVE_BOOST_SERIALIZATION
 template<class Archive>
-void GenericObjectA::serialize(Archive & ar, const unsigned int )
+void GenericObjectA::serialize(Archive& ar, const unsigned int)
 {
   SKELETON_GENERIC_BASE(GenericObjectA);
   ar & SKELETON_NVP_(v);
@@ -13,21 +13,21 @@ void GenericObjectA::serialize(Archive & ar, const unsigned int )
 }
 
 template<class Archive>
-void GenericObjectB::serialize(Archive & ar, const unsigned int )
+void GenericObjectB::serialize(Archive& ar, const unsigned int)
 {
   SKELETON_GENERIC_BASE(GenericObjectB);
   ar & SKELETON_NVP_(a);
 }
 
 template<class Archive>
-void GenericObjectB2::serialize(Archive & ar, const unsigned int )
+void GenericObjectB2::serialize(Archive& ar, const unsigned int)
 {
   SKELETON_GENERIC_BASE(GenericObjectB2);
   ar & SKELETON_NVP_(a);
 }
 
 template<class Archive>
-void GenericObjectC::serialize(Archive & ar, const unsigned int )
+void GenericObjectC::serialize(Archive& ar, const unsigned int)
 {
   SKELETON_GENERIC_BASE(GenericObjectC);
   ar & SKELETON_NVP_(a);

@@ -3,4 +3,3 @@
 
 #define BOOST_TEST_MODULE "Skeleton Unit Tests"
 #include <boost/test/included/unit_test.hpp>
-

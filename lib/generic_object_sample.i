@@ -31,7 +31,7 @@ public:
   %python_attribute_with_set(a, GenericObjectA);
   %pickle_serialization();
 };
-  
+
 class GenericObjectC : public GenericObject {
 public:
   GenericObjectC(const boost::shared_ptr<GenericObjectA>& V) : a_(V) {}
@@ -42,5 +42,3 @@ public:
 }
 // List of things "import *" will include
 %python_export("GenericObjectA", "GenericObjectB", "GenericObjectB2", "GenericObjectC");
-
-  

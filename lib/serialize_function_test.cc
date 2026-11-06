@@ -92,18 +92,18 @@ BOOST_AUTO_TEST_CASE(binary_file)
 BOOST_AUTO_TEST_CASE(string_round_trip)
 {
   check_map(serialize_read_string<GenericObjectMap>
-	    (serialize_write_string(sample_map())));
+            (serialize_write_string(sample_map())));
   check_map(serialize_read_binary_string<GenericObjectMap>
-	    (serialize_write_binary(sample_map())));
+            (serialize_write_binary(sample_map())));
 }
 
 BOOST_AUTO_TEST_CASE(missing_file)
 {
   TempDir d;
   BOOST_CHECK_THROW(serialize_read_generic(d.file("not_here.xml")),
-		    std::exception);
+                    std::exception);
   BOOST_CHECK_THROW(serialize_read_binary_generic(d.file("not_here.bin")),
-		    std::exception);
+                    std::exception);
 }
 
 BOOST_AUTO_TEST_CASE(directory_restored)
@@ -121,7 +121,7 @@ BOOST_AUTO_TEST_CASE(directory_restored)
     os << "<?xml version=\"1.0\"?>\n<not_a_boost_archive/>\n";
   }
   BOOST_CHECK_THROW(serialize_read_generic(d.file("sub/bad.xml")),
-		    std::exception);
+                    std::exception);
   BOOST_CHECK(std::filesystem::current_path() == cwd);
   {
     // Valid header, truncated body. This fails after the change of
@@ -131,7 +131,7 @@ BOOST_AUTO_TEST_CASE(directory_restored)
     os << s.substr(0, s.size() / 2);
   }
   BOOST_CHECK_THROW(serialize_read_generic(d.file("sub/truncated.xml")),
-		    std::exception);
+                    std::exception);
   BOOST_CHECK(std::filesystem::current_path() == cwd);
 }
 

@@ -19,7 +19,7 @@ private:
   int v_;
   friend class boost::serialization::access;
   template<class Archive>
-  void serialize(Archive & ar, const unsigned int version);
+  void serialize(Archive& ar, const unsigned int version);
 };
 
 class GenericObjectB : public Printable<GenericObjectB> {
@@ -33,7 +33,7 @@ private:
   GenericObjectB() = default;
   friend class boost::serialization::access;
   template<class Archive>
-  void serialize(Archive & ar, const unsigned int version);
+  void serialize(Archive& ar, const unsigned int version);
 };
 
 class GenericObjectB2 : public Printable<GenericObjectB2> {
@@ -47,9 +47,9 @@ private:
   GenericObjectB2() = default;
   friend class boost::serialization::access;
   template<class Archive>
-  void serialize(Archive & ar, const unsigned int version);
+  void serialize(Archive& ar, const unsigned int version);
 };
-  
+
 class GenericObjectC : public Printable<GenericObjectC> {
 public:
   GenericObjectC(const boost::shared_ptr<GenericObjectA>& V) : a_(V) {}
@@ -61,9 +61,9 @@ private:
   GenericObjectC() = default;
   friend class boost::serialization::access;
   template<class Archive>
-  void serialize(Archive & ar, const unsigned int version);
+  void serialize(Archive& ar, const unsigned int version);
 };
-  
+
 }
 SKELETON_EXPORT_KEY(GenericObjectA);
 SKELETON_EXPORT_KEY(GenericObjectB);

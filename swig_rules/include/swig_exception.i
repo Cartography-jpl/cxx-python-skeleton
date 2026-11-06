@@ -13,14 +13,14 @@
 %exception {
   try {
     $action
-  } catch (Swig::DirectorException &e) {
+  } catch(Swig::DirectorException& e) {
     SWIG_fail;
-  } catch (const PythonException& e) {
+  } catch(const PythonException& e) {
     e.restore_python_exception();
     SWIG_fail;
-  } catch (const std::exception& e) {
+  } catch(const std::exception& e) {
     SWIG_exception(SWIG_RuntimeError, e.what());
-  } catch (...) {
+  } catch(...) {
     // Anything not derived from std::exception (a raw type, a
     // third-party exception hierarchy that doesn't inherit
     // std::exception, etc.) would otherwise propagate across the
@@ -31,8 +31,7 @@
 }
 
 %feature("director:except") {
-    if ($error != NULL) {
+    if($error != NULL) {
       throw PythonException();
     }
 }
-

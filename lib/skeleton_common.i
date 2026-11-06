@@ -17,7 +17,7 @@
 // The effect of this is just to change the "import" line in the swig
 // generated python code.
 
-#if SWIG_VERSION < 0x040000  
+#if SWIG_VERSION < 0x040000
 %module(directors="1", allprotected="1") foo
 #else
 %module(moduleimport="from ._swig_wrap import $module", directors="1", allprotected="1") foo
@@ -46,9 +46,9 @@
 // around until the last object is deleted. But this is at the end of
 // the python program anyways, so not cleaning up is harmless. But we
 // don't want to see the warning, since it isn't anything we are doing
-// wrong.  
-  
-#define SWIG_PYTHON_SILENT_MEMLEAK 1  
+// wrong.
+
+#define SWIG_PYTHON_SILENT_MEMLEAK 1
 %}
 
 %{

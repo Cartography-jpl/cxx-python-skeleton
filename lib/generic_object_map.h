@@ -30,8 +30,8 @@ namespace Skeleton {
   python.
 *******************************************************************/
 class GenericObjectMap : public Printable<GenericObjectMap>,
-			 public std::map<std::string,
-					 boost::shared_ptr<GenericObject> >{
+                         public std::map<std::string,
+                                         boost::shared_ptr<GenericObject> >{
 public:
   GenericObjectMap() = default;
   ~GenericObjectMap() override = default;
@@ -52,20 +52,20 @@ public:
     boost::copy(*this | boost::adaptors::map_keys, std::back_inserter(r));
     return r;
   }
-  
+
 //-----------------------------------------------------------------------
 /// Save object - this is something more easy to call from python.
 //-----------------------------------------------------------------------
-  
+
   void set_generic(const std::string& Key,
-		   const boost::shared_ptr<GenericObject>& V)
+                   const boost::shared_ptr<GenericObject>& V)
   { (*this)[Key] = V; }
-  
+
 //-----------------------------------------------------------------------
 /// Return object if we have one, or a null pointer if there is no
 /// value in the map.
 //-----------------------------------------------------------------------
-  
+
   boost::shared_ptr<GenericObject> get_generic(const std::string& Key) const
   {
     std::map<std::string, boost::shared_ptr<GenericObject> >::const_iterator
@@ -79,7 +79,7 @@ public:
 /// Return object if we have one, or a null pointer if there is no
 /// value in the map or it doesn't match type
 //-----------------------------------------------------------------------
-  
+
   template<class T> inline boost::shared_ptr<T> get(const std::string& Key)
     const
   {
@@ -88,7 +88,7 @@ public:
 
   friend class boost::serialization::access;
   template<class Archive>
-  void serialize(Archive & ar, const unsigned int version);
+  void serialize(Archive& ar, const unsigned int version);
 };
 }
 

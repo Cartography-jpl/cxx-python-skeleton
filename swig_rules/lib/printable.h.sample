@@ -9,8 +9,8 @@
 namespace GeoCal {
 
 /****************************************************************//**
-  This is a Mixin for classes that can be printed. 
-  
+  This is a Mixin for classes that can be printed.
+
   There are two different functions we want to use for printing. For
   normal C++ use, we want the usual "<<" notation, e.g., cout << foo.
   For use with languages such as Ruby that don't have a native stream
@@ -21,7 +21,7 @@ namespace GeoCal {
   "print(ostream& Os)".
 
   Classes T that want to be printable in both C++ and other languages
-  should derive from Printable<T>, and then define print(ostream& Os). 
+  should derive from Printable<T>, and then define print(ostream& Os).
 
   std::format works too: std::format("{}", foo) gives the same text as
   "<<" (see the std::formatter at the end of this file), and the
@@ -55,7 +55,7 @@ public:
     else
       static_cast<const T*>(this)->print(Os);
   }
-  
+
 //-----------------------------------------------------------------------
 /// Print to stream.
 //-----------------------------------------------------------------------

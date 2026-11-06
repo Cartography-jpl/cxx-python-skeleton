@@ -9,66 +9,66 @@
 //--------------------------------------------------------------
 
 // Code changed a little between SWIG 3 and SWIG 4, so have different
-// versions depending on swig version.  
-#if SWIG_VERSION < 0x040000  
+// versions depending on swig version.
+#if SWIG_VERSION < 0x040000
 namespace swig {
   template <class T>
   struct traits_asptr<std::vector<boost::shared_ptr<T> > >  {
-    static int asptr(PyObject *obj, 
-		     std::vector<boost::shared_ptr<T> > **vec) {
+    static int asptr(PyObject *obj,
+                     std::vector<boost::shared_ptr<T> > **vec) {
       // Long name, so shorten
       typedef std::vector<boost::shared_ptr<T> > vtype;
       if (obj == Py_None || SWIG_Python_GetSwigThis(obj)) {
-	vtype *p;
-	if (::SWIG_ConvertPtr(obj,(void**)&p,
-			      swig::type_info<vtype>(),0) == SWIG_OK) {
-	  if (vec) *vec = p;
-	  return SWIG_OLDOBJ;
-	}
+        vtype *p;
+        if (::SWIG_ConvertPtr(obj,(void**)&p,
+                              swig::type_info<vtype>(),0) == SWIG_OK) {
+          if (vec) *vec = p;
+          return SWIG_OLDOBJ;
+        }
       } else if (PySequence_Check(obj)) {
-	try {
-	  if (vec) {
-	    vtype *pseq = new vtype();
-	    PyObject *iterator = PyObject_GetIter(obj);
-	    PyObject *item;
-	    typename std::vector< boost::shared_ptr<T > >::value_type temp2shared2;
-	    while((item = PyIter_Next(iterator))) {
-	      boost::shared_ptr<T> *itemp;
-	      int newmem = 0;
-	      int res = SWIG_ConvertPtrAndOwn(item, (void**) &itemp, 
-			swig::type_info<boost::shared_ptr<T> >(),  0, &newmem);
-	      if(!SWIG_IsOK(res)) {
-		Py_DECREF(item);
-		Py_DECREF(iterator);
-		return SWIG_ERROR;
-	      }
-	      // Added mms
-	      // Special handling if this is a director class. In that case, we
-	      // don't own the underlying python object. See
-	      // DirectorNotes.md for details.
-	      Swig::Director* dp = dynamic_cast<Swig::Director*>(itemp->get());
-	      if(dp) {
-		temp2shared2.reset(itemp->get(), PythonRefPtrCleanup(dp->swig_get_self()));
-		itemp = &temp2shared2;
-	      }
-	      pseq->push_back(*itemp);
-	      Py_DECREF(item);
-	    }
-	    Py_DECREF(iterator);
-	    *vec = pseq;
-	    return SWIG_NEWOBJ;
-	  } else {
-	    SwigPySequence_Cont<boost::shared_ptr<T> > swigpyseq(obj);
-	    return swigpyseq.check() ? SWIG_OK : SWIG_ERROR;
-	  }
-	} catch (std::exception& e) {
-	  if (vec) {
-	    if (!PyErr_Occurred()) {
-	      PyErr_SetString(PyExc_TypeError, e.what());
-	    }
-	  }
-	  return SWIG_ERROR;
-	}
+        try {
+          if (vec) {
+            vtype *pseq = new vtype();
+            PyObject *iterator = PyObject_GetIter(obj);
+            PyObject *item;
+            typename std::vector< boost::shared_ptr<T > >::value_type temp2shared2;
+            while((item = PyIter_Next(iterator))) {
+              boost::shared_ptr<T> *itemp;
+              int newmem = 0;
+              int res = SWIG_ConvertPtrAndOwn(item, (void**) &itemp,
+                        swig::type_info<boost::shared_ptr<T> >(),  0, &newmem);
+              if(!SWIG_IsOK(res)) {
+                Py_DECREF(item);
+                Py_DECREF(iterator);
+                return SWIG_ERROR;
+              }
+              // Added mms
+              // Special handling if this is a director class. In that case, we
+              // don't own the underlying python object. See
+              // DirectorNotes.md for details.
+              Swig::Director* dp = dynamic_cast<Swig::Director*>(itemp->get());
+              if(dp) {
+                temp2shared2.reset(itemp->get(), PythonRefPtrCleanup(dp->swig_get_self()));
+                itemp = &temp2shared2;
+              }
+              pseq->push_back(*itemp);
+              Py_DECREF(item);
+            }
+            Py_DECREF(iterator);
+            *vec = pseq;
+            return SWIG_NEWOBJ;
+          } else {
+            SwigPySequence_Cont<boost::shared_ptr<T> > swigpyseq(obj);
+            return swigpyseq.check() ? SWIG_OK : SWIG_ERROR;
+          }
+        } catch (std::exception& e) {
+          if (vec) {
+            if (!PyErr_Occurred()) {
+              PyErr_SetString(PyExc_TypeError, e.what());
+            }
+          }
+          return SWIG_ERROR;
+        }
       }
       return SWIG_ERROR;
     }
@@ -90,16 +90,16 @@ namespace swig {
       // DirectorNotes.md for details.
       Swig::Director* dp = dynamic_cast<Swig::Director*>(itemp.get());
       if(dp) {
-	// Diagnostic to make sure we end up here when we should
-	//std::cerr << "Setting up PythonRefPtrCleanup\n";
-      	itemp.reset(itemp.get(), PythonRefPtrCleanup(dp->swig_get_self()));
+        // Diagnostic to make sure we end up here when we should
+        //std::cerr << "Setting up PythonRefPtrCleanup\n";
+        itemp.reset(itemp.get(), PythonRefPtrCleanup(dp->swig_get_self()));
       }
       seq->insert(seq->end(),itemp);
     }
   }
 
   template <class T>
-  struct traits_asptr<boost::shared_ptr<T> > {   
+  struct traits_asptr<boost::shared_ptr<T> > {
     static int asptr(PyObject *obj, boost::shared_ptr<T> **val) {
       int res = SWIG_ERROR;
       swig_type_info *descriptor = swig::type_info<boost::shared_ptr<T> >();
@@ -111,24 +111,24 @@ namespace swig {
           if (newmem & SWIG_CAST_NEW_MEMORY) {
             res |= SWIG_NEWOBJMASK;
           }
-	  // Added mms
-	  // Special handling if this is a director class. In that case, we
-	  // don't own the underlying python object. See
-	  // DirectorNotes.md for details.
-	  Swig::Director* dp = dynamic_cast<Swig::Director*>(p->get());
-	  if(dp) {
-	    boost::shared_ptr<T> *p2 = new boost::shared_ptr<T>(p->get(), PythonRefPtrCleanup(dp->swig_get_self()));
-	    // If p was itself a heap allocation from the cast above (newmem
-	    // & SWIG_CAST_NEW_MEMORY), we're about to replace it with p2 --
-	    // free it first rather than leaking it. If newmem wasn't set, p
-	    // points at a shared_ptr swig still owns elsewhere, so leave it
-	    // alone.
-	    if (newmem & SWIG_CAST_NEW_MEMORY) {
-	      delete p;
-	    }
-	    p = p2;
+          // Added mms
+          // Special handling if this is a director class. In that case, we
+          // don't own the underlying python object. See
+          // DirectorNotes.md for details.
+          Swig::Director* dp = dynamic_cast<Swig::Director*>(p->get());
+          if(dp) {
+            boost::shared_ptr<T> *p2 = new boost::shared_ptr<T>(p->get(), PythonRefPtrCleanup(dp->swig_get_self()));
+            // If p was itself a heap allocation from the cast above (newmem
+            // & SWIG_CAST_NEW_MEMORY), we're about to replace it with p2 --
+            // free it first rather than leaking it. If newmem wasn't set, p
+            // points at a shared_ptr swig still owns elsewhere, so leave it
+            // alone.
+            if (newmem & SWIG_CAST_NEW_MEMORY) {
+              delete p;
+            }
+            p = p2;
             res |= SWIG_NEWOBJMASK;
-	  }
+          }
           *val = p;
         }
       } else {
@@ -136,10 +136,10 @@ namespace swig {
       }
       return res;
     }
-  }; 
+  };
 }
-  
-#endif  
+
+#endif
 %}
 
 
@@ -170,24 +170,24 @@ namespace swig {
   template <> struct traits_asptr< TYPE > {
     static int asptr(PyObject *obj, TYPE **val) {
       static swig_type_info *descriptor =
-	SWIG_TypeQuery("boost::shared_ptr< " #TYPE " > *");
+        SWIG_TypeQuery("boost::shared_ptr< " #TYPE " > *");
       if(!descriptor)
-	return SWIG_ERROR;
+        return SWIG_ERROR;
       boost::shared_ptr< TYPE > *p = 0;
       int newmem = 0;
       int res = SWIG_ConvertPtrAndOwn(obj, (void **)&p, descriptor, 0,
-				      &newmem);
+                                      &newmem);
       if(!SWIG_IsOK(res))
-	return res;
+        return res;
       if(!p || !*p)
-	res = SWIG_ERROR;
+        res = SWIG_ERROR;
       else if(val) {
-	*val = new TYPE(**p);
-	res = SWIG_NEWOBJ;
+        *val = new TYPE(**p);
+        res = SWIG_NEWOBJ;
       } else
-	res = SWIG_OK;
+        res = SWIG_OK;
       if(newmem & SWIG_CAST_NEW_MEMORY)
-	delete p;
+        delete p;
       return res;
     }
   };

@@ -23,7 +23,7 @@
 using namespace SWIG_MAPPER_NAMESPACE;
 
 /****************************************************************//**
-   This allows filtering stream to be created on top of an 
+   This allows filtering stream to be created on top of an
    underlying ofstream. See boost::iostream documentation for details
    on how to create these. This class is intended to be used as a base
    class for other classes that assemble the proper filters.
@@ -40,7 +40,7 @@ protected:
 /// set up the streambuf.
 //-----------------------------------------------------------------------
 
-  FilteringOstream(const std::string& Fname) 
+  FilteringOstream(const std::string& Fname)
     : std::ostream(&sb), f(Fname.c_str()) {}
 
 //-----------------------------------------------------------------------
@@ -57,7 +57,7 @@ protected:
 };
 
 /****************************************************************//**
-   This allows filtering stream to created on top of an 
+   This allows filtering stream to created on top of an
    underlying ifstream. See boost::iostream documentation for details
    on how to create these. This class is intended to be used as a base
    class for other classes that assemble the proper filters.
@@ -74,7 +74,7 @@ protected:
 /// set up the streambuf.
 //-----------------------------------------------------------------------
 
-  FilteringIstream(const std::string& Fname) 
+  FilteringIstream(const std::string& Fname)
     : std::istream(&sb), f(Fname.c_str()) {}
 
 //-----------------------------------------------------------------------
@@ -109,7 +109,7 @@ public:
     if(boost::regex_search(Fname, boost::regex("\\.gz$")))
       sb.push(boost::iostreams::gzip_compressor());
     sb.push(f);
-  }    
+  }
   ~OstreamCompress() override = default;
 };
 
@@ -178,7 +178,7 @@ private:
 
 //-----------------------------------------------------------------------
 /// Return true if we were built with serialization support, false
-/// otherwise. 
+/// otherwise.
 //-----------------------------------------------------------------------
 
 bool SWIG_MAPPER_NAMESPACE::have_serialize_supported()
@@ -222,7 +222,7 @@ void SWIG_MAPPER_NAMESPACE::skip_weak_ptr_handling(bool Skip)
 
 //-----------------------------------------------------------------------
 /// Function to go through serialization, marking all pointers we
-/// encounter. 
+/// encounter.
 //-----------------------------------------------------------------------
 
 [[maybe_unused]] static void mark_pointer([[maybe_unused]] const boost::shared_ptr<GenericObject>& Obj)
@@ -246,7 +246,7 @@ void SWIG_MAPPER_NAMESPACE::skip_weak_ptr_handling(bool Skip)
 //-----------------------------------------------------------------------
 /// Simple function that wraps around writing a boost::serialization
 /// to a xml archive. We abstract this
-/// away to give a slightly cleaner interface, but mostly so we can 
+/// away to give a slightly cleaner interface, but mostly so we can
 /// later have the option of changing the underlying serialization. This
 /// is a more limited interface, we can only write or read a single
 /// object. But this is what we primarily do anyways, and we can easily
@@ -255,7 +255,7 @@ void SWIG_MAPPER_NAMESPACE::skip_weak_ptr_handling(bool Skip)
 //-----------------------------------------------------------------------
 
 void SWIG_MAPPER_NAMESPACE::serialize_write([[maybe_unused]] const std::string& Fname,
-			     [[maybe_unused]] const boost::shared_ptr<GenericObject>& Obj)
+                             [[maybe_unused]] const boost::shared_ptr<GenericObject>& Obj)
 {
 #ifdef SWIG_HAVE_BOOST_SERIALIZATION
   PtrSerializeLock lock;
@@ -269,7 +269,7 @@ void SWIG_MAPPER_NAMESPACE::serialize_write([[maybe_unused]] const std::string& 
 }
 
 void SWIG_MAPPER_NAMESPACE::serialize_write_binary([[maybe_unused]] const std::string& Fname,
-			     [[maybe_unused]] const boost::shared_ptr<GenericObject>& Obj)
+                             [[maybe_unused]] const boost::shared_ptr<GenericObject>& Obj)
 {
 #ifdef SWIG_HAVE_BOOST_SERIALIZATION
   PtrSerializeLock lock;
@@ -330,7 +330,7 @@ std::string SWIG_MAPPER_NAMESPACE::serialize_write_binary
 /// than xml
 //-----------------------------------------------------------------------
 
-boost::shared_ptr<GenericObject> 
+boost::shared_ptr<GenericObject>
 SWIG_MAPPER_NAMESPACE::serialize_read_binary([[maybe_unused]] const std::string& Data)
 {
 #ifdef SWIG_HAVE_BOOST_SERIALIZATION
@@ -347,7 +347,7 @@ SWIG_MAPPER_NAMESPACE::serialize_read_binary([[maybe_unused]] const std::string&
 //-----------------------------------------------------------------------
 /// Simple function that wraps around reading a boost::serialization
 /// to a xml archive. We abstract this
-/// away to give a slightly cleaner interface, but mostly so we can 
+/// away to give a slightly cleaner interface, but mostly so we can
 /// later have the option of changing the underlying serialization. This
 /// is a more limited interface, we can only write or read a single
 /// object. But this is what we primarily do anyways, and we can easily
@@ -362,7 +362,7 @@ SWIG_MAPPER_NAMESPACE::serialize_read_binary([[maybe_unused]] const std::string&
 /// current directory.
 //-----------------------------------------------------------------------
 
-boost::shared_ptr<GenericObject> 
+boost::shared_ptr<GenericObject>
 SWIG_MAPPER_NAMESPACE::serialize_read_generic([[maybe_unused]] const std::string& Fname)
 {
 #ifdef SWIG_HAVE_BOOST_SERIALIZATION
@@ -383,7 +383,7 @@ SWIG_MAPPER_NAMESPACE::serialize_read_generic([[maybe_unused]] const std::string
 #endif
 }
 
-boost::shared_ptr<GenericObject> 
+boost::shared_ptr<GenericObject>
 SWIG_MAPPER_NAMESPACE::serialize_read_binary_generic([[maybe_unused]] const std::string& Fname)
 {
 #ifdef SWIG_HAVE_BOOST_SERIALIZATION
@@ -409,7 +409,7 @@ SWIG_MAPPER_NAMESPACE::serialize_read_binary_generic([[maybe_unused]] const std:
 /// than reading a file.
 //-----------------------------------------------------------------------
 
-boost::shared_ptr<GenericObject> 
+boost::shared_ptr<GenericObject>
 SWIG_MAPPER_NAMESPACE::serialize_read_generic_string([[maybe_unused]] const std::string& Data)
 {
 #ifdef SWIG_HAVE_BOOST_SERIALIZATION

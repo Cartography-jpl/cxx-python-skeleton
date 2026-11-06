@@ -34,10 +34,10 @@ BOOST_AUTO_TEST_CASE(print)
 {
   Exception e("x");
   BOOST_CHECK_EQUAL(e.print_to_string(),
-		    "Skeleton Exception:\n"
-		    "=========================\n"
-		    "x\n"
-		    "=========================\n");
+                    "Skeleton Exception:\n"
+                    "=========================\n"
+                    "x\n"
+                    "=========================\n");
 }
 
 BOOST_AUTO_TEST_CASE(throw_catch)

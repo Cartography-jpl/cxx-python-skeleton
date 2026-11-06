@@ -13,8 +13,10 @@ public:
   const char* what() const noexcept override;
   void restore_python_exception() const;
 private:
-  mutable void *type, *value, *tb;
+  mutable void* type;
+  mutable void* value;
+  mutable void* tb;
   std::string desc;
 };
-     
+
 #endif

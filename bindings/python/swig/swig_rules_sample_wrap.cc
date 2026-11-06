@@ -26,9 +26,9 @@
 // around until the last object is deleted. But this is at the end of
 // the python program anyways, so not cleaning up is harmless. But we
 // don't want to see the warning, since it isn't anything we are doing
-// wrong.  
-  
-#define SWIG_PYTHON_SILENT_MEMLEAK 1  
+// wrong.
+
+#define SWIG_PYTHON_SILENT_MEMLEAK 1
 
 
 
@@ -4535,7 +4535,7 @@ SWIG_AsVal_ptrdiff_t (PyObject * obj, ptrdiff_t *val)
 
 
 #include "serialize_function.h"
-#include "python_exception.h"  
+#include "python_exception.h"
 #include <stdexcept>
 
 
@@ -4560,7 +4560,7 @@ inline std::string cpickle_dumps(PyObject* obj)
   if(PyErr_Occurred()) {
     throw PythonException();
   }
-  char *buf;
+  char* buf;
   Py_ssize_t len;
   PyBytes_AsStringAndSize(res, &buf, &len);
   std::string result(buf, len);
@@ -4598,7 +4598,7 @@ template<typename P_type> class PythonMemoryBlockReference;
   sizeType blockLength()
 #include <blitz/memblock.h>
 #undef blockLength
-  
+
 #include <blitz/array.h>
 #include <blitz/range.h>
 #define PY_ARRAY_UNIQUE_SYMBOL geocal_ARRAY_API
@@ -4631,7 +4631,7 @@ public:
 /// the data, rather it owns a reference to a PythonObject that
 /// keeps a reference to the numpy PythonObject so it doesn't
 /// go away on the python side while we are using it on the
-/// C++ side. 
+/// C++ side.
 //--------------------------------------------------------------
 
 template<typename P_type>
@@ -4643,12 +4643,12 @@ public:
                  (T_type *) PyArray_DATA((PyArrayObject*) numpy_obj)),
       python_obj(numpy_obj)
   {
-    Py_XINCREF(python_obj); 
+    Py_XINCREF(python_obj);
 #ifdef BZ_DEBUG_LOG_ALLOCATIONS
     std::cout << "PythonMemoryBlock: have reference to numpy object data at " << blitz::MemoryBlock<P_type>::data() << "\n"
               << "   numpy python object " << python_obj << "\n"
               << "   numpy python object ref count (after incrementing) " << Py_REFCNT(python_obj) <<"\n";
-#endif    
+#endif
   }
   virtual ~PythonMemoryBlock()
   {
@@ -4660,7 +4660,7 @@ public:
     std::cout << "PythonMemoryBlock: removing reference to numpy object data at " << blitz::MemoryBlock<P_type>::data() << "\n"
               << "   numpy python object " << python_obj << "\n"
               << "   numpy python object ref count (before decrementing) " << Py_REFCNT(python_obj) <<"\n";
-#endif    
+#endif
     Py_XDECREF(python_obj);
   }
 private:
@@ -4689,7 +4689,7 @@ public:
     a.changeBlock(*this);
   }
 };
- 
+
 PyObject* numpy_module();
 PyObject* numpy_dot_float64();
 PyObject* numpy_dot_float32();
@@ -4719,7 +4719,7 @@ template<> inline int type_to_npy<bool>() {return NPY_BOOL;}
 
 inline const char* npy_type_str(int type_enum)
 {
-    switch (type_enum) {
+    switch(type_enum) {
         case NPY_DOUBLE:
             return "double";
         case NPY_FLOAT:
@@ -4762,9 +4762,9 @@ struct ArrayConversionException : public std::exception
 };
 
 //--------------------------------------------------------------
-// Use the numpy command "asarray" to convert various python 
-// objects to a numpy object. This may return null, if the 
-// "asarray" fails. 
+// Use the numpy command "asarray" to convert various python
+// objects to a numpy object. This may return null, if the
+// "asarray" fails.
 //--------------------------------------------------------------
 
 inline PyObject* asarray_name()
@@ -4777,8 +4777,8 @@ template<class T> PyObject* to_numpy(PyObject* obj);
 
 template<> inline PyObject* to_numpy<double>(PyObject* obj)
 {
-  PyObject* res = PyObject_CallMethodObjArgs(numpy_module(), 
-                                             asarray_name(), 
+  PyObject* res = PyObject_CallMethodObjArgs(numpy_module(),
+                                             asarray_name(),
                                              obj, numpy_dot_float64(), NULL);
   // Don't worry about errors , since we just return a null
   PyErr_Clear();
@@ -4787,8 +4787,8 @@ template<> inline PyObject* to_numpy<double>(PyObject* obj)
 
 template<> inline PyObject* to_numpy<float>(PyObject* obj)
 {
-  PyObject* res = PyObject_CallMethodObjArgs(numpy_module(), 
-                                             asarray_name(), 
+  PyObject* res = PyObject_CallMethodObjArgs(numpy_module(),
+                                             asarray_name(),
                                              obj, numpy_dot_float32(), NULL);
   // Don't worry about errors , since we just return a null
   PyErr_Clear();
@@ -4797,8 +4797,8 @@ template<> inline PyObject* to_numpy<float>(PyObject* obj)
 
 template<> inline PyObject* to_numpy<bool>(PyObject* obj)
 {
-  PyObject* res = PyObject_CallMethodObjArgs(numpy_module(), 
-                                    asarray_name(), 
+  PyObject* res = PyObject_CallMethodObjArgs(numpy_module(),
+                                    asarray_name(),
                                     obj, numpy_dot_bool(), NULL);
   PyErr_Clear();
   return res;
@@ -4806,8 +4806,8 @@ template<> inline PyObject* to_numpy<bool>(PyObject* obj)
 
 template<> inline PyObject* to_numpy<int>(PyObject* obj)
 {
-  PyObject* res = PyObject_CallMethodObjArgs(numpy_module(), 
-                                    asarray_name(), 
+  PyObject* res = PyObject_CallMethodObjArgs(numpy_module(),
+                                    asarray_name(),
                                     obj, numpy_dot_int32(), NULL);
   PyErr_Clear();
   return res;
@@ -4815,8 +4815,8 @@ template<> inline PyObject* to_numpy<int>(PyObject* obj)
 
 template<> inline PyObject* to_numpy<unsigned int>(PyObject* obj)
 {
-  PyObject* res = PyObject_CallMethodObjArgs(numpy_module(), 
-                                    asarray_name(), 
+  PyObject* res = PyObject_CallMethodObjArgs(numpy_module(),
+                                    asarray_name(),
                                     obj, numpy_dot_uint32(), NULL);
   PyErr_Clear();
   return res;
@@ -4824,8 +4824,8 @@ template<> inline PyObject* to_numpy<unsigned int>(PyObject* obj)
 
 template<> inline PyObject* to_numpy<short int>(PyObject* obj)
 {
-  PyObject* res = PyObject_CallMethodObjArgs(numpy_module(), 
-                                    asarray_name(), 
+  PyObject* res = PyObject_CallMethodObjArgs(numpy_module(),
+                                    asarray_name(),
                                     obj, numpy_dot_int16(), NULL);
   PyErr_Clear();
   return res;
@@ -4833,8 +4833,8 @@ template<> inline PyObject* to_numpy<short int>(PyObject* obj)
 
 template<> inline PyObject* to_numpy<unsigned short int>(PyObject* obj)
 {
-  PyObject* res = PyObject_CallMethodObjArgs(numpy_module(), 
-                                    asarray_name(), 
+  PyObject* res = PyObject_CallMethodObjArgs(numpy_module(),
+                                    asarray_name(),
                                     obj, numpy_dot_uint16(), NULL);
   PyErr_Clear();
   return res;
@@ -4842,8 +4842,8 @@ template<> inline PyObject* to_numpy<unsigned short int>(PyObject* obj)
 
 template<> inline PyObject* to_numpy<char>(PyObject* obj)
 {
-  PyObject* res = PyObject_CallMethodObjArgs(numpy_module(), 
-                                    asarray_name(), 
+  PyObject* res = PyObject_CallMethodObjArgs(numpy_module(),
+                                    asarray_name(),
                                     obj, numpy_dot_int8(), NULL);
   PyErr_Clear();
   return res;
@@ -4851,17 +4851,17 @@ template<> inline PyObject* to_numpy<char>(PyObject* obj)
 
 template<> inline PyObject* to_numpy<unsigned char>(PyObject* obj)
 {
-  PyObject* res = PyObject_CallMethodObjArgs(numpy_module(), 
-                                    asarray_name(), 
+  PyObject* res = PyObject_CallMethodObjArgs(numpy_module(),
+                                    asarray_name(),
                                     obj, numpy_dot_uint8(), NULL);
   PyErr_Clear();
   return res;
 }
- 
+
 //--------------------------------------------------------------
-// Convert a numpy array to a blitz::Array. The numpy should 
+// Convert a numpy array to a blitz::Array. The numpy should
 // already be the right data type before calling these (you can
-// call to_numpy, if that is convenient). The underlying data is 
+// call to_numpy, if that is convenient). The underlying data is
 // still owned by the numpy object, so you need to make sure that
 // the numpy object doesn't get deleted until you are done with
 // the blitz::Array.
@@ -4869,14 +4869,14 @@ template<> inline PyObject* to_numpy<unsigned char>(PyObject* obj)
 // If this fails, we throw an exception.
 //--------------------------------------------------------------
 
-template<class T, int D> 
+template<class T, int D>
 inline blitz::Array<T, D> to_blitz_array(PyObject* numpy_obj)
 {
   PyArrayObject* numpy = (PyArrayObject*) numpy_obj;
   if(PyArray_NDIM(numpy) != D) {
     std::stringstream err;
     err << "Error converting PyObject to Blitz array. "
-        << "Dimension of array passed: " << PyArray_NDIM(numpy) 
+        << "Dimension of array passed: " << PyArray_NDIM(numpy)
         << " is not the expected size: " << D
         << " for blitz::Array<" << npy_type_str(type_to_npy<T>()) << ", " << D << ">";
     throw std::runtime_error(err.str().c_str());
@@ -4899,7 +4899,7 @@ inline blitz::Array<T, D> to_blitz_array(PyObject* numpy_obj)
       throw std::runtime_error("Error converting PyObject to Blitz array. blitz::Array can't handle strides that aren't an even multiple of sizeof(T)");
     }
   }
-  blitz::Array<T, D> a((T*)PyArray_DATA(numpy), shape, stride, 
+  blitz::Array<T, D> a((T*)PyArray_DATA(numpy), shape, stride,
                        blitz::neverDeleteData);
   // Stash a reference to numpy_obj in array, so it doesn't disappear
   // while the blitz::Array still exists
@@ -4907,23 +4907,23 @@ inline blitz::Array<T, D> to_blitz_array(PyObject* numpy_obj)
   return a;
 }
 
-template<class TYPE, int DIM> 
-inline void iter_to_vector_of_arrays(PyObject *sequence, std::vector<blitz::Array<TYPE, DIM> >& arr_vec)
+template<class TYPE, int DIM>
+inline void iter_to_vector_of_arrays(PyObject* sequence, std::vector<blitz::Array<TYPE, DIM> >& arr_vec)
 {
 
-  if (PyUnicode_Check(sequence)) {
+  if(PyUnicode_Check(sequence)) {
     throw ArrayConversionException("iter_to_vector_of_arrays: unicode objects are not supported");
   }
 
-  PyObject *iterator = PyObject_GetIter(sequence);
-  PyObject *item;
+  PyObject* iterator = PyObject_GetIter(sequence);
+  PyObject* item;
 
-  if (iterator == NULL) {
+  if(iterator == NULL) {
     throw ArrayConversionException("iter_to_vector_of_arrays: passed object is not iterable");
   }
 
   int iter_index = 0;
-  while ((item = PyIter_Next(iterator))) {
+  while((item = PyIter_Next(iterator))) {
     PythonObject numpy;
     numpy.obj = to_numpy<TYPE>(item);
     if(!numpy.obj) {
@@ -4950,7 +4950,7 @@ inline void iter_to_vector_of_arrays(PyObject *sequence, std::vector<blitz::Arra
 
   Py_DECREF(iterator);
 
-  if (PyErr_Occurred()) {
+  if(PyErr_Occurred()) {
      throw ArrayConversionException("iter_to_vector_of_arrays: an error occured iterating over input object");
   }
 }
@@ -4961,7 +4961,7 @@ inline void iter_to_vector_of_arrays(PyObject *sequence, std::vector<blitz::Arra
 #include <boost/foreach.hpp>
 #include <algorithm>
 
-template<class T, int D> inline boost::array<T, D> 
+template<class T, int D> inline boost::array<T, D>
   to_boost_array(PyObject* numpy)
 {
   blitz::Array<T, 1> b = to_blitz_array<T, 1>(numpy);
@@ -4974,7 +4974,7 @@ template<class T, int D> inline boost::array<T, D>
 
 
 #include <ios>
-#include <stdexcept>  
+#include <stdexcept>
 #include <boost/iostreams/filtering_stream.hpp>
 #include <boost/iostreams/categories.hpp>
 
@@ -4982,7 +4982,7 @@ template<class T, int D> inline boost::array<T, D>
 struct closable_seekable_device_tag :
   virtual boost::iostreams::device_tag, boost::iostreams::seekable,
   boost::iostreams::closable_tag { };
- 
+
 // Make a python FileHandle look like a device
 class python_fh_device {
 public:
@@ -4997,7 +4997,7 @@ public:
     if(res == NULL) {
       throw std::runtime_error("Call to FileHandle read failed");
     }
-    char *rescp;
+    char* rescp;
     Py_ssize_t reslen;
     PyBytes_AsStringAndSize(res, &rescp, &reslen);
     // Python's read(n) can return fewer than n bytes (e.g., near EOF), so
@@ -5049,7 +5049,7 @@ public:
 {
   return python_fh_device(Fh, Fis);
 }
- 
+
 
 
 namespace swig {
@@ -5337,66 +5337,66 @@ namespace swig {
 //--------------------------------------------------------------
 
 // Code changed a little between SWIG 3 and SWIG 4, so have different
-// versions depending on swig version.  
-#if SWIG_VERSION < 0x040000  
+// versions depending on swig version.
+#if SWIG_VERSION < 0x040000
 namespace swig {
   template <class T>
   struct traits_asptr<std::vector<boost::shared_ptr<T> > >  {
-    static int asptr(PyObject *obj, 
-		     std::vector<boost::shared_ptr<T> > **vec) {
+    static int asptr(PyObject *obj,
+                     std::vector<boost::shared_ptr<T> > **vec) {
       // Long name, so shorten
       typedef std::vector<boost::shared_ptr<T> > vtype;
       if (obj == Py_None || SWIG_Python_GetSwigThis(obj)) {
-	vtype *p;
-	if (::SWIG_ConvertPtr(obj,(void**)&p,
-			      swig::type_info<vtype>(),0) == SWIG_OK) {
-	  if (vec) *vec = p;
-	  return SWIG_OLDOBJ;
-	}
+        vtype *p;
+        if (::SWIG_ConvertPtr(obj,(void**)&p,
+                              swig::type_info<vtype>(),0) == SWIG_OK) {
+          if (vec) *vec = p;
+          return SWIG_OLDOBJ;
+        }
       } else if (PySequence_Check(obj)) {
-	try {
-	  if (vec) {
-	    vtype *pseq = new vtype();
-	    PyObject *iterator = PyObject_GetIter(obj);
-	    PyObject *item;
-	    typename std::vector< boost::shared_ptr<T > >::value_type temp2shared2;
-	    while((item = PyIter_Next(iterator))) {
-	      boost::shared_ptr<T> *itemp;
-	      int newmem = 0;
-	      int res = SWIG_ConvertPtrAndOwn(item, (void**) &itemp, 
-			swig::type_info<boost::shared_ptr<T> >(),  0, &newmem);
-	      if(!SWIG_IsOK(res)) {
-		Py_DECREF(item);
-		Py_DECREF(iterator);
-		return SWIG_ERROR;
-	      }
-	      // Added mms
-	      // Special handling if this is a director class. In that case, we
-	      // don't own the underlying python object. See
-	      // DirectorNotes.md for details.
-	      Swig::Director* dp = dynamic_cast<Swig::Director*>(itemp->get());
-	      if(dp) {
-		temp2shared2.reset(itemp->get(), PythonRefPtrCleanup(dp->swig_get_self()));
-		itemp = &temp2shared2;
-	      }
-	      pseq->push_back(*itemp);
-	      Py_DECREF(item);
-	    }
-	    Py_DECREF(iterator);
-	    *vec = pseq;
-	    return SWIG_NEWOBJ;
-	  } else {
-	    SwigPySequence_Cont<boost::shared_ptr<T> > swigpyseq(obj);
-	    return swigpyseq.check() ? SWIG_OK : SWIG_ERROR;
-	  }
-	} catch (std::exception& e) {
-	  if (vec) {
-	    if (!PyErr_Occurred()) {
-	      PyErr_SetString(PyExc_TypeError, e.what());
-	    }
-	  }
-	  return SWIG_ERROR;
-	}
+        try {
+          if (vec) {
+            vtype *pseq = new vtype();
+            PyObject *iterator = PyObject_GetIter(obj);
+            PyObject *item;
+            typename std::vector< boost::shared_ptr<T > >::value_type temp2shared2;
+            while((item = PyIter_Next(iterator))) {
+              boost::shared_ptr<T> *itemp;
+              int newmem = 0;
+              int res = SWIG_ConvertPtrAndOwn(item, (void**) &itemp,
+                        swig::type_info<boost::shared_ptr<T> >(),  0, &newmem);
+              if(!SWIG_IsOK(res)) {
+                Py_DECREF(item);
+                Py_DECREF(iterator);
+                return SWIG_ERROR;
+              }
+              // Added mms
+              // Special handling if this is a director class. In that case, we
+              // don't own the underlying python object. See
+              // DirectorNotes.md for details.
+              Swig::Director* dp = dynamic_cast<Swig::Director*>(itemp->get());
+              if(dp) {
+                temp2shared2.reset(itemp->get(), PythonRefPtrCleanup(dp->swig_get_self()));
+                itemp = &temp2shared2;
+              }
+              pseq->push_back(*itemp);
+              Py_DECREF(item);
+            }
+            Py_DECREF(iterator);
+            *vec = pseq;
+            return SWIG_NEWOBJ;
+          } else {
+            SwigPySequence_Cont<boost::shared_ptr<T> > swigpyseq(obj);
+            return swigpyseq.check() ? SWIG_OK : SWIG_ERROR;
+          }
+        } catch (std::exception& e) {
+          if (vec) {
+            if (!PyErr_Occurred()) {
+              PyErr_SetString(PyExc_TypeError, e.what());
+            }
+          }
+          return SWIG_ERROR;
+        }
       }
       return SWIG_ERROR;
     }
@@ -5418,16 +5418,16 @@ namespace swig {
       // DirectorNotes.md for details.
       Swig::Director* dp = dynamic_cast<Swig::Director*>(itemp.get());
       if(dp) {
-	// Diagnostic to make sure we end up here when we should
-	//std::cerr << "Setting up PythonRefPtrCleanup\n";
-      	itemp.reset(itemp.get(), PythonRefPtrCleanup(dp->swig_get_self()));
+        // Diagnostic to make sure we end up here when we should
+        //std::cerr << "Setting up PythonRefPtrCleanup\n";
+        itemp.reset(itemp.get(), PythonRefPtrCleanup(dp->swig_get_self()));
       }
       seq->insert(seq->end(),itemp);
     }
   }
 
   template <class T>
-  struct traits_asptr<boost::shared_ptr<T> > {   
+  struct traits_asptr<boost::shared_ptr<T> > {
     static int asptr(PyObject *obj, boost::shared_ptr<T> **val) {
       int res = SWIG_ERROR;
       swig_type_info *descriptor = swig::type_info<boost::shared_ptr<T> >();
@@ -5439,24 +5439,24 @@ namespace swig {
           if (newmem & SWIG_CAST_NEW_MEMORY) {
             res |= SWIG_NEWOBJMASK;
           }
-	  // Added mms
-	  // Special handling if this is a director class. In that case, we
-	  // don't own the underlying python object. See
-	  // DirectorNotes.md for details.
-	  Swig::Director* dp = dynamic_cast<Swig::Director*>(p->get());
-	  if(dp) {
-	    boost::shared_ptr<T> *p2 = new boost::shared_ptr<T>(p->get(), PythonRefPtrCleanup(dp->swig_get_self()));
-	    // If p was itself a heap allocation from the cast above (newmem
-	    // & SWIG_CAST_NEW_MEMORY), we're about to replace it with p2 --
-	    // free it first rather than leaking it. If newmem wasn't set, p
-	    // points at a shared_ptr swig still owns elsewhere, so leave it
-	    // alone.
-	    if (newmem & SWIG_CAST_NEW_MEMORY) {
-	      delete p;
-	    }
-	    p = p2;
+          // Added mms
+          // Special handling if this is a director class. In that case, we
+          // don't own the underlying python object. See
+          // DirectorNotes.md for details.
+          Swig::Director* dp = dynamic_cast<Swig::Director*>(p->get());
+          if(dp) {
+            boost::shared_ptr<T> *p2 = new boost::shared_ptr<T>(p->get(), PythonRefPtrCleanup(dp->swig_get_self()));
+            // If p was itself a heap allocation from the cast above (newmem
+            // & SWIG_CAST_NEW_MEMORY), we're about to replace it with p2 --
+            // free it first rather than leaking it. If newmem wasn't set, p
+            // points at a shared_ptr swig still owns elsewhere, so leave it
+            // alone.
+            if (newmem & SWIG_CAST_NEW_MEMORY) {
+              delete p;
+            }
+            p = p2;
             res |= SWIG_NEWOBJMASK;
-	  }
+          }
           *val = p;
         }
       } else {
@@ -5464,26 +5464,26 @@ namespace swig {
       }
       return res;
     }
-  }; 
+  };
 }
-  
-#endif  
+
+#endif
 
 
-#ifndef CMAKE_KLUDGE_QUOTE  
+#ifndef CMAKE_KLUDGE_QUOTE
 #define CMAKE_KLUDGE_Q(x) #x
 #define CMAKE_KLUDGE_QUOTE(x) CMAKE_KLUDGE_Q(x)
 #endif
 
 // CMAKE unfortunately uses a different name for the wrapper file that
 // the standard SWIG convention. So we set up CMAKE ot pass in a
-// CMAKE_SWIG_FILE_NAMES to get the right inclusion file.  
-#ifndef CMAKE_SWIG_FILE_NAMES  
+// CMAKE_SWIG_FILE_NAMES to get the right inclusion file.
+#ifndef CMAKE_SWIG_FILE_NAMES
   #define CMAKE_KLUDGE_INCLUDE_HEADER(x) CMAKE_KLUDGE_QUOTE(x ## _wrap.h)
-#else  
+#else
   #define CMAKE_KLUDGE_INCLUDE_HEADER(x) CMAKE_KLUDGE_QUOTE(x ## PYTHON_wrap.h)
-#endif  
-  
+#endif
+
 
 
 #include "swig_rules_sample.h"
@@ -5772,24 +5772,24 @@ namespace swig {
   template <> struct traits_asptr< Skeleton::ValueSample > {
     static int asptr(PyObject *obj, Skeleton::ValueSample **val) {
       static swig_type_info *descriptor =
-	SWIG_TypeQuery("boost::shared_ptr< ""Skeleton::ValueSample" " > *");
+        SWIG_TypeQuery("boost::shared_ptr< ""Skeleton::ValueSample" " > *");
       if(!descriptor)
-	return SWIG_ERROR;
+        return SWIG_ERROR;
       boost::shared_ptr< Skeleton::ValueSample > *p = 0;
       int newmem = 0;
       int res = SWIG_ConvertPtrAndOwn(obj, (void **)&p, descriptor, 0,
-				      &newmem);
+                                      &newmem);
       if(!SWIG_IsOK(res))
-	return res;
+        return res;
       if(!p || !*p)
-	res = SWIG_ERROR;
+        res = SWIG_ERROR;
       else if(val) {
-	*val = new Skeleton::ValueSample(**p);
-	res = SWIG_NEWOBJ;
+        *val = new Skeleton::ValueSample(**p);
+        res = SWIG_NEWOBJ;
       } else
-	res = SWIG_OK;
+        res = SWIG_OK;
       if(newmem & SWIG_CAST_NEW_MEMORY)
-	delete p;
+        delete p;
       return res;
     }
   };
@@ -6571,7 +6571,7 @@ SWIGINTERN blitz::Array< double,1 > Skeleton_SwigRulesSample__v_position___SWIG_
     }
 SWIGINTERN void Skeleton_SwigRulesSample__v_position___SWIG_1(Skeleton::SwigRulesSample *self,blitz::Array< double,1 > const &V){
       if(V.rows() != 3)
-	throw std::runtime_error("Array not expeced size");
+        throw std::runtime_error("Array not expeced size");
       std::copy(V.begin(), V.end(), self->position_.begin());
     }
 
@@ -6641,7 +6641,7 @@ double SwigDirector_SwigRulesSample::weight() const {
   if (!result) {
     PyObject *error = PyErr_Occurred();
     {
-      if (error != NULL) {
+      if(error != NULL) {
         throw PythonException();
       }
     }
@@ -6674,7 +6674,7 @@ void SwigDirector_SwigRulesSample::weight(double const &V) {
   if (!result) {
     PyObject *error = PyErr_Occurred();
     {
-      if (error != NULL) {
+      if(error != NULL) {
         throw PythonException();
       }
     }
@@ -7392,14 +7392,14 @@ SWIGINTERN PyObject *_wrap_Vector_ValueSample_iterator(PyObject *self, PyObject 
   {
     try {
       result = (swig::SwigPyIterator *)std_vector_Sl_Skeleton_ValueSample_Sg__iterator(arg1,arg2);
-    } catch (Swig::DirectorException &e) {
+    } catch(Swig::DirectorException& e) {
       SWIG_fail;
-    } catch (const PythonException& e) {
+    } catch(const PythonException& e) {
       e.restore_python_exception();
       SWIG_fail;
-    } catch (const std::exception& e) {
+    } catch(const std::exception& e) {
       SWIG_exception(SWIG_RuntimeError, e.what());
-    } catch (...) {
+    } catch(...) {
       // Anything not derived from std::exception (a raw type, a
       // third-party exception hierarchy that doesn't inherit
       // std::exception, etc.) would otherwise propagate across the
@@ -7435,14 +7435,14 @@ SWIGINTERN PyObject *_wrap_Vector_ValueSample___bool__(PyObject *self, PyObject 
   {
     try {
       result = (bool)std_vector_Sl_Skeleton_ValueSample_Sg____bool__((std::vector< Skeleton::ValueSample > const *)arg1);
-    } catch (Swig::DirectorException &e) {
+    } catch(Swig::DirectorException& e) {
       SWIG_fail;
-    } catch (const PythonException& e) {
+    } catch(const PythonException& e) {
       e.restore_python_exception();
       SWIG_fail;
-    } catch (const std::exception& e) {
+    } catch(const std::exception& e) {
       SWIG_exception(SWIG_RuntimeError, e.what());
-    } catch (...) {
+    } catch(...) {
       // Anything not derived from std::exception (a raw type, a
       // third-party exception hierarchy that doesn't inherit
       // std::exception, etc.) would otherwise propagate across the
@@ -7477,14 +7477,14 @@ SWIGINTERN PyObject *_wrap_Vector_ValueSample___len__(PyObject *self, PyObject *
   {
     try {
       result = std_vector_Sl_Skeleton_ValueSample_Sg____len__((std::vector< Skeleton::ValueSample > const *)arg1);
-    } catch (Swig::DirectorException &e) {
+    } catch(Swig::DirectorException& e) {
       SWIG_fail;
-    } catch (const PythonException& e) {
+    } catch(const PythonException& e) {
       e.restore_python_exception();
       SWIG_fail;
-    } catch (const std::exception& e) {
+    } catch(const std::exception& e) {
       SWIG_exception(SWIG_RuntimeError, e.what());
-    } catch (...) {
+    } catch(...) {
       // Anything not derived from std::exception (a raw type, a
       // third-party exception hierarchy that doesn't inherit
       // std::exception, etc.) would otherwise propagate across the
@@ -7530,14 +7530,14 @@ SWIGINTERN PyObject *_wrap_Vector_ValueSample___delitem____SWIG_0(PyObject *self
       } catch(std::invalid_argument &_e) {
         SWIG_exception_fail(SWIG_ValueError, (&_e)->what());
       }
-    } catch (Swig::DirectorException &e) {
+    } catch(Swig::DirectorException& e) {
       SWIG_fail;
-    } catch (const PythonException& e) {
+    } catch(const PythonException& e) {
       e.restore_python_exception();
       SWIG_fail;
-    } catch (const std::exception& e) {
+    } catch(const std::exception& e) {
       SWIG_exception(SWIG_RuntimeError, e.what());
-    } catch (...) {
+    } catch(...) {
       // Anything not derived from std::exception (a raw type, a
       // third-party exception hierarchy that doesn't inherit
       // std::exception, etc.) would otherwise propagate across the
@@ -7583,14 +7583,14 @@ SWIGINTERN PyObject *_wrap_Vector_ValueSample___getitem____SWIG_0(PyObject *self
       } catch(std::invalid_argument &_e) {
         SWIG_exception_fail(SWIG_ValueError, (&_e)->what());
       }
-    } catch (Swig::DirectorException &e) {
+    } catch(Swig::DirectorException& e) {
       SWIG_fail;
-    } catch (const PythonException& e) {
+    } catch(const PythonException& e) {
       e.restore_python_exception();
       SWIG_fail;
-    } catch (const std::exception& e) {
+    } catch(const std::exception& e) {
       SWIG_exception(SWIG_RuntimeError, e.what());
-    } catch (...) {
+    } catch(...) {
       // Anything not derived from std::exception (a raw type, a
       // third-party exception hierarchy that doesn't inherit
       // std::exception, etc.) would otherwise propagate across the
@@ -7648,14 +7648,14 @@ SWIGINTERN PyObject *_wrap_Vector_ValueSample___setitem____SWIG_0(PyObject *self
       } catch(std::invalid_argument &_e) {
         SWIG_exception_fail(SWIG_ValueError, (&_e)->what());
       }
-    } catch (Swig::DirectorException &e) {
+    } catch(Swig::DirectorException& e) {
       SWIG_fail;
-    } catch (const PythonException& e) {
+    } catch(const PythonException& e) {
       e.restore_python_exception();
       SWIG_fail;
-    } catch (const std::exception& e) {
+    } catch(const std::exception& e) {
       SWIG_exception(SWIG_RuntimeError, e.what());
-    } catch (...) {
+    } catch(...) {
       // Anything not derived from std::exception (a raw type, a
       // third-party exception hierarchy that doesn't inherit
       // std::exception, etc.) would otherwise propagate across the
@@ -7702,14 +7702,14 @@ SWIGINTERN PyObject *_wrap_Vector_ValueSample___setitem____SWIG_1(PyObject *self
       } catch(std::invalid_argument &_e) {
         SWIG_exception_fail(SWIG_ValueError, (&_e)->what());
       }
-    } catch (Swig::DirectorException &e) {
+    } catch(Swig::DirectorException& e) {
       SWIG_fail;
-    } catch (const PythonException& e) {
+    } catch(const PythonException& e) {
       e.restore_python_exception();
       SWIG_fail;
-    } catch (const std::exception& e) {
+    } catch(const std::exception& e) {
       SWIG_exception(SWIG_RuntimeError, e.what());
-    } catch (...) {
+    } catch(...) {
       // Anything not derived from std::exception (a raw type, a
       // third-party exception hierarchy that doesn't inherit
       // std::exception, etc.) would otherwise propagate across the
@@ -7754,14 +7754,14 @@ SWIGINTERN PyObject *_wrap_Vector_ValueSample___delitem____SWIG_1(PyObject *self
       } catch(std::invalid_argument &_e) {
         SWIG_exception_fail(SWIG_ValueError, (&_e)->what());
       }
-    } catch (Swig::DirectorException &e) {
+    } catch(Swig::DirectorException& e) {
       SWIG_fail;
-    } catch (const PythonException& e) {
+    } catch(const PythonException& e) {
       e.restore_python_exception();
       SWIG_fail;
-    } catch (const std::exception& e) {
+    } catch(const std::exception& e) {
       SWIG_exception(SWIG_RuntimeError, e.what());
-    } catch (...) {
+    } catch(...) {
       // Anything not derived from std::exception (a raw type, a
       // third-party exception hierarchy that doesn't inherit
       // std::exception, etc.) would otherwise propagate across the
@@ -7841,14 +7841,14 @@ SWIGINTERN PyObject *_wrap_Vector_ValueSample___getitem____SWIG_1(PyObject *self
       } catch(std::out_of_range &_e) {
         SWIG_exception_fail(SWIG_IndexError, (&_e)->what());
       }
-    } catch (Swig::DirectorException &e) {
+    } catch(Swig::DirectorException& e) {
       SWIG_fail;
-    } catch (const PythonException& e) {
+    } catch(const PythonException& e) {
       e.restore_python_exception();
       SWIG_fail;
-    } catch (const std::exception& e) {
+    } catch(const std::exception& e) {
       SWIG_exception(SWIG_RuntimeError, e.what());
-    } catch (...) {
+    } catch(...) {
       // Anything not derived from std::exception (a raw type, a
       // third-party exception hierarchy that doesn't inherit
       // std::exception, etc.) would otherwise propagate across the
@@ -7962,14 +7962,14 @@ SWIGINTERN PyObject *_wrap_Vector_ValueSample___setitem____SWIG_2(PyObject *self
       } catch(std::out_of_range &_e) {
         SWIG_exception_fail(SWIG_IndexError, (&_e)->what());
       }
-    } catch (Swig::DirectorException &e) {
+    } catch(Swig::DirectorException& e) {
       SWIG_fail;
-    } catch (const PythonException& e) {
+    } catch(const PythonException& e) {
       e.restore_python_exception();
       SWIG_fail;
-    } catch (const std::exception& e) {
+    } catch(const std::exception& e) {
       SWIG_exception(SWIG_RuntimeError, e.what());
-    } catch (...) {
+    } catch(...) {
       // Anything not derived from std::exception (a raw type, a
       // third-party exception hierarchy that doesn't inherit
       // std::exception, etc.) would otherwise propagate across the
@@ -8054,14 +8054,14 @@ SWIGINTERN PyObject *_wrap_Vector_ValueSample_pop(PyObject *self, PyObject *args
       } catch(std::out_of_range &_e) {
         SWIG_exception_fail(SWIG_IndexError, (&_e)->what());
       }
-    } catch (Swig::DirectorException &e) {
+    } catch(Swig::DirectorException& e) {
       SWIG_fail;
-    } catch (const PythonException& e) {
+    } catch(const PythonException& e) {
       e.restore_python_exception();
       SWIG_fail;
-    } catch (const std::exception& e) {
+    } catch(const std::exception& e) {
       SWIG_exception(SWIG_RuntimeError, e.what());
-    } catch (...) {
+    } catch(...) {
       // Anything not derived from std::exception (a raw type, a
       // third-party exception hierarchy that doesn't inherit
       // std::exception, etc.) would otherwise propagate across the
@@ -8127,14 +8127,14 @@ SWIGINTERN PyObject *_wrap_Vector_ValueSample_append(PyObject *self, PyObject *a
   {
     try {
       std_vector_Sl_Skeleton_ValueSample_Sg__append(arg1,(Skeleton::ValueSample const &)*arg2);
-    } catch (Swig::DirectorException &e) {
+    } catch(Swig::DirectorException& e) {
       SWIG_fail;
-    } catch (const PythonException& e) {
+    } catch(const PythonException& e) {
       e.restore_python_exception();
       SWIG_fail;
-    } catch (const std::exception& e) {
+    } catch(const std::exception& e) {
       SWIG_exception(SWIG_RuntimeError, e.what());
-    } catch (...) {
+    } catch(...) {
       // Anything not derived from std::exception (a raw type, a
       // third-party exception hierarchy that doesn't inherit
       // std::exception, etc.) would otherwise propagate across the
@@ -8159,14 +8159,14 @@ SWIGINTERN PyObject *_wrap_new_Vector_ValueSample__SWIG_0(PyObject *self, Py_ssi
   {
     try {
       result = (std::vector< Skeleton::ValueSample > *)new std::vector< Skeleton::ValueSample >();
-    } catch (Swig::DirectorException &e) {
+    } catch(Swig::DirectorException& e) {
       SWIG_fail;
-    } catch (const PythonException& e) {
+    } catch(const PythonException& e) {
       e.restore_python_exception();
       SWIG_fail;
-    } catch (const std::exception& e) {
+    } catch(const std::exception& e) {
       SWIG_exception(SWIG_RuntimeError, e.what());
-    } catch (...) {
+    } catch(...) {
       // Anything not derived from std::exception (a raw type, a
       // third-party exception hierarchy that doesn't inherit
       // std::exception, etc.) would otherwise propagate across the
@@ -8204,14 +8204,14 @@ SWIGINTERN PyObject *_wrap_new_Vector_ValueSample__SWIG_1(PyObject *self, Py_ssi
   {
     try {
       result = (std::vector< Skeleton::ValueSample > *)new std::vector< Skeleton::ValueSample >((std::vector< Skeleton::ValueSample > const &)*arg1);
-    } catch (Swig::DirectorException &e) {
+    } catch(Swig::DirectorException& e) {
       SWIG_fail;
-    } catch (const PythonException& e) {
+    } catch(const PythonException& e) {
       e.restore_python_exception();
       SWIG_fail;
-    } catch (const std::exception& e) {
+    } catch(const std::exception& e) {
       SWIG_exception(SWIG_RuntimeError, e.what());
-    } catch (...) {
+    } catch(...) {
       // Anything not derived from std::exception (a raw type, a
       // third-party exception hierarchy that doesn't inherit
       // std::exception, etc.) would otherwise propagate across the
@@ -8248,14 +8248,14 @@ SWIGINTERN PyObject *_wrap_Vector_ValueSample_empty(PyObject *self, PyObject *ar
   {
     try {
       result = (bool)((std::vector< Skeleton::ValueSample > const *)arg1)->empty();
-    } catch (Swig::DirectorException &e) {
+    } catch(Swig::DirectorException& e) {
       SWIG_fail;
-    } catch (const PythonException& e) {
+    } catch(const PythonException& e) {
       e.restore_python_exception();
       SWIG_fail;
-    } catch (const std::exception& e) {
+    } catch(const std::exception& e) {
       SWIG_exception(SWIG_RuntimeError, e.what());
-    } catch (...) {
+    } catch(...) {
       // Anything not derived from std::exception (a raw type, a
       // third-party exception hierarchy that doesn't inherit
       // std::exception, etc.) would otherwise propagate across the
@@ -8290,14 +8290,14 @@ SWIGINTERN PyObject *_wrap_Vector_ValueSample_size(PyObject *self, PyObject *arg
   {
     try {
       result = ((std::vector< Skeleton::ValueSample > const *)arg1)->size();
-    } catch (Swig::DirectorException &e) {
+    } catch(Swig::DirectorException& e) {
       SWIG_fail;
-    } catch (const PythonException& e) {
+    } catch(const PythonException& e) {
       e.restore_python_exception();
       SWIG_fail;
-    } catch (const std::exception& e) {
+    } catch(const std::exception& e) {
       SWIG_exception(SWIG_RuntimeError, e.what());
-    } catch (...) {
+    } catch(...) {
       // Anything not derived from std::exception (a raw type, a
       // third-party exception hierarchy that doesn't inherit
       // std::exception, etc.) would otherwise propagate across the
@@ -8341,14 +8341,14 @@ SWIGINTERN PyObject *_wrap_Vector_ValueSample_swap(PyObject *self, PyObject *arg
   {
     try {
       (arg1)->swap(*arg2);
-    } catch (Swig::DirectorException &e) {
+    } catch(Swig::DirectorException& e) {
       SWIG_fail;
-    } catch (const PythonException& e) {
+    } catch(const PythonException& e) {
       e.restore_python_exception();
       SWIG_fail;
-    } catch (const std::exception& e) {
+    } catch(const std::exception& e) {
       SWIG_exception(SWIG_RuntimeError, e.what());
-    } catch (...) {
+    } catch(...) {
       // Anything not derived from std::exception (a raw type, a
       // third-party exception hierarchy that doesn't inherit
       // std::exception, etc.) would otherwise propagate across the
@@ -8383,14 +8383,14 @@ SWIGINTERN PyObject *_wrap_Vector_ValueSample_begin(PyObject *self, PyObject *ar
   {
     try {
       result = (arg1)->begin();
-    } catch (Swig::DirectorException &e) {
+    } catch(Swig::DirectorException& e) {
       SWIG_fail;
-    } catch (const PythonException& e) {
+    } catch(const PythonException& e) {
       e.restore_python_exception();
       SWIG_fail;
-    } catch (const std::exception& e) {
+    } catch(const std::exception& e) {
       SWIG_exception(SWIG_RuntimeError, e.what());
-    } catch (...) {
+    } catch(...) {
       // Anything not derived from std::exception (a raw type, a
       // third-party exception hierarchy that doesn't inherit
       // std::exception, etc.) would otherwise propagate across the
@@ -8426,14 +8426,14 @@ SWIGINTERN PyObject *_wrap_Vector_ValueSample_end(PyObject *self, PyObject *args
   {
     try {
       result = (arg1)->end();
-    } catch (Swig::DirectorException &e) {
+    } catch(Swig::DirectorException& e) {
       SWIG_fail;
-    } catch (const PythonException& e) {
+    } catch(const PythonException& e) {
       e.restore_python_exception();
       SWIG_fail;
-    } catch (const std::exception& e) {
+    } catch(const std::exception& e) {
       SWIG_exception(SWIG_RuntimeError, e.what());
-    } catch (...) {
+    } catch(...) {
       // Anything not derived from std::exception (a raw type, a
       // third-party exception hierarchy that doesn't inherit
       // std::exception, etc.) would otherwise propagate across the
@@ -8469,14 +8469,14 @@ SWIGINTERN PyObject *_wrap_Vector_ValueSample_rbegin(PyObject *self, PyObject *a
   {
     try {
       result = (arg1)->rbegin();
-    } catch (Swig::DirectorException &e) {
+    } catch(Swig::DirectorException& e) {
       SWIG_fail;
-    } catch (const PythonException& e) {
+    } catch(const PythonException& e) {
       e.restore_python_exception();
       SWIG_fail;
-    } catch (const std::exception& e) {
+    } catch(const std::exception& e) {
       SWIG_exception(SWIG_RuntimeError, e.what());
-    } catch (...) {
+    } catch(...) {
       // Anything not derived from std::exception (a raw type, a
       // third-party exception hierarchy that doesn't inherit
       // std::exception, etc.) would otherwise propagate across the
@@ -8512,14 +8512,14 @@ SWIGINTERN PyObject *_wrap_Vector_ValueSample_rend(PyObject *self, PyObject *arg
   {
     try {
       result = (arg1)->rend();
-    } catch (Swig::DirectorException &e) {
+    } catch(Swig::DirectorException& e) {
       SWIG_fail;
-    } catch (const PythonException& e) {
+    } catch(const PythonException& e) {
       e.restore_python_exception();
       SWIG_fail;
-    } catch (const std::exception& e) {
+    } catch(const std::exception& e) {
       SWIG_exception(SWIG_RuntimeError, e.what());
-    } catch (...) {
+    } catch(...) {
       // Anything not derived from std::exception (a raw type, a
       // third-party exception hierarchy that doesn't inherit
       // std::exception, etc.) would otherwise propagate across the
@@ -8554,14 +8554,14 @@ SWIGINTERN PyObject *_wrap_Vector_ValueSample_clear(PyObject *self, PyObject *ar
   {
     try {
       (arg1)->clear();
-    } catch (Swig::DirectorException &e) {
+    } catch(Swig::DirectorException& e) {
       SWIG_fail;
-    } catch (const PythonException& e) {
+    } catch(const PythonException& e) {
       e.restore_python_exception();
       SWIG_fail;
-    } catch (const std::exception& e) {
+    } catch(const std::exception& e) {
       SWIG_exception(SWIG_RuntimeError, e.what());
-    } catch (...) {
+    } catch(...) {
       // Anything not derived from std::exception (a raw type, a
       // third-party exception hierarchy that doesn't inherit
       // std::exception, etc.) would otherwise propagate across the
@@ -8596,14 +8596,14 @@ SWIGINTERN PyObject *_wrap_Vector_ValueSample_get_allocator(PyObject *self, PyOb
   {
     try {
       result = ((std::vector< Skeleton::ValueSample > const *)arg1)->get_allocator();
-    } catch (Swig::DirectorException &e) {
+    } catch(Swig::DirectorException& e) {
       SWIG_fail;
-    } catch (const PythonException& e) {
+    } catch(const PythonException& e) {
       e.restore_python_exception();
       SWIG_fail;
-    } catch (const std::exception& e) {
+    } catch(const std::exception& e) {
       SWIG_exception(SWIG_RuntimeError, e.what());
-    } catch (...) {
+    } catch(...) {
       // Anything not derived from std::exception (a raw type, a
       // third-party exception hierarchy that doesn't inherit
       // std::exception, etc.) would otherwise propagate across the
@@ -8636,14 +8636,14 @@ SWIGINTERN PyObject *_wrap_new_Vector_ValueSample__SWIG_2(PyObject *self, Py_ssi
   {
     try {
       result = (std::vector< Skeleton::ValueSample > *)new std::vector< Skeleton::ValueSample >(SWIG_STD_MOVE(*(&arg1)));
-    } catch (Swig::DirectorException &e) {
+    } catch(Swig::DirectorException& e) {
       SWIG_fail;
-    } catch (const PythonException& e) {
+    } catch(const PythonException& e) {
       e.restore_python_exception();
       SWIG_fail;
-    } catch (const std::exception& e) {
+    } catch(const std::exception& e) {
       SWIG_exception(SWIG_RuntimeError, e.what());
-    } catch (...) {
+    } catch(...) {
       // Anything not derived from std::exception (a raw type, a
       // third-party exception hierarchy that doesn't inherit
       // std::exception, etc.) would otherwise propagate across the
@@ -8677,14 +8677,14 @@ SWIGINTERN PyObject *_wrap_Vector_ValueSample_pop_back(PyObject *self, PyObject 
   {
     try {
       (arg1)->pop_back();
-    } catch (Swig::DirectorException &e) {
+    } catch(Swig::DirectorException& e) {
       SWIG_fail;
-    } catch (const PythonException& e) {
+    } catch(const PythonException& e) {
       e.restore_python_exception();
       SWIG_fail;
-    } catch (const std::exception& e) {
+    } catch(const std::exception& e) {
       SWIG_exception(SWIG_RuntimeError, e.what());
-    } catch (...) {
+    } catch(...) {
       // Anything not derived from std::exception (a raw type, a
       // third-party exception hierarchy that doesn't inherit
       // std::exception, etc.) would otherwise propagate across the
@@ -8724,14 +8724,14 @@ SWIGINTERN PyObject *_wrap_Vector_ValueSample_resize__SWIG_0(PyObject *self, Py_
   {
     try {
       (arg1)->resize(SWIG_STD_MOVE(*(&arg2)));
-    } catch (Swig::DirectorException &e) {
+    } catch(Swig::DirectorException& e) {
       SWIG_fail;
-    } catch (const PythonException& e) {
+    } catch(const PythonException& e) {
       e.restore_python_exception();
       SWIG_fail;
-    } catch (const std::exception& e) {
+    } catch(const std::exception& e) {
       SWIG_exception(SWIG_RuntimeError, e.what());
-    } catch (...) {
+    } catch(...) {
       // Anything not derived from std::exception (a raw type, a
       // third-party exception hierarchy that doesn't inherit
       // std::exception, etc.) would otherwise propagate across the
@@ -8778,14 +8778,14 @@ SWIGINTERN PyObject *_wrap_Vector_ValueSample_erase__SWIG_0(PyObject *self, Py_s
   {
     try {
       result = std_vector_Sl_Skeleton_ValueSample_Sg__erase__SWIG_0(arg1,SWIG_STD_MOVE(*(&arg2)));
-    } catch (Swig::DirectorException &e) {
+    } catch(Swig::DirectorException& e) {
       SWIG_fail;
-    } catch (const PythonException& e) {
+    } catch(const PythonException& e) {
       e.restore_python_exception();
       SWIG_fail;
-    } catch (const std::exception& e) {
+    } catch(const std::exception& e) {
       SWIG_exception(SWIG_RuntimeError, e.what());
-    } catch (...) {
+    } catch(...) {
       // Anything not derived from std::exception (a raw type, a
       // third-party exception hierarchy that doesn't inherit
       // std::exception, etc.) would otherwise propagate across the
@@ -8847,14 +8847,14 @@ SWIGINTERN PyObject *_wrap_Vector_ValueSample_erase__SWIG_1(PyObject *self, Py_s
   {
     try {
       result = std_vector_Sl_Skeleton_ValueSample_Sg__erase__SWIG_1(arg1,SWIG_STD_MOVE(*(&arg2)),SWIG_STD_MOVE(*(&arg3)));
-    } catch (Swig::DirectorException &e) {
+    } catch(Swig::DirectorException& e) {
       SWIG_fail;
-    } catch (const PythonException& e) {
+    } catch(const PythonException& e) {
       e.restore_python_exception();
       SWIG_fail;
-    } catch (const std::exception& e) {
+    } catch(const std::exception& e) {
       SWIG_exception(SWIG_RuntimeError, e.what());
-    } catch (...) {
+    } catch(...) {
       // Anything not derived from std::exception (a raw type, a
       // third-party exception hierarchy that doesn't inherit
       // std::exception, etc.) would otherwise propagate across the
@@ -8945,14 +8945,14 @@ SWIGINTERN PyObject *_wrap_new_Vector_ValueSample__SWIG_3(PyObject *self, Py_ssi
   {
     try {
       result = (std::vector< Skeleton::ValueSample > *)new std::vector< Skeleton::ValueSample >(SWIG_STD_MOVE(*(&arg1)),(std::vector< Skeleton::ValueSample >::value_type const &)*arg2);
-    } catch (Swig::DirectorException &e) {
+    } catch(Swig::DirectorException& e) {
       SWIG_fail;
-    } catch (const PythonException& e) {
+    } catch(const PythonException& e) {
       e.restore_python_exception();
       SWIG_fail;
-    } catch (const std::exception& e) {
+    } catch(const std::exception& e) {
       SWIG_exception(SWIG_RuntimeError, e.what());
-    } catch (...) {
+    } catch(...) {
       // Anything not derived from std::exception (a raw type, a
       // third-party exception hierarchy that doesn't inherit
       // std::exception, etc.) would otherwise propagate across the
@@ -9062,14 +9062,14 @@ SWIGINTERN PyObject *_wrap_Vector_ValueSample_push_back(PyObject *self, PyObject
   {
     try {
       (arg1)->push_back((std::vector< Skeleton::ValueSample >::value_type const &)*arg2);
-    } catch (Swig::DirectorException &e) {
+    } catch(Swig::DirectorException& e) {
       SWIG_fail;
-    } catch (const PythonException& e) {
+    } catch(const PythonException& e) {
       e.restore_python_exception();
       SWIG_fail;
-    } catch (const std::exception& e) {
+    } catch(const std::exception& e) {
       SWIG_exception(SWIG_RuntimeError, e.what());
-    } catch (...) {
+    } catch(...) {
       // Anything not derived from std::exception (a raw type, a
       // third-party exception hierarchy that doesn't inherit
       // std::exception, etc.) would otherwise propagate across the
@@ -9104,14 +9104,14 @@ SWIGINTERN PyObject *_wrap_Vector_ValueSample_front(PyObject *self, PyObject *ar
   {
     try {
       result = (std::vector< Skeleton::ValueSample >::value_type *) &((std::vector< Skeleton::ValueSample > const *)arg1)->front();
-    } catch (Swig::DirectorException &e) {
+    } catch(Swig::DirectorException& e) {
       SWIG_fail;
-    } catch (const PythonException& e) {
+    } catch(const PythonException& e) {
       e.restore_python_exception();
       SWIG_fail;
-    } catch (const std::exception& e) {
+    } catch(const std::exception& e) {
       SWIG_exception(SWIG_RuntimeError, e.what());
-    } catch (...) {
+    } catch(...) {
       // Anything not derived from std::exception (a raw type, a
       // third-party exception hierarchy that doesn't inherit
       // std::exception, etc.) would otherwise propagate across the
@@ -9152,14 +9152,14 @@ SWIGINTERN PyObject *_wrap_Vector_ValueSample_back(PyObject *self, PyObject *arg
   {
     try {
       result = (std::vector< Skeleton::ValueSample >::value_type *) &((std::vector< Skeleton::ValueSample > const *)arg1)->back();
-    } catch (Swig::DirectorException &e) {
+    } catch(Swig::DirectorException& e) {
       SWIG_fail;
-    } catch (const PythonException& e) {
+    } catch(const PythonException& e) {
       e.restore_python_exception();
       SWIG_fail;
-    } catch (const std::exception& e) {
+    } catch(const std::exception& e) {
       SWIG_exception(SWIG_RuntimeError, e.what());
-    } catch (...) {
+    } catch(...) {
       // Anything not derived from std::exception (a raw type, a
       // third-party exception hierarchy that doesn't inherit
       // std::exception, etc.) would otherwise propagate across the
@@ -9235,14 +9235,14 @@ SWIGINTERN PyObject *_wrap_Vector_ValueSample_assign(PyObject *self, PyObject *a
   {
     try {
       (arg1)->assign(SWIG_STD_MOVE(*(&arg2)),(std::vector< Skeleton::ValueSample >::value_type const &)*arg3);
-    } catch (Swig::DirectorException &e) {
+    } catch(Swig::DirectorException& e) {
       SWIG_fail;
-    } catch (const PythonException& e) {
+    } catch(const PythonException& e) {
       e.restore_python_exception();
       SWIG_fail;
-    } catch (const std::exception& e) {
+    } catch(const std::exception& e) {
       SWIG_exception(SWIG_RuntimeError, e.what());
-    } catch (...) {
+    } catch(...) {
       // Anything not derived from std::exception (a raw type, a
       // third-party exception hierarchy that doesn't inherit
       // std::exception, etc.) would otherwise propagate across the
@@ -9311,14 +9311,14 @@ SWIGINTERN PyObject *_wrap_Vector_ValueSample_resize__SWIG_1(PyObject *self, Py_
   {
     try {
       (arg1)->resize(SWIG_STD_MOVE(*(&arg2)),(std::vector< Skeleton::ValueSample >::value_type const &)*arg3);
-    } catch (Swig::DirectorException &e) {
+    } catch(Swig::DirectorException& e) {
       SWIG_fail;
-    } catch (const PythonException& e) {
+    } catch(const PythonException& e) {
       e.restore_python_exception();
       SWIG_fail;
-    } catch (const std::exception& e) {
+    } catch(const std::exception& e) {
       SWIG_exception(SWIG_RuntimeError, e.what());
-    } catch (...) {
+    } catch(...) {
       // Anything not derived from std::exception (a raw type, a
       // third-party exception hierarchy that doesn't inherit
       // std::exception, etc.) would otherwise propagate across the
@@ -9422,14 +9422,14 @@ SWIGINTERN PyObject *_wrap_Vector_ValueSample_insert__SWIG_0(PyObject *self, Py_
   {
     try {
       result = std_vector_Sl_Skeleton_ValueSample_Sg__insert__SWIG_0(arg1,SWIG_STD_MOVE(*(&arg2)),(Skeleton::ValueSample const &)*arg3);
-    } catch (Swig::DirectorException &e) {
+    } catch(Swig::DirectorException& e) {
       SWIG_fail;
-    } catch (const PythonException& e) {
+    } catch(const PythonException& e) {
       e.restore_python_exception();
       SWIG_fail;
-    } catch (const std::exception& e) {
+    } catch(const std::exception& e) {
       SWIG_exception(SWIG_RuntimeError, e.what());
-    } catch (...) {
+    } catch(...) {
       // Anything not derived from std::exception (a raw type, a
       // third-party exception hierarchy that doesn't inherit
       // std::exception, etc.) would otherwise propagate across the
@@ -9513,14 +9513,14 @@ SWIGINTERN PyObject *_wrap_Vector_ValueSample_insert__SWIG_1(PyObject *self, Py_
   {
     try {
       std_vector_Sl_Skeleton_ValueSample_Sg__insert__SWIG_1(arg1,SWIG_STD_MOVE(*(&arg2)),SWIG_STD_MOVE(*(&arg3)),(Skeleton::ValueSample const &)*arg4);
-    } catch (Swig::DirectorException &e) {
+    } catch(Swig::DirectorException& e) {
       SWIG_fail;
-    } catch (const PythonException& e) {
+    } catch(const PythonException& e) {
       e.restore_python_exception();
       SWIG_fail;
-    } catch (const std::exception& e) {
+    } catch(const std::exception& e) {
       SWIG_exception(SWIG_RuntimeError, e.what());
-    } catch (...) {
+    } catch(...) {
       // Anything not derived from std::exception (a raw type, a
       // third-party exception hierarchy that doesn't inherit
       // std::exception, etc.) would otherwise propagate across the
@@ -9589,14 +9589,14 @@ SWIGINTERN PyObject *_wrap_Vector_ValueSample_reserve(PyObject *self, PyObject *
   {
     try {
       (arg1)->reserve(SWIG_STD_MOVE(*(&arg2)));
-    } catch (Swig::DirectorException &e) {
+    } catch(Swig::DirectorException& e) {
       SWIG_fail;
-    } catch (const PythonException& e) {
+    } catch(const PythonException& e) {
       e.restore_python_exception();
       SWIG_fail;
-    } catch (const std::exception& e) {
+    } catch(const std::exception& e) {
       SWIG_exception(SWIG_RuntimeError, e.what());
-    } catch (...) {
+    } catch(...) {
       // Anything not derived from std::exception (a raw type, a
       // third-party exception hierarchy that doesn't inherit
       // std::exception, etc.) would otherwise propagate across the
@@ -9631,14 +9631,14 @@ SWIGINTERN PyObject *_wrap_Vector_ValueSample_capacity(PyObject *self, PyObject 
   {
     try {
       result = ((std::vector< Skeleton::ValueSample > const *)arg1)->capacity();
-    } catch (Swig::DirectorException &e) {
+    } catch(Swig::DirectorException& e) {
       SWIG_fail;
-    } catch (const PythonException& e) {
+    } catch(const PythonException& e) {
       e.restore_python_exception();
       SWIG_fail;
-    } catch (const std::exception& e) {
+    } catch(const std::exception& e) {
       SWIG_exception(SWIG_RuntimeError, e.what());
-    } catch (...) {
+    } catch(...) {
       // Anything not derived from std::exception (a raw type, a
       // third-party exception hierarchy that doesn't inherit
       // std::exception, etc.) would otherwise propagate across the
@@ -9672,14 +9672,14 @@ SWIGINTERN PyObject *_wrap_delete_Vector_ValueSample(PyObject *self, PyObject *a
   {
     try {
       delete arg1;
-    } catch (Swig::DirectorException &e) {
+    } catch(Swig::DirectorException& e) {
       SWIG_fail;
-    } catch (const PythonException& e) {
+    } catch(const PythonException& e) {
       e.restore_python_exception();
       SWIG_fail;
-    } catch (const std::exception& e) {
+    } catch(const std::exception& e) {
       SWIG_exception(SWIG_RuntimeError, e.what());
-    } catch (...) {
+    } catch(...) {
       // Anything not derived from std::exception (a raw type, a
       // third-party exception hierarchy that doesn't inherit
       // std::exception, etc.) would otherwise propagate across the
@@ -9723,14 +9723,14 @@ SWIGINTERN PyObject *_wrap_new_ValueSample__SWIG_0(PyObject *self, Py_ssize_t no
   {
     try {
       result = (Skeleton::ValueSample *)new Skeleton::ValueSample(arg1);
-    } catch (Swig::DirectorException &e) {
+    } catch(Swig::DirectorException& e) {
       SWIG_fail;
-    } catch (const PythonException& e) {
+    } catch(const PythonException& e) {
       e.restore_python_exception();
       SWIG_fail;
-    } catch (const std::exception& e) {
+    } catch(const std::exception& e) {
       SWIG_exception(SWIG_RuntimeError, e.what());
-    } catch (...) {
+    } catch(...) {
       // Anything not derived from std::exception (a raw type, a
       // third-party exception hierarchy that doesn't inherit
       // std::exception, etc.) would otherwise propagate across the
@@ -9758,14 +9758,14 @@ SWIGINTERN PyObject *_wrap_new_ValueSample__SWIG_1(PyObject *self, Py_ssize_t no
   {
     try {
       result = (Skeleton::ValueSample *)new Skeleton::ValueSample();
-    } catch (Swig::DirectorException &e) {
+    } catch(Swig::DirectorException& e) {
       SWIG_fail;
-    } catch (const PythonException& e) {
+    } catch(const PythonException& e) {
       e.restore_python_exception();
       SWIG_fail;
-    } catch (const std::exception& e) {
+    } catch(const std::exception& e) {
       SWIG_exception(SWIG_RuntimeError, e.what());
-    } catch (...) {
+    } catch(...) {
       // Anything not derived from std::exception (a raw type, a
       // third-party exception hierarchy that doesn't inherit
       // std::exception, etc.) would otherwise propagate across the
@@ -9843,14 +9843,14 @@ SWIGINTERN PyObject *_wrap_ValueSample__v_v(PyObject *self, PyObject *args) {
   {
     try {
       result = (double)((Skeleton::ValueSample const *)arg1)->v();
-    } catch (Swig::DirectorException &e) {
+    } catch(Swig::DirectorException& e) {
       SWIG_fail;
-    } catch (const PythonException& e) {
+    } catch(const PythonException& e) {
       e.restore_python_exception();
       SWIG_fail;
-    } catch (const std::exception& e) {
+    } catch(const std::exception& e) {
       SWIG_exception(SWIG_RuntimeError, e.what());
-    } catch (...) {
+    } catch(...) {
       // Anything not derived from std::exception (a raw type, a
       // third-party exception hierarchy that doesn't inherit
       // std::exception, etc.) would otherwise propagate across the
@@ -9897,14 +9897,14 @@ SWIGINTERN PyObject *_wrap_ValueSample___str__(PyObject *self, PyObject *args) {
   {
     try {
       result = ((Skeleton::ValueSample const *)arg1)->print_to_string();
-    } catch (Swig::DirectorException &e) {
+    } catch(Swig::DirectorException& e) {
       SWIG_fail;
-    } catch (const PythonException& e) {
+    } catch(const PythonException& e) {
       e.restore_python_exception();
       SWIG_fail;
-    } catch (const std::exception& e) {
+    } catch(const std::exception& e) {
       SWIG_exception(SWIG_RuntimeError, e.what());
-    } catch (...) {
+    } catch(...) {
       // Anything not derived from std::exception (a raw type, a
       // third-party exception hierarchy that doesn't inherit
       // std::exception, etc.) would otherwise propagate across the
@@ -9950,14 +9950,14 @@ SWIGINTERN PyObject *_wrap_delete_ValueSample(PyObject *self, PyObject *args) {
   {
     try {
       (void)arg1; delete smartarg1;
-    } catch (Swig::DirectorException &e) {
+    } catch(Swig::DirectorException& e) {
       SWIG_fail;
-    } catch (const PythonException& e) {
+    } catch(const PythonException& e) {
       e.restore_python_exception();
       SWIG_fail;
-    } catch (const std::exception& e) {
+    } catch(const std::exception& e) {
       SWIG_exception(SWIG_RuntimeError, e.what());
-    } catch (...) {
+    } catch(...) {
       // Anything not derived from std::exception (a raw type, a
       // third-party exception hierarchy that doesn't inherit
       // std::exception, etc.) would otherwise propagate across the
@@ -10022,14 +10022,14 @@ SWIGINTERN PyObject *_wrap_new_SwigRulesSample__SWIG_0(PyObject *self, Py_ssize_
         result = (Skeleton::SwigRulesSample *)new Skeleton::SwigRulesSample(arg2,(std::string const &)*arg3);
       }
       
-    } catch (Swig::DirectorException &e) {
+    } catch(Swig::DirectorException& e) {
       SWIG_fail;
-    } catch (const PythonException& e) {
+    } catch(const PythonException& e) {
       e.restore_python_exception();
       SWIG_fail;
-    } catch (const std::exception& e) {
+    } catch(const std::exception& e) {
       SWIG_exception(SWIG_RuntimeError, e.what());
-    } catch (...) {
+    } catch(...) {
       // Anything not derived from std::exception (a raw type, a
       // third-party exception hierarchy that doesn't inherit
       // std::exception, etc.) would otherwise propagate across the
@@ -10075,14 +10075,14 @@ SWIGINTERN PyObject *_wrap_new_SwigRulesSample__SWIG_1(PyObject *self, Py_ssize_
         result = (Skeleton::SwigRulesSample *)new Skeleton::SwigRulesSample(arg2);
       }
       
-    } catch (Swig::DirectorException &e) {
+    } catch(Swig::DirectorException& e) {
       SWIG_fail;
-    } catch (const PythonException& e) {
+    } catch(const PythonException& e) {
       e.restore_python_exception();
       SWIG_fail;
-    } catch (const std::exception& e) {
+    } catch(const std::exception& e) {
       SWIG_exception(SWIG_RuntimeError, e.what());
-    } catch (...) {
+    } catch(...) {
       // Anything not derived from std::exception (a raw type, a
       // third-party exception hierarchy that doesn't inherit
       // std::exception, etc.) would otherwise propagate across the
@@ -10118,14 +10118,14 @@ SWIGINTERN PyObject *_wrap_new_SwigRulesSample__SWIG_2(PyObject *self, Py_ssize_
         result = (Skeleton::SwigRulesSample *)new Skeleton::SwigRulesSample();
       }
       
-    } catch (Swig::DirectorException &e) {
+    } catch(Swig::DirectorException& e) {
       SWIG_fail;
-    } catch (const PythonException& e) {
+    } catch(const PythonException& e) {
       e.restore_python_exception();
       SWIG_fail;
-    } catch (const std::exception& e) {
+    } catch(const std::exception& e) {
       SWIG_exception(SWIG_RuntimeError, e.what());
-    } catch (...) {
+    } catch(...) {
       // Anything not derived from std::exception (a raw type, a
       // third-party exception hierarchy that doesn't inherit
       // std::exception, etc.) would otherwise propagate across the
@@ -10208,14 +10208,14 @@ SWIGINTERN PyObject *_wrap_delete_SwigRulesSample(PyObject *self, PyObject *args
   {
     try {
       (void)arg1; delete smartarg1;
-    } catch (Swig::DirectorException &e) {
+    } catch(Swig::DirectorException& e) {
       SWIG_fail;
-    } catch (const PythonException& e) {
+    } catch(const PythonException& e) {
       e.restore_python_exception();
       SWIG_fail;
-    } catch (const std::exception& e) {
+    } catch(const std::exception& e) {
       SWIG_exception(SWIG_RuntimeError, e.what());
-    } catch (...) {
+    } catch(...) {
       // Anything not derived from std::exception (a raw type, a
       // third-party exception hierarchy that doesn't inherit
       // std::exception, etc.) would otherwise propagate across the
@@ -10262,14 +10262,14 @@ SWIGINTERN PyObject *_wrap_SwigRulesSample__v_count(PyObject *self, PyObject *ar
   {
     try {
       result = (int)((Skeleton::SwigRulesSample const *)arg1)->count();
-    } catch (Swig::DirectorException &e) {
+    } catch(Swig::DirectorException& e) {
       SWIG_fail;
-    } catch (const PythonException& e) {
+    } catch(const PythonException& e) {
       e.restore_python_exception();
       SWIG_fail;
-    } catch (const std::exception& e) {
+    } catch(const std::exception& e) {
       SWIG_exception(SWIG_RuntimeError, e.what());
-    } catch (...) {
+    } catch(...) {
       // Anything not derived from std::exception (a raw type, a
       // third-party exception hierarchy that doesn't inherit
       // std::exception, etc.) would otherwise propagate across the
@@ -10316,14 +10316,14 @@ SWIGINTERN PyObject *_wrap_SwigRulesSample__v_name(PyObject *self, PyObject *arg
   {
     try {
       result = ((Skeleton::SwigRulesSample const *)arg1)->name();
-    } catch (Swig::DirectorException &e) {
+    } catch(Swig::DirectorException& e) {
       SWIG_fail;
-    } catch (const PythonException& e) {
+    } catch(const PythonException& e) {
       e.restore_python_exception();
       SWIG_fail;
-    } catch (const std::exception& e) {
+    } catch(const std::exception& e) {
       SWIG_exception(SWIG_RuntimeError, e.what());
-    } catch (...) {
+    } catch(...) {
       // Anything not derived from std::exception (a raw type, a
       // third-party exception hierarchy that doesn't inherit
       // std::exception, etc.) would otherwise propagate across the
@@ -10368,14 +10368,14 @@ SWIGINTERN PyObject *_wrap_SwigRulesSample__v_optional_int__SWIG_0(PyObject *sel
   {
     try {
       result = ((Skeleton::SwigRulesSample const *)arg1)->optional_int();
-    } catch (Swig::DirectorException &e) {
+    } catch(Swig::DirectorException& e) {
       SWIG_fail;
-    } catch (const PythonException& e) {
+    } catch(const PythonException& e) {
       e.restore_python_exception();
       SWIG_fail;
-    } catch (const std::exception& e) {
+    } catch(const std::exception& e) {
       SWIG_exception(SWIG_RuntimeError, e.what());
-    } catch (...) {
+    } catch(...) {
       // Anything not derived from std::exception (a raw type, a
       // third-party exception hierarchy that doesn't inherit
       // std::exception, etc.) would otherwise propagate across the
@@ -10440,14 +10440,14 @@ SWIGINTERN PyObject *_wrap_SwigRulesSample__v_optional_int__SWIG_1(PyObject *sel
   {
     try {
       (arg1)->optional_int((boost::optional< int > const &)*arg2);
-    } catch (Swig::DirectorException &e) {
+    } catch(Swig::DirectorException& e) {
       SWIG_fail;
-    } catch (const PythonException& e) {
+    } catch(const PythonException& e) {
       e.restore_python_exception();
       SWIG_fail;
-    } catch (const std::exception& e) {
+    } catch(const std::exception& e) {
       SWIG_exception(SWIG_RuntimeError, e.what());
-    } catch (...) {
+    } catch(...) {
       // Anything not derived from std::exception (a raw type, a
       // third-party exception hierarchy that doesn't inherit
       // std::exception, etc.) would otherwise propagate across the
@@ -10520,14 +10520,14 @@ SWIGINTERN PyObject *_wrap_SwigRulesSample_optional_double__SWIG_0(PyObject *sel
   {
     try {
       result = ((Skeleton::SwigRulesSample const *)arg1)->optional_double();
-    } catch (Swig::DirectorException &e) {
+    } catch(Swig::DirectorException& e) {
       SWIG_fail;
-    } catch (const PythonException& e) {
+    } catch(const PythonException& e) {
       e.restore_python_exception();
       SWIG_fail;
-    } catch (const std::exception& e) {
+    } catch(const std::exception& e) {
       SWIG_exception(SWIG_RuntimeError, e.what());
-    } catch (...) {
+    } catch(...) {
       // Anything not derived from std::exception (a raw type, a
       // third-party exception hierarchy that doesn't inherit
       // std::exception, etc.) would otherwise propagate across the
@@ -10590,14 +10590,14 @@ SWIGINTERN PyObject *_wrap_SwigRulesSample_optional_double__SWIG_1(PyObject *sel
   {
     try {
       (arg1)->optional_double(SWIG_STD_MOVE(*(&arg2)));
-    } catch (Swig::DirectorException &e) {
+    } catch(Swig::DirectorException& e) {
       SWIG_fail;
-    } catch (const PythonException& e) {
+    } catch(const PythonException& e) {
       e.restore_python_exception();
       SWIG_fail;
-    } catch (const std::exception& e) {
+    } catch(const std::exception& e) {
       SWIG_exception(SWIG_RuntimeError, e.what());
-    } catch (...) {
+    } catch(...) {
       // Anything not derived from std::exception (a raw type, a
       // third-party exception hierarchy that doesn't inherit
       // std::exception, etc.) would otherwise propagate across the
@@ -10672,14 +10672,14 @@ SWIGINTERN PyObject *_wrap_SwigRulesSample_optional_double_ref(PyObject *self, P
   {
     try {
       result = (boost::optional< double > *) &((Skeleton::SwigRulesSample const *)arg1)->optional_double_ref();
-    } catch (Swig::DirectorException &e) {
+    } catch(Swig::DirectorException& e) {
       SWIG_fail;
-    } catch (const PythonException& e) {
+    } catch(const PythonException& e) {
       e.restore_python_exception();
       SWIG_fail;
-    } catch (const std::exception& e) {
+    } catch(const std::exception& e) {
       SWIG_exception(SWIG_RuntimeError, e.what());
-    } catch (...) {
+    } catch(...) {
       // Anything not derived from std::exception (a raw type, a
       // third-party exception hierarchy that doesn't inherit
       // std::exception, etc.) would otherwise propagate across the
@@ -10734,14 +10734,14 @@ SWIGINTERN PyObject *_wrap_SwigRulesSample_optional_range_ref(PyObject *self, Py
   {
     try {
       result = (boost::optional< blitz::Range > *) &((Skeleton::SwigRulesSample const *)arg1)->optional_range_ref();
-    } catch (Swig::DirectorException &e) {
+    } catch(Swig::DirectorException& e) {
       SWIG_fail;
-    } catch (const PythonException& e) {
+    } catch(const PythonException& e) {
       e.restore_python_exception();
       SWIG_fail;
-    } catch (const std::exception& e) {
+    } catch(const std::exception& e) {
       SWIG_exception(SWIG_RuntimeError, e.what());
-    } catch (...) {
+    } catch(...) {
       // Anything not derived from std::exception (a raw type, a
       // third-party exception hierarchy that doesn't inherit
       // std::exception, etc.) would otherwise propagate across the
@@ -10751,7 +10751,7 @@ SWIGINTERN PyObject *_wrap_SwigRulesSample_optional_range_ref(PyObject *self, Py
     }
   }
   
-  if (*result) {
+  if(*result) {
     resultobj = SWIG_NewPointerObj(new blitz::Range(result->get()), SWIGTYPE_p_blitz__Range, SWIG_POINTER_OWN | 0);
   } else {
     resultobj = Py_None;
@@ -10807,14 +10807,14 @@ SWIGINTERN PyObject *_wrap_SwigRulesSample_optional_range(PyObject *self, PyObje
   {
     try {
       (arg1)->optional_range((boost::optional< blitz::Range > const &)*arg2);
-    } catch (Swig::DirectorException &e) {
+    } catch(Swig::DirectorException& e) {
       SWIG_fail;
-    } catch (const PythonException& e) {
+    } catch(const PythonException& e) {
       e.restore_python_exception();
       SWIG_fail;
-    } catch (const std::exception& e) {
+    } catch(const std::exception& e) {
       SWIG_exception(SWIG_RuntimeError, e.what());
-    } catch (...) {
+    } catch(...) {
       // Anything not derived from std::exception (a raw type, a
       // third-party exception hierarchy that doesn't inherit
       // std::exception, etc.) would otherwise propagate across the
@@ -10874,14 +10874,14 @@ SWIGINTERN PyObject *_wrap_SwigRulesSample_optional_range_size(PyObject *self, P
   {
     try {
       result = (int)((Skeleton::SwigRulesSample const *)arg1)->optional_range_size((boost::optional< blitz::Range > const &)*arg2);
-    } catch (Swig::DirectorException &e) {
+    } catch(Swig::DirectorException& e) {
       SWIG_fail;
-    } catch (const PythonException& e) {
+    } catch(const PythonException& e) {
       e.restore_python_exception();
       SWIG_fail;
-    } catch (const std::exception& e) {
+    } catch(const std::exception& e) {
       SWIG_exception(SWIG_RuntimeError, e.what());
-    } catch (...) {
+    } catch(...) {
       // Anything not derived from std::exception (a raw type, a
       // third-party exception hierarchy that doesn't inherit
       // std::exception, etc.) would otherwise propagate across the
@@ -10938,14 +10938,14 @@ SWIGINTERN PyObject *_wrap_SwigRulesSample_rational_value(PyObject *self, PyObje
   {
     try {
       result = (double)((Skeleton::SwigRulesSample const *)arg1)->rational_value((boost::rational< int > const &)*arg2);
-    } catch (Swig::DirectorException &e) {
+    } catch(Swig::DirectorException& e) {
       SWIG_fail;
-    } catch (const PythonException& e) {
+    } catch(const PythonException& e) {
       e.restore_python_exception();
       SWIG_fail;
-    } catch (const std::exception& e) {
+    } catch(const std::exception& e) {
       SWIG_exception(SWIG_RuntimeError, e.what());
-    } catch (...) {
+    } catch(...) {
       // Anything not derived from std::exception (a raw type, a
       // third-party exception hierarchy that doesn't inherit
       // std::exception, etc.) would otherwise propagate across the
@@ -10992,14 +10992,14 @@ SWIGINTERN PyObject *_wrap_SwigRulesSample_half(PyObject *self, PyObject *args) 
   {
     try {
       result = ((Skeleton::SwigRulesSample const *)arg1)->half();
-    } catch (Swig::DirectorException &e) {
+    } catch(Swig::DirectorException& e) {
       SWIG_fail;
-    } catch (const PythonException& e) {
+    } catch(const PythonException& e) {
       e.restore_python_exception();
       SWIG_fail;
-    } catch (const std::exception& e) {
+    } catch(const std::exception& e) {
       SWIG_exception(SWIG_RuntimeError, e.what());
-    } catch (...) {
+    } catch(...) {
       // Anything not derived from std::exception (a raw type, a
       // third-party exception hierarchy that doesn't inherit
       // std::exception, etc.) would otherwise propagate across the
@@ -11044,14 +11044,14 @@ SWIGINTERN PyObject *_wrap_SwigRulesSample__v_position___SWIG_0(PyObject *self, 
   {
     try {
       result = Skeleton_SwigRulesSample__v_position___SWIG_0((Skeleton::SwigRulesSample const *)arg1);
-    } catch (Swig::DirectorException &e) {
+    } catch(Swig::DirectorException& e) {
       SWIG_fail;
-    } catch (const PythonException& e) {
+    } catch(const PythonException& e) {
       e.restore_python_exception();
       SWIG_fail;
-    } catch (const std::exception& e) {
+    } catch(const std::exception& e) {
       SWIG_exception(SWIG_RuntimeError, e.what());
-    } catch (...) {
+    } catch(...) {
       // Anything not derived from std::exception (a raw type, a
       // third-party exception hierarchy that doesn't inherit
       // std::exception, etc.) would otherwise propagate across the
@@ -11073,13 +11073,14 @@ SWIGINTERN PyObject *_wrap_SwigRulesSample__v_position___SWIG_0(PyObject *self, 
     }
     
     // Create new numpy object using Numpy C API
-    resultobj = PyArray_New(&PyArray_Type, 1, dims, type_to_npy<double >(), 
+    resultobj = PyArray_New(&PyArray_Type, 1, dims, type_to_npy<double >(),
       stride, (&result)->data(), 0, 0, 0);
     blitz::Array<double, 1>* t = new blitz::Array<double, 1>(*(&result));
     // Stash pointer to original blitz array as detailed above
-    PyArray_SetBaseObject((PyArrayObject*) resultobj, 
-      SWIG_NewPointerObj(SWIG_as_voidptr(t), 
-        SWIGTYPE_p_blitz__ArrayT_double_1_t, 					   SWIG_POINTER_NEW | SWIG_POINTER_OWN ));
+    PyArray_SetBaseObject((PyArrayObject*) resultobj,
+      SWIG_NewPointerObj(SWIG_as_voidptr(t),
+        SWIGTYPE_p_blitz__ArrayT_double_1_t,
+        SWIG_POINTER_NEW | SWIG_POINTER_OWN));
     /*@SWIG@*/;
   }
   return resultobj;
@@ -11117,7 +11118,7 @@ SWIGINTERN PyObject *_wrap_SwigRulesSample__v_position___SWIG_1(PyObject *self, 
     }
   }
   {
-    int res = SWIG_ConvertPtr(swig_obj[1], (void**)(&arg2), SWIGTYPE_p_blitz__ArrayT_double_1_t, 
+    int res = SWIG_ConvertPtr(swig_obj[1], (void**)(&arg2), SWIGTYPE_p_blitz__ArrayT_double_1_t,
       0 );
     if(!SWIG_IsOK(res)) {
       numpy2.obj = to_numpy<double >(swig_obj[1]);
@@ -11136,14 +11137,14 @@ SWIGINTERN PyObject *_wrap_SwigRulesSample__v_position___SWIG_1(PyObject *self, 
   {
     try {
       Skeleton_SwigRulesSample__v_position___SWIG_1(arg1,(blitz::Array< double,1 > const &)*arg2);
-    } catch (Swig::DirectorException &e) {
+    } catch(Swig::DirectorException& e) {
       SWIG_fail;
-    } catch (const PythonException& e) {
+    } catch(const PythonException& e) {
       e.restore_python_exception();
       SWIG_fail;
-    } catch (const std::exception& e) {
+    } catch(const std::exception& e) {
       SWIG_exception(SWIG_RuntimeError, e.what());
-    } catch (...) {
+    } catch(...) {
       // Anything not derived from std::exception (a raw type, a
       // third-party exception hierarchy that doesn't inherit
       // std::exception, etc.) would otherwise propagate across the
@@ -11223,7 +11224,7 @@ SWIGINTERN PyObject *_wrap_SwigRulesSample_sum_array(PyObject *self, PyObject *a
     return NULL;
     try {
       a2 = to_boost_array<double, 3>(numpy2);
-    } catch (const std::exception& exc) {
+    } catch(const std::exception& exc) {
       SWIG_exception_fail(SWIG_ValueError, exc.what());
     }
     arg2 = &a2;
@@ -11231,14 +11232,14 @@ SWIGINTERN PyObject *_wrap_SwigRulesSample_sum_array(PyObject *self, PyObject *a
   {
     try {
       result = (double)((Skeleton::SwigRulesSample const *)arg1)->sum_array((boost::array< double,3 > const &)*arg2);
-    } catch (Swig::DirectorException &e) {
+    } catch(Swig::DirectorException& e) {
       SWIG_fail;
-    } catch (const PythonException& e) {
+    } catch(const PythonException& e) {
       e.restore_python_exception();
       SWIG_fail;
-    } catch (const std::exception& e) {
+    } catch(const std::exception& e) {
       SWIG_exception(SWIG_RuntimeError, e.what());
-    } catch (...) {
+    } catch(...) {
       // Anything not derived from std::exception (a raw type, a
       // third-party exception hierarchy that doesn't inherit
       // std::exception, etc.) would otherwise propagate across the
@@ -11289,21 +11290,21 @@ SWIGINTERN PyObject *_wrap_SwigRulesSample_first_element(PyObject *self, PyObjec
     return NULL;
     try {
       arg2 = to_boost_array<double, 3>(numpy2);
-    } catch (const std::exception& exc) {
+    } catch(const std::exception& exc) {
       SWIG_exception_fail(SWIG_ValueError, exc.what());
     }
   }
   {
     try {
       result = (double)((Skeleton::SwigRulesSample const *)arg1)->first_element(SWIG_STD_MOVE(*(&arg2)));
-    } catch (Swig::DirectorException &e) {
+    } catch(Swig::DirectorException& e) {
       SWIG_fail;
-    } catch (const PythonException& e) {
+    } catch(const PythonException& e) {
       e.restore_python_exception();
       SWIG_fail;
-    } catch (const std::exception& e) {
+    } catch(const std::exception& e) {
       SWIG_exception(SWIG_RuntimeError, e.what());
-    } catch (...) {
+    } catch(...) {
       // Anything not derived from std::exception (a raw type, a
       // third-party exception hierarchy that doesn't inherit
       // std::exception, etc.) would otherwise propagate across the
@@ -11350,14 +11351,14 @@ SWIGINTERN PyObject *_wrap_SwigRulesSample__v_count_squared(PyObject *self, PyOb
   {
     try {
       result = (int)((Skeleton::SwigRulesSample const *)arg1)->get_count_squared();
-    } catch (Swig::DirectorException &e) {
+    } catch(Swig::DirectorException& e) {
       SWIG_fail;
-    } catch (const PythonException& e) {
+    } catch(const PythonException& e) {
       e.restore_python_exception();
       SWIG_fail;
-    } catch (const std::exception& e) {
+    } catch(const std::exception& e) {
       SWIG_exception(SWIG_RuntimeError, e.what());
-    } catch (...) {
+    } catch(...) {
       // Anything not derived from std::exception (a raw type, a
       // third-party exception hierarchy that doesn't inherit
       // std::exception, etc.) would otherwise propagate across the
@@ -11402,14 +11403,14 @@ SWIGINTERN PyObject *_wrap_SwigRulesSample__v_scale__SWIG_0(PyObject *self, Py_s
   {
     try {
       result = (double)((Skeleton::SwigRulesSample const *)arg1)->get_scale();
-    } catch (Swig::DirectorException &e) {
+    } catch(Swig::DirectorException& e) {
       SWIG_fail;
-    } catch (const PythonException& e) {
+    } catch(const PythonException& e) {
       e.restore_python_exception();
       SWIG_fail;
-    } catch (const std::exception& e) {
+    } catch(const std::exception& e) {
       SWIG_exception(SWIG_RuntimeError, e.what());
-    } catch (...) {
+    } catch(...) {
       // Anything not derived from std::exception (a raw type, a
       // third-party exception hierarchy that doesn't inherit
       // std::exception, etc.) would otherwise propagate across the
@@ -11463,14 +11464,14 @@ SWIGINTERN PyObject *_wrap_SwigRulesSample__v_scale__SWIG_1(PyObject *self, Py_s
   {
     try {
       (arg1)->get_scale((double const &)*arg2);
-    } catch (Swig::DirectorException &e) {
+    } catch(Swig::DirectorException& e) {
       SWIG_fail;
-    } catch (const PythonException& e) {
+    } catch(const PythonException& e) {
       e.restore_python_exception();
       SWIG_fail;
-    } catch (const std::exception& e) {
+    } catch(const std::exception& e) {
       SWIG_exception(SWIG_RuntimeError, e.what());
-    } catch (...) {
+    } catch(...) {
       // Anything not derived from std::exception (a raw type, a
       // third-party exception hierarchy that doesn't inherit
       // std::exception, etc.) would otherwise propagate across the
@@ -11545,14 +11546,14 @@ SWIGINTERN PyObject *_wrap_SwigRulesSample__v_counter(PyObject *self, PyObject *
   {
     try {
       result = (int)(arg1)->counter();
-    } catch (Swig::DirectorException &e) {
+    } catch(Swig::DirectorException& e) {
       SWIG_fail;
-    } catch (const PythonException& e) {
+    } catch(const PythonException& e) {
       e.restore_python_exception();
       SWIG_fail;
-    } catch (const std::exception& e) {
+    } catch(const std::exception& e) {
       SWIG_exception(SWIG_RuntimeError, e.what());
-    } catch (...) {
+    } catch(...) {
       // Anything not derived from std::exception (a raw type, a
       // third-party exception hierarchy that doesn't inherit
       // std::exception, etc.) would otherwise propagate across the
@@ -11599,14 +11600,14 @@ SWIGINTERN PyObject *_wrap_SwigRulesSample__v_data(PyObject *self, PyObject *arg
   {
     try {
       result = (blitz::Array< double,2 > *) &(arg1)->data_ptr();
-    } catch (Swig::DirectorException &e) {
+    } catch(Swig::DirectorException& e) {
       SWIG_fail;
-    } catch (const PythonException& e) {
+    } catch(const PythonException& e) {
       e.restore_python_exception();
       SWIG_fail;
-    } catch (const std::exception& e) {
+    } catch(const std::exception& e) {
       SWIG_exception(SWIG_RuntimeError, e.what());
-    } catch (...) {
+    } catch(...) {
       // Anything not derived from std::exception (a raw type, a
       // third-party exception hierarchy that doesn't inherit
       // std::exception, etc.) would otherwise propagate across the
@@ -11623,13 +11624,14 @@ SWIGINTERN PyObject *_wrap_SwigRulesSample__v_data(PyObject *self, PyObject *arg
       // of type T.
       stride[i] = result->stride(i) * sizeof(double);
     }
-    resultobj = PyArray_New(&PyArray_Type, 2, dims, type_to_npy<double>(), 
+    resultobj = PyArray_New(&PyArray_Type, 2, dims, type_to_npy<double>(),
       stride, result->data(), 0, 0, 0);
     PyArray_UpdateFlags((PyArrayObject*)resultobj, NPY_ARRAY_WRITEABLE);
     blitz::Array<double, 2>* t = new blitz::Array<double, 2>(*result);
-    PyArray_SetBaseObject((PyArrayObject*)resultobj, 
-      SWIG_NewPointerObj(SWIG_as_voidptr(t), 
-        SWIGTYPE_p_blitz__ArrayT_double_2_t, 					   SWIG_POINTER_NEW | SWIG_POINTER_OWN ));
+    PyArray_SetBaseObject((PyArrayObject*)resultobj,
+      SWIG_NewPointerObj(SWIG_as_voidptr(t),
+        SWIGTYPE_p_blitz__ArrayT_double_2_t,
+        SWIG_POINTER_NEW | SWIG_POINTER_OWN));
   }
   return resultobj;
 fail:
@@ -11683,14 +11685,14 @@ SWIGINTERN PyObject *_wrap_SwigRulesSample_data_value(PyObject *self, PyObject *
   {
     try {
       result = (double)((Skeleton::SwigRulesSample const *)arg1)->data_value(arg2,arg3);
-    } catch (Swig::DirectorException &e) {
+    } catch(Swig::DirectorException& e) {
       SWIG_fail;
-    } catch (const PythonException& e) {
+    } catch(const PythonException& e) {
       e.restore_python_exception();
       SWIG_fail;
-    } catch (const std::exception& e) {
+    } catch(const std::exception& e) {
       SWIG_exception(SWIG_RuntimeError, e.what());
-    } catch (...) {
+    } catch(...) {
       // Anything not derived from std::exception (a raw type, a
       // third-party exception hierarchy that doesn't inherit
       // std::exception, etc.) would otherwise propagate across the
@@ -11744,14 +11746,14 @@ SWIGINTERN PyObject *_wrap_SwigRulesSample__v_weight__SWIG_0(PyObject *self, Py_
         } else {
           result = (double)((Skeleton::SwigRulesSample const *)arg1)->weight();
         }
-      } catch (Swig::DirectorException &e) {
+      } catch(Swig::DirectorException& e) {
         SWIG_fail;
-      } catch (const PythonException& e) {
+      } catch(const PythonException& e) {
         e.restore_python_exception();
         SWIG_fail;
-      } catch (const std::exception& e) {
+      } catch(const std::exception& e) {
         SWIG_exception(SWIG_RuntimeError, e.what());
-      } catch (...) {
+      } catch(...) {
         // Anything not derived from std::exception (a raw type, a
         // third-party exception hierarchy that doesn't inherit
         // std::exception, etc.) would otherwise propagate across the
@@ -11817,14 +11819,14 @@ SWIGINTERN PyObject *_wrap_SwigRulesSample__v_weight__SWIG_1(PyObject *self, Py_
         } else {
           (arg1)->weight((double const &)*arg2);
         }
-      } catch (Swig::DirectorException &e) {
+      } catch(Swig::DirectorException& e) {
         SWIG_fail;
-      } catch (const PythonException& e) {
+      } catch(const PythonException& e) {
         e.restore_python_exception();
         SWIG_fail;
-      } catch (const std::exception& e) {
+      } catch(const std::exception& e) {
         SWIG_exception(SWIG_RuntimeError, e.what());
-      } catch (...) {
+      } catch(...) {
         // Anything not derived from std::exception (a raw type, a
         // third-party exception hierarchy that doesn't inherit
         // std::exception, etc.) would otherwise propagate across the
@@ -11902,14 +11904,14 @@ SWIGINTERN PyObject *_wrap_SwigRulesSample_weight_set(PyObject *self, PyObject *
   {
     try {
       result = (double)((Skeleton::SwigRulesSample const *)arg1)->weight_set();
-    } catch (Swig::DirectorException &e) {
+    } catch(Swig::DirectorException& e) {
       SWIG_fail;
-    } catch (const PythonException& e) {
+    } catch(const PythonException& e) {
       e.restore_python_exception();
       SWIG_fail;
-    } catch (const std::exception& e) {
+    } catch(const std::exception& e) {
       SWIG_exception(SWIG_RuntimeError, e.what());
-    } catch (...) {
+    } catch(...) {
       // Anything not derived from std::exception (a raw type, a
       // third-party exception hierarchy that doesn't inherit
       // std::exception, etc.) would otherwise propagate across the
@@ -11956,14 +11958,14 @@ SWIGINTERN PyObject *_wrap_SwigRulesSample_weight_from_cpp(PyObject *self, PyObj
   {
     try {
       result = (double)((Skeleton::SwigRulesSample const *)arg1)->weight_from_cpp();
-    } catch (Swig::DirectorException &e) {
+    } catch(Swig::DirectorException& e) {
       SWIG_fail;
-    } catch (const PythonException& e) {
+    } catch(const PythonException& e) {
       e.restore_python_exception();
       SWIG_fail;
-    } catch (const std::exception& e) {
+    } catch(const std::exception& e) {
       SWIG_exception(SWIG_RuntimeError, e.what());
-    } catch (...) {
+    } catch(...) {
       // Anything not derived from std::exception (a raw type, a
       // third-party exception hierarchy that doesn't inherit
       // std::exception, etc.) would otherwise propagate across the
@@ -12010,14 +12012,14 @@ SWIGINTERN PyObject *_wrap_SwigRulesSample_values(PyObject *self, PyObject *args
   {
     try {
       result = ((Skeleton::SwigRulesSample const *)arg1)->values();
-    } catch (Swig::DirectorException &e) {
+    } catch(Swig::DirectorException& e) {
       SWIG_fail;
-    } catch (const PythonException& e) {
+    } catch(const PythonException& e) {
       e.restore_python_exception();
       SWIG_fail;
-    } catch (const std::exception& e) {
+    } catch(const std::exception& e) {
       SWIG_exception(SWIG_RuntimeError, e.what());
-    } catch (...) {
+    } catch(...) {
       // Anything not derived from std::exception (a raw type, a
       // third-party exception hierarchy that doesn't inherit
       // std::exception, etc.) would otherwise propagate across the
@@ -12076,14 +12078,14 @@ SWIGINTERN PyObject *_wrap_SwigRulesSample_sum_values(PyObject *self, PyObject *
   {
     try {
       result = (double)((Skeleton::SwigRulesSample const *)arg1)->sum_values((std::vector< Skeleton::ValueSample,std::allocator< Skeleton::ValueSample > > const &)*arg2);
-    } catch (Swig::DirectorException &e) {
+    } catch(Swig::DirectorException& e) {
       SWIG_fail;
-    } catch (const PythonException& e) {
+    } catch(const PythonException& e) {
       e.restore_python_exception();
       SWIG_fail;
-    } catch (const std::exception& e) {
+    } catch(const std::exception& e) {
       SWIG_exception(SWIG_RuntimeError, e.what());
-    } catch (...) {
+    } catch(...) {
       // Anything not derived from std::exception (a raw type, a
       // third-party exception hierarchy that doesn't inherit
       // std::exception, etc.) would otherwise propagate across the
@@ -12132,14 +12134,14 @@ SWIGINTERN PyObject *_wrap_SwigRulesSample_int_vector(PyObject *self, PyObject *
   {
     try {
       result = ((Skeleton::SwigRulesSample const *)arg1)->int_vector();
-    } catch (Swig::DirectorException &e) {
+    } catch(Swig::DirectorException& e) {
       SWIG_fail;
-    } catch (const PythonException& e) {
+    } catch(const PythonException& e) {
       e.restore_python_exception();
       SWIG_fail;
-    } catch (const std::exception& e) {
+    } catch(const std::exception& e) {
       SWIG_exception(SWIG_RuntimeError, e.what());
-    } catch (...) {
+    } catch(...) {
       // Anything not derived from std::exception (a raw type, a
       // third-party exception hierarchy that doesn't inherit
       // std::exception, etc.) would otherwise propagate across the
@@ -12198,14 +12200,14 @@ SWIGINTERN PyObject *_wrap_SwigRulesSample_sum_int_vector(PyObject *self, PyObje
   {
     try {
       result = (int)((Skeleton::SwigRulesSample const *)arg1)->sum_int_vector((std::vector< int,std::allocator< int > > const &)*arg2);
-    } catch (Swig::DirectorException &e) {
+    } catch(Swig::DirectorException& e) {
       SWIG_fail;
-    } catch (const PythonException& e) {
+    } catch(const PythonException& e) {
       e.restore_python_exception();
       SWIG_fail;
-    } catch (const std::exception& e) {
+    } catch(const std::exception& e) {
       SWIG_exception(SWIG_RuntimeError, e.what());
-    } catch (...) {
+    } catch(...) {
       // Anything not derived from std::exception (a raw type, a
       // third-party exception hierarchy that doesn't inherit
       // std::exception, etc.) would otherwise propagate across the
@@ -12254,14 +12256,14 @@ SWIGINTERN PyObject *_wrap_SwigRulesSample___str__(PyObject *self, PyObject *arg
   {
     try {
       result = ((Skeleton::SwigRulesSample const *)arg1)->print_to_string();
-    } catch (Swig::DirectorException &e) {
+    } catch(Swig::DirectorException& e) {
       SWIG_fail;
-    } catch (const PythonException& e) {
+    } catch(const PythonException& e) {
       e.restore_python_exception();
       SWIG_fail;
-    } catch (const std::exception& e) {
+    } catch(const std::exception& e) {
       SWIG_exception(SWIG_RuntimeError, e.what());
-    } catch (...) {
+    } catch(...) {
       // Anything not derived from std::exception (a raw type, a
       // third-party exception hierarchy that doesn't inherit
       // std::exception, etc.) would otherwise propagate across the

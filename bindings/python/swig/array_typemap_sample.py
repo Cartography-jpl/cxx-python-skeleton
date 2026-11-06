@@ -116,7 +116,7 @@ def _new_vector(cls, version, lst):
     return inst
 
 def _new_from_set(cls, version, *args):
-    '''For use with pickle, covers common case where we use a set function 
+    '''For use with pickle, covers common case where we use a set function
     to assign the value'''
     if(cls.pickle_format_version() != version):
       raise RuntimeException("Class is expecting a pickled object with version number %d, but we found %d" % (cls.pickle_format_version(), version))

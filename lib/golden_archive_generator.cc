@@ -25,7 +25,7 @@ using namespace Skeleton;
 static std::string outdir;
 
 static void write_object(const std::string& Name,
-			 const boost::shared_ptr<GenericObject>& Obj)
+                         const boost::shared_ptr<GenericObject>& Obj)
 {
   serialize_write(outdir + "/" + Name + ".xml", Obj);
   serialize_write_binary(outdir + "/" + Name + ".bin", Obj);
@@ -101,7 +101,7 @@ int main(int argc, char** argv)
   write_object("generic_object_a", a);
   write_object("generic_object_b", boost::make_shared<GenericObjectB>(a));
   write_object("generic_object_b2",
-	       boost::make_shared<GenericObjectB2>(GenericObjectA(8)));
+               boost::make_shared<GenericObjectB2>(GenericObjectA(8)));
   // Weak pointer to something not otherwise serialized: comes back null
   write_object("generic_object_c", boost::make_shared<GenericObjectC>(a));
 

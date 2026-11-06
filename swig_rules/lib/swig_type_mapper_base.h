@@ -42,14 +42,14 @@ public:
 /// Comparison operator
 //-----------------------------------------------------------------------
 
-  bool operator==(type_index const& other) const 
+  bool operator==(type_index const& other) const
   { return std::strcmp(id->name(), other.id->name()) == 0;}
 
 //-----------------------------------------------------------------------
 /// Comparison operator
 //-----------------------------------------------------------------------
 
-  bool operator<(type_index const& other) const 
+  bool operator<(type_index const& other) const
   {return std::strcmp(id->name(), other.id->name()) < 0;}
 
 //-----------------------------------------------------------------------
@@ -76,7 +76,7 @@ private:
   We have set up special rules for shared_ptr_type_mapper.i to convert this
   back to boost::shared_ptr<DerivedType>. This depends on being able
   to map typeid of the C++ object into the python type.
-  
+
   This class handles that mapping.
 
   Note that unless you are working with low level SWIG code, you will
@@ -94,9 +94,9 @@ public:
 /// Add a handler for the given type info. Normally this is called in
 /// the SWIG initialization of the class.
 //-----------------------------------------------------------------------
-  
+
   static void add(std::type_info const& id,
-		  const boost::shared_ptr<SwigTypeMapperBase>& v)
+                  const boost::shared_ptr<SwigTypeMapperBase>& v)
   { swig_type_map[type_index(id)] = v; }
 
 //-----------------------------------------------------------------------
@@ -121,9 +121,9 @@ public:
 ///
 /// This returns a possibly updated shared_ptr like V, which should
 /// replace the shared ptr we are creating. See DirectorNotes.md for
-/// a description of this.  
+/// a description of this.
 //-----------------------------------------------------------------------
-  
+
   static boost::shared_ptr<GenericObject> swig_python_director_setup
   (const boost::shared_ptr<GenericObject>& V)
   {
@@ -133,7 +133,7 @@ public:
       return swig_type_map[tid]->do_swig_python_director_setup(V);
     return V;
   }
-  
+
 //-----------------------------------------------------------------------
 /// Return a python object (if we can convert), or 0 if we don't find
 /// the type.
@@ -156,7 +156,7 @@ public:
 
   static void*
   map_to_python(const boost::shared_ptr<GenericObject>& V,
-		std::type_info const& id)
+                std::type_info const& id)
   {
     type_index tid(id);
     if(swig_type_map.count(tid) != 0)
@@ -165,7 +165,7 @@ public:
   }
   static void*
   map_to_python(const boost::shared_ptr<GenericObject>& V,
-		const type_index& tid)
+                const type_index& tid)
   {
     if(swig_type_map.count(tid) != 0)
       return swig_type_map[tid]->to_python(V);

@@ -1,4 +1,4 @@
-// Stuff to include everywhere for using boost::array. We also have 
+// Stuff to include everywhere for using boost::array. We also have
 // swig_boost_array.i which includes stuff compiled in one spot.
 
 %include "swig_array_inc.i"
@@ -8,7 +8,7 @@
 #include <boost/foreach.hpp>
 #include <algorithm>
 
-template<class T, int D> inline boost::array<T, D> 
+template<class T, int D> inline boost::array<T, D>
   to_boost_array(PyObject* numpy)
 {
   blitz::Array<T, 1> b = to_blitz_array<T, 1>(numpy);

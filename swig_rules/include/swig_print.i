@@ -10,5 +10,3 @@
 // effectively, instead it should override desc. The print function
 // interacts incorrectly with our ostream swig rules in swig_iostream
 %rename ("$ignore") print;
-
-

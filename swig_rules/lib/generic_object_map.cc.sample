@@ -4,8 +4,8 @@
 using namespace GeoCal;
 
 template<class Archive>
-void GenericObjectMap::serialize(Archive & ar,
-			const unsigned int UNUSED(version))
+void GenericObjectMap::serialize(Archive& ar,
+                        const unsigned int UNUSED(version))
 {
   GEOCAL_GENERIC_BASE(GenericObjectMap);
   typedef std::map<std::string, boost::shared_ptr<GenericObject> >

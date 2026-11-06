@@ -1,5 +1,5 @@
 //--------------------------------------------------------------
-// Function that allows us to access something as a python 
+// Function that allows us to access something as a python
 // attribute.
 //--------------------------------------------------------------
 
@@ -114,4 +114,3 @@ def NAME(self):
 __all__ = [NAME]
 %}
 %enddef
-

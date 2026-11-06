@@ -1,5 +1,5 @@
 #ifndef SWIG_MODULE_ALREADY_DONE
-#if SWIG_VERSION < 0x040000  
+#if SWIG_VERSION < 0x040000
 %module(directors="1", allprotected="1") foo
 #else
 %module(moduleimport="from ._swig_wrap import $module", directors="1", allprotected="1") foo
@@ -41,7 +41,7 @@
     }
     $1 = &v;
 %}
-   
+
 %typemap(out) boost::optional<int> %{
     if($1)
         $result = PyLong_FromLong(*$1);
@@ -84,7 +84,7 @@
     }
     $1 = &v;
 %}
-   
+
 %typemap(out) boost::optional<double> %{
     if($1)
         $result = PyFloat_FromDouble(*$1);
@@ -128,7 +128,7 @@
     // macros jump to earlier in the wrapper function.
     {
       boost::optional<blitz::Range> swig_opt_range = $1;
-      if (swig_opt_range) {
+      if(swig_opt_range) {
         $result = SWIG_NewPointerObj(new blitz::Range(swig_opt_range.get()), $descriptor(blitz::Range*), SWIG_POINTER_OWN | 0);
       } else {
         $result = Py_None;
@@ -138,7 +138,7 @@
 %}
 
 %typemap(out) const boost::optional<blitz::Range>& %{
-    if (*$1) {
+    if(*$1) {
         $result = SWIG_NewPointerObj(new blitz::Range($1->get()), $descriptor(blitz::Range*), SWIG_POINTER_OWN | 0);
     } else {
         $result = Py_None;

@@ -33,7 +33,7 @@ public:
   bool same_object(const DirectorExample& obj2) const
   { return this == &obj2; }
   %pickle_serialization();
-protected:  
+protected:
   // Only meant for swig serialization
   DirectorExample();
 };
@@ -44,7 +44,7 @@ public:
   %python_attribute(obj, boost::shared_ptr<DirectorExample>);
   %pickle_serialization();
 };
-  
+
 class DirectorExampleWeakPtr : public GenericObject {
 public:
   // See DirectorNotes.md on the used of SHARED_PTR_NO_OWN
@@ -56,7 +56,7 @@ public:
   long use_count() const;
   %pickle_serialization();
 };
-  
+
 class DirectorExampleUser : public GenericObject {
 public:
   DirectorExampleUser();
@@ -85,12 +85,10 @@ public:
 // Extra code for handling boost serialization/python pickle of
 // director classes
 %skeleton_director_serialization(director_example, DirectorExample)
-  
+
 // List of things "import *" will include
 %python_export("DirectorExample", "DirectorExampleUser",
-	       "DirectorExampleNested",
-	       "DirectorExampleWeakPtr",
-	       "Vector_DirectorExample", "Vector_Vector_DirectorExample",
-	       "Vector_Vector_int");
-
-  
+               "DirectorExampleNested",
+               "DirectorExampleWeakPtr",
+               "Vector_DirectorExample", "Vector_Vector_DirectorExample",
+               "Vector_Vector_int");

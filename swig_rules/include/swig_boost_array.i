@@ -41,11 +41,11 @@ public:
     T __getitem__(int i) {return (*$self)[i];}
     void __setitem__(int i, const T& V) {(*$self)[i] = V;}
     std::string print_to_string() const
-      { 
-	std::ostringstream os;
-	BOOST_FOREACH(T i, *$self)
-	  os << i << " ";
-	return os.str();
+      {
+        std::ostringstream os;
+        BOOST_FOREACH(T i, *$self)
+          os << i << " ";
+        return os.str();
       }
    }
 #else
@@ -68,7 +68,7 @@ public:
 // just make sure it is different from any of the type check
 // in swig, and that it is different for different array types
 //--------------------------------------------------------------
-  
+
 %define %boost_array_template(NAME,TYPE, LEN, PRECEDENCE)
 %template(NAME) boost::array<TYPE, LEN>;
 
@@ -79,7 +79,7 @@ public:
     return NULL;
   try {
     a = to_boost_array<TYPE, LEN>(numpy);
-  } catch (const std::exception& exc) {
+  } catch(const std::exception& exc) {
     SWIG_exception_fail(SWIG_ValueError, exc.what());
   }
   $1 = &a;
@@ -92,7 +92,7 @@ public:
     return NULL;
   try {
     $1 = to_boost_array<TYPE, LEN>(numpy);
-  } catch (const std::exception& exc) {
+  } catch(const std::exception& exc) {
     SWIG_exception_fail(SWIG_ValueError, exc.what());
   }
 }
@@ -104,19 +104,21 @@ public:
   blitz::Array<TYPE, 1> b = to_blitz_array<TYPE, 1>(t.obj);
   return (b.rows() == LEN ? 1 : 0);
 }
-  
+
 %enddef
 
 %define %python_attribute_boost_array(NAME, TYPE, LEN)
    %extend {
-    blitz::Array<TYPE, 1> _v_ ## NAME() const {
+    blitz::Array<TYPE, 1> _v_ ## NAME() const
+    {
       blitz::Array<TYPE, 1> res(LEN);
       std::copy($self->NAME.begin(), $self->NAME.end(), res.begin());
       return res;
     }
-    void _v_ ## NAME(const blitz::Array<TYPE, 1>& V) {
+    void _v_ ## NAME(const blitz::Array<TYPE, 1>& V)
+    {
       if(V.rows() != LEN)
-	throw std::runtime_error("Array not expeced size");
+        throw std::runtime_error("Array not expeced size");
       std::copy(V.begin(), V.end(), $self->NAME.begin());
     }
     }
@@ -138,5 +140,3 @@ def NAME(self, value):
 %boost_array_template(Array_double_14, double, 14, 1243)
 %boost_array_template(Array_double_3, double, 3, 1244)
 %boost_array_template(Array_bool_20, bool, 20, 1245)
-
-

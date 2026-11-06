@@ -19,7 +19,7 @@ BOOST_AUTO_TEST_CASE(serialization1)
   std::string d2 = serialize_write_string(b);
   if(false)
     std::cerr << d1
-	      << d2;
+              << d2;
   boost::shared_ptr<GenericObjectA> ar =
     serialize_read_string<GenericObjectA>(d1);
   boost::shared_ptr<GenericObjectB> br =
@@ -41,7 +41,7 @@ BOOST_AUTO_TEST_CASE(serialization1_weakptr)
   std::string d2 = serialize_write_string(c);
   if(false)
     std::cerr << d1
-	      << d2;
+              << d2;
   boost::shared_ptr<GenericObjectA> ar =
     serialize_read_string<GenericObjectA>(d1);
   boost::shared_ptr<GenericObjectC> cr =

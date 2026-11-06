@@ -4,7 +4,7 @@
 
 %{
 #include "serialize_function.h"
-#include "python_exception.h"  
+#include "python_exception.h"
 #include <stdexcept>
 %}
 
@@ -30,7 +30,7 @@ inline std::string cpickle_dumps(PyObject* obj)
   if(PyErr_Occurred()) {
     throw PythonException();
   }
-  char *buf;
+  char* buf;
   Py_ssize_t len;
   PyBytes_AsStringAndSize(res, &buf, &len);
   std::string result(buf, len);
@@ -68,7 +68,7 @@ def _new_from_init(cls, version, *args):
     inst = cls.__new__(cls)
     inst.__init__(*args)
     return inst
- 
+
 def _new_from_serialization(data):
     return SWIG_MODULE.serialize_function.serialize_read_binary(data)
 
@@ -79,8 +79,8 @@ def _new_from_serialization_dir(dir, data):
       return SWIG_MODULE.serialize_function.serialize_read_binary(data)
     finally:
       os.chdir(curdir)
-	
-	
+
+
 def _new_vector(cls, version, lst):
     '''Create a vector from a list.'''
     if(cls.pickle_format_version() != version):
@@ -92,7 +92,7 @@ def _new_vector(cls, version, lst):
     return inst
 
 def _new_from_set(cls, version, *args):
-    '''For use with pickle, covers common case where we use a set function 
+    '''For use with pickle, covers common case where we use a set function
     to assign the value'''
     if(cls.pickle_format_version() != version):
       raise RuntimeException("Class is expecting a pickled object with version number %d, but we found %d" % (cls.pickle_format_version(), version))

@@ -23,7 +23,7 @@
 // Initializing cython code is almost the same, so we include it in
 // this header. Just define DO_CYTHON for the difference. Rather than
 // putting all the modules into a parent package, we put them into a
-// python list. 
+// python list.
 
 #include <Python.h>
 #include <iostream>
@@ -45,8 +45,8 @@
 
 static void module_init(PyObject* module);
 
-// Python 2 and 3 do strings differently, so we have a simple macro to 
-// keep from having lots of ifdefs spread around. See 
+// Python 2 and 3 do strings differently, so we have a simple macro to
+// keep from having lots of ifdefs spread around. See
 // https://wiki.python.org/moin/PortingExtensionModulesToPy3k for details on
 // this.
 #if PY_MAJOR_VERSION > 2
@@ -88,7 +88,7 @@ PythonException::PythonException()
   PyErr_NormalizeException((PyObject**)&type, (PyObject**)&value, (PyObject**)&tb);
   PyObject * val_str = value ? PyObject_Str((PyObject*) value) : nullptr;
   PyObject * temp_bytes = val_str ? PyUnicode_AsEncodedString(val_str, "ASCII",
-						      "ignore") : nullptr;
+                                                      "ignore") : nullptr;
   Py_XDECREF(val_str);
   if(temp_bytes) {
     desc = PyBytes_AS_STRING(temp_bytes); // Borrowed pointer
@@ -99,19 +99,19 @@ PythonException::PythonException()
   PyObject* err_str_list = nullptr;
   if(tb) {
     err_str_list = PyObject_CallMethodObjArgs(mod,
-	      Text_FromUTF8("format_exception"), type, value, tb, NULL);
+              Text_FromUTF8("format_exception"), type, value, tb, NULL);
   }
   if(err_str_list) {
-    PyObject* err_str = 
+    PyObject* err_str =
       PyObject_CallMethodObjArgs(Text_FromUTF8(""),
-				 Text_FromUTF8("join"), 
-				 err_str_list, NULL);
+                                 Text_FromUTF8("join"),
+                                 err_str_list, NULL);
     if(err_str) {
-      PyObject * temp_bytes = PyUnicode_AsEncodedString(err_str, "ASCII", 
-							"strict");
+      PyObject * temp_bytes = PyUnicode_AsEncodedString(err_str, "ASCII",
+                                                        "strict");
       if(temp_bytes) {
-	desc = PyBytes_AS_STRING(temp_bytes); // Borrowed pointer
-	Py_DECREF(temp_bytes);
+        desc = PyBytes_AS_STRING(temp_bytes); // Borrowed pointer
+        Py_DECREF(temp_bytes);
       }
     }
     Py_XDECREF(err_str);
@@ -171,7 +171,7 @@ void PythonException::restore_python_exception() const
 #if PY_MAJOR_VERSION > 2
 // Version for python 3
 static void init_extension_module3(PyObject* package, const char *modulename,
-				  PyObject * (*initfunction)(void)) {
+                                  PyObject * (*initfunction)(void)) {
   PyObject *module = initfunction();
   // Starting with SWIG 4.4/4.5, the generated PyInit_X function uses PEP 489
   // multi-phase initialization, so it returns a PyModuleDef wrapper (a
@@ -208,32 +208,32 @@ static void init_extension_module3(PyObject* package, const char *modulename,
 #ifdef DO_CYTHON
   // For cython, we create list rather than add to a package
   PyList_Append(package, Text_FromUTF8(modulename));
-#else  
+#else
   if(PyModule_AddObject(package, (char *)modulename, module)) {
     std::cerr << "Initialisation in PyImport_AddObject failed for module "
-	      << modulename << "\n";
+              << modulename << "\n";
     return;
   }
   Py_INCREF(module);
 #endif
 }
-#else 
+#else
 // Version for python 2
 static void init_extension_module2(PyObject* package, const char *modulename,
-				  void (*initfunction)(void)) {
+                                  void (*initfunction)(void)) {
   PyObject *module = PyImport_AddModule((char *)modulename);
   if(!module) {
     std::cerr << "Initialisation in PyImport_AddModule failed for module "
-	      << modulename << "\n";
+              << modulename << "\n";
     return;
   }
 #ifdef DO_CYTHON
   // For cython, we create list rather than add to a package
   PyList_Append(package, Text_FromUTF8(modulename));
-#else  
+#else
   if(PyModule_AddObject(package, (char *)modulename, module)) {
     std::cerr << "Initialisation in PyImport_AddObject failed for module "
-	      << modulename << "\n";
+              << modulename << "\n";
     return;
   }
   Py_INCREF(module);
@@ -243,7 +243,7 @@ static void init_extension_module2(PyObject* package, const char *modulename,
 #endif
 
 
-// This next blob of code comes from 
+// This next blob of code comes from
 // https://wiki.python.org/moin/PortingExtensionModulesToPy3k
 
 struct module_state {
@@ -328,6 +328,3 @@ void
     return module;
 #endif
 }
-
-
-

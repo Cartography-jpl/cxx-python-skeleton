@@ -31,9 +31,9 @@ public:
   void set_value(const blitz::Array<double, 2>& A, double V) const;
   void set_value_copy(const blitz::Array<double, 2>& FORCE_COPY, double V) const;
   void split(const blitz::Array<double, 2>& A, blitz::Array<double, 1>& OUTPUT1,
-	     blitz::Array<double, 1>& OUTPUT2) const;
+             blitz::Array<double, 1>& OUTPUT2) const;
   void scaled(const blitz::Array<double, 2>& A, double S,
-	      blitz::Array<double, 2>& OUTPUT, double& OUTPUT) const;
+              blitz::Array<double, 2>& OUTPUT, double& OUTPUT) const;
   std::vector<blitz::Array<double, 1> >
   echo_vector(const std::vector<blitz::Array<double, 1> >& V) const;
   int vector_size(std::vector<blitz::Array<int, 2> > V) const;

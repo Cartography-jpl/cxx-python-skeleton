@@ -43,11 +43,11 @@ private:
   std::string name_;
   friend class boost::serialization::access;
   template<class Archive>
-  void serialize(Archive & ar, const unsigned int version);
+  void serialize(Archive& ar, const unsigned int version);
 };
 
 /****************************************************************//**
-  A version used for nesting DirectorExample. 
+  A version used for nesting DirectorExample.
 *******************************************************************/
 
 class DirectorExampleNested : public DirectorExample {
@@ -70,9 +70,9 @@ private:
   boost::shared_ptr<DirectorExample> obj_;
   friend class boost::serialization::access;
   template<class Archive>
-  void serialize(Archive & ar, const unsigned int version);
+  void serialize(Archive& ar, const unsigned int version);
 };
-  
+
 /****************************************************************//**
   A weak pointer to a DirectorExample, used to test proper handling of
   weak pointers and also pointer tracking in the serialization code.
@@ -101,7 +101,7 @@ private:
   DirectorExampleWeakPtr() = default;
   friend class boost::serialization::access;
   template<class Archive>
-  void serialize(Archive & ar, const unsigned int version);
+  void serialize(Archive& ar, const unsigned int version);
 };
 
 /****************************************************************//**
@@ -150,13 +150,12 @@ private:
   std::vector<std::vector<int> > t2_;
   friend class boost::serialization::access;
   template<class Archive>
-  void serialize(Archive & ar, const unsigned int version);
+  void serialize(Archive& ar, const unsigned int version);
 };
-  
+
 }
 SKELETON_EXPORT_KEY(DirectorExample);
 SKELETON_EXPORT_KEY(DirectorExampleNested);
 SKELETON_EXPORT_KEY(DirectorExampleWeakPtr);
 SKELETON_EXPORT_KEY(DirectorExampleUser);
 #endif
-

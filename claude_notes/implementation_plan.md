@@ -83,6 +83,7 @@ apply it there (or record why not) in geocal's plan:
 | **`make check` tests the installed library** (geocal plan §6.1, open item 5) | 2026-11-05, ST.11 | Reproduced here and fixed with a per-target rpath (option 5 below), not one of geocal's four options. In `lib/lib.am`: `UNINSTALLED_PROGRAM_LINK_FLAGS = -no-install -Wl,-rpath,$(abs_top_builddir)/.libs`, used as `*_LDFLAGS` of every never-installed program linked to the library (`skeleton_test_all`, `golden_archive_generator`). Automake puts per-target LDFLAGS before `$(LDFLAGS)`, so `.libs` comes before conda's env rpath. geocal: do the same for `geocal_test_all` and any other `check_PROGRAMS`/`noinst_PROGRAMS` (keep `-no-install` if it is there; replacing it brings back a libtool wrapper). Not for installed programs (the build dir would end up in their rpath); geocal's build-dir libtool wrappers such as `picmtch5` are a separate case. Then drop the `LD_PRELOAD` workaround from `resampler_threading_plan.md`. |
 | `--enable-debug` with no flags; Blitz flags leak `-DNDEBUG -O2` | 2026-11-05, S1.2 | Both in shared `config/m4/` files, so copy them. **`ac_blitz.m4`:** geocal has the same leak (`BLITZ_CFLAGS = -DNDEBUG -D_FORTIFY_SOURCE=2 -O2 -pthread -I... -isystem ...` in `geocal-build/build-pixi`, from the afids-channel `blitz.pc`), so geocal debug builds have `NDEBUG` too; a geocal release build won't change. **`ac_enable_debug.m4`:** only matters in an env without conda's compiler activation (geocal's env has it). Re-run `./bootstrap` after copying. The warning flags (`skeleton_common.m4`) and the `-Wno-cast-function-type` in `swig_rules.am` come with the `swig_rules/` copy / need the same line in geocal's local macro. |
 | `Exception` (S1.5) | 2026-11-05 | Copy `lib/skeleton_exception.{h,cc}` patterns: the format constructor (`ExceptionFormat`), `source_location`, stack trace as stored addresses with the Boost.Stacktrace code in a `.cc` (+ `-ldl`), `capture_stacktrace(bool)`, and `operator<<` keeping stream state (framework needs it). geocal's `backtrace.hpp` base goes. Keep the doxygen `\cond` on the template constructor, or doxy2swig breaks the Python constructor docstring. `binutils` in the env and the configure check give readable traces. |
+| **Formatting: no clang-format, AI cleanup instead** | 2026-11-05, S1.6, decision 21 | Applies to geocal and framework. Replaces the geocal plan's clang-format recommendation (§8.5, open item 3). Do it as §5a describes: measure, majority rule, a script adapted from `claude_notes/style_cleanup.py`, forks and generated code excluded, one commit plus one for wrappers, after the clang-tidy passes and before the `std::shared_ptr` edit. Decide `Archive & ar` (geocal's majority) vs the skeleton's `Archive& ar`. |
 | SWIG pin | decision 14 | geocal already pins `4.4.*`; the skeleton pins `4.5.*`. Keep each pinned to its committed wrappers. |
 
 **Progress log** (update as phases complete; one line per step):
@@ -113,6 +114,7 @@ apply it there (or record why not) in geocal's plan:
 | S1.4 `Printable<T>` | done | 2026-11-05. `lib/printable.h` and `swig_rules/lib/printable.h.sample` (still identical apart from namespace and include guard): `static_cast<const T*>(this)` instead of the C-style casts (which also cast away `const`); `print_to_string` calls `print_wrapper` directly (a `Printable` member, no cast needed). The `"blah"`/`reserve(1000)` workaround was already removed in ST.7. **New:** concept `PrintableObject` (has `print_wrapper`: a `Printable<T>` class or one derived from it, the same set `<<` works for) and a `std::formatter<T, char>` for it that reuses the `std::string_view` formatter, so `std::format("{}", x)` equals `<<` and width/fill/alignment work (`"{:>20}"`). SWIG never parses `printable.h` (the `.i` files declare `print_to_string`), so no `#ifndef SWIG` is needed. New C++ test `printable/format`: format == `<<` for short, empty, `desc()`, derived and sample classes, specs, and `static_assert`s that `std::string`/`int` aren't matched. `desc()`, the virtual `GenericObject` base and the class name are unchanged. Results: 0 warnings; `make check` 26/26 test cases, `make installcheck` 89 passed, 1 xfailed in `build`, `build-rpath`, `build-gcc14`; no-serialization 16/16. **Later (C++23):** `{:?}` debug format comes for free from the `string_view` base. But C++23 range formatting calls `set_debug_format` on element formatters that have it, so a `std::vector` of Printable objects would print quoted (`["A", "B"]`); decide then whether to hide that. Recommended out of scope while on C++20 (raised by the maintainer 2026-11-05; confirm). |
 | S1.5 `Exception` | done | 2026-11-05. `lib/skeleton_exception.h`, new `lib/skeleton_exception.cc`. **Message:** a `std::string` (no `ostringstream` member, no `mutable` scratch; `what()` is just `c_str()`; copy and assignment are `= default`, so a copy no longer silently drops the message on `bad_alloc`). `operator<<` formats each value in a fresh stream but **carries the stream state over** (flags, precision, width, fill), because framework relies on it: `e << std::setprecision(8) << ...` in `absco_aer.cc`/`absco_hdf.cc`. **Format constructor:** `Exception("x = {}", x)`, through `ExceptionFormat<Args...>` (a `consteval` helper holding `std::format_string<Args...>` plus a defaulted `std::source_location`: the usual trick, since a defaulted argument can't follow the variadic ones). Constrained to `sizeof...(Args) > 0`, so `Exception("50% {}")` with no arguments is still taken literally, as before. Format errors are compile errors. **`source_location()`** for both constructors (for derived classes: where their constructor called ours). **Stack trace:** Boost.Stacktrace as a member, not a base (geocal plan §3.2), but only the frame addresses are stored; capture and turning them into text are in the `.cc`, so the header doesn't include Boost.Stacktrace and only `libskeleton` needs `-ldl` (added in `skeleton.am`; `dladdr` is in libdl before glibc 2.34). `stacktrace()` returns one frame per line; `Exception::capture_stacktrace(bool)` turns capture off (on by default). Cost (gcc 15, `-O1`): throw+catch 1.7 µs without capture, 4–5 µs with; symbol lookup happens only when `stacktrace()` is called. **addr2line (maintainer request):** `binutils` added to `env/linux/pixi.toml` (+ lock; only binutils changed) and the `build` scratch env. `configure` (`skeleton_common.m4`) finds `addr2line` on `PATH` and defines `SKELETON_ADDR2LINE` (absolute path; only plain paths are accepted, since Boost turns the macro back into a string); `skeleton_exception.cc` then uses Boost's addr2line backend (`BOOST_STACKTRACE_ADDR2LINE_LOCATION`, Boost doesn't search `PATH`), giving function names and file:line; without it the default backend gives addresses and exported names only. **Unchanged on purpose:** `print()` (so Python `str()` is the S1.7 baseline; geocal's `print()` also shows the trace, the skeleton could add it later) and the `.i` (S5's `ExceptionSample` exposes the stack trace to Python). **Docstring:** the template constructor is in doxygen `\cond`/`\endcond`, because doxy2swig gives all constructor overloads one docstring and this C++-only one replaced the Python `__init__` text (with a garbled `Exception(sizeof...(Args) > 0)` signature). **Also:** renamed `UNINSTALLED_PROGRAM_LDFLAGS` → `UNINSTALLED_PROGRAM_LINK_FLAGS` (automake warned about a `*_LDFLAGS` with no program of that name; the warning had been in every bootstrap since ST.11). A second bootstrap warning, `configure.ac:11: AC_PROG_AWK was expanded before it was required`, is older; not looked at. New C++ tests: `format_constructor`, `manipulators`, `source_location`, `stacktrace`. Results: 0 warnings; `make check` 30/30 test cases, `make installcheck` 89 passed, 1 xfailed in `build`, `build-rpath`, `build-gcc14` (each found an `addr2line`); no-serialization 20/20. |
 | clangd setup | done | 2026-11-05, for the Claude Code `clangd-lsp` plugin (installed by the maintainer) or any editor. `script/make_compile_commands.py --clangd` adds the flags the conda clang needs (same as `run_clang_tidy.sh`: `--gcc-install-dir`, `--sysroot`, gcc builtin headers, a Blitz shim in `<builddir>/clangd_shim/`). Run it in the build directory, then link the result into the source tree: `ln -sf $PWD/compile_commands.json <srcdir>/compile_commands.json` (in `.gitignore`; machine specific, so make it on each machine). Include `_swig_wrap.la` in the targets so headers only the wrappers use get flags too. `clangd --check=lib/skeleton_exception.cc`: 0 errors (without it: `skeleton_config.h` not found, no C++20). A running clangd only finds the database when it starts, so restart it after creating the link. `clangd` 22.1.8 comes with `clang-tools` in `env/linux/pixi.toml`. |
+| S1.6 formatting | done | 2026-11-05. **clang-format trial, not adopted** (§13 decision 21). With `claude_notes/clang_format_trial.clang-format` on the 45 C++ files: 44 files change, ~11% of lines ignoring whitespace (geocal: 14%). Findings: (1) its `Standard: c++03` misparses C++20 (`requires`/`consteval` in S1.5 code glued together and misindented); it would need `c++20`, which also turns `> >` into `>>`; (2) `ar & SKELETON_NVP_(x);` becomes `ar& ...` (11 lines; read as a declaration, no option fixes it, `StatementMacros` doesn't help); (3) `{ body }` on the line after a signature is always expanded to 3 lines; (4) `EmptyLineBeforeAccessModifier: Leave`, `FixNamespaceComments: false`, `ConstructorInitializerIndentWidth: 2` were needed to match the existing code. Trial configs and diffs: `/data2/smythdata/swig-rules-skeleton-build/s16_clang_format_trial/`. **Instead, a hand cleanup** (`claude_notes/style_cleanup.py`, run once from the repo root) over `lib/` and `swig_rules/lib/` C++ and all our `.i` files, keeping the majority forms (checked against geocal): tabs → spaces (8-column stops, alignment kept), no trailing whitespace, `if(`/`for(`/`while(`/`switch(`/`catch(` (geocal 150:2 for `catch(`), `template<`, `Type& x`/`Type* x`, `Archive& ar` (the skeleton's `Type& x` rule; geocal itself mostly has `Archive & ar`, 583:33), no space before `)`, function `{` on its own line, one declarator per line for pointers. Left alone: `> >` (used everywhere, `>>` nowhere), cast spacing (both forms common), SWIG's `< TYPE >` spacing in `.i` macros. **Not touched:** the upstream forks `my_shared_ptr.i` (SWIG) and `serialize_shared_ptr.h` (Boost), so they stay diffable; `python_lib_init.h` (Python C-API docs style) and `swig_vector_shared_ptr.i` (SWIG traits style) got whitespace cleanup only. Result: 69 files, 41 of them sources; ignoring whitespace, 22 files and ~30 lines. Regenerated wrappers differ only in the copied `.i` code (mostly the `swig_exception.i` handler, once per wrapped function) and one trailing space in a pickle docstring. 0 warnings; `make check` 30/30, `make installcheck` 89 passed, 1 xfailed in `build`, `build-rpath`, `build-gcc14`; no-serialization 20/20. |
 
 ---
 
@@ -667,17 +669,69 @@ Notes:
    These are the patterns geocal and framework will copy, so get the details right here: the constructor-overload
    trick for `source_location` with variadic arguments, the cost of capturing a stacktrace on every throw, and the
    SWIG-visible interface.
-6. **clang-format trial** (maintainer is considering it as a routine tool, like `ruff format`): use
-   `claude_notes/clang_format_trial.clang-format` (tuned to geocal's style; measured impact on geocal in the geocal plan
-   §8.5). Format the skeleton with it after the clang-tidy passes, review the result with the maintainer, and adjust the
-   config: function-signature layout, `{ body }` after signatures, `// clang-format off` around serialization `&` chains.
-   If adopted, add the file as `.clang-format` at the repo root and record the reformat commit for
-   `.git-blame-ignore-revs`.
+6. **Formatting** (done 2026-11-05, see the progress log): the clang-format trial was **not adopted** (decision 21).
+   Instead an AI cleanup made the formatting consistent by hand. geocal and framework do the same; how is in §5a.
+   *Originally:* trial `claude_notes/clang_format_trial.clang-format` (tuned to geocal's style; impact on geocal in the
+   geocal plan §8.5).
 7. **Mechanical tests** (C++): formatter output equals `operator<<` output; the format-string constructor produces the
    expected message and file/line; copying an exception keeps the message; stacktrace is non-empty in a debug build.
    Python: `str()` of each class unchanged (compare with S0 output), exception message text unchanged.
 
 **Exit:** builds with gcc 15 and gcc 14 as C++20; all tests pass; tag `phase1-cxx20`.
+
+---
+
+## 5a. Formatting by AI instead of clang-format (decision 21)
+
+**Decision (maintainer, 2026-11-05):** no clang-format in the skeleton, geocal or framework. The trial (S1.6) gave a
+large diff, misparsed C++20 and the serialization chains, and changed layouts nobody minds. Instead, when a repository
+is modernized, an AI session makes the formatting consistent: one cleanup, then keeping to the style while editing.
+This is what was done here; the notes below are for doing the same in geocal and framework.
+
+**When.** One cleanup per repository, as its own commit (add it to `.git-blame-ignore-revs`), after the clang-tidy passes
+and before the big mechanical edits (`std::shared_ptr`), so those diffs aren't mixed with whitespace. Regenerated
+wrappers in a second commit.
+
+**How.**
+* *Measure first.* Count each form and its variants over the files (as in S1.6: tabs, trailing whitespace, `if (` vs
+  `if(`, `Type & x` vs `Type& x`, `template <`, `catch (`, space before `)`, function `{` placement), and look at where
+  the minority forms are before deciding anything.
+* *Majority rule.* Keep the form the repository already uses most. Make no new style decisions; only remove
+  inconsistencies. Where a repository's majority differs from the skeleton's, decide explicitly (known case:
+  `Archive & ar`, geocal 583 : 33, skeleton now `Archive& ar`).
+* *Write the changes as a script*, not free-hand edits, so the rules are visible, reviewable and can be rerun:
+  `claude_notes/style_cleanup.py` is the skeleton's (file list, exclusions, regex rules, a few hand edits with
+  `assert`ed match counts). Adapt it per repository.
+* *Tabs:* expand with 8-column stops (the code was written in Emacs), which keeps the visual alignment. Check first that
+  no string literal contains a tab.
+* *Review with `git diff -b`* (hides tab and trailing-space changes but shows `if (` → `if(` and the like) and
+  `git diff -w` (only non-whitespace changes); summarize with `sort | uniq -c` over the changed lines to spot anything
+  unintended.
+
+**Don't touch.**
+* Upstream forks and copies, so they stay diffable: here `my_shared_ptr.i` (SWIG), `serialize_shared_ptr.h` (Boost). In
+  geocal also `thirdparty/` and vendored code (the old `boost/backtrace.*` goes anyway); in framework `thirdparty/`.
+* Code written in its upstream's style on purpose: whitespace cleanup only (here `python_lib_init.h`, Python C-API docs
+  style; `swig_vector_shared_ptr.i`, SWIG traits style).
+* Generated code: regenerate it, don't edit it (SWIG wrappers; geocal commits them, framework generates them at build
+  time).
+* Forms that are already consistent or evenly split, and SWIG idioms: `> >` (skeleton: used everywhere), C-style cast
+  spacing (both common), `< TYPE >` spacing inside SWIG macros.
+* Layout that a tool would "fix" but nobody minds: function signature line breaks, `{ body }` on the line after a short
+  signature, the `ar & X & Y` serialization chains (clang-format turned these into `ar& X`).
+* Python: `ruff format` already covers it.
+
+**Check.** Full build and tests in every configuration (S0 phase-end checklist), 0 warnings (count `make` *and* the test
+programs), regenerated wrappers differ only in copied `.i` code, generated `.py` docstrings unchanged.
+
+**geocal and framework differences.**
+* Size: geocal `lib/` is 652 files / 106k lines (8.5k lines with tabs, 5.9k with trailing whitespace, geocal plan §8.5);
+  framework 878 C++ files. Do it per directory, building after each, so a review is manageable.
+* geocal commits its wrappers, so its `.i` cleanup gives a large wrapper diff (second commit). framework doesn't.
+* framework has Fortran and Lua (`luabind`, being dropped); only the C++ and `.i` files are in scope.
+
+**Afterwards.** New and edited code follows the same rules (an AI session reads them from the plan or CLAUDE.md). Rerun
+the measurement counts now and then; a non-zero count means something drifted.
 
 ---
 
@@ -1081,6 +1135,10 @@ Tag `nanobind-1`.
     A). Documented in `CLAUDE.md`.
 20. **Accept the Boost.Serialization leak on a truncated archive** (ST finding B): a Boost error-path leak with no safe
     fix on our side. Note it; keep watching.
+
+21. **No clang-format** (2026-11-05), here or in geocal and framework: the trial (S1.6) wasn't worth the diff and its
+    misparses. Instead an AI session makes the formatting consistent when each repository is modernized, and keeps to it
+    afterwards (§5a). `claude_notes/style_cleanup.py` records the rules used here.
 
 **Open:**
 * Final module name (item 2).

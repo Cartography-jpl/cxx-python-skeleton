@@ -16,7 +16,7 @@ public:
 //-----------------------------------------------------------------------
 
   IostreamSwig(const std::string& To_write = "hi there",
-	       int Word_to_read = 2)
+               int Word_to_read = 2)
     : to_write(To_write), word_to_read(Word_to_read)
   {
   }
@@ -30,4 +30,3 @@ private:
 };
 }
 #endif
-

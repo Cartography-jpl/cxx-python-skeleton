@@ -6,7 +6,7 @@
 %module(moduleimport="from ._swig_wrap import $module", directors="1", allprotected="1") swig_std
 #endif
 #endif
-  
+
 %include <std_string.i>
 %include <std_vector.i>
 %include <typemaps.i>
@@ -18,4 +18,3 @@
 %template(vector_short_int) std::vector<short int>;
 %template(vector_int) std::vector<int>;
 %template(vector_float) std::vector<float>;
-

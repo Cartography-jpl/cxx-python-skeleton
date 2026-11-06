@@ -6,19 +6,19 @@
 
 namespace Skeleton {
 bool have_serialize_supported();
-void serialize_write(const std::string& Fname, 
-		     const boost::shared_ptr<GenericObject>& Obj);
+void serialize_write(const std::string& Fname,
+                     const boost::shared_ptr<GenericObject>& Obj);
 std::string serialize_write_string(const boost::shared_ptr<GenericObject>& Obj);
 
-boost::shared_ptr<GenericObject> 
+boost::shared_ptr<GenericObject>
 serialize_read_generic(const std::string& Fname);
 
-boost::shared_ptr<GenericObject> 
+boost::shared_ptr<GenericObject>
 serialize_read_generic_string(const std::string& Data);
 
-void serialize_write_binary(const std::string& Fname, 
-			    const boost::shared_ptr<GenericObject>& Obj);
-boost::shared_ptr<GenericObject> 
+void serialize_write_binary(const std::string& Fname,
+                            const boost::shared_ptr<GenericObject>& Obj);
+boost::shared_ptr<GenericObject>
 serialize_read_binary_generic(const std::string& Fname);
 }
 
@@ -48,7 +48,7 @@ serialize_read_binary_generic(const std::string& Fname);
 namespace Skeleton {
 std::string serialize_write_binary(const boost::shared_ptr<GenericObject>& Obj);
 
-boost::shared_ptr<GenericObject> 
+boost::shared_ptr<GenericObject>
 serialize_read_binary(const std::string& Data);
 }
 

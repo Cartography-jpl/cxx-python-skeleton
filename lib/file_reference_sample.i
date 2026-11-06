@@ -24,4 +24,4 @@ boost::shared_ptr<GenericObject> generic_object_index(int I);
 
 // List of things "import *" will include
 %python_export("FileReferenceSample", "generic_object_list",
-	       "generic_object_index", "Vector_GenericObject")
+               "generic_object_index", "Vector_GenericObject")

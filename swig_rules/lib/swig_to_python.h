@@ -12,14 +12,14 @@ namespace SWIG_MAPPER_NAMESPACE {
   this in swig code. For geocal, this just gets included by
   geocal_shared_ptr.i. If you try to include this in normal C++ you
   will likely get an error since things like Swig::Director aren't
-  defined. 
+  defined.
 *******************************************************************/
 
 //-----------------------------------------------------------------------
 /// Function to map from a shared point to a python object.
 //-----------------------------------------------------------------------
 
-template<typename T> inline PyObject* 
+template<typename T> inline PyObject*
 swig_to_python(const boost::shared_ptr<T>& V)
 {
 
@@ -49,7 +49,7 @@ swig_to_python(const boost::shared_ptr<T>& V)
 // underlying type
 //-----------------------------------------------------------------------
 
-  void *p = SwigTypeMapperBase::map_to_python(V);
+  void* p = SwigTypeMapperBase::map_to_python(V);
   if(p)
     return (PyObject*) p;
 
@@ -65,9 +65,9 @@ swig_to_python(const boost::shared_ptr<T>& V)
 // director object at the C++ level. So we don't want the extra
 // Py_INCREF. I think the only place this gets used is
 // serialize_function.i, but you might have other examples of this
-  
-  
-inline PyObject* 
+
+
+inline PyObject*
 swig_to_python_or_none(const boost::shared_ptr<GenericObject>& V)
 {
 //-----------------------------------------------------------------------
@@ -87,10 +87,10 @@ swig_to_python_or_none(const boost::shared_ptr<GenericObject>& V)
   Swig::Director* d = dynamic_cast<Swig::Director*>(V.get());
   if(d) {
     PyObject* p = d->swig_get_self();
-#ifdef PTR_DEBUG    
+#ifdef PTR_DEBUG
     std::cerr << "In swig_to_python_or_none\n";
     std::cerr << "p refcnt: " << p->ob_refcnt << " address " << p->ob_type << "\n";
-#endif    
+#endif
     Py_INCREF(p);
     return p;
   }
@@ -100,7 +100,7 @@ swig_to_python_or_none(const boost::shared_ptr<GenericObject>& V)
 // underlying type
 //-----------------------------------------------------------------------
 
-  void *p = SwigTypeMapperBase::map_to_python(V);
+  void* p = SwigTypeMapperBase::map_to_python(V);
   if(p)
     return (PyObject*) p;
 
@@ -112,11 +112,11 @@ swig_to_python_or_none(const boost::shared_ptr<GenericObject>& V)
   return Py_None;
 }
 
-template<typename T> inline PyObject* 
+template<typename T> inline PyObject*
 swig_to_python(const boost::shared_ptr<T>* V)
 { return swig_to_python(*V); }
 
-inline PyObject* 
+inline PyObject*
 swig_to_python_or_none(const boost::shared_ptr<GenericObject>* V)
 { return swig_to_python_or_none(*V); }
 
@@ -135,12 +135,12 @@ swig_to_python(const std::vector<boost::shared_ptr<T> >& V)
   return res;
 }
 
-template<typename T> inline PyObject* 
+template<typename T> inline PyObject*
 swig_to_python(const std::vector<boost::shared_ptr<T> >* V)
 {
   return swig_to_python(*V);
 }
-  
+
 template<typename T> inline PyObject*
 swig_to_python(const std::vector<std::vector<boost::shared_ptr<T> > >& V)
 {
@@ -152,7 +152,7 @@ swig_to_python(const std::vector<std::vector<boost::shared_ptr<T> > >& V)
   return res;
 }
 
-template<typename T> inline PyObject* 
+template<typename T> inline PyObject*
 swig_to_python(const std::vector<std::vector<boost::shared_ptr<T> > >* V)
 {
   return swig_to_python(*V);

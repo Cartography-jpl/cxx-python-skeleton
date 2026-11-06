@@ -16,7 +16,7 @@ void SWIG_MAPPER_NAMESPACE::clear_ptr_serialized_reference()
   // while pickling a SWIG director object that itself holds other
   // framework objects) must not wipe out the still-in-progress outer
   // mark pass.
-  //if (ptr_serialize_depth <= 1)
+  //if(ptr_serialize_depth <= 1)
   //  ptr_referenced.clear();
   //
   // Not sure about the logic here. clear_ptr_serialized_reference is *only*

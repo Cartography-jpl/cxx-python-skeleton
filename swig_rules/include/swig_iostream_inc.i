@@ -1,9 +1,9 @@
-// Stuff to include everywhere for using std::ostream. We also have 
+// Stuff to include everywhere for using std::ostream. We also have
 // swig_iostream.i which includes stuff compiled in one spot.
 
 %{
 #include <ios>
-#include <stdexcept>  
+#include <stdexcept>
 #include <boost/iostreams/filtering_stream.hpp>
 #include <boost/iostreams/categories.hpp>
 
@@ -11,7 +11,7 @@
 struct closable_seekable_device_tag :
   virtual boost::iostreams::device_tag, boost::iostreams::seekable,
   boost::iostreams::closable_tag { };
- 
+
 // Make a python FileHandle look like a device
 class python_fh_device {
 public:
@@ -26,7 +26,7 @@ public:
     if(res == NULL) {
       throw std::runtime_error("Call to FileHandle read failed");
     }
-    char *rescp;
+    char* rescp;
     Py_ssize_t reslen;
     PyBytes_AsStringAndSize(res, &rescp, &reslen);
     // Python's read(n) can return fewer than n bytes (e.g., near EOF), so
@@ -78,5 +78,5 @@ public:
 {
   return python_fh_device(Fh, Fis);
 }
- 
+
 %}

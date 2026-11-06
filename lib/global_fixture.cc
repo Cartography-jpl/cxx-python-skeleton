@@ -7,8 +7,7 @@ using namespace Skeleton;
 /// Setup for all unit tests.
 //-----------------------------------------------------------------------
 
-GlobalFixture::GlobalFixture() 
+GlobalFixture::GlobalFixture()
 {
   set_default_value();
 }
-

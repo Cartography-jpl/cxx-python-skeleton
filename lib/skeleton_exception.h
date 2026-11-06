@@ -87,7 +87,7 @@ public:
 /// to later values, as for a stream (e.g. e << std::setprecision(8)
 /// << x << y formats both x and y with 8 digits).
 //-----------------------------------------------------------------------
-    
+
   template<class T> inline Exception& operator<<(const T& V)
   {
     std::ostringstream os;
@@ -108,10 +108,10 @@ public:
 /// Print out description of object.
 //-----------------------------------------------------------------------
 
-  virtual void print(std::ostream& Os) const 
+  virtual void print(std::ostream& Os) const
   {
     Os << "Skeleton Exception:\n"
-       << "=========================\n" 
+       << "=========================\n"
        << what() << "\n"
        << "=========================\n";
   }
@@ -167,10 +167,10 @@ private:
 /// Range check
 //-----------------------------------------------------------------------
 
-template <class T> inline void range_check_template(
-const T&	   Val,		// Value to be checked.
-const T&	   Min,		// Minimum allowed value.
-const T&	   Max,		// Maximum allowed value.
+template<class T> inline void range_check_template(
+const T&           Val,         // Value to be checked.
+const T&           Min,         // Minimum allowed value.
+const T&           Max,         // Maximum allowed value.
 const char*        File,
 int                Line
 )
@@ -186,10 +186,10 @@ int                Line
   }
 }
 
-template <class T> inline void range_check_inclusive_template(
-const T&	   Val,		// Value to be checked.
-const T&	   Min,		// Minimum allowed value.
-const T&	   Max,		// Maximum allowed value.
+template<class T> inline void range_check_inclusive_template(
+const T&           Val,         // Value to be checked.
+const T&           Min,         // Minimum allowed value.
+const T&           Max,         // Maximum allowed value.
 const char*        File,
 int                Line
 )
@@ -218,9 +218,9 @@ int                Line
 /// Range check
 //-----------------------------------------------------------------------
 
-template <class T> inline void range_min_check_template(
-const T&	   Val,		// Value to be checked.
-const T&	   Min,		// Minimum allowed value.
+template<class T> inline void range_min_check_template(
+const T&           Val,         // Value to be checked.
+const T&           Min,         // Minimum allowed value.
 const char*        File,
 int                Line
 )
@@ -245,9 +245,9 @@ int                Line
 /// Range check
 //-----------------------------------------------------------------------
 
-template <class T> inline void range_max_check_template(
-const T&	   Val,		// Value to be checked.
-const T&	   Max,		// Maximum allowed value.
+template<class T> inline void range_max_check_template(
+const T&           Val,         // Value to be checked.
+const T&           Max,         // Maximum allowed value.
 const char*        File,
 int                Line
 )

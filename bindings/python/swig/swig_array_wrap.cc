@@ -3990,7 +3990,7 @@ template<typename P_type> class PythonMemoryBlockReference;
   sizeType blockLength()
 #include <blitz/memblock.h>
 #undef blockLength
-  
+
 #include <blitz/array.h>
 #include <blitz/range.h>
 #define PY_ARRAY_UNIQUE_SYMBOL geocal_ARRAY_API
@@ -4023,7 +4023,7 @@ public:
 /// the data, rather it owns a reference to a PythonObject that
 /// keeps a reference to the numpy PythonObject so it doesn't
 /// go away on the python side while we are using it on the
-/// C++ side. 
+/// C++ side.
 //--------------------------------------------------------------
 
 template<typename P_type>
@@ -4035,12 +4035,12 @@ public:
                  (T_type *) PyArray_DATA((PyArrayObject*) numpy_obj)),
       python_obj(numpy_obj)
   {
-    Py_XINCREF(python_obj); 
+    Py_XINCREF(python_obj);
 #ifdef BZ_DEBUG_LOG_ALLOCATIONS
     std::cout << "PythonMemoryBlock: have reference to numpy object data at " << blitz::MemoryBlock<P_type>::data() << "\n"
               << "   numpy python object " << python_obj << "\n"
               << "   numpy python object ref count (after incrementing) " << Py_REFCNT(python_obj) <<"\n";
-#endif    
+#endif
   }
   virtual ~PythonMemoryBlock()
   {
@@ -4052,7 +4052,7 @@ public:
     std::cout << "PythonMemoryBlock: removing reference to numpy object data at " << blitz::MemoryBlock<P_type>::data() << "\n"
               << "   numpy python object " << python_obj << "\n"
               << "   numpy python object ref count (before decrementing) " << Py_REFCNT(python_obj) <<"\n";
-#endif    
+#endif
     Py_XDECREF(python_obj);
   }
 private:
@@ -4081,7 +4081,7 @@ public:
     a.changeBlock(*this);
   }
 };
- 
+
 PyObject* numpy_module();
 PyObject* numpy_dot_float64();
 PyObject* numpy_dot_float32();
@@ -4111,7 +4111,7 @@ template<> inline int type_to_npy<bool>() {return NPY_BOOL;}
 
 inline const char* npy_type_str(int type_enum)
 {
-    switch (type_enum) {
+    switch(type_enum) {
         case NPY_DOUBLE:
             return "double";
         case NPY_FLOAT:
@@ -4154,9 +4154,9 @@ struct ArrayConversionException : public std::exception
 };
 
 //--------------------------------------------------------------
-// Use the numpy command "asarray" to convert various python 
-// objects to a numpy object. This may return null, if the 
-// "asarray" fails. 
+// Use the numpy command "asarray" to convert various python
+// objects to a numpy object. This may return null, if the
+// "asarray" fails.
 //--------------------------------------------------------------
 
 inline PyObject* asarray_name()
@@ -4169,8 +4169,8 @@ template<class T> PyObject* to_numpy(PyObject* obj);
 
 template<> inline PyObject* to_numpy<double>(PyObject* obj)
 {
-  PyObject* res = PyObject_CallMethodObjArgs(numpy_module(), 
-                                             asarray_name(), 
+  PyObject* res = PyObject_CallMethodObjArgs(numpy_module(),
+                                             asarray_name(),
                                              obj, numpy_dot_float64(), NULL);
   // Don't worry about errors , since we just return a null
   PyErr_Clear();
@@ -4179,8 +4179,8 @@ template<> inline PyObject* to_numpy<double>(PyObject* obj)
 
 template<> inline PyObject* to_numpy<float>(PyObject* obj)
 {
-  PyObject* res = PyObject_CallMethodObjArgs(numpy_module(), 
-                                             asarray_name(), 
+  PyObject* res = PyObject_CallMethodObjArgs(numpy_module(),
+                                             asarray_name(),
                                              obj, numpy_dot_float32(), NULL);
   // Don't worry about errors , since we just return a null
   PyErr_Clear();
@@ -4189,8 +4189,8 @@ template<> inline PyObject* to_numpy<float>(PyObject* obj)
 
 template<> inline PyObject* to_numpy<bool>(PyObject* obj)
 {
-  PyObject* res = PyObject_CallMethodObjArgs(numpy_module(), 
-                                    asarray_name(), 
+  PyObject* res = PyObject_CallMethodObjArgs(numpy_module(),
+                                    asarray_name(),
                                     obj, numpy_dot_bool(), NULL);
   PyErr_Clear();
   return res;
@@ -4198,8 +4198,8 @@ template<> inline PyObject* to_numpy<bool>(PyObject* obj)
 
 template<> inline PyObject* to_numpy<int>(PyObject* obj)
 {
-  PyObject* res = PyObject_CallMethodObjArgs(numpy_module(), 
-                                    asarray_name(), 
+  PyObject* res = PyObject_CallMethodObjArgs(numpy_module(),
+                                    asarray_name(),
                                     obj, numpy_dot_int32(), NULL);
   PyErr_Clear();
   return res;
@@ -4207,8 +4207,8 @@ template<> inline PyObject* to_numpy<int>(PyObject* obj)
 
 template<> inline PyObject* to_numpy<unsigned int>(PyObject* obj)
 {
-  PyObject* res = PyObject_CallMethodObjArgs(numpy_module(), 
-                                    asarray_name(), 
+  PyObject* res = PyObject_CallMethodObjArgs(numpy_module(),
+                                    asarray_name(),
                                     obj, numpy_dot_uint32(), NULL);
   PyErr_Clear();
   return res;
@@ -4216,8 +4216,8 @@ template<> inline PyObject* to_numpy<unsigned int>(PyObject* obj)
 
 template<> inline PyObject* to_numpy<short int>(PyObject* obj)
 {
-  PyObject* res = PyObject_CallMethodObjArgs(numpy_module(), 
-                                    asarray_name(), 
+  PyObject* res = PyObject_CallMethodObjArgs(numpy_module(),
+                                    asarray_name(),
                                     obj, numpy_dot_int16(), NULL);
   PyErr_Clear();
   return res;
@@ -4225,8 +4225,8 @@ template<> inline PyObject* to_numpy<short int>(PyObject* obj)
 
 template<> inline PyObject* to_numpy<unsigned short int>(PyObject* obj)
 {
-  PyObject* res = PyObject_CallMethodObjArgs(numpy_module(), 
-                                    asarray_name(), 
+  PyObject* res = PyObject_CallMethodObjArgs(numpy_module(),
+                                    asarray_name(),
                                     obj, numpy_dot_uint16(), NULL);
   PyErr_Clear();
   return res;
@@ -4234,8 +4234,8 @@ template<> inline PyObject* to_numpy<unsigned short int>(PyObject* obj)
 
 template<> inline PyObject* to_numpy<char>(PyObject* obj)
 {
-  PyObject* res = PyObject_CallMethodObjArgs(numpy_module(), 
-                                    asarray_name(), 
+  PyObject* res = PyObject_CallMethodObjArgs(numpy_module(),
+                                    asarray_name(),
                                     obj, numpy_dot_int8(), NULL);
   PyErr_Clear();
   return res;
@@ -4243,17 +4243,17 @@ template<> inline PyObject* to_numpy<char>(PyObject* obj)
 
 template<> inline PyObject* to_numpy<unsigned char>(PyObject* obj)
 {
-  PyObject* res = PyObject_CallMethodObjArgs(numpy_module(), 
-                                    asarray_name(), 
+  PyObject* res = PyObject_CallMethodObjArgs(numpy_module(),
+                                    asarray_name(),
                                     obj, numpy_dot_uint8(), NULL);
   PyErr_Clear();
   return res;
 }
- 
+
 //--------------------------------------------------------------
-// Convert a numpy array to a blitz::Array. The numpy should 
+// Convert a numpy array to a blitz::Array. The numpy should
 // already be the right data type before calling these (you can
-// call to_numpy, if that is convenient). The underlying data is 
+// call to_numpy, if that is convenient). The underlying data is
 // still owned by the numpy object, so you need to make sure that
 // the numpy object doesn't get deleted until you are done with
 // the blitz::Array.
@@ -4261,14 +4261,14 @@ template<> inline PyObject* to_numpy<unsigned char>(PyObject* obj)
 // If this fails, we throw an exception.
 //--------------------------------------------------------------
 
-template<class T, int D> 
+template<class T, int D>
 inline blitz::Array<T, D> to_blitz_array(PyObject* numpy_obj)
 {
   PyArrayObject* numpy = (PyArrayObject*) numpy_obj;
   if(PyArray_NDIM(numpy) != D) {
     std::stringstream err;
     err << "Error converting PyObject to Blitz array. "
-        << "Dimension of array passed: " << PyArray_NDIM(numpy) 
+        << "Dimension of array passed: " << PyArray_NDIM(numpy)
         << " is not the expected size: " << D
         << " for blitz::Array<" << npy_type_str(type_to_npy<T>()) << ", " << D << ">";
     throw std::runtime_error(err.str().c_str());
@@ -4291,7 +4291,7 @@ inline blitz::Array<T, D> to_blitz_array(PyObject* numpy_obj)
       throw std::runtime_error("Error converting PyObject to Blitz array. blitz::Array can't handle strides that aren't an even multiple of sizeof(T)");
     }
   }
-  blitz::Array<T, D> a((T*)PyArray_DATA(numpy), shape, stride, 
+  blitz::Array<T, D> a((T*)PyArray_DATA(numpy), shape, stride,
                        blitz::neverDeleteData);
   // Stash a reference to numpy_obj in array, so it doesn't disappear
   // while the blitz::Array still exists
@@ -4299,23 +4299,23 @@ inline blitz::Array<T, D> to_blitz_array(PyObject* numpy_obj)
   return a;
 }
 
-template<class TYPE, int DIM> 
-inline void iter_to_vector_of_arrays(PyObject *sequence, std::vector<blitz::Array<TYPE, DIM> >& arr_vec)
+template<class TYPE, int DIM>
+inline void iter_to_vector_of_arrays(PyObject* sequence, std::vector<blitz::Array<TYPE, DIM> >& arr_vec)
 {
 
-  if (PyUnicode_Check(sequence)) {
+  if(PyUnicode_Check(sequence)) {
     throw ArrayConversionException("iter_to_vector_of_arrays: unicode objects are not supported");
   }
 
-  PyObject *iterator = PyObject_GetIter(sequence);
-  PyObject *item;
+  PyObject* iterator = PyObject_GetIter(sequence);
+  PyObject* item;
 
-  if (iterator == NULL) {
+  if(iterator == NULL) {
     throw ArrayConversionException("iter_to_vector_of_arrays: passed object is not iterable");
   }
 
   int iter_index = 0;
-  while ((item = PyIter_Next(iterator))) {
+  while((item = PyIter_Next(iterator))) {
     PythonObject numpy;
     numpy.obj = to_numpy<TYPE>(item);
     if(!numpy.obj) {
@@ -4342,7 +4342,7 @@ inline void iter_to_vector_of_arrays(PyObject *sequence, std::vector<blitz::Arra
 
   Py_DECREF(iterator);
 
-  if (PyErr_Occurred()) {
+  if(PyErr_Occurred()) {
      throw ArrayConversionException("iter_to_vector_of_arrays: an error occured iterating over input object");
   }
 }
@@ -4875,7 +4875,7 @@ PyObject* numpy_dot_float32()
     res = PyObject_GetAttrString(numpy_module(), "float32");
   return res;
 }
- 
+
 PyObject* numpy_dot_int32()
 {
   static PyObject* res = 0;
@@ -4923,7 +4923,7 @@ PyObject* numpy_dot_uint8()
     res = PyObject_GetAttrString(numpy_module(), "uint8");
   return res;
 }
- 
+
 PyObject* numpy_dot_bool()
 {
   static PyObject* res = 0;

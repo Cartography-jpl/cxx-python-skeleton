@@ -91,7 +91,7 @@ public:
 //-----------------------------------------------------------------------
 
   void split(const blitz::Array<double, 2>& A, blitz::Array<double, 1>& Row0,
-	     blitz::Array<double, 1>& Col0) const
+             blitz::Array<double, 1>& Col0) const
   {
     Row0.resize(A.cols());
     Row0 = A(0, blitz::Range::all());
@@ -99,7 +99,7 @@ public:
     Col0 = A(blitz::Range::all(), 0);
   }
   void scaled(const blitz::Array<double, 2>& A, double S,
-	      blitz::Array<double, 2>& Res, double& Total) const
+              blitz::Array<double, 2>& Res, double& Total) const
   {
     Res.resize(A.shape());
     Res = A * S;

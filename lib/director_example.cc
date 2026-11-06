@@ -5,7 +5,7 @@ using namespace Skeleton;
 
 #ifdef SKELETON_HAVE_BOOST_SERIALIZATION
 template<class Archive>
-void DirectorExample::serialize(Archive & ar, const unsigned int )
+void DirectorExample::serialize(Archive& ar, const unsigned int)
 {
   SKELETON_GENERIC_BASE(DirectorExample);
   ar & SKELETON_NVP_(value_to_add) & SKELETON_NVP_(name);
@@ -20,14 +20,14 @@ void DirectorExample::serialize(Archive & ar, const unsigned int )
 }
 
 template<class Archive>
-void DirectorExampleNested::serialize(Archive & ar, const unsigned int )
+void DirectorExampleNested::serialize(Archive& ar, const unsigned int)
 {
   ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(DirectorExample)
     & SKELETON_NVP_(obj);
 }
 
 template<class Archive>
-void DirectorExampleUser::serialize(Archive & ar, const unsigned int )
+void DirectorExampleUser::serialize(Archive& ar, const unsigned int)
 {
   SKELETON_GENERIC_BASE(DirectorExampleUser);
   ar & SKELETON_NVP_(value_vec) & SKELETON_NVP_(value_vec2)
@@ -35,7 +35,7 @@ void DirectorExampleUser::serialize(Archive & ar, const unsigned int )
 }
 
 template<class Archive>
-void DirectorExampleWeakPtr::serialize(Archive & ar, const unsigned int )
+void DirectorExampleWeakPtr::serialize(Archive& ar, const unsigned int)
 {
   SKELETON_GENERIC_BASE(DirectorExampleWeakPtr);
   ar & SKELETON_NVP_(a);

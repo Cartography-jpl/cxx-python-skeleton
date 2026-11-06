@@ -55,7 +55,7 @@ void check_array(const std::string& Dir, const std::string& Name, bool Binary)
 
 template<int D>
 void check_string_array(const std::string& Dir, const std::string& Name,
-			bool Binary)
+                        bool Binary)
 {
   std::string f = Dir + "golden/" + Name + (Binary ? ".bin" : ".xml");
   std::ifstream is(f, Binary ? std::ios::binary : std::ios::in);
@@ -74,7 +74,7 @@ void check_string_array(const std::string& Dir, const std::string& Name,
 }
 
 template<class T> void check_arrays(const std::string& Dir,
-				    const std::string& Type, bool Binary)
+                                    const std::string& Type, bool Binary)
 {
   std::string b = "blitz_" + Type + "_array_";
   check_array<T, 1>(Dir, b + "1d", Binary);

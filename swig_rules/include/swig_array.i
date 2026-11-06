@@ -13,7 +13,7 @@
 %include <std_vector.i>
 
 //--------------------------------------------------------------
-// Before using numpy, we need to call the numpy supplied 
+// Before using numpy, we need to call the numpy supplied
 // function 'import_array' which imports the module and does set up.
 //--------------------------------------------------------------
 
@@ -62,7 +62,7 @@ PyObject* numpy_dot_float32()
     res = PyObject_GetAttrString(numpy_module(), "float32");
   return res;
 }
- 
+
 PyObject* numpy_dot_int32()
 {
   static PyObject* res = 0;
@@ -110,7 +110,7 @@ PyObject* numpy_dot_uint8()
     res = PyObject_GetAttrString(numpy_module(), "uint8");
   return res;
 }
- 
+
 PyObject* numpy_dot_bool()
 {
   static PyObject* res = 0;
@@ -141,12 +141,12 @@ public:
   // automatically map from blitz::Array to numpy or narry. But leave
   // in place for helping with other languages.
   Array(int e1);
-  Array(int e1, int e2, blitz::GeneralArrayStorage<D> storage = 
-	blitz::FortranArray<D>());
-  Array(int e1, int e2, int e3, blitz::GeneralArrayStorage<D> storage = 
-	blitz::FortranArray<D>());
-  Array(int e1, int e2, int e3, int e4, blitz::GeneralArrayStorage<D> storage = 
-	blitz::FortranArray<D>());
+  Array(int e1, int e2, blitz::GeneralArrayStorage<D> storage =
+        blitz::FortranArray<D>());
+  Array(int e1, int e2, int e3, blitz::GeneralArrayStorage<D> storage =
+        blitz::FortranArray<D>());
+  Array(int e1, int e2, int e3, int e4, blitz::GeneralArrayStorage<D> storage =
+        blitz::FortranArray<D>());
   T* data();
   int size() const;
   %extend {
@@ -157,7 +157,7 @@ public:
      void write(int i1, T val) {(*$self)(i1) = val;}
      void write(int i1,int i2, T val) {(*$self)(i1,i2) = val;}
      void write(int i1, int i2, int i3, T val) {(*$self)(i1,i2,i3) = val;}
-     void write(int i1, int i2, int i3, int i4, T val) 
+     void write(int i1, int i2, int i3, int i4, T val)
      {(*$self)(i1,i2,i3,i4) = val;}
      void* datav() { return (void*) $self->data(); }
      int shape0() { return $self->shape()[0]; }
@@ -187,14 +187,14 @@ public:
 }
 
 //--------------------------------------------------------------
-// Convert to numpy. Note that there is a complication in the 
+// Convert to numpy. Note that there is a complication in the
 // lifetime of the pointed to array. numpy can't take ownership
 // of the memory in the blitz::Array, since it wasn't allocated
 // by python. Instead, numpy just points to the memory. To ensure
 // that the blitz::Array memory isn't freeded, we also stash a
 // python object wrapping around the blitz::Array that holds onto
 // the object. This gets placed in a special area set up by numpy
-// exactly for this purpose called "BASE". When the numpy array 
+// exactly for this purpose called "BASE". When the numpy array
 // get deleted, it also deletes the numpy. If this is the only
 // reference to the blitz::Array memory, then the memory gets
 // cleaned up then.
@@ -211,13 +211,14 @@ public:
   }
 
   // Create new numpy object using Numpy C API
-  to_obj = PyArray_New(&PyArray_Type, DIM, dims, type_to_npy<TYPE >(), 
-			stride, from_obj->data(), 0, 0, 0);
+  to_obj = PyArray_New(&PyArray_Type, DIM, dims, type_to_npy<TYPE >(),
+                        stride, from_obj->data(), 0, 0, 0);
   blitz::Array<TYPE, DIM>* t = new blitz::Array<TYPE, DIM>(*from_obj);
   // Stash pointer to original blitz array as detailed above
-  PyArray_SetBaseObject((PyArrayObject*) to_obj, 
-			SWIG_NewPointerObj(SWIG_as_voidptr(t), 
-				   $descriptor(blitz::Array<TYPE, DIM>*), 					   SWIG_POINTER_NEW | SWIG_POINTER_OWN ));
+  PyArray_SetBaseObject((PyArrayObject*) to_obj,
+                        SWIG_NewPointerObj(SWIG_as_voidptr(t),
+                          $descriptor(blitz::Array<TYPE, DIM>*),
+                          SWIG_POINTER_NEW | SWIG_POINTER_OWN));
 %enddef
 
 //************************************************************
@@ -262,17 +263,18 @@ public:
     // of type T.
     stride[i] = $1->stride(i) * sizeof(TYPE);
   }
-  $result = PyArray_New(&PyArray_Type, DIM, dims, type_to_npy<TYPE>(), 
-			stride, $1->data(), 0, 0, 0);
+  $result = PyArray_New(&PyArray_Type, DIM, dims, type_to_npy<TYPE>(),
+                        stride, $1->data(), 0, 0, 0);
   PyArray_UpdateFlags((PyArrayObject*)$result, NPY_ARRAY_WRITEABLE);
   blitz::Array<TYPE, DIM>* t = new blitz::Array<TYPE, DIM>(*$1);
-  PyArray_SetBaseObject((PyArrayObject*)$result, 
-			SWIG_NewPointerObj(SWIG_as_voidptr(t), 
-				   $descriptor(blitz::Array<TYPE, DIM>*), 					   SWIG_POINTER_NEW | SWIG_POINTER_OWN ));
+  PyArray_SetBaseObject((PyArrayObject*)$result,
+                        SWIG_NewPointerObj(SWIG_as_voidptr(t),
+                          $descriptor(blitz::Array<TYPE, DIM>*),
+                          SWIG_POINTER_NEW | SWIG_POINTER_OWN));
 }
 
 %typemap(out) std::vector<blitz::Array<TYPE, DIM> > {
-    
+
     $result = PyList_New($1.size());
     for(std::size_t idx = 0; idx < $1.size(); idx++) {
         PyObject* element_np_arr;
@@ -299,33 +301,33 @@ public:
 
 
 %typemap(argout) blitz::Array<TYPE, DIM>& OUTPUT {
-   PyObject *res;
+   PyObject* res;
    %blitz_to_numpy(TYPE, DIM, $1, res);
    $result = SWIG_AppendOutput($result, res);
 }
 
 %typemap(argout) blitz::Array<TYPE, DIM>& OUTPUT1 {
-  PyObject *res;
+  PyObject* res;
   %blitz_to_numpy(TYPE, DIM, $1, res);
   $result = SWIG_AppendOutput($result, res);
 }
 
 %typemap(argout) blitz::Array<TYPE, DIM>& OUTPUT2 {
-  PyObject *res;
+  PyObject* res;
   %blitz_to_numpy(TYPE, DIM, $1, res);
   $result = SWIG_AppendOutput($result, res);
 }
 
 //--------------------------------------------------------------
-// Convert any type first to a numpy array (doesn't copy if 
+// Convert any type first to a numpy array (doesn't copy if
 // already a numpy array), and then set blitz array to point to
 // this.
 //--------------------------------------------------------------
 
-%typemap(in) const blitz::Array<TYPE, DIM>& (blitz::Array<TYPE, DIM> a, PythonObject numpy) 
+%typemap(in) const blitz::Array<TYPE, DIM>& (blitz::Array<TYPE, DIM> a, PythonObject numpy)
 {
-  int res = SWIG_ConvertPtr($input, (void**)(&$1), $descriptor(blitz::Array<TYPE, DIM>*), 
-			    %convertptr_flags);
+  int res = SWIG_ConvertPtr($input, (void**)(&$1), $descriptor(blitz::Array<TYPE, DIM>*),
+                            %convertptr_flags);
   if(!SWIG_IsOK(res)) {
     numpy.obj = to_numpy<TYPE >($input);
     if(!numpy.obj) {
@@ -345,10 +347,10 @@ public:
 // Version that forces a copy of data
 //--------------------------------------------------------------
 
-%typemap(in) const blitz::Array<TYPE, DIM>& FORCE_COPY (blitz::Array<TYPE, DIM> a, PythonObject numpy) 
+%typemap(in) const blitz::Array<TYPE, DIM>& FORCE_COPY (blitz::Array<TYPE, DIM> a, PythonObject numpy)
 {
-  int res = SWIG_ConvertPtr($input, (void**)(&$1), $descriptor(blitz::Array<TYPE, DIM>*), 
-			    %convertptr_flags);
+  int res = SWIG_ConvertPtr($input, (void**)(&$1), $descriptor(blitz::Array<TYPE, DIM>*),
+                            %convertptr_flags);
   if(!SWIG_IsOK(res)) {
     numpy.obj = to_numpy<TYPE >($input);
     if(!numpy.obj || PyArray_NDIM((PyArrayObject*)numpy.obj) !=DIM) {
@@ -361,12 +363,12 @@ public:
 }
 
 //--------------------------------------------------------------
-// Convert any type first to a numpy array (doesn't copy if 
+// Convert any type first to a numpy array (doesn't copy if
 // already a numpy array), and then set blitz array to point to
 // this.
 //--------------------------------------------------------------
 
-%typemap(in) blitz::Array<TYPE, DIM> (PythonObject numpy) 
+%typemap(in) blitz::Array<TYPE, DIM> (PythonObject numpy)
 {
   numpy.obj = to_numpy<TYPE >($input);
   if(!numpy.obj || PyArray_NDIM((PyArrayObject*)numpy.obj) !=DIM) {
@@ -380,7 +382,7 @@ public:
 // Handle conversion in directors
 //--------------------------------------------------------------
 
-%typemap(directorout) blitz::Array<TYPE, DIM> (PythonObject numpy) 
+%typemap(directorout) blitz::Array<TYPE, DIM> (PythonObject numpy)
 {
   // Note that just setting the error isn't enough, we need to stop
   // here (the code used to go on with a null pointer and segfault). We
@@ -394,7 +396,7 @@ public:
   $result.reference(to_blitz_array<TYPE, DIM>(t).copy());
 }
 
-%typemap(directorin) const blitz::Array<TYPE, DIM>& 
+%typemap(directorin) const blitz::Array<TYPE, DIM>&
 {
   npy_intp dims[DIM], stride[DIM];
   for(int i = 0; i < DIM; ++i) {
@@ -403,12 +405,13 @@ public:
     // of type T.
     stride[i] = $1.stride(i) * sizeof(TYPE);
   }
-  PyObject* res = PyArray_New(&PyArray_Type, DIM, dims, type_to_npy<TYPE >(), 
-			      stride, const_cast<TYPE*>($1.data()), 0, 0, 0);
+  PyObject* res = PyArray_New(&PyArray_Type, DIM, dims, type_to_npy<TYPE >(),
+                              stride, const_cast<TYPE*>($1.data()), 0, 0, 0);
   blitz::Array<TYPE, DIM>* t = new blitz::Array<TYPE, DIM>($1);
-  PyArray_SetBaseObject((PyArrayObject*)res, 
-			SWIG_NewPointerObj(SWIG_as_voidptr(t), 
-				   $descriptor(blitz::Array<TYPE, DIM>*), 					   SWIG_POINTER_NEW | SWIG_POINTER_OWN ));
+  PyArray_SetBaseObject((PyArrayObject*)res,
+                        SWIG_NewPointerObj(SWIG_as_voidptr(t),
+                          $descriptor(blitz::Array<TYPE, DIM>*),
+                          SWIG_POINTER_NEW | SWIG_POINTER_OWN));
   $input = res;
 }
 
@@ -428,22 +431,22 @@ public:
 %typecheck(PRECEDENCE) std::vector<blitz::Array<TYPE, DIM> >, const std::vector<blitz::Array<TYPE, DIM> > {
   // Here we are just checking that the item is an iterable, we are not checking that
   // each element can be converted to a blitz array. Leave that as a failure during the typemap conversion
-  PyObject *iterator = PyObject_GetIter($input);
+  PyObject* iterator = PyObject_GetIter($input);
   $1 = iterator != NULL;
 }
 
 %typecheck(PRECEDENCE) std::vector<blitz::Array<TYPE, DIM> >&, const std::vector<blitz::Array<TYPE, DIM> >& {
   // Here we are just checking that the item is an iterable, we are not checking that
   // each element can be converted to a blitz array. Leave that as a failure during the typemap conversion
-  PyObject *iterator = PyObject_GetIter($input);
+  PyObject* iterator = PyObject_GetIter($input);
   $1 = iterator != NULL;
 }
 
 %typemap(in) std::vector<blitz::Array<TYPE, DIM> > (std::vector<blitz::Array<TYPE, DIM> > arr_vec), const std::vector<blitz::Array<TYPE, DIM> > (std::vector<blitz::Array<TYPE, DIM> > arr_vec)
-{ 
+{
   try {
     iter_to_vector_of_arrays<TYPE, DIM>($input, arr_vec);
-  } catch (ArrayConversionException& exc) {
+  } catch(ArrayConversionException& exc) {
     SWIG_exception_fail(SWIG_TypeError, exc.what());
   }
 
@@ -451,10 +454,10 @@ public:
 }
 
 %typemap(in) std::vector<blitz::Array<TYPE, DIM> >& (std::vector<blitz::Array<TYPE, DIM> > arr_vec), const std::vector<blitz::Array<TYPE, DIM> >& (std::vector<blitz::Array<TYPE, DIM> > arr_vec)
-{ 
+{
   try {
     iter_to_vector_of_arrays<TYPE, DIM>($input, arr_vec);
-  } catch (ArrayConversionException& exc) {
+  } catch(ArrayConversionException& exc) {
     SWIG_exception_fail(SWIG_TypeError, exc.what());
   }
 
@@ -506,7 +509,7 @@ public:
 //--------------------------------------------------------------
 
 %pythoncode %{
-__all__ = []  
+__all__ = []
 for t in ("double", "bool", "int", "uint", "float", "short", "ushort", "char", "uchar"):
     for d in range(1,8+1):
         __all__.append("BlitzArray_%s_%d" % (t, d))

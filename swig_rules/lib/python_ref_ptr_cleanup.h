@@ -10,7 +10,7 @@
   This handles the lifetime to a python object, incrementing the
   reference counter on creation and decrementing when we call
   operator() as a shared_ptr deleter.
-  
+
   The lifetime of python classes that derive from C++ director objects is a bit
   confusing, since we have both python and C++ pieces it isn't immediately
   clear who owns things, and how lifetime/cleanup is handled.
@@ -65,12 +65,12 @@ public:
   : obj(Obj)
   {
     Py_INCREF((PyObject*) obj);
-#ifdef 	PTR_DEBUG
+#ifdef  PTR_DEBUG
     std::cerr << "In PythonRefPtrCleanup constructor " << obj << " has count "
-	      << Py_REFCNT((PyObject*) obj) << "\n";
-#endif	
+              << Py_REFCNT((PyObject*) obj) << "\n";
+#endif
   }
-    
+
   PythonRefPtrCleanup(const PythonRefPtrCleanup& V)
     : obj(V.obj)
   {
@@ -78,22 +78,22 @@ public:
   // object doesn't get decremented in the ~PythonRefPtrCleanup,
   // rather just in operator(). So we don't really have an extra
   // reference here.
-#ifdef 	PTR_DEBUG
+#ifdef  PTR_DEBUG
     std::cerr << "In PythonRefPtrCleanup copy " << obj << " has count "
-	      << Py_REFCNT((PyObject*) obj) << "\n";
+              << Py_REFCNT((PyObject*) obj) << "\n";
 #endif
   }
-  
+
 //-----------------------------------------------------------------------
 /// Call by std::shared_ptr when its count gets to 0.
 /// p here is the pointer contained in the shared_ptr
 //-----------------------------------------------------------------------
   void operator()(void* /* p */)
   {
-#ifdef 	PTR_DEBUG
+#ifdef  PTR_DEBUG
     std::cerr << "Start PythonRefPtrCleanup operator() " << obj << " has count "
-	      << Py_REFCNT((PyObject*) obj) << "\n";
-#endif    
+              << Py_REFCNT((PyObject*) obj) << "\n";
+#endif
     Py_DECREF(obj);
   }
 private:

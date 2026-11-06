@@ -17,7 +17,7 @@ namespace SWIG_MAPPER_NAMESPACE {
   this in swig code. For geocal, this just gets included by
   geocal_shared_ptr.i. If you try to include this in normal C++ you
   will likely get an error since things like SWIG_TypeQuery aren't
-  defined. 
+  defined.
 *******************************************************************/
 
 template<class T> class SwigTypeMapper : public SwigTypeMapperBase {
@@ -47,7 +47,7 @@ public:
     // Transfer ownership of pobj to r.
     boost::shared_ptr<GenericObject> r(V.get(), PythonRefPtrCleanup(pobj));
     Py_DECREF(pobj);
-#ifdef PTR_DEBUG    
+#ifdef PTR_DEBUG
     std::cerr << "in do_swig_python_director_setup\n";
     std::cerr << "pobj refcnt: " << pobj->ob_refcnt << " address " << pobj->ob_type << "\n";
 #endif
@@ -56,9 +56,9 @@ public:
   void* to_python(const boost::shared_ptr<GenericObject>& V) const override
   {
     boost::shared_ptr<T> v2 = boost::dynamic_pointer_cast<T>(V);
-    boost::shared_ptr<T> *v3 = v2 ? new boost::shared_ptr<T>(v2) : nullptr;
-    return SWIG_NewPointerObj(SWIG_as_voidptr(v3), sinfo, 
-			      SWIG_POINTER_OWN);
+    boost::shared_ptr<T>* v3 = v2 ? new boost::shared_ptr<T>(v2) : nullptr;
+    return SWIG_NewPointerObj(SWIG_as_voidptr(v3), sinfo,
+                              SWIG_POINTER_OWN);
   }
   ~SwigTypeMapper() override = default;
 private:
@@ -79,7 +79,7 @@ private:
     if(PyErr_Occurred()) {
       throw PythonException();
     }
-    char *buf;
+    char* buf;
     Py_ssize_t len;
     PyBytes_AsStringAndSize(res, &buf, &len);
     std::string result(buf, len);
