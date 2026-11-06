@@ -3832,28 +3832,28 @@ namespace Swig {
 #define SWIGTYPE_p_blitz__ArrayT_unsigned_short_7_t swig_types[73]
 #define SWIGTYPE_p_blitz__ArrayT_unsigned_short_8_t swig_types[74]
 #define SWIGTYPE_p_blitz__Range swig_types[75]
-#define SWIGTYPE_p_boost__optionalT_double_t swig_types[76]
-#define SWIGTYPE_p_boost__optionalT_int_t swig_types[77]
-#define SWIGTYPE_p_boost__shared_ptrT_Skeleton__ArraySample_t swig_types[78]
-#define SWIGTYPE_p_boost__shared_ptrT_Skeleton__GenericObject_t swig_types[79]
-#define SWIGTYPE_p_char swig_types[80]
-#define SWIGTYPE_p_char_type swig_types[81]
-#define SWIGTYPE_p_difference_type swig_types[82]
-#define SWIGTYPE_p_fmtflags swig_types[83]
-#define SWIGTYPE_p_int_type swig_types[84]
-#define SWIGTYPE_p_iostate swig_types[85]
-#define SWIGTYPE_p_off_type swig_types[86]
-#define SWIGTYPE_p_openmode swig_types[87]
-#define SWIGTYPE_p_pos_type swig_types[88]
-#define SWIGTYPE_p_seekdir swig_types[89]
-#define SWIGTYPE_p_size_t swig_types[90]
-#define SWIGTYPE_p_size_type swig_types[91]
-#define SWIGTYPE_p_state_type swig_types[92]
-#define SWIGTYPE_p_std__basic_iosT_char_t swig_types[93]
-#define SWIGTYPE_p_std__basic_iostreamT_char_t swig_types[94]
-#define SWIGTYPE_p_std__basic_istreamT_char_t swig_types[95]
-#define SWIGTYPE_p_std__basic_ostreamT_char_t swig_types[96]
-#define SWIGTYPE_p_std__invalid_argument swig_types[97]
+#define SWIGTYPE_p_boost__shared_ptrT_Skeleton__ArraySample_t swig_types[76]
+#define SWIGTYPE_p_boost__shared_ptrT_Skeleton__GenericObject_t swig_types[77]
+#define SWIGTYPE_p_char swig_types[78]
+#define SWIGTYPE_p_char_type swig_types[79]
+#define SWIGTYPE_p_difference_type swig_types[80]
+#define SWIGTYPE_p_fmtflags swig_types[81]
+#define SWIGTYPE_p_int_type swig_types[82]
+#define SWIGTYPE_p_iostate swig_types[83]
+#define SWIGTYPE_p_off_type swig_types[84]
+#define SWIGTYPE_p_openmode swig_types[85]
+#define SWIGTYPE_p_pos_type swig_types[86]
+#define SWIGTYPE_p_seekdir swig_types[87]
+#define SWIGTYPE_p_size_t swig_types[88]
+#define SWIGTYPE_p_size_type swig_types[89]
+#define SWIGTYPE_p_state_type swig_types[90]
+#define SWIGTYPE_p_std__basic_iosT_char_t swig_types[91]
+#define SWIGTYPE_p_std__basic_iostreamT_char_t swig_types[92]
+#define SWIGTYPE_p_std__basic_istreamT_char_t swig_types[93]
+#define SWIGTYPE_p_std__basic_ostreamT_char_t swig_types[94]
+#define SWIGTYPE_p_std__invalid_argument swig_types[95]
+#define SWIGTYPE_p_std__optionalT_double_t swig_types[96]
+#define SWIGTYPE_p_std__optionalT_int_t swig_types[97]
 #define SWIGTYPE_p_swig__SwigPyIterator swig_types[98]
 #define SWIGTYPE_p_traits_type swig_types[99]
 #define SWIGTYPE_p_value_type swig_types[100]
@@ -4952,6 +4952,8 @@ inline void iter_to_vector_of_arrays(PyObject* sequence, std::vector<blitz::Arra
 
 #include <boost/array.hpp>
 #include <algorithm>
+#include <array>
+#include <cstddef>
 
 template<class T, int D> inline boost::array<T, D>
   to_boost_array(PyObject* numpy)
@@ -4961,6 +4963,34 @@ template<class T, int D> inline boost::array<T, D>
     throw std::runtime_error("Array not expeced size");
   boost::array<T, D> res;
   std::copy(b.begin(), b.end(), res.begin());
+  return res;
+}
+
+template<class T, std::size_t D> inline std::array<T, D>
+  to_std_array(PyObject* numpy)
+{
+  blitz::Array<T, 1> b = to_blitz_array<T, 1>(numpy);
+  if(b.rows() != (int) D)
+    throw std::runtime_error("Array not expeced size");
+  std::array<T, D> res;
+  std::copy(b.begin(), b.end(), res.begin());
+  return res;
+}
+
+//-----------------------------------------------------------------------
+/// A new 1-d numpy array with a copy of the values (nullptr with a python
+/// error set if numpy can't make one).
+//-----------------------------------------------------------------------
+
+template<class T, std::size_t D> inline PyObject*
+  std_array_to_numpy(const std::array<T, D>& A)
+{
+  npy_intp dims[1] = {(npy_intp) D};
+  PyObject* res = PyArray_SimpleNew(1, dims, type_to_npy<T>());
+  if(!res)
+    return nullptr;
+  std::copy(A.begin(), A.end(),
+            static_cast<T*>(PyArray_DATA((PyArrayObject*) res)));
   return res;
 }
 
@@ -6450,6 +6480,122 @@ fail:
 }
 
 
+SWIGINTERN PyObject *_wrap_ArraySample_position(PyObject *self, PyObject *args) {
+  PyObject *resultobj = 0;
+  Skeleton::ArraySample *arg1 = 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  boost::shared_ptr< Skeleton::ArraySample const > tempshared1 ;
+  boost::shared_ptr< Skeleton::ArraySample const > *smartarg1 = 0 ;
+  PyObject *swig_obj[1] ;
+  std::array< double,3 > result;
+  
+  (void)self;
+  if (!args) SWIG_fail;
+  swig_obj[0] = args;
+  {
+    int newmem = 0;
+    res1 = SWIG_ConvertPtrAndOwn(swig_obj[0], &argp1, SWIGTYPE_p_boost__shared_ptrT_Skeleton__ArraySample_t, 0 |  0 , &newmem);
+    if (!SWIG_IsOK(res1)) {
+      SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "ArraySample_position" "', argument " "1"" of type '" "Skeleton::ArraySample const *""'");
+    }
+    if (newmem & SWIG_CAST_NEW_MEMORY) {
+      tempshared1 = *reinterpret_cast< boost::shared_ptr< const Skeleton::ArraySample > * >(argp1);
+      delete reinterpret_cast< boost::shared_ptr< const Skeleton::ArraySample > * >(argp1);
+      arg1 = const_cast< Skeleton::ArraySample * >(tempshared1.get());
+    } else {
+      smartarg1 = reinterpret_cast< boost::shared_ptr< const Skeleton::ArraySample > * >(argp1);
+      arg1 = const_cast< Skeleton::ArraySample * >((smartarg1 ? smartarg1->get() : 0));
+    }
+  }
+  {
+    try {
+      result = ((Skeleton::ArraySample const *)arg1)->position();
+    } catch(Swig::DirectorException& e) {
+      SWIG_fail;
+    } catch(const PythonException& e) {
+      e.restore_python_exception();
+      SWIG_fail;
+    } catch(const std::exception& e) {
+      SWIG_exception(SWIG_RuntimeError, e.what());
+    } catch(...) {
+      // Anything not derived from std::exception (a raw type, a
+      // third-party exception hierarchy that doesn't inherit
+      // std::exception, etc.) would otherwise propagate across the
+      // extern "C" boundary into CPython -- undefined behavior, in
+      // practice a process abort rather than a clean Python exception.
+      SWIG_exception(SWIG_RuntimeError, "unknown C++ exception");
+    }
+  }
+  {
+    resultobj = std_array_to_numpy<double, 3>(result);
+    if(!resultobj)
+    SWIG_fail;
+  }
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_ArraySample_position_ref(PyObject *self, PyObject *args) {
+  PyObject *resultobj = 0;
+  Skeleton::ArraySample *arg1 = 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  boost::shared_ptr< Skeleton::ArraySample const > tempshared1 ;
+  boost::shared_ptr< Skeleton::ArraySample const > *smartarg1 = 0 ;
+  PyObject *swig_obj[1] ;
+  std::array< double,3 > *result = 0 ;
+  
+  (void)self;
+  if (!args) SWIG_fail;
+  swig_obj[0] = args;
+  {
+    int newmem = 0;
+    res1 = SWIG_ConvertPtrAndOwn(swig_obj[0], &argp1, SWIGTYPE_p_boost__shared_ptrT_Skeleton__ArraySample_t, 0 |  0 , &newmem);
+    if (!SWIG_IsOK(res1)) {
+      SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "ArraySample_position_ref" "', argument " "1"" of type '" "Skeleton::ArraySample const *""'");
+    }
+    if (newmem & SWIG_CAST_NEW_MEMORY) {
+      tempshared1 = *reinterpret_cast< boost::shared_ptr< const Skeleton::ArraySample > * >(argp1);
+      delete reinterpret_cast< boost::shared_ptr< const Skeleton::ArraySample > * >(argp1);
+      arg1 = const_cast< Skeleton::ArraySample * >(tempshared1.get());
+    } else {
+      smartarg1 = reinterpret_cast< boost::shared_ptr< const Skeleton::ArraySample > * >(argp1);
+      arg1 = const_cast< Skeleton::ArraySample * >((smartarg1 ? smartarg1->get() : 0));
+    }
+  }
+  {
+    try {
+      result = (std::array< double,3 > *) &((Skeleton::ArraySample const *)arg1)->position_ref();
+    } catch(Swig::DirectorException& e) {
+      SWIG_fail;
+    } catch(const PythonException& e) {
+      e.restore_python_exception();
+      SWIG_fail;
+    } catch(const std::exception& e) {
+      SWIG_exception(SWIG_RuntimeError, e.what());
+    } catch(...) {
+      // Anything not derived from std::exception (a raw type, a
+      // third-party exception hierarchy that doesn't inherit
+      // std::exception, etc.) would otherwise propagate across the
+      // extern "C" boundary into CPython -- undefined behavior, in
+      // practice a process abort rather than a clean Python exception.
+      SWIG_exception(SWIG_RuntimeError, "unknown C++ exception");
+    }
+  }
+  {
+    resultobj = std_array_to_numpy<double, 3>(*result);
+    if(!resultobj)
+    SWIG_fail;
+  }
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
 SWIGINTERN PyObject *_wrap_ArraySample__v_matrix__SWIG_0(PyObject *self, Py_ssize_t nobjs, PyObject **swig_obj) {
   PyObject *resultobj = 0;
   Skeleton::ArraySample *arg1 = 0 ;
@@ -6630,7 +6776,7 @@ SWIGINTERN PyObject *_wrap_ArraySample__v_count__SWIG_0(PyObject *self, Py_ssize
   int res1 = 0 ;
   boost::shared_ptr< Skeleton::ArraySample const > tempshared1 ;
   boost::shared_ptr< Skeleton::ArraySample const > *smartarg1 = 0 ;
-  boost::optional< int > result;
+  std::optional< int > result;
   
   (void)self;
   if ((nobjs < 1) || (nobjs > 1)) SWIG_fail;
@@ -6686,12 +6832,12 @@ fail:
 SWIGINTERN PyObject *_wrap_ArraySample__v_count__SWIG_1(PyObject *self, Py_ssize_t nobjs, PyObject **swig_obj) {
   PyObject *resultobj = 0;
   Skeleton::ArraySample *arg1 = 0 ;
-  boost::optional< int > *arg2 = 0 ;
+  std::optional< int > *arg2 = 0 ;
   void *argp1 = 0 ;
   int res1 = 0 ;
   boost::shared_ptr< Skeleton::ArraySample > tempshared1 ;
   boost::shared_ptr< Skeleton::ArraySample > *smartarg1 = 0 ;
-  boost::optional< int > v2 ;
+  std::optional< int > v2 ;
   
   (void)self;
   if ((nobjs < 2) || (nobjs > 2)) SWIG_fail;
@@ -6712,18 +6858,18 @@ SWIGINTERN PyObject *_wrap_ArraySample__v_count__SWIG_1(PyObject *self, Py_ssize
   }
   
   if(swig_obj[1] == Py_None)
-  v2 = boost::optional<int>();
+  v2 = std::optional<int>();
   else {
     long t = PyLong_AsLong(swig_obj[1]);
     if(t == -1 && PyErr_Occurred())
     SWIG_exception_fail(SWIG_TypeError, "in method 'ArraySample__v_count', expecting int or None");
-    v2 = boost::optional<int>((int) t);
+    v2 = std::optional<int>((int) t);
   }
   arg2 = &v2;
   
   {
     try {
-      (arg1)->count((boost::optional< int > const &)*arg2);
+      (arg1)->count((std::optional< int > const &)*arg2);
     } catch(Swig::DirectorException& e) {
       SWIG_fail;
     } catch(const PythonException& e) {
@@ -6770,7 +6916,7 @@ fail:
   SWIG_Python_RaiseOrModifyTypeError("Wrong number or type of arguments for overloaded function 'ArraySample__v_count'.\n"
     "  Possible C/C++ prototypes are:\n"
     "    Skeleton::ArraySample::count() const\n"
-    "    Skeleton::ArraySample::count(boost::optional< int > const &)\n");
+    "    Skeleton::ArraySample::count(std::optional< int > const &)\n");
   return 0;
 }
 
@@ -6782,7 +6928,7 @@ SWIGINTERN PyObject *_wrap_ArraySample__v_scale__SWIG_0(PyObject *self, Py_ssize
   int res1 = 0 ;
   boost::shared_ptr< Skeleton::ArraySample const > tempshared1 ;
   boost::shared_ptr< Skeleton::ArraySample const > *smartarg1 = 0 ;
-  boost::optional< double > result;
+  std::optional< double > result;
   
   (void)self;
   if ((nobjs < 1) || (nobjs > 1)) SWIG_fail;
@@ -6838,12 +6984,12 @@ fail:
 SWIGINTERN PyObject *_wrap_ArraySample__v_scale__SWIG_1(PyObject *self, Py_ssize_t nobjs, PyObject **swig_obj) {
   PyObject *resultobj = 0;
   Skeleton::ArraySample *arg1 = 0 ;
-  boost::optional< double > *arg2 = 0 ;
+  std::optional< double > *arg2 = 0 ;
   void *argp1 = 0 ;
   int res1 = 0 ;
   boost::shared_ptr< Skeleton::ArraySample > tempshared1 ;
   boost::shared_ptr< Skeleton::ArraySample > *smartarg1 = 0 ;
-  boost::optional< double > v2 ;
+  std::optional< double > v2 ;
   
   (void)self;
   if ((nobjs < 2) || (nobjs > 2)) SWIG_fail;
@@ -6864,18 +7010,18 @@ SWIGINTERN PyObject *_wrap_ArraySample__v_scale__SWIG_1(PyObject *self, Py_ssize
   }
   
   if(swig_obj[1] == Py_None)
-  v2 = boost::optional<double>();
+  v2 = std::optional<double>();
   else {
     double t = PyFloat_AsDouble(swig_obj[1]);
     if(t == -1.0 && PyErr_Occurred())
     SWIG_exception_fail(SWIG_TypeError, "in method 'ArraySample__v_scale', expecting float or None");
-    v2 = boost::optional<double>(t);
+    v2 = std::optional<double>(t);
   }
   arg2 = &v2;
   
   {
     try {
-      (arg1)->scale((boost::optional< double > const &)*arg2);
+      (arg1)->scale((std::optional< double > const &)*arg2);
     } catch(Swig::DirectorException& e) {
       SWIG_fail;
     } catch(const PythonException& e) {
@@ -6922,7 +7068,7 @@ fail:
   SWIG_Python_RaiseOrModifyTypeError("Wrong number or type of arguments for overloaded function 'ArraySample__v_scale'.\n"
     "  Possible C/C++ prototypes are:\n"
     "    Skeleton::ArraySample::scale() const\n"
-    "    Skeleton::ArraySample::scale(boost::optional< double > const &)\n");
+    "    Skeleton::ArraySample::scale(std::optional< double > const &)\n");
   return 0;
 }
 
@@ -7077,6 +7223,19 @@ static PyMethodDef SwigMethods[] = {
 		"ArraySample__v_position_(ArraySample self) -> BlitzArray_double_1\n"
 		"ArraySample__v_position_(ArraySample self, BlitzArray_double_1 V)\n"
 		""},
+	 { "ArraySample_position", _wrap_ArraySample_position, METH_O, "\n"
+		"ArraySample_position(ArraySample self) -> std::array< double,3 >\n"
+		"\n"
+		"Skeleton::ArraySample::position\n"
+		"position_ returned by value and by reference (python gets a numpy array copy\n"
+		"either way).  \n"
+		"\n"
+		""},
+	 { "ArraySample_position_ref", _wrap_ArraySample_position_ref, METH_O, "\n"
+		"ArraySample_position_ref(ArraySample self) -> std::array< double,3 > const &\n"
+		"\n"
+		"Skeleton::ArraySample::position_ref\n"
+		""},
 	 { "ArraySample__v_matrix", _wrap_ArraySample__v_matrix, METH_VARARGS, "\n"
 		"ArraySample__v_matrix(ArraySample self) -> BlitzArray_double_2\n"
 		"ArraySample__v_matrix(ArraySample self, BlitzArray_double_2 V)\n"
@@ -7084,14 +7243,14 @@ static PyMethodDef SwigMethods[] = {
 		"Skeleton::ArraySample::matrix\n"
 		""},
 	 { "ArraySample__v_count", _wrap_ArraySample__v_count, METH_VARARGS, "\n"
-		"ArraySample__v_count(ArraySample self) -> boost::optional< int >\n"
-		"ArraySample__v_count(ArraySample self, boost::optional< int > const & V)\n"
+		"ArraySample__v_count(ArraySample self) -> std::optional< int >\n"
+		"ArraySample__v_count(ArraySample self, std::optional< int > const & V)\n"
 		"\n"
 		"Skeleton::ArraySample::count\n"
 		""},
 	 { "ArraySample__v_scale", _wrap_ArraySample__v_scale, METH_VARARGS, "\n"
-		"ArraySample__v_scale(ArraySample self) -> boost::optional< double >\n"
-		"ArraySample__v_scale(ArraySample self, boost::optional< double > const & V)\n"
+		"ArraySample__v_scale(ArraySample self) -> std::optional< double >\n"
+		"ArraySample__v_scale(ArraySample self, std::optional< double > const & V)\n"
 		"\n"
 		"Skeleton::ArraySample::scale\n"
 		""},
@@ -7138,6 +7297,19 @@ static PyMethodDef SwigMethods_proxydocs[] = {
 		"_v_position_(ArraySample self) -> BlitzArray_double_1\n"
 		"_v_position_(ArraySample self, BlitzArray_double_1 V)\n"
 		""},
+	 { "ArraySample_position", _wrap_ArraySample_position, METH_O, "\n"
+		"position(ArraySample self) -> std::array< double,3 >\n"
+		"\n"
+		"Skeleton::ArraySample::position\n"
+		"position_ returned by value and by reference (python gets a numpy array copy\n"
+		"either way).  \n"
+		"\n"
+		""},
+	 { "ArraySample_position_ref", _wrap_ArraySample_position_ref, METH_O, "\n"
+		"position_ref(ArraySample self) -> std::array< double,3 > const &\n"
+		"\n"
+		"Skeleton::ArraySample::position_ref\n"
+		""},
 	 { "ArraySample__v_matrix", _wrap_ArraySample__v_matrix, METH_VARARGS, "\n"
 		"_v_matrix(ArraySample self) -> BlitzArray_double_2\n"
 		"_v_matrix(ArraySample self, BlitzArray_double_2 V)\n"
@@ -7145,14 +7317,14 @@ static PyMethodDef SwigMethods_proxydocs[] = {
 		"Skeleton::ArraySample::matrix\n"
 		""},
 	 { "ArraySample__v_count", _wrap_ArraySample__v_count, METH_VARARGS, "\n"
-		"_v_count(ArraySample self) -> boost::optional< int >\n"
-		"_v_count(ArraySample self, boost::optional< int > const & V)\n"
+		"_v_count(ArraySample self) -> std::optional< int >\n"
+		"_v_count(ArraySample self, std::optional< int > const & V)\n"
 		"\n"
 		"Skeleton::ArraySample::count\n"
 		""},
 	 { "ArraySample__v_scale", _wrap_ArraySample__v_scale, METH_VARARGS, "\n"
-		"_v_scale(ArraySample self) -> boost::optional< double >\n"
-		"_v_scale(ArraySample self, boost::optional< double > const & V)\n"
+		"_v_scale(ArraySample self) -> std::optional< double >\n"
+		"_v_scale(ArraySample self, std::optional< double > const & V)\n"
 		"\n"
 		"Skeleton::ArraySample::scale\n"
 		""},
@@ -7268,8 +7440,6 @@ static swig_type_info _swigt__p_blitz__ArrayT_unsigned_short_6_t = {"_p_blitz__A
 static swig_type_info _swigt__p_blitz__ArrayT_unsigned_short_7_t = {"_p_blitz__ArrayT_unsigned_short_7_t", "blitz::Array< unsigned short,7 > *", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_blitz__ArrayT_unsigned_short_8_t = {"_p_blitz__ArrayT_unsigned_short_8_t", "blitz::Array< unsigned short,8 > *", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_blitz__Range = {"_p_blitz__Range", "blitz::Range *", 0, 0, (void*)0, 0};
-static swig_type_info _swigt__p_boost__optionalT_double_t = {"_p_boost__optionalT_double_t", "boost::optional< double > *", 0, 0, (void*)0, 0};
-static swig_type_info _swigt__p_boost__optionalT_int_t = {"_p_boost__optionalT_int_t", "boost::optional< int > *", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_boost__shared_ptrT_Skeleton__ArraySample_t = {"_p_boost__shared_ptrT_Skeleton__ArraySample_t", "boost::shared_ptr< Skeleton::ArraySample > *", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_boost__shared_ptrT_Skeleton__GenericObject_t = {"_p_boost__shared_ptrT_Skeleton__GenericObject_t", "boost::shared_ptr< Skeleton::GenericObject > *", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_char = {"_p_char", "char *", 0, 0, (void*)0, 0};
@@ -7290,6 +7460,8 @@ static swig_type_info _swigt__p_std__basic_iostreamT_char_t = {"_p_std__basic_io
 static swig_type_info _swigt__p_std__basic_istreamT_char_t = {"_p_std__basic_istreamT_char_t", "std::istream *|std::basic_istream< char,std::char_traits< char > > *", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_std__basic_ostreamT_char_t = {"_p_std__basic_ostreamT_char_t", "std::ostream *|std::basic_ostream< char,std::char_traits< char > > *", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_std__invalid_argument = {"_p_std__invalid_argument", "std::invalid_argument *", 0, 0, (void*)0, 0};
+static swig_type_info _swigt__p_std__optionalT_double_t = {"_p_std__optionalT_double_t", "std::optional< double > *", 0, 0, (void*)0, 0};
+static swig_type_info _swigt__p_std__optionalT_int_t = {"_p_std__optionalT_int_t", "std::optional< int > *", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_swig__SwigPyIterator = {"_p_swig__SwigPyIterator", "swig::SwigPyIterator *", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_traits_type = {"_p_traits_type", "traits_type *", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_value_type = {"_p_value_type", "value_type *", 0, 0, (void*)0, 0};
@@ -7371,8 +7543,6 @@ static swig_type_info *swig_type_initial[] = {
   &_swigt__p_blitz__ArrayT_unsigned_short_7_t,
   &_swigt__p_blitz__ArrayT_unsigned_short_8_t,
   &_swigt__p_blitz__Range,
-  &_swigt__p_boost__optionalT_double_t,
-  &_swigt__p_boost__optionalT_int_t,
   &_swigt__p_boost__shared_ptrT_Skeleton__ArraySample_t,
   &_swigt__p_boost__shared_ptrT_Skeleton__GenericObject_t,
   &_swigt__p_char,
@@ -7393,6 +7563,8 @@ static swig_type_info *swig_type_initial[] = {
   &_swigt__p_std__basic_istreamT_char_t,
   &_swigt__p_std__basic_ostreamT_char_t,
   &_swigt__p_std__invalid_argument,
+  &_swigt__p_std__optionalT_double_t,
+  &_swigt__p_std__optionalT_int_t,
   &_swigt__p_swig__SwigPyIterator,
   &_swigt__p_traits_type,
   &_swigt__p_value_type,
@@ -7474,8 +7646,6 @@ static swig_cast_info _swigc__p_blitz__ArrayT_unsigned_short_6_t[] = {  {&_swigt
 static swig_cast_info _swigc__p_blitz__ArrayT_unsigned_short_7_t[] = {  {&_swigt__p_blitz__ArrayT_unsigned_short_7_t, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_blitz__ArrayT_unsigned_short_8_t[] = {  {&_swigt__p_blitz__ArrayT_unsigned_short_8_t, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_blitz__Range[] = {  {&_swigt__p_blitz__Range, 0, 0, 0},{0, 0, 0, 0}};
-static swig_cast_info _swigc__p_boost__optionalT_double_t[] = {  {&_swigt__p_boost__optionalT_double_t, 0, 0, 0},{0, 0, 0, 0}};
-static swig_cast_info _swigc__p_boost__optionalT_int_t[] = {  {&_swigt__p_boost__optionalT_int_t, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_boost__shared_ptrT_Skeleton__ArraySample_t[] = {  {&_swigt__p_boost__shared_ptrT_Skeleton__ArraySample_t, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_boost__shared_ptrT_Skeleton__GenericObject_t[] = {  {&_swigt__p_boost__shared_ptrT_Skeleton__GenericObject_t, 0, 0, 0},  {&_swigt__p_boost__shared_ptrT_Skeleton__ArraySample_t, _p_boost__shared_ptrT_Skeleton__ArraySample_tTo_p_boost__shared_ptrT_Skeleton__GenericObject_t, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_char[] = {  {&_swigt__p_char, 0, 0, 0},{0, 0, 0, 0}};
@@ -7496,6 +7666,8 @@ static swig_cast_info _swigc__p_std__basic_iostreamT_char_t[] = {  {&_swigt__p_s
 static swig_cast_info _swigc__p_std__basic_istreamT_char_t[] = {  {&_swigt__p_std__basic_istreamT_char_t, 0, 0, 0},  {&_swigt__p_std__basic_iostreamT_char_t, _p_std__basic_iostreamT_char_tTo_p_std__basic_istreamT_char_t, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_std__basic_ostreamT_char_t[] = {  {&_swigt__p_std__basic_ostreamT_char_t, 0, 0, 0},  {&_swigt__p_std__basic_iostreamT_char_t, _p_std__basic_iostreamT_char_tTo_p_std__basic_ostreamT_char_t, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_std__invalid_argument[] = {  {&_swigt__p_std__invalid_argument, 0, 0, 0},{0, 0, 0, 0}};
+static swig_cast_info _swigc__p_std__optionalT_double_t[] = {  {&_swigt__p_std__optionalT_double_t, 0, 0, 0},{0, 0, 0, 0}};
+static swig_cast_info _swigc__p_std__optionalT_int_t[] = {  {&_swigt__p_std__optionalT_int_t, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_swig__SwigPyIterator[] = {  {&_swigt__p_swig__SwigPyIterator, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_traits_type[] = {  {&_swigt__p_traits_type, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_value_type[] = {  {&_swigt__p_value_type, 0, 0, 0},{0, 0, 0, 0}};
@@ -7577,8 +7749,6 @@ static swig_cast_info *swig_cast_initial[] = {
   _swigc__p_blitz__ArrayT_unsigned_short_7_t,
   _swigc__p_blitz__ArrayT_unsigned_short_8_t,
   _swigc__p_blitz__Range,
-  _swigc__p_boost__optionalT_double_t,
-  _swigc__p_boost__optionalT_int_t,
   _swigc__p_boost__shared_ptrT_Skeleton__ArraySample_t,
   _swigc__p_boost__shared_ptrT_Skeleton__GenericObject_t,
   _swigc__p_char,
@@ -7599,6 +7769,8 @@ static swig_cast_info *swig_cast_initial[] = {
   _swigc__p_std__basic_istreamT_char_t,
   _swigc__p_std__basic_ostreamT_char_t,
   _swigc__p_std__invalid_argument,
+  _swigc__p_std__optionalT_double_t,
+  _swigc__p_std__optionalT_int_t,
   _swigc__p_swig__SwigPyIterator,
   _swigc__p_traits_type,
   _swigc__p_value_type,

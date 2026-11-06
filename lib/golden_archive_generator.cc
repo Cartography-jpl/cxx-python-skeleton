@@ -142,7 +142,8 @@ int main(int argc, char** argv)
   write_array_string<1>("blitz_string_array_1d");
   write_array_string<2>("blitz_string_array_2d");
   // Added 2026-11-05 (phase S3.1), written with boost::array and
-  // boost::optional before converting to std::array and std::optional.
+  // boost::optional before converting to std::array and std::optional
+  // (S3.2); since then written with the std types, giving the same files.
   // Values differ from the ArraySample defaults, so a load that reads
   // nothing would be caught.
   auto as = boost::make_shared<ArraySample>();
@@ -154,8 +155,8 @@ int main(int argc, char** argv)
   as->scale(2.5);
   write_object("array_sample", as);
   auto ase = boost::make_shared<ArraySample>();
-  ase->count(boost::none);
-  ase->scale(boost::none);
+  ase->count(std::nullopt);
+  ase->scale(std::nullopt);
   write_object("array_sample_empty", ase);
   return 0;
 }

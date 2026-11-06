@@ -4950,6 +4950,8 @@ inline void iter_to_vector_of_arrays(PyObject* sequence, std::vector<blitz::Arra
 
 #include <boost/array.hpp>
 #include <algorithm>
+#include <array>
+#include <cstddef>
 
 template<class T, int D> inline boost::array<T, D>
   to_boost_array(PyObject* numpy)
@@ -4959,6 +4961,34 @@ template<class T, int D> inline boost::array<T, D>
     throw std::runtime_error("Array not expeced size");
   boost::array<T, D> res;
   std::copy(b.begin(), b.end(), res.begin());
+  return res;
+}
+
+template<class T, std::size_t D> inline std::array<T, D>
+  to_std_array(PyObject* numpy)
+{
+  blitz::Array<T, 1> b = to_blitz_array<T, 1>(numpy);
+  if(b.rows() != (int) D)
+    throw std::runtime_error("Array not expeced size");
+  std::array<T, D> res;
+  std::copy(b.begin(), b.end(), res.begin());
+  return res;
+}
+
+//-----------------------------------------------------------------------
+/// A new 1-d numpy array with a copy of the values (nullptr with a python
+/// error set if numpy can't make one).
+//-----------------------------------------------------------------------
+
+template<class T, std::size_t D> inline PyObject*
+  std_array_to_numpy(const std::array<T, D>& A)
+{
+  npy_intp dims[1] = {(npy_intp) D};
+  PyObject* res = PyArray_SimpleNew(1, dims, type_to_npy<T>());
+  if(!res)
+    return nullptr;
+  std::copy(A.begin(), A.end(),
+            static_cast<T*>(PyArray_DATA((PyArrayObject*) res)));
   return res;
 }
 
@@ -6407,7 +6437,7 @@ SWIGINTERN PyObject *_wrap_NumpySample_maybe_range(PyObject *self, PyObject *arg
   bool val2 ;
   int ecode2 = 0 ;
   PyObject *swig_obj[2] ;
-  SwigValueWrapper< boost::optional< blitz::Range > > result;
+  SwigValueWrapper< std::optional< blitz::Range > > result;
   
   (void)self;
   if (!SWIG_Python_UnpackTuple(args, "NumpySample_maybe_range", 2, 2, swig_obj)) SWIG_fail;
@@ -6451,17 +6481,17 @@ SWIGINTERN PyObject *_wrap_NumpySample_maybe_range(PyObject *self, PyObject *arg
     }
   }
   
-  // result may be a SwigValueWrapper<boost::optional<blitz::Range> > here,
-  // which only provides one implicit conversion (to
-  // boost::optional<blitz::Range>&) -- chaining that with optional's own
-  // operator bool() isn't allowed implicitly, so force the first
-  // conversion explicitly via a named local. Scoped in its own block
-  // so it doesn't cross the "fail:" label SWIG's argument-checking
-  // macros jump to earlier in the wrapper function.
+  /* result may be a SwigValueWrapper<std::optional<blitz::Range> > here,
+         which only provides one implicit conversion (to
+         std::optional<blitz::Range>&) -- chaining that with optional's own
+         operator bool() isn't allowed implicitly, so force the first
+         conversion explicitly via a named local. Scoped in its own block
+         so it doesn't cross the "fail:" label SWIG's argument-checking
+         macros jump to earlier in the wrapper function. */
   {
-    boost::optional<blitz::Range> swig_opt_range = result;
+    std::optional<blitz::Range> swig_opt_range = result;
     if(swig_opt_range) {
-      resultobj = SWIG_NewPointerObj(new blitz::Range(swig_opt_range.get()), SWIGTYPE_p_blitz__Range, SWIG_POINTER_OWN | 0);
+      resultobj = SWIG_NewPointerObj(new blitz::Range(*swig_opt_range), SWIGTYPE_p_blitz__Range, SWIG_POINTER_OWN | 0);
     } else {
       resultobj = Py_None;
       Py_INCREF(Py_None);
@@ -6573,10 +6603,10 @@ static PyMethodDef SwigMethods[] = {
 		"Skeleton::NumpySample::data\n"
 		""},
 	 { "NumpySample_maybe_range", _wrap_NumpySample_maybe_range, METH_VARARGS, "\n"
-		"NumpySample_maybe_range(NumpySample self, bool Return_empty) -> boost::optional< blitz::Range >\n"
+		"NumpySample_maybe_range(NumpySample self, bool Return_empty) -> std::optional< blitz::Range >\n"
 		"\n"
 		"Skeleton::NumpySample::maybe_range\n"
-		"Used to test the boost::optional<blitz::Range> swig typemap.  \n"
+		"Used to test the std::optional<blitz::Range> swig typemap.  \n"
 		"\n"
 		"Returns a disengaged optional if Return_empty is true, otherwise a Range\n"
 		"covering the rows of data().  \n"
@@ -6623,10 +6653,10 @@ static PyMethodDef SwigMethods_proxydocs[] = {
 		"Skeleton::NumpySample::data\n"
 		""},
 	 { "NumpySample_maybe_range", _wrap_NumpySample_maybe_range, METH_VARARGS, "\n"
-		"maybe_range(NumpySample self, bool Return_empty) -> boost::optional< blitz::Range >\n"
+		"maybe_range(NumpySample self, bool Return_empty) -> std::optional< blitz::Range >\n"
 		"\n"
 		"Skeleton::NumpySample::maybe_range\n"
-		"Used to test the boost::optional<blitz::Range> swig typemap.  \n"
+		"Used to test the std::optional<blitz::Range> swig typemap.  \n"
 		"\n"
 		"Returns a disengaged optional if Return_empty is true, otherwise a Range\n"
 		"covering the rows of data().  \n"

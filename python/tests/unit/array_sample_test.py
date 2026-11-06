@@ -1,12 +1,13 @@
 # Fixed size array and optional members as python properties, and pickling.
-# ArraySample has boost::array/boost::optional members until phase S3.2
-# changes them to std::array/std::optional; these tests must pass before and
+# ArraySample had boost::array/boost::optional members until phase S3.2
+# changed them to std::array/std::optional; these tests passed before and
 # after (see claude_notes/implementation_plan.md, phase S3).
 import pickle
 
 import numpy as np
 import pytest
 from skeleton import ArraySample
+from skeleton_swig.swig_boost_array import Array_bool_20, Array_double_3
 
 
 def test_defaults():
@@ -67,3 +68,27 @@ def test_pickle():
     assert b.matrix.tolist() == [[1.5, -2, 3], [4, 5, -6.5]]
     assert b.count is None
     assert b.scale == 2.5
+
+
+def test_std_array_return():
+    """A std::array return value is a new numpy array (a copy)."""
+    a = ArraySample()
+    a.position_ = [0.5, -1.25, 3e8]
+    for v in (a.position(), a.position_ref()):
+        assert isinstance(v, np.ndarray)
+        assert v.dtype == np.float64
+        assert v.tolist() == [0.5, -1.25, 3e8]
+    v = a.position()
+    v[0] = 99
+    assert a.position_[0] == 0.5
+
+
+def test_boost_array_print_to_string():
+    """print_to_string of the wrapped boost::array classes returns a str
+    (it used to return an opaque, leaked std::string*)."""
+    a = Array_double_3()
+    a.set([1.5, 2, -3])
+    assert a.print_to_string() == "1.5 2 -3 "
+    b = Array_bool_20()
+    b.set([True] + [False] * 19)
+    assert b.print_to_string() == "1 " + "0 " * 19

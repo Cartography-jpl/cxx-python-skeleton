@@ -2,7 +2,7 @@
 #define NUMPY_SAMPLE_H
 #include "printable.h"
 #include <blitz/array.h>
-#include <boost/optional.hpp>
+#include <optional>
 
 namespace Skeleton {
 /****************************************************************/ /**
@@ -16,15 +16,15 @@ public:
   NumpySample(const blitz::Array<double, 2>& Din) : data_(Din) {}
   const blitz::Array<double, 2>& data() const { return data_; }
   //-----------------------------------------------------------------------
-  /// Used to test the boost::optional<blitz::Range> swig typemap. Returns
+  /// Used to test the std::optional<blitz::Range> swig typemap. Returns
   /// a disengaged optional if Return_empty is true, otherwise a Range
   /// covering the rows of data().
   //-----------------------------------------------------------------------
-  boost::optional<blitz::Range> maybe_range(bool Return_empty) const
+  std::optional<blitz::Range> maybe_range(bool Return_empty) const
   {
     if(Return_empty)
-      return boost::optional<blitz::Range>();
-    return boost::optional<blitz::Range>(blitz::Range(0, data_.rows() - 1));
+      return std::optional<blitz::Range>();
+    return std::optional<blitz::Range>(blitz::Range(0, data_.rows() - 1));
   }
 private:
   blitz::Array<double, 2> data_;

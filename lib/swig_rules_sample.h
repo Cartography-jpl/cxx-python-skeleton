@@ -1,9 +1,9 @@
 #ifndef SWIG_RULES_SAMPLE_H
 #define SWIG_RULES_SAMPLE_H
 #include "printable.h"
-#include <boost/optional.hpp>
+#include <optional>
 #include <boost/rational.hpp>
-#include <boost/array.hpp>
+#include <array>
 #include <blitz/array.h>
 #include <vector>
 
@@ -28,8 +28,8 @@ private:
 
 /****************************************************************/ /**
   Simple class to test the smaller rules in swig_rules/include
-  (see swig_rules_sample_test.py): boost::optional, boost::rational,
-  boost::array, the %python_attribute variants and the pickle
+  (see swig_rules_sample_test.py): std::optional, boost::rational,
+  std::array, the %python_attribute variants and the pickle
   macros.
 *******************************************************************/
 class SwigRulesSample : public Printable<SwigRulesSample> {
@@ -51,23 +51,20 @@ public:
   const std::string& name() const { return name_; }
 
   //-----------------------------------------------------------------------
-  /// boost::optional, in and out, by value and by const reference
+  /// std::optional, in and out, by value and by const reference
   //-----------------------------------------------------------------------
 
-  const boost::optional<int>& optional_int() const { return oint_; }
-  void optional_int(const boost::optional<int>& V) { oint_ = V; }
-  boost::optional<double> optional_double() const { return odouble_; }
-  void optional_double(boost::optional<double> V) { odouble_ = V; }
-  const boost::optional<double>& optional_double_ref() const
-  {
-    return odouble_;
-  }
-  const boost::optional<blitz::Range>& optional_range_ref() const
+  const std::optional<int>& optional_int() const { return oint_; }
+  void optional_int(const std::optional<int>& V) { oint_ = V; }
+  std::optional<double> optional_double() const { return odouble_; }
+  void optional_double(std::optional<double> V) { odouble_ = V; }
+  const std::optional<double>& optional_double_ref() const { return odouble_; }
+  const std::optional<blitz::Range>& optional_range_ref() const
   {
     return orange_;
   }
-  void optional_range(const boost::optional<blitz::Range>& R) { orange_ = R; }
-  int optional_range_size(const boost::optional<blitz::Range>& R) const
+  void optional_range(const std::optional<blitz::Range>& R) { orange_ = R; }
+  int optional_range_size(const std::optional<blitz::Range>& R) const
   {
     return R ? R->length(0) : -1;
   }
@@ -83,16 +80,16 @@ public:
   boost::rational<int> half() const { return boost::rational<int>(1, 2); }
 
   //-----------------------------------------------------------------------
-  /// boost::array, as a member (%python_attribute_boost_array) and as an
+  /// std::array, as a member (%python_attribute_std_array) and as an
   /// argument.
   //-----------------------------------------------------------------------
 
-  boost::array<double, 3> position_;
-  double sum_array(const boost::array<double, 3>& A) const
+  std::array<double, 3> position_;
+  double sum_array(const std::array<double, 3>& A) const
   {
     return A[0] + A[1] + A[2];
   }
-  double first_element(boost::array<double, 3> A) const { return A[0]; }
+  double first_element(std::array<double, 3> A) const { return A[0]; }
 
   //-----------------------------------------------------------------------
   /// Accessors under a different name than the python attribute
@@ -145,9 +142,9 @@ private:
   std::string name_;
   double scale_;
   double weight_set_ = 0;
-  boost::optional<int> oint_;
-  boost::optional<double> odouble_;
-  boost::optional<blitz::Range> orange_;
+  std::optional<int> oint_;
+  std::optional<double> odouble_;
+  std::optional<blitz::Range> orange_;
   blitz::Array<double, 2> data_;
 };
 }

@@ -234,7 +234,7 @@ class SwigRulesSample(skeleton_swig.generic_object.GenericObject):
 
 
     Simple class to test the smaller rules in swig_rules/include (see
-    swig_rules_sample_test.py): boost::optional, boost::rational, boost::array, the
+    swig_rules_sample_test.py): std::optional, boost::rational, std::array, the
     python_attribute variants and the pickle macros.  
 
     C++ includes: swig_rules_sample.h

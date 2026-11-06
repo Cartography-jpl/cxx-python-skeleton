@@ -14,7 +14,7 @@ public:
   NumpySample();
   NumpySample(const blitz::Array<double, 2>& Din);
   %python_attribute(data, blitz::Array<double, 2>);
-  boost::optional<blitz::Range> maybe_range(bool Return_empty) const;
+  std::optional<blitz::Range> maybe_range(bool Return_empty) const;
 };
 }
 

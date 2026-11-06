@@ -1,6 +1,27 @@
 #include <iostream>
 #include "swig_type_mapper_base.h"
+// Workaround for a Boost.Serialization bug (boostorg/serialization issue
+// #319, still in Boost 1.90): shared_ptr_helper.hpp declares, at namespace
+// scope,
+//   template<class Archive, template<class U> class SPT>
+//   void load(Archive&, SPT< class U >&, const unsigned int);
+// where "SPT< class U >" declares an incomplete class
+// boost::serialization::U. Loading a std::optional<T> then considers this
+// load() too, which instantiates std::optional<U>, a hard error with gcc
+// 15's libstdc++. With BOOST_NO_MEMBER_TEMPLATE_FRIENDS Boost leaves that
+// declaration out (and makes shared_ptr_helper's members public instead of
+// befriending that load()). So define it just for this include. This header
+// must be the first to include shared_ptr_helper.hpp in a translation unit
+// (don't include boost/serialization/shared_ptr.hpp; this file replaces it).
+#ifndef BOOST_NO_MEMBER_TEMPLATE_FRIENDS
+#define BOOST_NO_MEMBER_TEMPLATE_FRIENDS
+#define SWIG_RULES_UNDEF_NO_MEMBER_TEMPLATE_FRIENDS
+#endif
 #include <boost/serialization/shared_ptr_helper.hpp>
+#ifdef SWIG_RULES_UNDEF_NO_MEMBER_TEMPLATE_FRIENDS
+#undef BOOST_NO_MEMBER_TEMPLATE_FRIENDS
+#undef SWIG_RULES_UNDEF_NO_MEMBER_TEMPLATE_FRIENDS
+#endif
 #ifdef SWIG_HAVE_BOOST_SERIALIZATION
 #include <boost/archive/polymorphic_iarchive.hpp>
 #include <boost/archive/polymorphic_oarchive.hpp>

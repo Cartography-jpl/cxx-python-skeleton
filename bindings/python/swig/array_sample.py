@@ -133,13 +133,15 @@ class ArraySample(skeleton_swig.generic_object.GenericObject):
     A serialized class with fixed size array and optional members, the kind geocal
     has (boost::array is used in about 700 places there).  
 
-    Phase S3 of claude_notes/implementation_plan.md converts these to std::array and
+    These were boost::array and boost::optional until phase S3 of
+    claude_notes/implementation_plan.md changed them to std::array and
     std::optional; the golden archives written with the boost types
-    (unit_test_data/golden/array_sample.*) must still load.  
+    (unit_test_data/golden/array_sample.*) still load, and writing them again gives
+    the same bytes.  
 
     Python sees each member as a property: position_ as a numpy array
-    (python_attribute_boost_array), matrix as a 2 x 3 numpy array, and count and
-    scale as an int / float or None.  
+    (python_attribute_std_array), matrix as a 2 x 3 numpy array, and count and scale
+    as an int / float or None.  
 
     C++ includes: array_sample.h
 
@@ -165,6 +167,8 @@ class ArraySample(skeleton_swig.generic_object.GenericObject):
     def position_(self, value):
       self._v_position_(value)
 
+    position = _swig_new_instance_method(_array_sample.ArraySample_position)
+    position_ref = _swig_new_instance_method(_array_sample.ArraySample_position_ref)
     _v_matrix = _swig_new_instance_method(_array_sample.ArraySample__v_matrix)
 
     @property

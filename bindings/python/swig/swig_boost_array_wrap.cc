@@ -3734,9 +3734,8 @@ namespace Swig {
 #define SWIGTYPE_p_boost__arrayT_double_20_t swig_types[3]
 #define SWIGTYPE_p_boost__arrayT_double_3_t swig_types[4]
 #define SWIGTYPE_p_char swig_types[5]
-#define SWIGTYPE_p_std__string swig_types[6]
-static swig_type_info *swig_types[8];
-static swig_module_info swig_module = {swig_types, 7, 0, 0, 0, 0};
+static swig_type_info *swig_types[7];
+static swig_module_info swig_module = {swig_types, 6, 0, 0, 0, 0};
 #define SWIG_TypeQuery(name) SWIG_TypeQueryModule(&swig_module, &swig_module, name)
 #define SWIG_MangledTypeQuery(name) SWIG_MangledTypeQueryModule(&swig_module, &swig_module, name)
 
@@ -4259,6 +4258,8 @@ inline void iter_to_vector_of_arrays(PyObject* sequence, std::vector<blitz::Arra
 
 #include <boost/array.hpp>
 #include <algorithm>
+#include <array>
+#include <cstddef>
 
 template<class T, int D> inline boost::array<T, D>
   to_boost_array(PyObject* numpy)
@@ -4270,6 +4271,37 @@ template<class T, int D> inline boost::array<T, D>
   std::copy(b.begin(), b.end(), res.begin());
   return res;
 }
+
+template<class T, std::size_t D> inline std::array<T, D>
+  to_std_array(PyObject* numpy)
+{
+  blitz::Array<T, 1> b = to_blitz_array<T, 1>(numpy);
+  if(b.rows() != (int) D)
+    throw std::runtime_error("Array not expeced size");
+  std::array<T, D> res;
+  std::copy(b.begin(), b.end(), res.begin());
+  return res;
+}
+
+//-----------------------------------------------------------------------
+/// A new 1-d numpy array with a copy of the values (nullptr with a python
+/// error set if numpy can't make one).
+//-----------------------------------------------------------------------
+
+template<class T, std::size_t D> inline PyObject*
+  std_array_to_numpy(const std::array<T, D>& A)
+{
+  npy_intp dims[1] = {(npy_intp) D};
+  PyObject* res = PyArray_SimpleNew(1, dims, type_to_npy<T>());
+  if(!res)
+    return nullptr;
+  std::copy(A.begin(), A.end(),
+            static_cast<T*>(PyArray_DATA((PyArrayObject*) res)));
+  return res;
+}
+
+
+#include <string>
 
 
 SWIGINTERNINLINE PyObject*
@@ -4439,6 +4471,48 @@ SWIGINTERN std::string boost_array_Sl_double_Sc_20_Sg__print_to_string(boost::ar
           os << i << " ";
         return os.str();
       }
+
+SWIGINTERN swig_type_info*
+SWIG_pchar_descriptor(void)
+{
+  static swig_type_info* info = 0;
+  if (!info) {
+    info = SWIG_TypeQuery("_p_char");
+  }
+  return info;
+}
+
+
+#define SWIG_FromCharPtrAndSize(carray, size) SWIG_FromBinaryCharPtrAndSize(carray, size, 0)
+SWIGINTERNINLINE PyObject *
+SWIG_FromBinaryCharPtrAndSize(const char* carray, size_t size, int flags)
+{
+  if (carray) {
+    if (size > (size_t)PY_SSIZE_T_MAX) {
+      swig_type_info* pchar_descriptor = SWIG_pchar_descriptor();
+      return pchar_descriptor ? 
+	SWIG_InternalNewPointerObj(const_cast< char * >(carray), pchar_descriptor, 0) : SWIG_Py_Void();
+    } else {
+#if defined(SWIG_PYTHON_STRICT_BYTE_CHAR)
+      return PyBytes_FromStringAndSize(carray, static_cast< Py_ssize_t >(size));
+#else
+      if (SWIG_IsBinaryStr(flags))
+        return PyBytes_FromStringAndSize(carray, static_cast< Py_ssize_t >(size));
+      return PyUnicode_DecodeUTF8(carray, static_cast< Py_ssize_t >(size), "surrogateescape");
+#endif
+    }
+  } else {
+    return SWIG_Py_Void();
+  }
+}
+
+
+SWIGINTERNINLINE PyObject *
+SWIG_From_std_string  (const std::string& s)
+{
+  return SWIG_FromCharPtrAndSize(s.data(), s.size());
+}
+
 SWIGINTERN double boost_array_Sl_double_Sc_12_Sg____getitem__(boost::array< double,12 > *self,int i){return (*self)[i];}
 SWIGINTERN void boost_array_Sl_double_Sc_12_Sg____setitem__(boost::array< double,12 > *self,int i,double const &V){(*self)[i] = V;}
 SWIGINTERN std::string boost_array_Sl_double_Sc_12_Sg__print_to_string(boost::array< double,12 > const *self){
@@ -4615,7 +4689,7 @@ SWIGINTERN PyObject *_wrap_Array_double_20_print_to_string(PyObject *self, PyObj
   }
   arg1 = reinterpret_cast< boost::array< double,20 > * >(argp1);
   result = boost_array_Sl_double_Sc_20_Sg__print_to_string((boost::array< double,20 > const *)arg1);
-  resultobj = SWIG_NewPointerObj((new std::string(result)), SWIGTYPE_p_std__string, SWIG_POINTER_OWN |  0 );
+  resultobj = SWIG_From_std_string(static_cast< std::string >(result));
   return resultobj;
 fail:
   return NULL;
@@ -4782,7 +4856,7 @@ SWIGINTERN PyObject *_wrap_Array_double_12_print_to_string(PyObject *self, PyObj
   }
   arg1 = reinterpret_cast< boost::array< double,12 > * >(argp1);
   result = boost_array_Sl_double_Sc_12_Sg__print_to_string((boost::array< double,12 > const *)arg1);
-  resultobj = SWIG_NewPointerObj((new std::string(result)), SWIGTYPE_p_std__string, SWIG_POINTER_OWN |  0 );
+  resultobj = SWIG_From_std_string(static_cast< std::string >(result));
   return resultobj;
 fail:
   return NULL;
@@ -4949,7 +5023,7 @@ SWIGINTERN PyObject *_wrap_Array_double_14_print_to_string(PyObject *self, PyObj
   }
   arg1 = reinterpret_cast< boost::array< double,14 > * >(argp1);
   result = boost_array_Sl_double_Sc_14_Sg__print_to_string((boost::array< double,14 > const *)arg1);
-  resultobj = SWIG_NewPointerObj((new std::string(result)), SWIGTYPE_p_std__string, SWIG_POINTER_OWN |  0 );
+  resultobj = SWIG_From_std_string(static_cast< std::string >(result));
   return resultobj;
 fail:
   return NULL;
@@ -5116,7 +5190,7 @@ SWIGINTERN PyObject *_wrap_Array_double_3_print_to_string(PyObject *self, PyObje
   }
   arg1 = reinterpret_cast< boost::array< double,3 > * >(argp1);
   result = boost_array_Sl_double_Sc_3_Sg__print_to_string((boost::array< double,3 > const *)arg1);
-  resultobj = SWIG_NewPointerObj((new std::string(result)), SWIGTYPE_p_std__string, SWIG_POINTER_OWN |  0 );
+  resultobj = SWIG_From_std_string(static_cast< std::string >(result));
   return resultobj;
 fail:
   return NULL;
@@ -5283,7 +5357,7 @@ SWIGINTERN PyObject *_wrap_Array_bool_20_print_to_string(PyObject *self, PyObjec
   }
   arg1 = reinterpret_cast< boost::array< bool,20 > * >(argp1);
   result = boost_array_Sl_bool_Sc_20_Sg__print_to_string((boost::array< bool,20 > const *)arg1);
-  resultobj = SWIG_NewPointerObj((new std::string(result)), SWIGTYPE_p_std__string, SWIG_POINTER_OWN |  0 );
+  resultobj = SWIG_From_std_string(static_cast< std::string >(result));
   return resultobj;
 fail:
   return NULL;
@@ -5439,7 +5513,6 @@ static swig_type_info _swigt__p_boost__arrayT_double_14_t = {"_p_boost__arrayT_d
 static swig_type_info _swigt__p_boost__arrayT_double_20_t = {"_p_boost__arrayT_double_20_t", "boost::array< double,20 > *", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_boost__arrayT_double_3_t = {"_p_boost__arrayT_double_3_t", "boost::array< double,3 > *", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_char = {"_p_char", "char *", 0, 0, (void*)0, 0};
-static swig_type_info _swigt__p_std__string = {"_p_std__string", "std::string *", 0, 0, (void*)0, 0};
 
 static swig_type_info *swig_type_initial[] = {
   &_swigt__p_boost__arrayT_bool_20_t,
@@ -5448,7 +5521,6 @@ static swig_type_info *swig_type_initial[] = {
   &_swigt__p_boost__arrayT_double_20_t,
   &_swigt__p_boost__arrayT_double_3_t,
   &_swigt__p_char,
-  &_swigt__p_std__string,
 };
 
 static swig_cast_info _swigc__p_boost__arrayT_bool_20_t[] = {  {&_swigt__p_boost__arrayT_bool_20_t, 0, 0, 0},{0, 0, 0, 0}};
@@ -5457,7 +5529,6 @@ static swig_cast_info _swigc__p_boost__arrayT_double_14_t[] = {  {&_swigt__p_boo
 static swig_cast_info _swigc__p_boost__arrayT_double_20_t[] = {  {&_swigt__p_boost__arrayT_double_20_t, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_boost__arrayT_double_3_t[] = {  {&_swigt__p_boost__arrayT_double_3_t, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_char[] = {  {&_swigt__p_char, 0, 0, 0},{0, 0, 0, 0}};
-static swig_cast_info _swigc__p_std__string[] = {  {&_swigt__p_std__string, 0, 0, 0},{0, 0, 0, 0}};
 
 static swig_cast_info *swig_cast_initial[] = {
   _swigc__p_boost__arrayT_bool_20_t,
@@ -5466,7 +5537,6 @@ static swig_cast_info *swig_cast_initial[] = {
   _swigc__p_boost__arrayT_double_20_t,
   _swigc__p_boost__arrayT_double_3_t,
   _swigc__p_char,
-  _swigc__p_std__string,
 };
 
 
