@@ -31,6 +31,7 @@ Contents:
 | `director_example_map` | map holding a `DirectorExample`, a nested one sharing it, and a `DirectorExampleWeakPtr` to it |
 | `blitz_{double,int,bool}_array_{1..5}d`, `blitz_string_array_{1,2}d` | `blitz::Array` of rank 1-5, element value `i` or `-i` (strings `s<i>`), extents 3,2,2,2,2 |
 | `blitz_{float,uint,ushort,short}_array_{1..5}d` | Same, for the other element types. **Added 2026-10-30** (phase ST), when their `BOOST_SERIALIZATION_SPLIT_FREE` was added to `blitz_array_serialize_support.h`; none of the files above changed. (For the unsigned types `-i` wraps around, which is fine, it is the same on read.) |
+| `array_sample`, `array_sample_empty` | `ArraySample`: `boost::array<double,3>`, a nested `boost::array<boost::array<double,3>,2>`, and `boost::optional<int>`/`<double>`, all set (values differ from the defaults), and with both optionals empty. **Added 2026-11-05** (phase S3.1), written with the `boost::` types before S3.2 converts them to `std::array`/`std::optional`; none of the files above changed. |
 
 The arrays are written with the element name `array` and read directly (not
 through a `GenericObject`), so they are checked only by the C++ test.

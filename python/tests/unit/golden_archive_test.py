@@ -5,6 +5,7 @@ from pathlib import Path
 
 import pytest
 from skeleton.swig_shelve import read_shelve
+from skeleton_swig.array_sample import ArraySample
 from skeleton_swig.director_example import (
     DirectorExample,
     DirectorExampleNested,
@@ -88,3 +89,17 @@ def test_director_example_user(ext):
     assert [[v.name() for v in vv] for vv in u.value_vec_vec()] == [["e1"], ["e2", "e1"]]
     assert list(u.value_vec_int()) == [1, 2, 3]
     assert [list(v) for v in u.value_vec_vec_int()] == [[4], [5, 6]]
+
+
+def test_array_sample(ext):
+    """Written with boost::array/boost::optional (S3.1), see the C++ test."""
+    a = get("array_sample", ext)
+    assert isinstance(a, ArraySample)
+    assert list(a.position_) == [0.5, -1.25, 3e8]
+    assert a.matrix.tolist() == [[1.5, -2, 3], [4, 5, -6.5]]
+    assert a.count == 42
+    assert a.scale == 2.5
+    e = get("array_sample_empty", ext)
+    assert e.count is None
+    assert e.scale is None
+    assert list(e.position_) == [1, 2, 3]

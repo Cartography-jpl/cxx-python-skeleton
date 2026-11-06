@@ -13,6 +13,7 @@
 #include "generic_object_sample.h"
 #include "generic_object_map.h"
 #include "director_example.h"
+#include "array_sample.h"
 #include "serialize_function.h"
 #include <boost/make_shared.hpp>
 #include <boost/archive/polymorphic_xml_oarchive.hpp>
@@ -143,5 +144,22 @@ int main(int argc, char** argv)
   write_arrays<short int>("short");
   write_array_string<1>("blitz_string_array_1d");
   write_array_string<2>("blitz_string_array_2d");
+  // Added 2026-11-05 (phase S3.1), written with boost::array and
+  // boost::optional before converting to std::array and std::optional.
+  // Values differ from the ArraySample defaults, so a load that reads
+  // nothing would be caught.
+  auto as = boost::make_shared<ArraySample>();
+  as->position_ = {{0.5, -1.25, 3e8}};
+  blitz::Array<double, 2> mat(2, 3);
+  mat = 1.5, -2, 3,
+        4, 5, -6.5;
+  as->matrix(mat);
+  as->count(42);
+  as->scale(2.5);
+  write_object("array_sample", as);
+  auto ase = boost::make_shared<ArraySample>();
+  ase->count(boost::none);
+  ase->scale(boost::none);
+  write_object("array_sample_empty", ase);
   return 0;
 }

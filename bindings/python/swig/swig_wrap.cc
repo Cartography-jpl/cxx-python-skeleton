@@ -18,6 +18,7 @@ extern "C" {
   INIT_TYPE INIT_FUNC(_array_typemap_sample)(void);
   INIT_TYPE INIT_FUNC(_swig_rules_sample)(void);
   INIT_TYPE INIT_FUNC(_file_reference_sample)(void);
+  INIT_TYPE INIT_FUNC(_array_sample)(void);
 }
 
 static void module_init(PyObject* module)
@@ -37,6 +38,7 @@ static void module_init(PyObject* module)
   INIT_MODULE(module, "_array_typemap_sample", INIT_FUNC(_array_typemap_sample));
   INIT_MODULE(module, "_swig_rules_sample", INIT_FUNC(_swig_rules_sample));
   INIT_MODULE(module, "_file_reference_sample", INIT_FUNC(_file_reference_sample));
+  INIT_MODULE(module, "_array_sample", INIT_FUNC(_array_sample));
 }
 
 

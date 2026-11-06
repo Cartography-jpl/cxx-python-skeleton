@@ -3,11 +3,15 @@
 #include "generic_object_sample.h"
 #include "generic_object_map.h"
 #include "director_example.h"
+#include "array_sample.h"
+#include "serialize_function.h"
 #ifdef SKELETON_HAVE_BOOST_SERIALIZATION
 #include <boost/archive/polymorphic_xml_iarchive.hpp>
 #include <boost/archive/polymorphic_binary_iarchive.hpp>
 #endif
 #include <fstream>
+#include <iterator>
+#include <utility>
 
 // Check that we can read the archives in unit_test_data/golden. These
 // were written by golden_archive_generator.cc, see the README.md in that
@@ -96,6 +100,50 @@ BOOST_AUTO_TEST_CASE(generic_objects)
     BOOST_CHECK_EQUAL(b2->a().v(), 8);
     auto c = read_golden<GenericObjectC>(test_data_dir(), "generic_object_c", binary);
     BOOST_CHECK(!c->a());
+  }
+}
+
+BOOST_AUTO_TEST_CASE(array_sample)
+{
+  // Written with boost::array and boost::optional (S3.1); must keep
+  // loading after the switch to std::array and std::optional.
+  for(bool binary : {false, true}) {
+    auto a = read_golden<ArraySample>(test_data_dir(), "array_sample", binary);
+    BOOST_CHECK_EQUAL(a->position_[0], 0.5);
+    BOOST_CHECK_EQUAL(a->position_[1], -1.25);
+    BOOST_CHECK_EQUAL(a->position_[2], 3e8);
+    blitz::Array<double, 2> m = a->matrix();
+    BOOST_CHECK_EQUAL(m(0, 0), 1.5);
+    BOOST_CHECK_EQUAL(m(0, 1), -2);
+    BOOST_CHECK_EQUAL(m(0, 2), 3);
+    BOOST_CHECK_EQUAL(m(1, 0), 4);
+    BOOST_CHECK_EQUAL(m(1, 1), 5);
+    BOOST_CHECK_EQUAL(m(1, 2), -6.5);
+    BOOST_REQUIRE(a->count());
+    BOOST_CHECK_EQUAL(*a->count(), 42);
+    BOOST_REQUIRE(a->scale());
+    BOOST_CHECK_EQUAL(*a->scale(), 2.5);
+    // Both empty; count is set in a default constructed ArraySample, so
+    // this also checks that loading clears it.
+    auto e = read_golden<ArraySample>(test_data_dir(), "array_sample_empty",
+                                      binary);
+    BOOST_CHECK(!e->count());
+    BOOST_CHECK(!e->scale());
+    BOOST_CHECK_EQUAL(e->position_[2], 3);
+    BOOST_CHECK_EQUAL(e->matrix()(1, 2), 6);
+    // Writing what we read gives the golden file byte for byte, so the
+    // archive layout is unchanged too, not just readable.
+    for(auto [name, obj] : {std::pair{"array_sample", a},
+                            std::pair{"array_sample_empty", e}}) {
+      std::string f = test_data_dir() + "golden/" + name +
+        (binary ? ".bin" : ".xml");
+      std::ifstream in(f, std::ios::binary);
+      std::string golden((std::istreambuf_iterator<char>(in)),
+                         std::istreambuf_iterator<char>());
+      std::string rewritten = binary ? serialize_write_binary(obj) :
+        serialize_write_string(obj);
+      BOOST_CHECK_MESSAGE(rewritten == golden, f << " rewritten differs");
+    }
   }
 }
 
