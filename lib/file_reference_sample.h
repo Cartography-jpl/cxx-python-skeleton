@@ -19,7 +19,7 @@ class FileReferenceSample : public Printable<FileReferenceSample> {
 public:
   FileReferenceSample(const std::string& Fname)
     : fname_(Fname) { read(); }
-  virtual ~FileReferenceSample() {}
+  ~FileReferenceSample() override = default;
   const std::string& file_name() const { return fname_; }
   const std::string& contents() const { return contents_; }
   virtual void print(std::ostream& Os) const
@@ -34,7 +34,7 @@ private:
   }
   std::string fname_;
   std::string contents_;
-  FileReferenceSample() {}
+  FileReferenceSample() = default;
   friend class boost::serialization::access;
   template<class Archive>
   void save(Archive & ar, const unsigned int version) const;

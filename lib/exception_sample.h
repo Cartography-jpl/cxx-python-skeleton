@@ -11,8 +11,8 @@ namespace Skeleton {
 *******************************************************************/
 class ExceptionSample : public Printable<ExceptionSample> {
 public:
-  ExceptionSample() {}
-  virtual ~ExceptionSample() {}
+  ExceptionSample() = default;
+  ~ExceptionSample() override = default;
 //-----------------------------------------------------------------------
 /// Throw a Skeleton::Exception with the given message.
 //-----------------------------------------------------------------------

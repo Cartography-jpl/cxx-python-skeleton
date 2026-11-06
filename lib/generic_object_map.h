@@ -33,8 +33,8 @@ class GenericObjectMap : public Printable<GenericObjectMap>,
 			 public std::map<std::string,
 					 boost::shared_ptr<GenericObject> >{
 public:
-  GenericObjectMap() {}
-  virtual ~GenericObjectMap() {}
+  GenericObjectMap() = default;
+  ~GenericObjectMap() override = default;
 
 //-----------------------------------------------------------------------
 /// Print description of object.

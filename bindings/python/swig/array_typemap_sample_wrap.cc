@@ -4744,8 +4744,8 @@ inline const char* npy_type_str(int type_enum)
 struct ArrayConversionException : public std::exception
 {
   ArrayConversionException(const std::string& msg) : message(msg) {}
-  virtual ~ArrayConversionException() throw() {}
-  const char * what () const throw ()
+  ~ArrayConversionException() noexcept override {}
+  const char * what () const noexcept override
   {
     return message.c_str();
   }
@@ -4951,6 +4951,7 @@ inline void iter_to_vector_of_arrays(PyObject *sequence, std::vector<blitz::Arra
 
 #include <boost/array.hpp>
 #include <boost/foreach.hpp>
+#include <algorithm>
 
 template<class T, int D> inline boost::array<T, D> 
   to_boost_array(PyObject* numpy)
@@ -4959,8 +4960,7 @@ template<class T, int D> inline boost::array<T, D>
   if(b.rows() != D)
     throw std::runtime_error("Array not expeced size");
   boost::array<T, D> res;
-  for(int i = 0; i < D; ++i)
-    res[i]= b(i);
+  std::copy(b.begin(), b.end(), res.begin());
   return res;
 }
 
@@ -8418,7 +8418,7 @@ SWIGINTERN PyObject *_wrap_ArrayTypemapSample_echo_vector(PyObject *self, PyObje
   }
   {
     resultobj = PyList_New((&result)->size());
-    for(int idx = 0; idx < (int) (&result)->size(); idx++) {
+    for(std::size_t idx = 0; idx < (&result)->size(); idx++) {
       PyObject* element_np_arr;
       /*@SWIG:../../swig-rules-skeleton/swig_rules/include/swig_array.i,203,%blitz_to_numpy@*/
       // Copy out dimensions and stride from blitz array

@@ -4144,8 +4144,8 @@ inline const char* npy_type_str(int type_enum)
 struct ArrayConversionException : public std::exception
 {
   ArrayConversionException(const std::string& msg) : message(msg) {}
-  virtual ~ArrayConversionException() throw() {}
-  const char * what () const throw ()
+  ~ArrayConversionException() noexcept override {}
+  const char * what () const noexcept override
   {
     return message.c_str();
   }

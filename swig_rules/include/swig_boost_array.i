@@ -111,15 +111,13 @@ public:
    %extend {
     blitz::Array<TYPE, 1> _v_ ## NAME() const {
       blitz::Array<TYPE, 1> res(LEN);
-      for(int i = 0; i < LEN; ++i)
-        res(i) = $self->NAME[i];
+      std::copy($self->NAME.begin(), $self->NAME.end(), res.begin());
       return res;
     }
     void _v_ ## NAME(const blitz::Array<TYPE, 1>& V) {
       if(V.rows() != LEN)
 	throw std::runtime_error("Array not expeced size");
-      for(int i = 0; i < LEN; ++i)
-        $self->NAME[i] = V(i);
+      std::copy(V.begin(), V.end(), $self->NAME.begin());
     }
     }
 %pythoncode {

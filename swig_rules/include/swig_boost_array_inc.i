@@ -6,6 +6,7 @@
 %{
 #include <boost/array.hpp>
 #include <boost/foreach.hpp>
+#include <algorithm>
 
 template<class T, int D> inline boost::array<T, D> 
   to_boost_array(PyObject* numpy)
@@ -14,8 +15,7 @@ template<class T, int D> inline boost::array<T, D>
   if(b.rows() != D)
     throw std::runtime_error("Array not expeced size");
   boost::array<T, D> res;
-  for(int i = 0; i < D; ++i)
-    res[i]= b(i);
+  std::copy(b.begin(), b.end(), res.begin());
   return res;
 }
 %}

@@ -42,7 +42,7 @@ public:
 /// Destructor.
 //-----------------------------------------------------------------------
     
-  virtual ~Exception() throw() {}
+  ~Exception() noexcept override = default;
 
 //-----------------------------------------------------------------------
 /// Write to exception what() string.
@@ -70,7 +70,7 @@ public:
 /// Description of what the error is.
 //-----------------------------------------------------------------------
 
-  virtual const char* what() const throw()
+  const char* what() const noexcept override
   {
     scratch = s_.str();
     return scratch.c_str();

@@ -17,7 +17,11 @@ shim=$(mktemp -d)
 trap 'rm -rf "$shim"' EXIT
 mkdir -p "$shim/blitz/llvm"
 echo '#include <blitz/gnu/bzconfig.h>' > "$shim/blitz/llvm/bzconfig.h"
+# --gcc-install-dir: otherwise clang may pick a newer gcc installed on the
+# host for the C++ standard library headers (seen with gcc 16 on Gentoo),
+# which need a newer glibc than the conda sysroot has.
 exec clang-tidy -p . \
+  --extra-arg=--gcc-install-dir="$gccdir" \
   --extra-arg=--sysroot="$CONDA_PREFIX/x86_64-conda-linux-gnu/sysroot" \
   --extra-arg=-isystem"$gccdir/include" \
   --extra-arg=-isystem"$gccdir/include-fixed" \

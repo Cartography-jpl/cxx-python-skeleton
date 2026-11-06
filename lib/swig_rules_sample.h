@@ -16,7 +16,7 @@ namespace Skeleton {
 class ValueSample : public Printable<ValueSample> {
 public:
   ValueSample(double V = 0) : v_(V) {}
-  virtual ~ValueSample() {}
+  ~ValueSample() override = default;
   double v() const { return v_; }
   virtual void print(std::ostream& Os) const { Os << "ValueSample(" << v_ << ")"; }
 private:
@@ -38,7 +38,7 @@ public:
     data_.resize(2, 2);
     data_ = 0;
   }
-  virtual ~SwigRulesSample() {}
+  ~SwigRulesSample() override = default;
 
 //-----------------------------------------------------------------------
 /// Constructor arguments, used by %pickle_init.

@@ -11,8 +11,8 @@
 #include <boost/filesystem.hpp>
 #include <string>
 #include <unistd.h>
-#include <errno.h>
-#include <string.h>
+#include <cerrno>
+#include <cstring>
 #include <fcntl.h>
 #ifdef SWIG_HAVE_BOOST_SERIALIZATION
 #include <boost/archive/polymorphic_xml_iarchive.hpp>
@@ -31,7 +31,7 @@ using namespace SWIG_MAPPER_NAMESPACE;
 
 class FilteringOstream : public std::ostream {
 public:
-  virtual ~FilteringOstream() {}
+  ~FilteringOstream() override = default;
 protected:
 
 //-----------------------------------------------------------------------
@@ -65,7 +65,7 @@ protected:
 
 class FilteringIstream : public std::istream {
 public:
-  virtual ~FilteringIstream() {}
+  ~FilteringIstream() override = default;
 protected:
 
 //-----------------------------------------------------------------------
@@ -110,7 +110,7 @@ public:
       sb.push(boost::iostreams::gzip_compressor());
     sb.push(f);
   }    
-  virtual ~OstreamCompress() {}
+  ~OstreamCompress() override = default;
 };
 
 /****************************************************************//**
@@ -139,7 +139,7 @@ public:
       sb.push(boost::iostreams::gzip_decompressor());
     sb.push(f);
   }
-  virtual ~IstreamCompress() {}
+  ~IstreamCompress() override = default;
 };
 
 //-----------------------------------------------------------------------

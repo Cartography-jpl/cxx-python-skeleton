@@ -103,7 +103,7 @@ inline void save
 )
 {
   boost::shared_ptr< T > sp = t.lock();
-  const SWIG_MAPPER_NAMESPACE::GenericObject* ptr = 0;
+  const SWIG_MAPPER_NAMESPACE::GenericObject* ptr = nullptr;
   if(sp) {
     ptr = dynamic_cast<const SWIG_MAPPER_NAMESPACE::GenericObject*>(sp.get());
     if(ptr && !SWIG_MAPPER_NAMESPACE::is_ptr_serialized(ptr))

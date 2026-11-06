@@ -9,7 +9,7 @@ namespace Skeleton {
 class GlobalFixture {
 public:
   GlobalFixture();
-  virtual ~GlobalFixture() { /* Nothing to do now */ }
+  virtual ~GlobalFixture() = default;
   std::string test_data_dir() const;
 private:
   void set_default_value();

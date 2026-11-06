@@ -62,7 +62,7 @@ static void write_array_string(const std::string& Name)
   for(int i = 0; i < D; ++i)
     shp(i) = (i == 0 ? 3 : 2);
   blitz::Array<std::string, D> a(shp);
-  for(int i = 0; i < a.size(); ++i)
+  for(std::size_t i = 0; i < a.size(); ++i)
     a.data()[i] = "s" + std::to_string(i);
   {
     std::ofstream os(outdir + "/" + Name + ".xml");

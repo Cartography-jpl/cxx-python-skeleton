@@ -31,7 +31,7 @@ public:
 class DescTest : public Printable<DescTest> {
 public:
   void print(std::ostream& Os) const {Os << "print";}
-  virtual std::string desc() const { return "desc"; }
+  std::string desc() const override { return "desc"; }
 };
 
 template<class T> std::string stream_string(const T& V)

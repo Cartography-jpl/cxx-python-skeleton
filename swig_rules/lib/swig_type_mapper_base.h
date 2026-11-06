@@ -88,7 +88,7 @@ public:
   virtual bool is_python_director_check(const boost::shared_ptr<GenericObject>& V) const = 0;
   virtual boost::shared_ptr<GenericObject> do_swig_python_director_setup(const boost::shared_ptr<GenericObject>& V) const = 0;
   virtual void* to_python(const boost::shared_ptr<GenericObject>& V) const = 0;
-  virtual ~SwigTypeMapperBase() {}
+  virtual ~SwigTypeMapperBase() = default;
 
 //-----------------------------------------------------------------------
 /// Add a handler for the given type info. Normally this is called in
@@ -146,7 +146,7 @@ public:
     type_index tid(typeid(t));
     if(swig_type_map.count(tid) != 0)
       return swig_type_map[tid]->to_python(V);
-    return 0;
+    return nullptr;
   }
 
 //-----------------------------------------------------------------------

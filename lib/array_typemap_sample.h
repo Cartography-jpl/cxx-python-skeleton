@@ -18,7 +18,7 @@ class ArrayTypemapSample : public Printable<ArrayTypemapSample> {
 public:
   ArrayTypemapSample() : stored_(2, 3)
   { stored_ = 1, 2, 3, 4, 5, 6; }
-  virtual ~ArrayTypemapSample() {}
+  ~ArrayTypemapSample() override = default;
 
 //-----------------------------------------------------------------------
 /// Echo back an array, one function for each element type and a few

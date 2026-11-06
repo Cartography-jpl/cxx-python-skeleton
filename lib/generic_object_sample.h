@@ -11,7 +11,7 @@ namespace Skeleton {
 class GenericObjectA : public Printable<GenericObjectA> {
 public:
   GenericObjectA(int V) : v_(V) {}
-  GenericObjectA() {}
+  GenericObjectA() = default;
   void print(std::ostream& Os) const {Os << "A";}
   int v() const { return v_;}
   void v(int V) { v_ = V;}
@@ -30,7 +30,7 @@ public:
   void a(const boost::shared_ptr<GenericObjectA>& V) { a_ = V;}
 private:
   boost::shared_ptr<GenericObjectA> a_;
-  GenericObjectB() {}
+  GenericObjectB() = default;
   friend class boost::serialization::access;
   template<class Archive>
   void serialize(Archive & ar, const unsigned int version);
@@ -44,7 +44,7 @@ public:
   void a(const GenericObjectA& V) { a_ = V;}
 private:
   GenericObjectA a_;
-  GenericObjectB2() {}
+  GenericObjectB2() = default;
   friend class boost::serialization::access;
   template<class Archive>
   void serialize(Archive & ar, const unsigned int version);
@@ -58,7 +58,7 @@ public:
   void a(const boost::shared_ptr<GenericObjectA>& V) { a_ = V;}
 private:
   boost::weak_ptr<GenericObjectA> a_;
-  GenericObjectC() {}
+  GenericObjectC() = default;
   friend class boost::serialization::access;
   template<class Archive>
   void serialize(Archive & ar, const unsigned int version);

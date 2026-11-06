@@ -69,7 +69,7 @@ void check_string_array(const std::string& Dir, const std::string& Name,
     ia >> SKELETON_NVP2("array", a);
   }
   BOOST_REQUIRE_EQUAL(a.size(), D == 1 ? 3 : 6);
-  for(int i = 0; i < a.size(); ++i)
+  for(std::size_t i = 0; i < a.size(); ++i)
     BOOST_CHECK_EQUAL(a.data()[i], "s" + std::to_string(i));
 }
 

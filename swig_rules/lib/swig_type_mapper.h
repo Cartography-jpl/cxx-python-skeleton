@@ -27,8 +27,8 @@ public:
     sinfo = SWIG_TypeQuery(Typename);
   }
   // We have the definition of this function in shared_ptr_type_mapper.i
-  virtual bool
-  is_python_director_check(const boost::shared_ptr<GenericObject>& V) const
+  bool
+  is_python_director_check(const boost::shared_ptr<GenericObject>& V) const override
   {
     boost::shared_ptr<Swig::Director> v2 =
       boost::dynamic_pointer_cast<Swig::Director>(V);
@@ -36,8 +36,8 @@ public:
       return true;
     return false;
   }
-  virtual boost::shared_ptr<GenericObject> do_swig_python_director_setup
-  (const boost::shared_ptr<GenericObject>& V) const
+  boost::shared_ptr<GenericObject> do_swig_python_director_setup
+  (const boost::shared_ptr<GenericObject>& V) const override
   {
     boost::shared_ptr<Swig::Director> v2 =
       boost::dynamic_pointer_cast<Swig::Director>(V);
@@ -53,26 +53,26 @@ public:
 #endif
     return r;
   }
-  virtual void* to_python(const boost::shared_ptr<GenericObject>& V) const
+  void* to_python(const boost::shared_ptr<GenericObject>& V) const override
   {
     boost::shared_ptr<T> v2 = boost::dynamic_pointer_cast<T>(V);
-    boost::shared_ptr<T> *v3 = v2 ? new boost::shared_ptr<T>(v2) : 0;
+    boost::shared_ptr<T> *v3 = v2 ? new boost::shared_ptr<T>(v2) : nullptr;
     return SWIG_NewPointerObj(SWIG_as_voidptr(v3), sinfo, 
 			      SWIG_POINTER_OWN);
   }
-  virtual ~SwigTypeMapper() {}
+  ~SwigTypeMapper() override = default;
 private:
   swig_type_info* sinfo;
   inline PyObject* cpickle_module() const
   {
-    static PyObject* mod = 0;
+    static PyObject* mod = nullptr;
     if(!mod)
       mod = PyImport_ImportModule("pickle");
     return mod;
   }
   inline std::string cpickle_dumps(PyObject* obj) const
   {
-    static PyObject* dumps_name = 0;
+    static PyObject* dumps_name = nullptr;
     if(!dumps_name)
       dumps_name = PyUnicode_FromString("dumps");
     PyObject* res = PyObject_CallMethodObjArgs(cpickle_module(), dumps_name, obj, NULL);
@@ -88,7 +88,7 @@ private:
   }
   inline PyObject* cpickle_loads(const std::string& S) const
   {
-    static PyObject* loads_name = 0;
+    static PyObject* loads_name = nullptr;
     if(!loads_name)
       loads_name = PyUnicode_FromString("loads");
     PyObject* data = PyBytes_FromStringAndSize(S.c_str(), S.size());

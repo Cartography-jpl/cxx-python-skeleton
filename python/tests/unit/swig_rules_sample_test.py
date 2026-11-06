@@ -78,6 +78,11 @@ def test_boost_array():
     assert t.sum_array([1, 2, 3]) == 6
     assert t.sum_array(np.array([1.0, 2.0, 3.0])) == 6
     assert t.first_element((5, 6, 7)) == 5
+    # Strided (non-contiguous) numpy views, through each copy path.
+    t.position_ = np.arange(6.0)[::2]
+    np.testing.assert_array_equal(t.position_, [0.0, 2.0, 4.0])
+    assert t.sum_array(np.arange(6.0)[::2]) == 6
+    assert t.first_element(np.arange(6.0)[1::2]) == 1
     # Wrong length. Records SWIG today: ValueError from the typemap for
     # const&, TypeError (no overload matched) for by value.
     with pytest.raises((ValueError, TypeError)):

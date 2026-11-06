@@ -24,7 +24,7 @@ public:
   {
     std::cerr << "Creating C++ " << name_ << "\n";
   }
-  virtual ~DirectorExample()
+  ~DirectorExample() override
   {
     std::cerr << "Destroying C++ " << name_ << "\n";
   }
@@ -37,7 +37,7 @@ public:
   { return this == &obj2; }
 protected:
   // Directors with swig seems to need to have this available
-  DirectorExample() {}
+  DirectorExample() = default;
 private:
   int value_to_add_;
   std::string name_;
@@ -61,11 +61,11 @@ public:
       obj_(Obj)
   {
   }
-  virtual ~DirectorExampleNested() {}
+  ~DirectorExampleNested() override = default;
 
   const boost::shared_ptr<DirectorExample>& obj() const { return obj_;}
 protected:
-  DirectorExampleNested() {}
+  DirectorExampleNested() = default;
 private:
   boost::shared_ptr<DirectorExample> obj_;
   friend class boost::serialization::access;
@@ -81,7 +81,7 @@ class DirectorExampleWeakPtr : public Printable<DirectorExampleWeakPtr> {
 public:
   DirectorExampleWeakPtr(const boost::shared_ptr<DirectorExample>& V)
     : a_(V) {}
-  virtual ~DirectorExampleWeakPtr() {}
+  ~DirectorExampleWeakPtr() override = default;
   void print(std::ostream& Os) const
   {
     Os << "----------------------\n";
@@ -98,7 +98,7 @@ public:
   long use_count() const {return a_.use_count();}
 private:
   boost::weak_ptr<DirectorExample> a_;
-  DirectorExampleWeakPtr() {}
+  DirectorExampleWeakPtr() = default;
   friend class boost::serialization::access;
   template<class Archive>
   void serialize(Archive & ar, const unsigned int version);
@@ -114,7 +114,7 @@ public:
   {
     std::cerr << "Creating DirectorExampleUser\n";
   }
-  virtual ~DirectorExampleUser()
+  ~DirectorExampleUser() override
   {
     std::cerr << "Destroying DirectorExampleUser\n";
   }

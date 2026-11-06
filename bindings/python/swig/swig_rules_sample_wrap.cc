@@ -4752,8 +4752,8 @@ inline const char* npy_type_str(int type_enum)
 struct ArrayConversionException : public std::exception
 {
   ArrayConversionException(const std::string& msg) : message(msg) {}
-  virtual ~ArrayConversionException() throw() {}
-  const char * what () const throw ()
+  ~ArrayConversionException() noexcept override {}
+  const char * what () const noexcept override
   {
     return message.c_str();
   }
@@ -4959,6 +4959,7 @@ inline void iter_to_vector_of_arrays(PyObject *sequence, std::vector<blitz::Arra
 
 #include <boost/array.hpp>
 #include <boost/foreach.hpp>
+#include <algorithm>
 
 template<class T, int D> inline boost::array<T, D> 
   to_boost_array(PyObject* numpy)
@@ -4967,8 +4968,7 @@ template<class T, int D> inline boost::array<T, D>
   if(b.rows() != D)
     throw std::runtime_error("Array not expeced size");
   boost::array<T, D> res;
-  for(int i = 0; i < D; ++i)
-    res[i]= b(i);
+  std::copy(b.begin(), b.end(), res.begin());
   return res;
 }
 
@@ -6566,15 +6566,13 @@ SWIG_AsPtr_std_string (PyObject * obj, std::string **val)
 
 SWIGINTERN blitz::Array< double,1 > Skeleton_SwigRulesSample__v_position___SWIG_0(Skeleton::SwigRulesSample const *self){
       blitz::Array<double, 1> res(3);
-      for(int i = 0; i < 3; ++i)
-        res(i) = self->position_[i];
+      std::copy(self->position_.begin(), self->position_.end(), res.begin());
       return res;
     }
 SWIGINTERN void Skeleton_SwigRulesSample__v_position___SWIG_1(Skeleton::SwigRulesSample *self,blitz::Array< double,1 > const &V){
       if(V.rows() != 3)
 	throw std::runtime_error("Array not expeced size");
-      for(int i = 0; i < 3; ++i)
-        self->position_[i] = V(i);
+      std::copy(V.begin(), V.end(), self->position_.begin());
     }
 
 namespace swig {

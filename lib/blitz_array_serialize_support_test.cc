@@ -44,7 +44,7 @@ template<class T, int D> void round_trip()
   for(int i = 0; i < D; ++i)
     shp(i) = (i == 0 ? 3 : 2);
   blitz::Array<T, D> a(shp);
-  for(int i = 0; i < (int) a.size(); ++i)
+  for(std::size_t i = 0; i < a.size(); ++i)
     a.data()[i] = static_cast<T>(i % 3);
   for(bool binary : {false, true}) {
     std::stringstream ss;

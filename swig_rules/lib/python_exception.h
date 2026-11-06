@@ -9,8 +9,8 @@ public:
   PythonException();
   PythonException(const PythonException& other);
   PythonException& operator=(const PythonException& other);
-  virtual ~PythonException();
-  virtual const char* what() const noexcept;
+  ~PythonException() override;
+  const char* what() const noexcept override;
   void restore_python_exception() const;
 private:
   mutable void *type, *value, *tb;

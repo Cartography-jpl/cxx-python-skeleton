@@ -77,7 +77,7 @@ extern "C" {
 // Used throughout SWIG wrapper, define here because it is convenient.
 PythonException::PythonException()
   : std::runtime_error(""),
-    type(NULL), value(NULL), tb(NULL), desc("Python error that I can't parse")
+    type(nullptr), value(nullptr), tb(nullptr), desc("Python error that I can't parse")
 {
   PyErr_Fetch((PyObject**) &type, (PyObject**)&value, (PyObject**)&tb);
   // Normalize before touching value -- PyErr_Fetch can hand back a NULL
@@ -86,9 +86,9 @@ PythonException::PythonException()
   // behavior. Normalizing first guarantees value is a real instance
   // (assuming type is non-NULL, i.e. an exception was actually pending).
   PyErr_NormalizeException((PyObject**)&type, (PyObject**)&value, (PyObject**)&tb);
-  PyObject * val_str = value ? PyObject_Str((PyObject*) value) : NULL;
+  PyObject * val_str = value ? PyObject_Str((PyObject*) value) : nullptr;
   PyObject * temp_bytes = val_str ? PyUnicode_AsEncodedString(val_str, "ASCII",
-						      "ignore") : NULL;
+						      "ignore") : nullptr;
   Py_XDECREF(val_str);
   if(temp_bytes) {
     desc = PyBytes_AS_STRING(temp_bytes); // Borrowed pointer
@@ -96,7 +96,7 @@ PythonException::PythonException()
   }
   // Try to get a traceback if we can
   PyObject* mod = PyImport_ImportModule("traceback");
-  PyObject* err_str_list = NULL;
+  PyObject* err_str_list = nullptr;
   if(tb) {
     err_str_list = PyObject_CallMethodObjArgs(mod,
 	      Text_FromUTF8("format_exception"), type, value, tb, NULL);
@@ -163,9 +163,9 @@ void PythonException::restore_python_exception() const
   PyErr_Restore((PyObject *)type, (PyObject *)value, (PyObject *)tb);
   // After restore, we no longer own these objects. Set to 0 so we
   // don't try to delete these in the destructor
-  type = NULL;
-  value = NULL;
-  tb = NULL;
+  type = nullptr;
+  value = nullptr;
+  tb = nullptr;
 }
 
 #if PY_MAJOR_VERSION > 2
@@ -186,9 +186,9 @@ static void init_extension_module3(PyObject* package, const char *modulename,
     // segfaults here rather than being handled gracefully -- build a
     // minimal real ModuleSpec (no loader) instead.
     PyObject *machinery = PyImport_ImportModule("importlib.machinery");
-    PyObject *spec_cls = machinery ? PyObject_GetAttrString(machinery, "ModuleSpec") : NULL;
-    PyObject *spec = spec_cls ? PyObject_CallFunctionObjArgs(spec_cls, Text_FromUTF8(modulename), Py_None, NULL) : NULL;
-    module = spec ? PyModule_FromDefAndSpec(def, spec) : NULL;
+    PyObject *spec_cls = machinery ? PyObject_GetAttrString(machinery, "ModuleSpec") : nullptr;
+    PyObject *spec = spec_cls ? PyObject_CallFunctionObjArgs(spec_cls, Text_FromUTF8(modulename), Py_None, NULL) : nullptr;
+    module = spec ? PyModule_FromDefAndSpec(def, spec) : nullptr;
     if (module && PyModule_ExecDef(module, def) < 0) {
       Py_CLEAR(module);
     }
@@ -261,12 +261,12 @@ static PyObject *
 error_out(PyObject *m, PyObject * /* args */) {
     struct module_state *st = GETSTATE(m);
     PyErr_SetString(st->error, "something bad happened");
-    return NULL;
+    return nullptr;
 }
 
 static PyMethodDef wrap_methods[] = {
-    {"error_out", (PyCFunction)error_out, METH_NOARGS, NULL},
-    {NULL, NULL, METH_NOARGS, NULL}
+    {"error_out", (PyCFunction)error_out, METH_NOARGS, nullptr},
+    {nullptr, nullptr, METH_NOARGS, nullptr}
 };
 
 #if PY_MAJOR_VERSION >= 3
@@ -285,13 +285,13 @@ static int wrap_clear(PyObject *m) {
 static struct PyModuleDef moduledef = {
         PyModuleDef_HEAD_INIT,
         PYTHON_MODULE_NAME_STRING,
-        NULL,
+        nullptr,
         sizeof(struct module_state),
         wrap_methods,
-        NULL,
+        nullptr,
         wrap_traverse,
         wrap_clear,
-        NULL
+        nullptr
 };
 
 #define INITERROR return NULL
@@ -312,14 +312,14 @@ void
     PyObject *module = Py_InitModule(PYTHON_MODULE_NAME_STRING, wrap_methods);
 #endif
 
-    if (module == NULL) {
+    if (module == nullptr) {
         std::cerr << "Initialization failed\n";
         INITERROR;
     }
     struct module_state *st = GETSTATE(module);
 
-    st->error = PyErr_NewException(PYTHON_MODULE_NAME_STRING ".Error", NULL, NULL);
-    if (st->error == NULL) {
+    st->error = PyErr_NewException(PYTHON_MODULE_NAME_STRING ".Error", nullptr, nullptr);
+    if (st->error == nullptr) {
         Py_DECREF(module);
         INITERROR;
     }

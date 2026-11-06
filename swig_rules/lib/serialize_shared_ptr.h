@@ -29,7 +29,7 @@ struct tracking_level< ::boost::shared_ptr< T > > {
   static const int value = type::value;
 };
 
-void * const shared_ptr_helper_id = 0;
+void * const shared_ptr_helper_id = nullptr;
 
 struct null_deleter {
     void operator()(void const *) const {}
@@ -59,7 +59,7 @@ public:
     : boost::shared_ptr<T>(r)
   {
   }
-  our_shared_ptr() {}
+  our_shared_ptr() = default;
   void reset() BOOST_SP_NOEXCEPT
   {
     boost::shared_ptr<T>::reset();
