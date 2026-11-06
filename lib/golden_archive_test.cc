@@ -4,6 +4,9 @@
 #include "generic_object_map.h"
 #include "director_example.h"
 #include "array_sample.h"
+#include "observer_example.h"
+#include "multi_base_example.h"
+#include "virtual_diamond_example.h"
 #include "serialize_function.h"
 #ifdef SKELETON_HAVE_BOOST_SERIALIZATION
 #include <boost/archive/polymorphic_xml_iarchive.hpp>
@@ -200,6 +203,77 @@ BOOST_AUTO_TEST_CASE(director_example)
     BOOST_CHECK(u->value_vec_vec()[1][1].get() == u->value().get());
     BOOST_CHECK_EQUAL(u->value_vec_int().size(), 3u);
     BOOST_CHECK_EQUAL(u->value_vec_vec_int()[1][1], 6);
+  }
+}
+
+BOOST_AUTO_TEST_CASE(observer)
+{
+  for(bool binary : {false, true}) {
+    auto m =
+        read_golden<GenericObjectMap>(test_data_dir(), "observer_map", binary);
+    auto ob = m->get<ObservableExample>("observable");
+    auto ctor = m->get<ObserverExample>("ctor");
+    auto plain = m->get<ObserverExample>("plain");
+    auto cache = m->get<CacheExample>("cache");
+    BOOST_REQUIRE(ob && ctor && plain && cache);
+    BOOST_CHECK_EQUAL(ob->value(), 2.5);
+    // ctor, plain and kept; dropped wasn't in the archive.
+    BOOST_CHECK_EQUAL(ob->number_observer(), 3);
+    BOOST_CHECK_EQUAL(ob->number_cache_observer(), 1);
+    BOOST_CHECK(ctor->observed().get() == ob.get());
+    BOOST_CHECK(cache->observed().get() == ob.get());
+    BOOST_CHECK_EQUAL(ctor->notify_count(), 1);
+    BOOST_CHECK_EQUAL(plain->last_value(), 2.5);
+    ob->value(4);
+    BOOST_CHECK_EQUAL(ctor->notify_count(), 2);
+    BOOST_CHECK_EQUAL(plain->notify_count(), 2);
+    BOOST_CHECK_EQUAL(cache->value(), 8);
+    auto c =
+        read_golden<ObserverExample>(test_data_dir(), "observer_ctor", binary);
+    BOOST_CHECK_EQUAL(c->name(), "ctor");
+    BOOST_REQUIRE(c->observed());
+    // Re-registered in load()
+    BOOST_CHECK_EQUAL(c->observed()->number_observer(), 2);
+    c->observed()->value(3);
+    BOOST_CHECK_EQUAL(c->last_value(), 3);
+  }
+}
+
+BOOST_AUTO_TEST_CASE(multi_base)
+{
+  for(bool binary : {false, true}) {
+    auto cam = read_golden<SimpleCameraLike>(test_data_dir(),
+                                             "simple_camera_like", binary);
+    BOOST_CHECK_EQUAL(cam->focal_length(), 10);
+    BOOST_CHECK_EQUAL(cam->number_band(), 3);
+    auto d = read_golden<Diamond>(test_data_dir(), "diamond", binary);
+    BOOST_CHECK_EQUAL(d->root_name(), "Diamond d");
+    BOOST_CHECK_EQUAL(d->parameter_sum(), 3);
+  }
+}
+
+BOOST_AUTO_TEST_CASE(rewrite_identical)
+{
+  // Every golden object archive, read and written again, gives the same
+  // bytes. This is the S4 acceptance test (std::shared_ptr mustn't change
+  // the archives), see claude_notes/implementation_plan.md §8.
+  for(const char* name :
+      {"generic_object_a", "generic_object_b", "generic_object_b2",
+       "generic_object_c", "generic_object_map", "director_example",
+       "director_example_nested", "director_example_map",
+       "director_example_user", "array_sample", "array_sample_empty",
+       "observer_map", "observer_ctor", "simple_camera_like", "diamond"}) {
+    for(bool binary : {false, true}) {
+      auto obj = read_golden<GenericObject>(test_data_dir(), name, binary);
+      std::string f =
+          test_data_dir() + "golden/" + name + (binary ? ".bin" : ".xml");
+      std::ifstream in(f, std::ios::binary);
+      std::string golden((std::istreambuf_iterator<char>(in)),
+                         std::istreambuf_iterator<char>());
+      std::string rewritten =
+          binary ? serialize_write_binary(obj) : serialize_write_string(obj);
+      BOOST_CHECK_MESSAGE(rewritten == golden, f << " rewritten differs");
+    }
   }
 }
 

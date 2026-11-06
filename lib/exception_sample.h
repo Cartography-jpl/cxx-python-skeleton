@@ -70,6 +70,18 @@ public:
       std::rethrow_exception(p);
     }
   }
+  //-----------------------------------------------------------------------
+  /// Throw a Skeleton::Exception and return the caught exception, so
+  /// python can look at its stack trace and source location.
+  //-----------------------------------------------------------------------
+  static Exception caught_exception(const std::string& Msg)
+  {
+    try {
+      throw Exception(Msg);
+    } catch(const Exception& e) {
+      return e;
+    }
+  }
   virtual void print(std::ostream& Os) const { Os << "ExceptionSample"; }
 };
 }

@@ -212,7 +212,59 @@ class ArraySample(skeleton_swig.generic_object.GenericObject):
 
 # Register ArraySample in _array_sample:
 _array_sample.ArraySample_swigregister(ArraySample)
+class ColumnMajorSample(skeleton_swig.generic_object.GenericObject):
+    r"""
 
-__all__ = ["ArraySample"]
+
+    Column-major (Fortran order) Blitz arrays and strided views, as framework uses
+    for Fortran interop (ColumnMajorArray, fortranArray).  
+
+    This is a separate class from ArraySample, and isn't serialized: the Blitz
+    serialization (blitz_array_serialize_support.cc) doesn't record the storage
+    order, so a column-major array wouldn't round trip.  
+
+    Python sees data() and strided_view() as numpy views of the C++ memory (read
+    only, the C++ object is kept alive by the view). The static functions describe
+    the array python passed in, so a test can check what C++ got (layout, and
+    whether it shares python's memory).  
+
+    C++ includes: array_sample.h
+
+    """
+
+    thisown = property(lambda x: x.this.own(), lambda x, v: x.this.own(v), doc="The membership flag")
+    __repr__ = _swig_repr
+
+    def __init__(self, Rows=2, Cols=3):
+        r"""
+        __init__(ColumnMajorSample self, int Rows=2, int Cols=3) -> ColumnMajorSample
+
+        Skeleton::ColumnMajorSample::ColumnMajorSample
+        Rows x Cols column-major array, with element (i, j) = 10 * i + j.  
+
+        """
+        _array_sample.ColumnMajorSample_swiginit(self, _array_sample.new_ColumnMajorSample(Rows, Cols))
+    _v_data = _swig_new_instance_method(_array_sample.ColumnMajorSample__v_data)
+
+    @property
+    def data(self):
+        return self._v_data()
+
+    @data.setter
+    def data(self, value):
+      self._v_data(value)
+
+    strided_view = _swig_new_instance_method(_array_sample.ColumnMajorSample_strided_view)
+    layout = _swig_new_static_method(_array_sample.ColumnMajorSample_layout)
+    data_address = _swig_new_static_method(_array_sample.ColumnMajorSample_data_address)
+    sum = _swig_new_static_method(_array_sample.ColumnMajorSample_sum)
+    scale_in_place = _swig_new_static_method(_array_sample.ColumnMajorSample_scale_in_place)
+    __str__ = _swig_new_instance_method(_array_sample.ColumnMajorSample___str__)
+    __swig_destroy__ = _array_sample.delete_ColumnMajorSample
+
+# Register ColumnMajorSample in _array_sample:
+_array_sample.ColumnMajorSample_swigregister(ColumnMajorSample)
+
+__all__ = ["ArraySample","ColumnMajorSample"]
 
 

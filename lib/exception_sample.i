@@ -4,6 +4,7 @@
 %}
 
 %base_import(generic_object)
+%import "skeleton_exception.i"
 %skeleton_shared_ptr(Skeleton::ExceptionSample);
 namespace Skeleton {
 %feature("director") ExceptionSample;
@@ -18,6 +19,7 @@ public:
   virtual int value() const;
   std::string value_error_message() const;
   int value_rethrow_copy() const;
+  static Exception caught_exception(const std::string& Msg);
   std::string print_to_string() const;
 };
 }

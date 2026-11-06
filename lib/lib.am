@@ -52,6 +52,22 @@ skeletoninc_HEADERS+= @srclib@/file_reference_sample.h
 libskeleton_la_SOURCES+= @srclib@/file_reference_sample.cc
 skeletoninc_HEADERS+= @srclib@/array_sample.h
 libskeleton_la_SOURCES+= @srclib@/array_sample.cc
+# Samples for consumer patterns (phase S5)
+skeletoninc_HEADERS+= @srclib@/null_deleter.h
+skeletoninc_HEADERS+= @srclib@/observer.h
+skeletoninc_HEADERS+= @srclib@/observer_serialize_support.h
+libskeleton_la_SOURCES+= @srclib@/observer.cc
+skeletoninc_HEADERS+= @srclib@/observer_example.h
+libskeleton_la_SOURCES+= @srclib@/observer_example.cc
+skeletoninc_HEADERS+= @srclib@/with_parameter_like.h
+libskeleton_la_SOURCES+= @srclib@/with_parameter_like.cc
+skeletoninc_HEADERS+= @srclib@/multi_base_example.h
+libskeleton_la_SOURCES+= @srclib@/multi_base_example.cc
+skeletoninc_HEADERS+= @srclib@/virtual_diamond_example.h
+libskeleton_la_SOURCES+= @srclib@/virtual_diamond_example.cc
+skeletoninc_HEADERS+= @srclib@/overload_example.h
+skeletoninc_HEADERS+= @srclib@/thread_example.h
+libskeleton_la_SOURCES+= @srclib@/thread_example.cc
 
 # Files that contain SWIG wrapper information.
 skeletonswiginc_HEADERS+= @srclib@/skeleton_common.i
@@ -82,6 +98,20 @@ SWIG_SRC += @swigsrc@/file_reference_sample_wrap.cc
 skeletonswiginc_HEADERS += @srclib@/file_reference_sample.i
 SWIG_SRC += @swigsrc@/array_sample_wrap.cc
 skeletonswiginc_HEADERS += @srclib@/array_sample.i
+SWIG_SRC += @swigsrc@/observer_wrap.cc
+skeletonswiginc_HEADERS += @srclib@/observer.i
+SWIG_SRC += @swigsrc@/observer_example_wrap.cc
+skeletonswiginc_HEADERS += @srclib@/observer_example.i
+SWIG_SRC += @swigsrc@/with_parameter_like_wrap.cc
+skeletonswiginc_HEADERS += @srclib@/with_parameter_like.i
+SWIG_SRC += @swigsrc@/multi_base_example_wrap.cc
+skeletonswiginc_HEADERS += @srclib@/multi_base_example.i
+SWIG_SRC += @swigsrc@/virtual_diamond_example_wrap.cc
+skeletonswiginc_HEADERS += @srclib@/virtual_diamond_example.i
+SWIG_SRC += @swigsrc@/overload_example_wrap.cc
+skeletonswiginc_HEADERS += @srclib@/overload_example.i
+SWIG_SRC += @swigsrc@/thread_example_wrap.cc
+skeletonswiginc_HEADERS += @srclib@/thread_example.i
 
 # Test files
 EXTRA_DIST+= @srclib@/unit_test_support.h
@@ -94,6 +124,10 @@ skeleton_test_all_SOURCES+= @srclib@/skeleton_exception_test.cc
 skeleton_test_all_SOURCES+= @srclib@/blitz_array_serialize_support_test.cc
 skeleton_test_all_SOURCES+= @srclib@/golden_archive_test.cc
 skeleton_test_all_SOURCES+= @srclib@/serialize_function_test.cc
+skeleton_test_all_SOURCES+= @srclib@/observer_test.cc
+skeleton_test_all_SOURCES+= @srclib@/multi_base_example_test.cc
+skeleton_test_all_SOURCES+= @srclib@/array_sample_test.cc
+skeleton_test_all_SOURCES+= @srclib@/thread_example_test.cc
 
 # Generator for the golden archives in unit_test_data/golden. These are
 # committed, so only regenerate deliberately, see

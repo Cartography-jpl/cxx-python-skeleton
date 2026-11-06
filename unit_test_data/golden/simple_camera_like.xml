@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<!DOCTYPE boost_serialization>
+<boost_serialization signature="serialization::archive" version="20">
+<geocal_object class_id="0" tracking_level="0" version="1">
+	<px class_id="2" class_name="Skeleton::SimpleCameraLike" tracking_level="1" version="0" object_id="_0">
+		<CameraLike class_id="3" tracking_level="0" version="0">
+			<ObservableCameraLike class_id="4" tracking_level="0" version="0">
+				<olist class_id="5" tracking_level="0" version="0">
+					<count>0</count>
+					<item_version>0</item_version>
+				</olist>
+				<colist class_id="6" tracking_level="0" version="0">
+					<count>0</count>
+					<item_version>0</item_version>
+				</colist>
+				<ref_list class_id="7" tracking_level="0" version="0">
+					<count>0</count>
+					<item_version>1</item_version>
+				</ref_list>
+			</ObservableCameraLike>
+			<WithParameterLike class_id="8" tracking_level="0" version="0"></WithParameterLike>
+		</CameraLike>
+		<focal_length>1.00000000000000000e+01</focal_length>
+		<number_band>3</number_band>
+	</px>
+</geocal_object>
+</boost_serialization>
+

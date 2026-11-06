@@ -163,6 +163,11 @@ class Exception(skeleton_swig.generic_object.GenericObject):
         _skeleton_exception.Exception_swiginit(self, _skeleton_exception.new_Exception(W))
     what = _swig_new_instance_method(_skeleton_exception.Exception_what)
     __str__ = _swig_new_instance_method(_skeleton_exception.Exception___str__)
+    stacktrace = _swig_new_instance_method(_skeleton_exception.Exception_stacktrace)
+    capture_stacktrace = _swig_new_static_method(_skeleton_exception.Exception_capture_stacktrace)
+    source_file = _swig_new_instance_method(_skeleton_exception.Exception_source_file)
+    source_line = _swig_new_instance_method(_skeleton_exception.Exception_source_line)
+    source_function = _swig_new_instance_method(_skeleton_exception.Exception_source_function)
     __swig_destroy__ = _skeleton_exception.delete_Exception
 
 # Register Exception in _skeleton_exception:

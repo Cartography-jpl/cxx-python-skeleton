@@ -14,6 +14,9 @@
 #include "generic_object_map.h"
 #include "director_example.h"
 #include "array_sample.h"
+#include "observer_example.h"
+#include "multi_base_example.h"
+#include "virtual_diamond_example.h"
 #include "serialize_function.h"
 #include <boost/make_shared.hpp>
 #include <boost/archive/polymorphic_xml_oarchive.hpp>
@@ -158,5 +161,29 @@ int main(int argc, char** argv)
   ase->count(std::nullopt);
   ase->scale(std::nullopt);
   write_object("array_sample_empty", ase);
+  // Added 2026-11-06 (phase S5), the consumer pattern samples. Written
+  // with boost::shared_ptr, before S4.
+  auto ob = boost::make_shared<ObservableExample>(1.5);
+  auto obs_ctor = boost::make_shared<ObserverExample>("ctor", ob);
+  auto obs_plain = boost::make_shared<ObserverExample>("plain");
+  ob->add_observer(*obs_plain);
+  auto obs_dropped = boost::make_shared<ObserverExample>("dropped");
+  ob->add_observer(*obs_dropped);
+  boost::shared_ptr<Observer<ObservableExample>> obs_kept =
+      boost::make_shared<ObserverExample>("kept");
+  ob->add_observer_and_keep_reference(obs_kept);
+  ob->value(2.5);
+  auto cache = boost::make_shared<CacheExample>(ob);
+  cache->value();
+  auto om = boost::make_shared<GenericObjectMap>();
+  (*om)["observable"] = ob;
+  (*om)["ctor"] = obs_ctor;
+  (*om)["plain"] = obs_plain;
+  (*om)["cache"] = cache;
+  write_object("observer_map", om);
+  write_object("observer_ctor", obs_ctor);
+  auto cam = boost::make_shared<SimpleCameraLike>(10, 3);
+  write_object("simple_camera_like", cam);
+  write_object("diamond", boost::make_shared<Diamond>("d", 1, 2));
   return 0;
 }

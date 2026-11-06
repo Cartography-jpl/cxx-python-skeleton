@@ -3,8 +3,10 @@
 #include "printable.h"
 #include <blitz/array.h>
 #include <array>
+#include <cstddef>
 #include <optional>
 #include <stdexcept>
+#include <string>
 
 namespace Skeleton {
 /****************************************************************/ /**
@@ -81,6 +83,99 @@ private:
   friend class boost::serialization::access;
   template<class Archive>
   void serialize(Archive& ar, const unsigned int version);
+};
+
+/****************************************************************/ /**
+  Column-major (Fortran order) Blitz arrays and strided views, as
+  framework uses for Fortran interop (ColumnMajorArray, fortranArray).
+
+  This is a separate class from ArraySample, and isn't serialized: the
+  Blitz serialization (blitz_array_serialize_support.cc) doesn't record
+  the storage order, so a column-major array wouldn't round trip.
+
+  Python sees data() and strided_view() as numpy views of the C++
+  memory (read only, the C++ object is kept alive by the view). The
+  static functions describe the array python passed in, so a test can
+  check what C++ got (layout, and whether it shares python's memory).
+*******************************************************************/
+class ColumnMajorSample : public Printable<ColumnMajorSample> {
+public:
+  //-----------------------------------------------------------------------
+  /// Rows x Cols column-major array, with element (i, j) = 10 * i + j.
+  //-----------------------------------------------------------------------
+
+  ColumnMajorSample(int Rows = 2, int Cols = 3)
+    : data_(Rows, Cols, blitz::ColumnMajorArray<2>())
+  {
+    for(int i = 0; i < Rows; ++i)
+      for(int j = 0; j < Cols; ++j)
+        data_(i, j) = 10 * i + j;
+  }
+  ~ColumnMajorSample() override = default;
+
+  //-----------------------------------------------------------------------
+  /// The column-major array.
+  //-----------------------------------------------------------------------
+
+  const blitz::Array<double, 2>& data() const { return data_; }
+
+  //-----------------------------------------------------------------------
+  /// Copy V into a new column-major array.
+  //-----------------------------------------------------------------------
+
+  void data(const blitz::Array<double, 2>& V)
+  {
+    blitz::Array<double, 2> d(V.shape(), blitz::ColumnMajorArray<2>());
+    d = V;
+    data_.reference(d);
+  }
+
+  //-----------------------------------------------------------------------
+  /// Every other column of data(), sharing its memory (not contiguous).
+  //-----------------------------------------------------------------------
+
+  blitz::Array<double, 2> strided_view() const
+  {
+    return data_(blitz::Range::all(), blitz::Range(0, blitz::toEnd, 2));
+  }
+
+  //-----------------------------------------------------------------------
+  /// "row_major", "column_major" or "strided", from the strides of A.
+  //-----------------------------------------------------------------------
+
+  static std::string layout(const blitz::Array<double, 2>& A)
+  {
+    if(A.stride(1) == 1 && A.stride(0) == A.cols())
+      return "row_major";
+    if(A.stride(0) == 1 && A.stride(1) == A.rows())
+      return "column_major";
+    return "strided";
+  }
+
+  //-----------------------------------------------------------------------
+  /// Address of the first element, to check for zero copy.
+  //-----------------------------------------------------------------------
+
+  static std::size_t data_address(const blitz::Array<double, 2>& A)
+  {
+    return reinterpret_cast<std::size_t>(A.data());
+  }
+
+  //-----------------------------------------------------------------------
+  /// Sum of A (A may have any layout).
+  //-----------------------------------------------------------------------
+
+  static double sum(const blitz::Array<double, 2>& A) { return blitz::sum(A); }
+
+  //-----------------------------------------------------------------------
+  /// Multiply A by V in place. With no copy, python sees the change.
+  //-----------------------------------------------------------------------
+
+  static void scale_in_place(blitz::Array<double, 2>& A, double V) { A *= V; }
+
+  virtual void print(std::ostream& Os) const { Os << "ColumnMajorSample"; }
+private:
+  blitz::Array<double, 2> data_;
 };
 }
 

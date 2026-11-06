@@ -3757,108 +3757,110 @@ namespace Swig {
 /* -------- TYPES TABLE (BEGIN) -------- */
 
 #define SWIGTYPE_p_Skeleton__ArraySample swig_types[0]
-#define SWIGTYPE_p_Skeleton__GenericObject swig_types[1]
-#define SWIGTYPE_p_allocator_type swig_types[2]
-#define SWIGTYPE_p_blitz__ArrayT_bool_1_t swig_types[3]
-#define SWIGTYPE_p_blitz__ArrayT_bool_2_t swig_types[4]
-#define SWIGTYPE_p_blitz__ArrayT_bool_3_t swig_types[5]
-#define SWIGTYPE_p_blitz__ArrayT_bool_4_t swig_types[6]
-#define SWIGTYPE_p_blitz__ArrayT_bool_5_t swig_types[7]
-#define SWIGTYPE_p_blitz__ArrayT_bool_6_t swig_types[8]
-#define SWIGTYPE_p_blitz__ArrayT_bool_7_t swig_types[9]
-#define SWIGTYPE_p_blitz__ArrayT_bool_8_t swig_types[10]
-#define SWIGTYPE_p_blitz__ArrayT_char_1_t swig_types[11]
-#define SWIGTYPE_p_blitz__ArrayT_char_2_t swig_types[12]
-#define SWIGTYPE_p_blitz__ArrayT_char_3_t swig_types[13]
-#define SWIGTYPE_p_blitz__ArrayT_char_4_t swig_types[14]
-#define SWIGTYPE_p_blitz__ArrayT_char_5_t swig_types[15]
-#define SWIGTYPE_p_blitz__ArrayT_char_6_t swig_types[16]
-#define SWIGTYPE_p_blitz__ArrayT_char_7_t swig_types[17]
-#define SWIGTYPE_p_blitz__ArrayT_char_8_t swig_types[18]
-#define SWIGTYPE_p_blitz__ArrayT_double_1_t swig_types[19]
-#define SWIGTYPE_p_blitz__ArrayT_double_2_t swig_types[20]
-#define SWIGTYPE_p_blitz__ArrayT_double_3_t swig_types[21]
-#define SWIGTYPE_p_blitz__ArrayT_double_4_t swig_types[22]
-#define SWIGTYPE_p_blitz__ArrayT_double_5_t swig_types[23]
-#define SWIGTYPE_p_blitz__ArrayT_double_6_t swig_types[24]
-#define SWIGTYPE_p_blitz__ArrayT_double_7_t swig_types[25]
-#define SWIGTYPE_p_blitz__ArrayT_double_8_t swig_types[26]
-#define SWIGTYPE_p_blitz__ArrayT_float_1_t swig_types[27]
-#define SWIGTYPE_p_blitz__ArrayT_float_2_t swig_types[28]
-#define SWIGTYPE_p_blitz__ArrayT_float_3_t swig_types[29]
-#define SWIGTYPE_p_blitz__ArrayT_float_4_t swig_types[30]
-#define SWIGTYPE_p_blitz__ArrayT_float_5_t swig_types[31]
-#define SWIGTYPE_p_blitz__ArrayT_float_6_t swig_types[32]
-#define SWIGTYPE_p_blitz__ArrayT_float_7_t swig_types[33]
-#define SWIGTYPE_p_blitz__ArrayT_float_8_t swig_types[34]
-#define SWIGTYPE_p_blitz__ArrayT_int_1_t swig_types[35]
-#define SWIGTYPE_p_blitz__ArrayT_int_2_t swig_types[36]
-#define SWIGTYPE_p_blitz__ArrayT_int_3_t swig_types[37]
-#define SWIGTYPE_p_blitz__ArrayT_int_4_t swig_types[38]
-#define SWIGTYPE_p_blitz__ArrayT_int_5_t swig_types[39]
-#define SWIGTYPE_p_blitz__ArrayT_int_6_t swig_types[40]
-#define SWIGTYPE_p_blitz__ArrayT_int_7_t swig_types[41]
-#define SWIGTYPE_p_blitz__ArrayT_int_8_t swig_types[42]
-#define SWIGTYPE_p_blitz__ArrayT_short_1_t swig_types[43]
-#define SWIGTYPE_p_blitz__ArrayT_short_2_t swig_types[44]
-#define SWIGTYPE_p_blitz__ArrayT_short_3_t swig_types[45]
-#define SWIGTYPE_p_blitz__ArrayT_short_4_t swig_types[46]
-#define SWIGTYPE_p_blitz__ArrayT_short_5_t swig_types[47]
-#define SWIGTYPE_p_blitz__ArrayT_short_6_t swig_types[48]
-#define SWIGTYPE_p_blitz__ArrayT_short_7_t swig_types[49]
-#define SWIGTYPE_p_blitz__ArrayT_short_8_t swig_types[50]
-#define SWIGTYPE_p_blitz__ArrayT_unsigned_char_1_t swig_types[51]
-#define SWIGTYPE_p_blitz__ArrayT_unsigned_char_2_t swig_types[52]
-#define SWIGTYPE_p_blitz__ArrayT_unsigned_char_3_t swig_types[53]
-#define SWIGTYPE_p_blitz__ArrayT_unsigned_char_4_t swig_types[54]
-#define SWIGTYPE_p_blitz__ArrayT_unsigned_char_5_t swig_types[55]
-#define SWIGTYPE_p_blitz__ArrayT_unsigned_char_6_t swig_types[56]
-#define SWIGTYPE_p_blitz__ArrayT_unsigned_char_7_t swig_types[57]
-#define SWIGTYPE_p_blitz__ArrayT_unsigned_char_8_t swig_types[58]
-#define SWIGTYPE_p_blitz__ArrayT_unsigned_int_1_t swig_types[59]
-#define SWIGTYPE_p_blitz__ArrayT_unsigned_int_2_t swig_types[60]
-#define SWIGTYPE_p_blitz__ArrayT_unsigned_int_3_t swig_types[61]
-#define SWIGTYPE_p_blitz__ArrayT_unsigned_int_4_t swig_types[62]
-#define SWIGTYPE_p_blitz__ArrayT_unsigned_int_5_t swig_types[63]
-#define SWIGTYPE_p_blitz__ArrayT_unsigned_int_6_t swig_types[64]
-#define SWIGTYPE_p_blitz__ArrayT_unsigned_int_7_t swig_types[65]
-#define SWIGTYPE_p_blitz__ArrayT_unsigned_int_8_t swig_types[66]
-#define SWIGTYPE_p_blitz__ArrayT_unsigned_short_1_t swig_types[67]
-#define SWIGTYPE_p_blitz__ArrayT_unsigned_short_2_t swig_types[68]
-#define SWIGTYPE_p_blitz__ArrayT_unsigned_short_3_t swig_types[69]
-#define SWIGTYPE_p_blitz__ArrayT_unsigned_short_4_t swig_types[70]
-#define SWIGTYPE_p_blitz__ArrayT_unsigned_short_5_t swig_types[71]
-#define SWIGTYPE_p_blitz__ArrayT_unsigned_short_6_t swig_types[72]
-#define SWIGTYPE_p_blitz__ArrayT_unsigned_short_7_t swig_types[73]
-#define SWIGTYPE_p_blitz__ArrayT_unsigned_short_8_t swig_types[74]
-#define SWIGTYPE_p_blitz__Range swig_types[75]
-#define SWIGTYPE_p_boost__shared_ptrT_Skeleton__ArraySample_t swig_types[76]
-#define SWIGTYPE_p_boost__shared_ptrT_Skeleton__GenericObject_t swig_types[77]
-#define SWIGTYPE_p_char swig_types[78]
-#define SWIGTYPE_p_char_type swig_types[79]
-#define SWIGTYPE_p_difference_type swig_types[80]
-#define SWIGTYPE_p_fmtflags swig_types[81]
-#define SWIGTYPE_p_int_type swig_types[82]
-#define SWIGTYPE_p_iostate swig_types[83]
-#define SWIGTYPE_p_off_type swig_types[84]
-#define SWIGTYPE_p_openmode swig_types[85]
-#define SWIGTYPE_p_pos_type swig_types[86]
-#define SWIGTYPE_p_seekdir swig_types[87]
-#define SWIGTYPE_p_size_t swig_types[88]
-#define SWIGTYPE_p_size_type swig_types[89]
-#define SWIGTYPE_p_state_type swig_types[90]
-#define SWIGTYPE_p_std__basic_iosT_char_t swig_types[91]
-#define SWIGTYPE_p_std__basic_iostreamT_char_t swig_types[92]
-#define SWIGTYPE_p_std__basic_istreamT_char_t swig_types[93]
-#define SWIGTYPE_p_std__basic_ostreamT_char_t swig_types[94]
-#define SWIGTYPE_p_std__invalid_argument swig_types[95]
-#define SWIGTYPE_p_std__optionalT_double_t swig_types[96]
-#define SWIGTYPE_p_std__optionalT_int_t swig_types[97]
-#define SWIGTYPE_p_swig__SwigPyIterator swig_types[98]
-#define SWIGTYPE_p_traits_type swig_types[99]
-#define SWIGTYPE_p_value_type swig_types[100]
-static swig_type_info *swig_types[102];
-static swig_module_info swig_module = {swig_types, 101, 0, 0, 0, 0};
+#define SWIGTYPE_p_Skeleton__ColumnMajorSample swig_types[1]
+#define SWIGTYPE_p_Skeleton__GenericObject swig_types[2]
+#define SWIGTYPE_p_allocator_type swig_types[3]
+#define SWIGTYPE_p_blitz__ArrayT_bool_1_t swig_types[4]
+#define SWIGTYPE_p_blitz__ArrayT_bool_2_t swig_types[5]
+#define SWIGTYPE_p_blitz__ArrayT_bool_3_t swig_types[6]
+#define SWIGTYPE_p_blitz__ArrayT_bool_4_t swig_types[7]
+#define SWIGTYPE_p_blitz__ArrayT_bool_5_t swig_types[8]
+#define SWIGTYPE_p_blitz__ArrayT_bool_6_t swig_types[9]
+#define SWIGTYPE_p_blitz__ArrayT_bool_7_t swig_types[10]
+#define SWIGTYPE_p_blitz__ArrayT_bool_8_t swig_types[11]
+#define SWIGTYPE_p_blitz__ArrayT_char_1_t swig_types[12]
+#define SWIGTYPE_p_blitz__ArrayT_char_2_t swig_types[13]
+#define SWIGTYPE_p_blitz__ArrayT_char_3_t swig_types[14]
+#define SWIGTYPE_p_blitz__ArrayT_char_4_t swig_types[15]
+#define SWIGTYPE_p_blitz__ArrayT_char_5_t swig_types[16]
+#define SWIGTYPE_p_blitz__ArrayT_char_6_t swig_types[17]
+#define SWIGTYPE_p_blitz__ArrayT_char_7_t swig_types[18]
+#define SWIGTYPE_p_blitz__ArrayT_char_8_t swig_types[19]
+#define SWIGTYPE_p_blitz__ArrayT_double_1_t swig_types[20]
+#define SWIGTYPE_p_blitz__ArrayT_double_2_t swig_types[21]
+#define SWIGTYPE_p_blitz__ArrayT_double_3_t swig_types[22]
+#define SWIGTYPE_p_blitz__ArrayT_double_4_t swig_types[23]
+#define SWIGTYPE_p_blitz__ArrayT_double_5_t swig_types[24]
+#define SWIGTYPE_p_blitz__ArrayT_double_6_t swig_types[25]
+#define SWIGTYPE_p_blitz__ArrayT_double_7_t swig_types[26]
+#define SWIGTYPE_p_blitz__ArrayT_double_8_t swig_types[27]
+#define SWIGTYPE_p_blitz__ArrayT_float_1_t swig_types[28]
+#define SWIGTYPE_p_blitz__ArrayT_float_2_t swig_types[29]
+#define SWIGTYPE_p_blitz__ArrayT_float_3_t swig_types[30]
+#define SWIGTYPE_p_blitz__ArrayT_float_4_t swig_types[31]
+#define SWIGTYPE_p_blitz__ArrayT_float_5_t swig_types[32]
+#define SWIGTYPE_p_blitz__ArrayT_float_6_t swig_types[33]
+#define SWIGTYPE_p_blitz__ArrayT_float_7_t swig_types[34]
+#define SWIGTYPE_p_blitz__ArrayT_float_8_t swig_types[35]
+#define SWIGTYPE_p_blitz__ArrayT_int_1_t swig_types[36]
+#define SWIGTYPE_p_blitz__ArrayT_int_2_t swig_types[37]
+#define SWIGTYPE_p_blitz__ArrayT_int_3_t swig_types[38]
+#define SWIGTYPE_p_blitz__ArrayT_int_4_t swig_types[39]
+#define SWIGTYPE_p_blitz__ArrayT_int_5_t swig_types[40]
+#define SWIGTYPE_p_blitz__ArrayT_int_6_t swig_types[41]
+#define SWIGTYPE_p_blitz__ArrayT_int_7_t swig_types[42]
+#define SWIGTYPE_p_blitz__ArrayT_int_8_t swig_types[43]
+#define SWIGTYPE_p_blitz__ArrayT_short_1_t swig_types[44]
+#define SWIGTYPE_p_blitz__ArrayT_short_2_t swig_types[45]
+#define SWIGTYPE_p_blitz__ArrayT_short_3_t swig_types[46]
+#define SWIGTYPE_p_blitz__ArrayT_short_4_t swig_types[47]
+#define SWIGTYPE_p_blitz__ArrayT_short_5_t swig_types[48]
+#define SWIGTYPE_p_blitz__ArrayT_short_6_t swig_types[49]
+#define SWIGTYPE_p_blitz__ArrayT_short_7_t swig_types[50]
+#define SWIGTYPE_p_blitz__ArrayT_short_8_t swig_types[51]
+#define SWIGTYPE_p_blitz__ArrayT_unsigned_char_1_t swig_types[52]
+#define SWIGTYPE_p_blitz__ArrayT_unsigned_char_2_t swig_types[53]
+#define SWIGTYPE_p_blitz__ArrayT_unsigned_char_3_t swig_types[54]
+#define SWIGTYPE_p_blitz__ArrayT_unsigned_char_4_t swig_types[55]
+#define SWIGTYPE_p_blitz__ArrayT_unsigned_char_5_t swig_types[56]
+#define SWIGTYPE_p_blitz__ArrayT_unsigned_char_6_t swig_types[57]
+#define SWIGTYPE_p_blitz__ArrayT_unsigned_char_7_t swig_types[58]
+#define SWIGTYPE_p_blitz__ArrayT_unsigned_char_8_t swig_types[59]
+#define SWIGTYPE_p_blitz__ArrayT_unsigned_int_1_t swig_types[60]
+#define SWIGTYPE_p_blitz__ArrayT_unsigned_int_2_t swig_types[61]
+#define SWIGTYPE_p_blitz__ArrayT_unsigned_int_3_t swig_types[62]
+#define SWIGTYPE_p_blitz__ArrayT_unsigned_int_4_t swig_types[63]
+#define SWIGTYPE_p_blitz__ArrayT_unsigned_int_5_t swig_types[64]
+#define SWIGTYPE_p_blitz__ArrayT_unsigned_int_6_t swig_types[65]
+#define SWIGTYPE_p_blitz__ArrayT_unsigned_int_7_t swig_types[66]
+#define SWIGTYPE_p_blitz__ArrayT_unsigned_int_8_t swig_types[67]
+#define SWIGTYPE_p_blitz__ArrayT_unsigned_short_1_t swig_types[68]
+#define SWIGTYPE_p_blitz__ArrayT_unsigned_short_2_t swig_types[69]
+#define SWIGTYPE_p_blitz__ArrayT_unsigned_short_3_t swig_types[70]
+#define SWIGTYPE_p_blitz__ArrayT_unsigned_short_4_t swig_types[71]
+#define SWIGTYPE_p_blitz__ArrayT_unsigned_short_5_t swig_types[72]
+#define SWIGTYPE_p_blitz__ArrayT_unsigned_short_6_t swig_types[73]
+#define SWIGTYPE_p_blitz__ArrayT_unsigned_short_7_t swig_types[74]
+#define SWIGTYPE_p_blitz__ArrayT_unsigned_short_8_t swig_types[75]
+#define SWIGTYPE_p_blitz__Range swig_types[76]
+#define SWIGTYPE_p_boost__shared_ptrT_Skeleton__ArraySample_t swig_types[77]
+#define SWIGTYPE_p_boost__shared_ptrT_Skeleton__ColumnMajorSample_t swig_types[78]
+#define SWIGTYPE_p_boost__shared_ptrT_Skeleton__GenericObject_t swig_types[79]
+#define SWIGTYPE_p_char swig_types[80]
+#define SWIGTYPE_p_char_type swig_types[81]
+#define SWIGTYPE_p_difference_type swig_types[82]
+#define SWIGTYPE_p_fmtflags swig_types[83]
+#define SWIGTYPE_p_int_type swig_types[84]
+#define SWIGTYPE_p_iostate swig_types[85]
+#define SWIGTYPE_p_off_type swig_types[86]
+#define SWIGTYPE_p_openmode swig_types[87]
+#define SWIGTYPE_p_pos_type swig_types[88]
+#define SWIGTYPE_p_seekdir swig_types[89]
+#define SWIGTYPE_p_size_t swig_types[90]
+#define SWIGTYPE_p_size_type swig_types[91]
+#define SWIGTYPE_p_state_type swig_types[92]
+#define SWIGTYPE_p_std__basic_iosT_char_t swig_types[93]
+#define SWIGTYPE_p_std__basic_iostreamT_char_t swig_types[94]
+#define SWIGTYPE_p_std__basic_istreamT_char_t swig_types[95]
+#define SWIGTYPE_p_std__basic_ostreamT_char_t swig_types[96]
+#define SWIGTYPE_p_std__invalid_argument swig_types[97]
+#define SWIGTYPE_p_std__optionalT_double_t swig_types[98]
+#define SWIGTYPE_p_std__optionalT_int_t swig_types[99]
+#define SWIGTYPE_p_swig__SwigPyIterator swig_types[100]
+#define SWIGTYPE_p_traits_type swig_types[101]
+#define SWIGTYPE_p_value_type swig_types[102]
+static swig_type_info *swig_types[104];
+static swig_module_info swig_module = {swig_types, 103, 0, 0, 0, 0};
 #define SWIG_TypeQuery(name) SWIG_TypeQueryModule(&swig_module, &swig_module, name)
 #define SWIG_MangledTypeQuery(name) SWIG_MangledTypeQueryModule(&swig_module, &swig_module, name)
 
@@ -5576,6 +5578,59 @@ SWIG_From_std_string  (const std::string& s)
 }
 
 
+SWIGINTERN int
+SWIG_AsVal_int (PyObject * obj, int *val)
+{
+  long v;
+  int res = SWIG_AsVal_long (obj, &v);
+  if (SWIG_IsOK(res)) {
+    if ((v < INT_MIN || v > INT_MAX)) {
+      return SWIG_OverflowError;
+    } else {
+      if (val) *val = static_cast< int >(v);
+    }
+  }  
+  return res;
+}
+
+
+SWIGINTERNINLINE PyObject* 
+SWIG_From_unsigned_SS_long  (unsigned long value)
+{
+  return (value > LONG_MAX) ?
+    PyLong_FromUnsignedLong(value) : PyLong_FromLong(static_cast< long >(value));
+}
+
+
+#ifdef SWIG_LONG_LONG_AVAILABLE
+SWIGINTERNINLINE PyObject* 
+SWIG_From_unsigned_SS_long_SS_long  (unsigned long long value)
+{
+  return (value > LONG_MAX) ?
+    PyLong_FromUnsignedLongLong(value) : PyLong_FromLong(static_cast< long >(value));
+}
+#endif
+
+
+SWIGINTERNINLINE PyObject *
+SWIG_From_size_t  (size_t value)
+{    
+#ifdef SWIG_LONG_LONG_AVAILABLE
+  if (sizeof(size_t) <= sizeof(unsigned long)) {
+#endif
+    return SWIG_From_unsigned_SS_long  (static_cast< unsigned long >(value));
+#ifdef SWIG_LONG_LONG_AVAILABLE
+  } else {
+    /* assume sizeof(size_t) <= sizeof(unsigned long long) */
+    return SWIG_From_unsigned_SS_long_SS_long  (static_cast< unsigned long long >(value));
+  }
+#endif
+}
+
+
+  #define SWIG_From_double   PyFloat_FromDouble 
+
+
 
 /* ---------------------------------------------------
  * C++ director class methods
@@ -7191,6 +7246,749 @@ SWIGINTERN PyObject *ArraySample_swiginit(PyObject *SWIGUNUSEDPARM(self), PyObje
   return SWIG_Python_InitShadowInstance(args);
 }
 
+SWIGINTERN PyObject *_wrap_new_ColumnMajorSample__SWIG_0(PyObject *self, Py_ssize_t nobjs, PyObject **swig_obj) {
+  PyObject *resultobj = 0;
+  int arg1 ;
+  int arg2 ;
+  int val1 ;
+  int ecode1 = 0 ;
+  int val2 ;
+  int ecode2 = 0 ;
+  Skeleton::ColumnMajorSample *result = 0 ;
+  
+  (void)self;
+  if ((nobjs < 2) || (nobjs > 2)) SWIG_fail;
+  ecode1 = SWIG_AsVal_int(swig_obj[0], &val1);
+  if (!SWIG_IsOK(ecode1)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode1), "in method '" "new_ColumnMajorSample" "', argument " "1"" of type '" "int""'");
+  } 
+  arg1 = static_cast< int >(val1);
+  ecode2 = SWIG_AsVal_int(swig_obj[1], &val2);
+  if (!SWIG_IsOK(ecode2)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode2), "in method '" "new_ColumnMajorSample" "', argument " "2"" of type '" "int""'");
+  } 
+  arg2 = static_cast< int >(val2);
+  {
+    try {
+      result = (Skeleton::ColumnMajorSample *)new Skeleton::ColumnMajorSample(arg1,arg2);
+    } catch(Swig::DirectorException& e) {
+      SWIG_fail;
+    } catch(const PythonException& e) {
+      e.restore_python_exception();
+      SWIG_fail;
+    } catch(const std::exception& e) {
+      SWIG_exception(SWIG_RuntimeError, e.what());
+    } catch(...) {
+      // Anything not derived from std::exception (a raw type, a
+      // third-party exception hierarchy that doesn't inherit
+      // std::exception, etc.) would otherwise propagate across the
+      // extern "C" boundary into CPython -- undefined behavior, in
+      // practice a process abort rather than a clean Python exception.
+      SWIG_exception(SWIG_RuntimeError, "unknown C++ exception");
+    }
+  }
+  {
+    boost::shared_ptr<  Skeleton::ColumnMajorSample > *smartresult = result ? new boost::shared_ptr<  Skeleton::ColumnMajorSample >(result SWIG_NO_NULL_DELETER_SWIG_POINTER_NEW) : 0;
+    resultobj = SWIG_NewPointerObj(SWIG_as_voidptr(smartresult), SWIGTYPE_p_boost__shared_ptrT_Skeleton__ColumnMajorSample_t, SWIG_POINTER_NEW | SWIG_POINTER_OWN);
+  }
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_new_ColumnMajorSample__SWIG_1(PyObject *self, Py_ssize_t nobjs, PyObject **swig_obj) {
+  PyObject *resultobj = 0;
+  int arg1 ;
+  int val1 ;
+  int ecode1 = 0 ;
+  Skeleton::ColumnMajorSample *result = 0 ;
+  
+  (void)self;
+  if ((nobjs < 1) || (nobjs > 1)) SWIG_fail;
+  ecode1 = SWIG_AsVal_int(swig_obj[0], &val1);
+  if (!SWIG_IsOK(ecode1)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode1), "in method '" "new_ColumnMajorSample" "', argument " "1"" of type '" "int""'");
+  } 
+  arg1 = static_cast< int >(val1);
+  {
+    try {
+      result = (Skeleton::ColumnMajorSample *)new Skeleton::ColumnMajorSample(arg1);
+    } catch(Swig::DirectorException& e) {
+      SWIG_fail;
+    } catch(const PythonException& e) {
+      e.restore_python_exception();
+      SWIG_fail;
+    } catch(const std::exception& e) {
+      SWIG_exception(SWIG_RuntimeError, e.what());
+    } catch(...) {
+      // Anything not derived from std::exception (a raw type, a
+      // third-party exception hierarchy that doesn't inherit
+      // std::exception, etc.) would otherwise propagate across the
+      // extern "C" boundary into CPython -- undefined behavior, in
+      // practice a process abort rather than a clean Python exception.
+      SWIG_exception(SWIG_RuntimeError, "unknown C++ exception");
+    }
+  }
+  {
+    boost::shared_ptr<  Skeleton::ColumnMajorSample > *smartresult = result ? new boost::shared_ptr<  Skeleton::ColumnMajorSample >(result SWIG_NO_NULL_DELETER_SWIG_POINTER_NEW) : 0;
+    resultobj = SWIG_NewPointerObj(SWIG_as_voidptr(smartresult), SWIGTYPE_p_boost__shared_ptrT_Skeleton__ColumnMajorSample_t, SWIG_POINTER_NEW | SWIG_POINTER_OWN);
+  }
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_new_ColumnMajorSample__SWIG_2(PyObject *self, Py_ssize_t nobjs, PyObject **SWIGUNUSEDPARM(swig_obj)) {
+  PyObject *resultobj = 0;
+  Skeleton::ColumnMajorSample *result = 0 ;
+  
+  (void)self;
+  if ((nobjs < 0) || (nobjs > 0)) SWIG_fail;
+  {
+    try {
+      result = (Skeleton::ColumnMajorSample *)new Skeleton::ColumnMajorSample();
+    } catch(Swig::DirectorException& e) {
+      SWIG_fail;
+    } catch(const PythonException& e) {
+      e.restore_python_exception();
+      SWIG_fail;
+    } catch(const std::exception& e) {
+      SWIG_exception(SWIG_RuntimeError, e.what());
+    } catch(...) {
+      // Anything not derived from std::exception (a raw type, a
+      // third-party exception hierarchy that doesn't inherit
+      // std::exception, etc.) would otherwise propagate across the
+      // extern "C" boundary into CPython -- undefined behavior, in
+      // practice a process abort rather than a clean Python exception.
+      SWIG_exception(SWIG_RuntimeError, "unknown C++ exception");
+    }
+  }
+  {
+    boost::shared_ptr<  Skeleton::ColumnMajorSample > *smartresult = result ? new boost::shared_ptr<  Skeleton::ColumnMajorSample >(result SWIG_NO_NULL_DELETER_SWIG_POINTER_NEW) : 0;
+    resultobj = SWIG_NewPointerObj(SWIG_as_voidptr(smartresult), SWIGTYPE_p_boost__shared_ptrT_Skeleton__ColumnMajorSample_t, SWIG_POINTER_NEW | SWIG_POINTER_OWN);
+  }
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_new_ColumnMajorSample(PyObject *self, PyObject *args) {
+  Py_ssize_t argc;
+  PyObject *argv[3] = {
+    0
+  };
+  
+  if (!(argc = SWIG_Python_UnpackTuple(args, "new_ColumnMajorSample", 0, 2, argv))) SWIG_fail;
+  --argc;
+  if (argc == 0) {
+    PyObject *retobj = _wrap_new_ColumnMajorSample__SWIG_2(self, argc, argv);
+    if (!SWIG_Python_TypeErrorOccurred(retobj)) return retobj;
+    SWIG_fail;
+  }
+  if (argc == 1) {
+    PyObject *retobj = _wrap_new_ColumnMajorSample__SWIG_1(self, argc, argv);
+    if (!SWIG_Python_TypeErrorOccurred(retobj)) return retobj;
+    SWIG_fail;
+  }
+  if (argc == 2) {
+    PyObject *retobj = _wrap_new_ColumnMajorSample__SWIG_0(self, argc, argv);
+    if (!SWIG_Python_TypeErrorOccurred(retobj)) return retobj;
+    SWIG_fail;
+  }
+  
+fail:
+  SWIG_Python_RaiseOrModifyTypeError("Wrong number or type of arguments for overloaded function 'new_ColumnMajorSample'.\n"
+    "  Possible C/C++ prototypes are:\n"
+    "    Skeleton::ColumnMajorSample::ColumnMajorSample(int,int)\n"
+    "    Skeleton::ColumnMajorSample::ColumnMajorSample(int)\n"
+    "    Skeleton::ColumnMajorSample::ColumnMajorSample()\n");
+  return 0;
+}
+
+
+SWIGINTERN PyObject *_wrap_ColumnMajorSample__v_data__SWIG_0(PyObject *self, Py_ssize_t nobjs, PyObject **swig_obj) {
+  PyObject *resultobj = 0;
+  Skeleton::ColumnMajorSample *arg1 = 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  boost::shared_ptr< Skeleton::ColumnMajorSample const > tempshared1 ;
+  boost::shared_ptr< Skeleton::ColumnMajorSample const > *smartarg1 = 0 ;
+  SwigValueWrapper< blitz::Array< double,2 > > result;
+  
+  (void)self;
+  if ((nobjs < 1) || (nobjs > 1)) SWIG_fail;
+  {
+    int newmem = 0;
+    res1 = SWIG_ConvertPtrAndOwn(swig_obj[0], &argp1, SWIGTYPE_p_boost__shared_ptrT_Skeleton__ColumnMajorSample_t, 0 |  0 , &newmem);
+    if (!SWIG_IsOK(res1)) {
+      SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "ColumnMajorSample__v_data" "', argument " "1"" of type '" "Skeleton::ColumnMajorSample const *""'");
+    }
+    if (newmem & SWIG_CAST_NEW_MEMORY) {
+      tempshared1 = *reinterpret_cast< boost::shared_ptr< const Skeleton::ColumnMajorSample > * >(argp1);
+      delete reinterpret_cast< boost::shared_ptr< const Skeleton::ColumnMajorSample > * >(argp1);
+      arg1 = const_cast< Skeleton::ColumnMajorSample * >(tempshared1.get());
+    } else {
+      smartarg1 = reinterpret_cast< boost::shared_ptr< const Skeleton::ColumnMajorSample > * >(argp1);
+      arg1 = const_cast< Skeleton::ColumnMajorSample * >((smartarg1 ? smartarg1->get() : 0));
+    }
+  }
+  {
+    try {
+      result = ((Skeleton::ColumnMajorSample const *)arg1)->data();
+    } catch(Swig::DirectorException& e) {
+      SWIG_fail;
+    } catch(const PythonException& e) {
+      e.restore_python_exception();
+      SWIG_fail;
+    } catch(const std::exception& e) {
+      SWIG_exception(SWIG_RuntimeError, e.what());
+    } catch(...) {
+      // Anything not derived from std::exception (a raw type, a
+      // third-party exception hierarchy that doesn't inherit
+      // std::exception, etc.) would otherwise propagate across the
+      // extern "C" boundary into CPython -- undefined behavior, in
+      // practice a process abort rather than a clean Python exception.
+      SWIG_exception(SWIG_RuntimeError, "unknown C++ exception");
+    }
+  }
+  {
+    // Treat as pointer for the purposes of the macro
+    /*@SWIG:../../swig-rules-skeleton/swig_rules/include/swig_array.i,203,%blitz_to_numpy@*/
+    // Copy out dimensions and stride from blitz array
+    npy_intp dims[2], stride[2];
+    for(int i = 0; i < 2; ++i) {
+      dims[i] = (&result)->extent(i);
+      // Note numpy stride is in terms of bytes, while blitz in in terms
+      // of type T.
+      stride[i] = (&result)->stride(i) * sizeof(double);
+    }
+    
+    // Create new numpy object using Numpy C API
+    resultobj = PyArray_New(&PyArray_Type, 2, dims, type_to_npy<double >(),
+      stride, (&result)->data(), 0, 0, 0);
+    blitz::Array<double, 2>* t = new blitz::Array<double, 2>(*(&result));
+    // Stash pointer to original blitz array as detailed above
+    PyArray_SetBaseObject((PyArrayObject*) resultobj,
+      SWIG_NewPointerObj(SWIG_as_voidptr(t),
+        SWIGTYPE_p_blitz__ArrayT_double_2_t,
+        SWIG_POINTER_NEW | SWIG_POINTER_OWN));
+    /*@SWIG@*/;
+  }
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_ColumnMajorSample__v_data__SWIG_1(PyObject *self, Py_ssize_t nobjs, PyObject **swig_obj) {
+  PyObject *resultobj = 0;
+  Skeleton::ColumnMajorSample *arg1 = 0 ;
+  blitz::Array< double,2 > *arg2 = 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  boost::shared_ptr< Skeleton::ColumnMajorSample > tempshared1 ;
+  boost::shared_ptr< Skeleton::ColumnMajorSample > *smartarg1 = 0 ;
+  blitz::Array< double,2 > a2 ;
+  PythonObject numpy2 ;
+  
+  (void)self;
+  if ((nobjs < 2) || (nobjs > 2)) SWIG_fail;
+  {
+    int newmem = 0;
+    res1 = SWIG_ConvertPtrAndOwn(swig_obj[0], &argp1, SWIGTYPE_p_boost__shared_ptrT_Skeleton__ColumnMajorSample_t, 0 |  0 , &newmem);
+    if (!SWIG_IsOK(res1)) {
+      SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "ColumnMajorSample__v_data" "', argument " "1"" of type '" "Skeleton::ColumnMajorSample *""'");
+    }
+    if (newmem & SWIG_CAST_NEW_MEMORY) {
+      tempshared1 = *reinterpret_cast< boost::shared_ptr<  Skeleton::ColumnMajorSample > * >(argp1);
+      delete reinterpret_cast< boost::shared_ptr<  Skeleton::ColumnMajorSample > * >(argp1);
+      arg1 = const_cast< Skeleton::ColumnMajorSample * >(tempshared1.get());
+    } else {
+      smartarg1 = reinterpret_cast< boost::shared_ptr<  Skeleton::ColumnMajorSample > * >(argp1);
+      arg1 = const_cast< Skeleton::ColumnMajorSample * >((smartarg1 ? smartarg1->get() : 0));
+    }
+  }
+  {
+    int res = SWIG_ConvertPtr(swig_obj[1], (void**)(&arg2), SWIGTYPE_p_blitz__ArrayT_double_2_t,
+      0 );
+    if(!SWIG_IsOK(res)) {
+      numpy2.obj = to_numpy<double >(swig_obj[1]);
+      if(!numpy2.obj) {
+        SWIG_Error(SWIG_TypeError, "in method 'ColumnMajorSample__v_data', expecting type  Array<double,2>");
+        return NULL;
+      }
+      if(PyArray_NDIM((PyArrayObject*)numpy2.obj) !=2) {
+        SWIG_Error(SWIG_TypeError, "in method 'ColumnMajorSample__v_data', expecting type  Array<double,2>");
+        return NULL;
+      }
+      a2.reference(to_blitz_array<double, 2>(numpy2));
+      arg2 = &a2;
+    }
+  }
+  {
+    try {
+      (arg1)->data((blitz::Array< double,2 > const &)*arg2);
+    } catch(Swig::DirectorException& e) {
+      SWIG_fail;
+    } catch(const PythonException& e) {
+      e.restore_python_exception();
+      SWIG_fail;
+    } catch(const std::exception& e) {
+      SWIG_exception(SWIG_RuntimeError, e.what());
+    } catch(...) {
+      // Anything not derived from std::exception (a raw type, a
+      // third-party exception hierarchy that doesn't inherit
+      // std::exception, etc.) would otherwise propagate across the
+      // extern "C" boundary into CPython -- undefined behavior, in
+      // practice a process abort rather than a clean Python exception.
+      SWIG_exception(SWIG_RuntimeError, "unknown C++ exception");
+    }
+  }
+  resultobj = SWIG_Py_Void();
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_ColumnMajorSample__v_data(PyObject *self, PyObject *args) {
+  Py_ssize_t argc;
+  PyObject *argv[3] = {
+    0
+  };
+  
+  if (!(argc = SWIG_Python_UnpackTuple(args, "ColumnMajorSample__v_data", 0, 2, argv))) SWIG_fail;
+  --argc;
+  if (argc == 1) {
+    PyObject *retobj = _wrap_ColumnMajorSample__v_data__SWIG_0(self, argc, argv);
+    if (!SWIG_Python_TypeErrorOccurred(retobj)) return retobj;
+    SWIG_fail;
+  }
+  if (argc == 2) {
+    PyObject *retobj = _wrap_ColumnMajorSample__v_data__SWIG_1(self, argc, argv);
+    if (!SWIG_Python_TypeErrorOccurred(retobj)) return retobj;
+    SWIG_fail;
+  }
+  
+fail:
+  SWIG_Python_RaiseOrModifyTypeError("Wrong number or type of arguments for overloaded function 'ColumnMajorSample__v_data'.\n"
+    "  Possible C/C++ prototypes are:\n"
+    "    Skeleton::ColumnMajorSample::data() const\n"
+    "    Skeleton::ColumnMajorSample::data(blitz::Array< double,2 > const &)\n");
+  return 0;
+}
+
+
+SWIGINTERN PyObject *_wrap_ColumnMajorSample_strided_view(PyObject *self, PyObject *args) {
+  PyObject *resultobj = 0;
+  Skeleton::ColumnMajorSample *arg1 = 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  boost::shared_ptr< Skeleton::ColumnMajorSample const > tempshared1 ;
+  boost::shared_ptr< Skeleton::ColumnMajorSample const > *smartarg1 = 0 ;
+  PyObject *swig_obj[1] ;
+  SwigValueWrapper< blitz::Array< double,2 > > result;
+  
+  (void)self;
+  if (!args) SWIG_fail;
+  swig_obj[0] = args;
+  {
+    int newmem = 0;
+    res1 = SWIG_ConvertPtrAndOwn(swig_obj[0], &argp1, SWIGTYPE_p_boost__shared_ptrT_Skeleton__ColumnMajorSample_t, 0 |  0 , &newmem);
+    if (!SWIG_IsOK(res1)) {
+      SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "ColumnMajorSample_strided_view" "', argument " "1"" of type '" "Skeleton::ColumnMajorSample const *""'");
+    }
+    if (newmem & SWIG_CAST_NEW_MEMORY) {
+      tempshared1 = *reinterpret_cast< boost::shared_ptr< const Skeleton::ColumnMajorSample > * >(argp1);
+      delete reinterpret_cast< boost::shared_ptr< const Skeleton::ColumnMajorSample > * >(argp1);
+      arg1 = const_cast< Skeleton::ColumnMajorSample * >(tempshared1.get());
+    } else {
+      smartarg1 = reinterpret_cast< boost::shared_ptr< const Skeleton::ColumnMajorSample > * >(argp1);
+      arg1 = const_cast< Skeleton::ColumnMajorSample * >((smartarg1 ? smartarg1->get() : 0));
+    }
+  }
+  {
+    try {
+      result = ((Skeleton::ColumnMajorSample const *)arg1)->strided_view();
+    } catch(Swig::DirectorException& e) {
+      SWIG_fail;
+    } catch(const PythonException& e) {
+      e.restore_python_exception();
+      SWIG_fail;
+    } catch(const std::exception& e) {
+      SWIG_exception(SWIG_RuntimeError, e.what());
+    } catch(...) {
+      // Anything not derived from std::exception (a raw type, a
+      // third-party exception hierarchy that doesn't inherit
+      // std::exception, etc.) would otherwise propagate across the
+      // extern "C" boundary into CPython -- undefined behavior, in
+      // practice a process abort rather than a clean Python exception.
+      SWIG_exception(SWIG_RuntimeError, "unknown C++ exception");
+    }
+  }
+  {
+    // Treat as pointer for the purposes of the macro
+    /*@SWIG:../../swig-rules-skeleton/swig_rules/include/swig_array.i,203,%blitz_to_numpy@*/
+    // Copy out dimensions and stride from blitz array
+    npy_intp dims[2], stride[2];
+    for(int i = 0; i < 2; ++i) {
+      dims[i] = (&result)->extent(i);
+      // Note numpy stride is in terms of bytes, while blitz in in terms
+      // of type T.
+      stride[i] = (&result)->stride(i) * sizeof(double);
+    }
+    
+    // Create new numpy object using Numpy C API
+    resultobj = PyArray_New(&PyArray_Type, 2, dims, type_to_npy<double >(),
+      stride, (&result)->data(), 0, 0, 0);
+    blitz::Array<double, 2>* t = new blitz::Array<double, 2>(*(&result));
+    // Stash pointer to original blitz array as detailed above
+    PyArray_SetBaseObject((PyArrayObject*) resultobj,
+      SWIG_NewPointerObj(SWIG_as_voidptr(t),
+        SWIGTYPE_p_blitz__ArrayT_double_2_t,
+        SWIG_POINTER_NEW | SWIG_POINTER_OWN));
+    /*@SWIG@*/;
+  }
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_ColumnMajorSample_layout(PyObject *self, PyObject *args) {
+  PyObject *resultobj = 0;
+  blitz::Array< double,2 > *arg1 = 0 ;
+  blitz::Array< double,2 > a1 ;
+  PythonObject numpy1 ;
+  PyObject *swig_obj[1] ;
+  std::string result;
+  
+  (void)self;
+  if (!args) SWIG_fail;
+  swig_obj[0] = args;
+  {
+    int res = SWIG_ConvertPtr(swig_obj[0], (void**)(&arg1), SWIGTYPE_p_blitz__ArrayT_double_2_t,
+      0 );
+    if(!SWIG_IsOK(res)) {
+      numpy1.obj = to_numpy<double >(swig_obj[0]);
+      if(!numpy1.obj) {
+        SWIG_Error(SWIG_TypeError, "in method 'ColumnMajorSample_layout', expecting type  Array<double,2>");
+        return NULL;
+      }
+      if(PyArray_NDIM((PyArrayObject*)numpy1.obj) !=2) {
+        SWIG_Error(SWIG_TypeError, "in method 'ColumnMajorSample_layout', expecting type  Array<double,2>");
+        return NULL;
+      }
+      a1.reference(to_blitz_array<double, 2>(numpy1));
+      arg1 = &a1;
+    }
+  }
+  {
+    try {
+      result = Skeleton::ColumnMajorSample::layout((blitz::Array< double,2 > const &)*arg1);
+    } catch(Swig::DirectorException& e) {
+      SWIG_fail;
+    } catch(const PythonException& e) {
+      e.restore_python_exception();
+      SWIG_fail;
+    } catch(const std::exception& e) {
+      SWIG_exception(SWIG_RuntimeError, e.what());
+    } catch(...) {
+      // Anything not derived from std::exception (a raw type, a
+      // third-party exception hierarchy that doesn't inherit
+      // std::exception, etc.) would otherwise propagate across the
+      // extern "C" boundary into CPython -- undefined behavior, in
+      // practice a process abort rather than a clean Python exception.
+      SWIG_exception(SWIG_RuntimeError, "unknown C++ exception");
+    }
+  }
+  resultobj = SWIG_From_std_string(static_cast< std::string >(result));
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_ColumnMajorSample_data_address(PyObject *self, PyObject *args) {
+  PyObject *resultobj = 0;
+  blitz::Array< double,2 > *arg1 = 0 ;
+  blitz::Array< double,2 > a1 ;
+  PythonObject numpy1 ;
+  PyObject *swig_obj[1] ;
+  std::size_t result;
+  
+  (void)self;
+  if (!args) SWIG_fail;
+  swig_obj[0] = args;
+  {
+    int res = SWIG_ConvertPtr(swig_obj[0], (void**)(&arg1), SWIGTYPE_p_blitz__ArrayT_double_2_t,
+      0 );
+    if(!SWIG_IsOK(res)) {
+      numpy1.obj = to_numpy<double >(swig_obj[0]);
+      if(!numpy1.obj) {
+        SWIG_Error(SWIG_TypeError, "in method 'ColumnMajorSample_data_address', expecting type  Array<double,2>");
+        return NULL;
+      }
+      if(PyArray_NDIM((PyArrayObject*)numpy1.obj) !=2) {
+        SWIG_Error(SWIG_TypeError, "in method 'ColumnMajorSample_data_address', expecting type  Array<double,2>");
+        return NULL;
+      }
+      a1.reference(to_blitz_array<double, 2>(numpy1));
+      arg1 = &a1;
+    }
+  }
+  {
+    try {
+      result = Skeleton::ColumnMajorSample::data_address((blitz::Array< double,2 > const &)*arg1);
+    } catch(Swig::DirectorException& e) {
+      SWIG_fail;
+    } catch(const PythonException& e) {
+      e.restore_python_exception();
+      SWIG_fail;
+    } catch(const std::exception& e) {
+      SWIG_exception(SWIG_RuntimeError, e.what());
+    } catch(...) {
+      // Anything not derived from std::exception (a raw type, a
+      // third-party exception hierarchy that doesn't inherit
+      // std::exception, etc.) would otherwise propagate across the
+      // extern "C" boundary into CPython -- undefined behavior, in
+      // practice a process abort rather than a clean Python exception.
+      SWIG_exception(SWIG_RuntimeError, "unknown C++ exception");
+    }
+  }
+  resultobj = SWIG_From_size_t(static_cast< size_t >(result));
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_ColumnMajorSample_sum(PyObject *self, PyObject *args) {
+  PyObject *resultobj = 0;
+  blitz::Array< double,2 > *arg1 = 0 ;
+  blitz::Array< double,2 > a1 ;
+  PythonObject numpy1 ;
+  PyObject *swig_obj[1] ;
+  double result;
+  
+  (void)self;
+  if (!args) SWIG_fail;
+  swig_obj[0] = args;
+  {
+    int res = SWIG_ConvertPtr(swig_obj[0], (void**)(&arg1), SWIGTYPE_p_blitz__ArrayT_double_2_t,
+      0 );
+    if(!SWIG_IsOK(res)) {
+      numpy1.obj = to_numpy<double >(swig_obj[0]);
+      if(!numpy1.obj) {
+        SWIG_Error(SWIG_TypeError, "in method 'ColumnMajorSample_sum', expecting type  Array<double,2>");
+        return NULL;
+      }
+      if(PyArray_NDIM((PyArrayObject*)numpy1.obj) !=2) {
+        SWIG_Error(SWIG_TypeError, "in method 'ColumnMajorSample_sum', expecting type  Array<double,2>");
+        return NULL;
+      }
+      a1.reference(to_blitz_array<double, 2>(numpy1));
+      arg1 = &a1;
+    }
+  }
+  {
+    try {
+      result = (double)Skeleton::ColumnMajorSample::sum((blitz::Array< double,2 > const &)*arg1);
+    } catch(Swig::DirectorException& e) {
+      SWIG_fail;
+    } catch(const PythonException& e) {
+      e.restore_python_exception();
+      SWIG_fail;
+    } catch(const std::exception& e) {
+      SWIG_exception(SWIG_RuntimeError, e.what());
+    } catch(...) {
+      // Anything not derived from std::exception (a raw type, a
+      // third-party exception hierarchy that doesn't inherit
+      // std::exception, etc.) would otherwise propagate across the
+      // extern "C" boundary into CPython -- undefined behavior, in
+      // practice a process abort rather than a clean Python exception.
+      SWIG_exception(SWIG_RuntimeError, "unknown C++ exception");
+    }
+  }
+  resultobj = SWIG_From_double(static_cast< double >(result));
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_ColumnMajorSample_scale_in_place(PyObject *self, PyObject *args) {
+  PyObject *resultobj = 0;
+  blitz::Array< double,2 > *arg1 = 0 ;
+  double arg2 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  double val2 ;
+  int ecode2 = 0 ;
+  PyObject *swig_obj[2] ;
+  
+  (void)self;
+  if (!SWIG_Python_UnpackTuple(args, "ColumnMajorSample_scale_in_place", 2, 2, swig_obj)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(swig_obj[0], &argp1, SWIGTYPE_p_blitz__ArrayT_double_2_t,  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "ColumnMajorSample_scale_in_place" "', argument " "1"" of type '" "blitz::Array< double,2 > &""'"); 
+  }
+  if (!argp1) {
+    SWIG_exception_fail(SWIG_NullReferenceError, "invalid null reference " "in method '" "ColumnMajorSample_scale_in_place" "', argument " "1"" of type '" "blitz::Array< double,2 > &""'"); 
+  }
+  arg1 = reinterpret_cast< blitz::Array< double,2 > * >(argp1);
+  ecode2 = SWIG_AsVal_double(swig_obj[1], &val2);
+  if (!SWIG_IsOK(ecode2)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode2), "in method '" "ColumnMajorSample_scale_in_place" "', argument " "2"" of type '" "double""'");
+  } 
+  arg2 = static_cast< double >(val2);
+  {
+    try {
+      Skeleton::ColumnMajorSample::scale_in_place(*arg1,arg2);
+    } catch(Swig::DirectorException& e) {
+      SWIG_fail;
+    } catch(const PythonException& e) {
+      e.restore_python_exception();
+      SWIG_fail;
+    } catch(const std::exception& e) {
+      SWIG_exception(SWIG_RuntimeError, e.what());
+    } catch(...) {
+      // Anything not derived from std::exception (a raw type, a
+      // third-party exception hierarchy that doesn't inherit
+      // std::exception, etc.) would otherwise propagate across the
+      // extern "C" boundary into CPython -- undefined behavior, in
+      // practice a process abort rather than a clean Python exception.
+      SWIG_exception(SWIG_RuntimeError, "unknown C++ exception");
+    }
+  }
+  resultobj = SWIG_Py_Void();
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_ColumnMajorSample___str__(PyObject *self, PyObject *args) {
+  PyObject *resultobj = 0;
+  Skeleton::ColumnMajorSample *arg1 = 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  boost::shared_ptr< Skeleton::ColumnMajorSample const > tempshared1 ;
+  boost::shared_ptr< Skeleton::ColumnMajorSample const > *smartarg1 = 0 ;
+  PyObject *swig_obj[1] ;
+  std::string result;
+  
+  (void)self;
+  if (!args) SWIG_fail;
+  swig_obj[0] = args;
+  {
+    int newmem = 0;
+    res1 = SWIG_ConvertPtrAndOwn(swig_obj[0], &argp1, SWIGTYPE_p_boost__shared_ptrT_Skeleton__ColumnMajorSample_t, 0 |  0 , &newmem);
+    if (!SWIG_IsOK(res1)) {
+      SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "ColumnMajorSample___str__" "', argument " "1"" of type '" "Skeleton::ColumnMajorSample const *""'");
+    }
+    if (newmem & SWIG_CAST_NEW_MEMORY) {
+      tempshared1 = *reinterpret_cast< boost::shared_ptr< const Skeleton::ColumnMajorSample > * >(argp1);
+      delete reinterpret_cast< boost::shared_ptr< const Skeleton::ColumnMajorSample > * >(argp1);
+      arg1 = const_cast< Skeleton::ColumnMajorSample * >(tempshared1.get());
+    } else {
+      smartarg1 = reinterpret_cast< boost::shared_ptr< const Skeleton::ColumnMajorSample > * >(argp1);
+      arg1 = const_cast< Skeleton::ColumnMajorSample * >((smartarg1 ? smartarg1->get() : 0));
+    }
+  }
+  {
+    try {
+      result = ((Skeleton::ColumnMajorSample const *)arg1)->print_to_string();
+    } catch(Swig::DirectorException& e) {
+      SWIG_fail;
+    } catch(const PythonException& e) {
+      e.restore_python_exception();
+      SWIG_fail;
+    } catch(const std::exception& e) {
+      SWIG_exception(SWIG_RuntimeError, e.what());
+    } catch(...) {
+      // Anything not derived from std::exception (a raw type, a
+      // third-party exception hierarchy that doesn't inherit
+      // std::exception, etc.) would otherwise propagate across the
+      // extern "C" boundary into CPython -- undefined behavior, in
+      // practice a process abort rather than a clean Python exception.
+      SWIG_exception(SWIG_RuntimeError, "unknown C++ exception");
+    }
+  }
+  resultobj = SWIG_From_std_string(static_cast< std::string >(result));
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_delete_ColumnMajorSample(PyObject *self, PyObject *args) {
+  PyObject *resultobj = 0;
+  Skeleton::ColumnMajorSample *arg1 = 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  boost::shared_ptr< Skeleton::ColumnMajorSample > tempshared1 ;
+  boost::shared_ptr< Skeleton::ColumnMajorSample > *smartarg1 = 0 ;
+  PyObject *swig_obj[1] ;
+  
+  (void)self;
+  if (!args) SWIG_fail;
+  swig_obj[0] = args;
+  {
+    int newmem = 0;
+    res1 = SWIG_ConvertPtrAndOwn(swig_obj[0], &argp1, SWIGTYPE_p_boost__shared_ptrT_Skeleton__ColumnMajorSample_t, 0 |  0 , &newmem);
+    if (!SWIG_IsOK(res1)) {
+      SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "delete_ColumnMajorSample" "', argument " "1"" of type '" "Skeleton::ColumnMajorSample *""'");
+    }
+    if (newmem & SWIG_CAST_NEW_MEMORY) {
+      tempshared1 = *reinterpret_cast< boost::shared_ptr<  Skeleton::ColumnMajorSample > * >(argp1);
+      delete reinterpret_cast< boost::shared_ptr<  Skeleton::ColumnMajorSample > * >(argp1);
+      arg1 = const_cast< Skeleton::ColumnMajorSample * >(tempshared1.get());
+    } else {
+      smartarg1 = reinterpret_cast< boost::shared_ptr<  Skeleton::ColumnMajorSample > * >(argp1);
+      arg1 = const_cast< Skeleton::ColumnMajorSample * >((smartarg1 ? smartarg1->get() : 0));
+    }
+  }
+  {
+    try {
+      (void)arg1; delete smartarg1;
+    } catch(Swig::DirectorException& e) {
+      SWIG_fail;
+    } catch(const PythonException& e) {
+      e.restore_python_exception();
+      SWIG_fail;
+    } catch(const std::exception& e) {
+      SWIG_exception(SWIG_RuntimeError, e.what());
+    } catch(...) {
+      // Anything not derived from std::exception (a raw type, a
+      // third-party exception hierarchy that doesn't inherit
+      // std::exception, etc.) would otherwise propagate across the
+      // extern "C" boundary into CPython -- undefined behavior, in
+      // practice a process abort rather than a clean Python exception.
+      SWIG_exception(SWIG_RuntimeError, "unknown C++ exception");
+    }
+  }
+  resultobj = SWIG_Py_Void();
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *ColumnMajorSample_swigregister(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *obj = NULL;
+  if (!SWIG_Python_UnpackTuple(args, "swigregister", 1, 1, &obj)) return NULL;
+  SWIG_TypeNewClientData(SWIGTYPE_p_boost__shared_ptrT_Skeleton__ColumnMajorSample_t, SWIG_NewClientData(obj));
+  return SWIG_Py_Void();
+}
+
+SWIGINTERN PyObject *ColumnMajorSample_swiginit(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  return SWIG_Python_InitShadowInstance(args);
+}
+
 static PyMethodDef SwigMethods[] = {
 	 { "SWIG_PyInstanceMethod_New", SWIG_PyInstanceMethod_New, METH_O, NULL},
 	 { "SWIG_PyStaticMethod_New", SWIG_PyStaticMethod_New, METH_O, NULL},
@@ -7262,6 +8060,64 @@ static PyMethodDef SwigMethods[] = {
 		""},
 	 { "ArraySample_swigregister", ArraySample_swigregister, METH_O, NULL},
 	 { "ArraySample_swiginit", ArraySample_swiginit, METH_VARARGS, NULL},
+	 { "new_ColumnMajorSample", _wrap_new_ColumnMajorSample, METH_VARARGS, "\n"
+		"ColumnMajorSample(int Rows=2, int Cols=3)\n"
+		"\n"
+		"Skeleton::ColumnMajorSample::ColumnMajorSample\n"
+		"Rows x Cols column-major array, with element (i, j) = 10 * i + j.  \n"
+		"\n"
+		""},
+	 { "ColumnMajorSample__v_data", _wrap_ColumnMajorSample__v_data, METH_VARARGS, "\n"
+		"ColumnMajorSample__v_data(ColumnMajorSample self) -> BlitzArray_double_2\n"
+		"ColumnMajorSample__v_data(ColumnMajorSample self, BlitzArray_double_2 V)\n"
+		"\n"
+		"Skeleton::ColumnMajorSample::data\n"
+		"Copy V into a new column-major array.  \n"
+		"\n"
+		""},
+	 { "ColumnMajorSample_strided_view", _wrap_ColumnMajorSample_strided_view, METH_O, "\n"
+		"ColumnMajorSample_strided_view(ColumnMajorSample self) -> BlitzArray_double_2\n"
+		"\n"
+		"Skeleton::ColumnMajorSample::strided_view\n"
+		"Every other column of data(), sharing its memory (not contiguous).  \n"
+		"\n"
+		""},
+	 { "ColumnMajorSample_layout", _wrap_ColumnMajorSample_layout, METH_O, "\n"
+		"ColumnMajorSample_layout(BlitzArray_double_2 A) -> std::string\n"
+		"\n"
+		"Skeleton::ColumnMajorSample::layout\n"
+		"\"row_major\", \"column_major\" or \"strided\", from the strides of A.  \n"
+		"\n"
+		""},
+	 { "ColumnMajorSample_data_address", _wrap_ColumnMajorSample_data_address, METH_O, "\n"
+		"ColumnMajorSample_data_address(BlitzArray_double_2 A) -> std::size_t\n"
+		"\n"
+		"Skeleton::ColumnMajorSample::data_address\n"
+		"Address of the first element, to check for zero copy.  \n"
+		"\n"
+		""},
+	 { "ColumnMajorSample_sum", _wrap_ColumnMajorSample_sum, METH_O, "\n"
+		"ColumnMajorSample_sum(BlitzArray_double_2 A) -> double\n"
+		"\n"
+		"Skeleton::ColumnMajorSample::sum\n"
+		"Sum of A (A may have any layout).  \n"
+		"\n"
+		""},
+	 { "ColumnMajorSample_scale_in_place", _wrap_ColumnMajorSample_scale_in_place, METH_VARARGS, "\n"
+		"ColumnMajorSample_scale_in_place(BlitzArray_double_2 A, double V)\n"
+		"\n"
+		"Skeleton::ColumnMajorSample::scale_in_place\n"
+		"Multiply A by V in place. With no copy, python sees the change.  \n"
+		"\n"
+		""},
+	 { "ColumnMajorSample___str__", _wrap_ColumnMajorSample___str__, METH_O, "ColumnMajorSample___str__(ColumnMajorSample self) -> std::string"},
+	 { "delete_ColumnMajorSample", _wrap_delete_ColumnMajorSample, METH_O, "\n"
+		"delete_ColumnMajorSample(ColumnMajorSample self)\n"
+		"\n"
+		"Skeleton::ColumnMajorSample::~ColumnMajorSample\n"
+		""},
+	 { "ColumnMajorSample_swigregister", ColumnMajorSample_swigregister, METH_O, NULL},
+	 { "ColumnMajorSample_swiginit", ColumnMajorSample_swiginit, METH_VARARGS, NULL},
 	 { NULL, NULL, 0, NULL }
 };
 
@@ -7336,6 +8192,64 @@ static PyMethodDef SwigMethods_proxydocs[] = {
 		""},
 	 { "ArraySample_swigregister", ArraySample_swigregister, METH_O, NULL},
 	 { "ArraySample_swiginit", ArraySample_swiginit, METH_VARARGS, NULL},
+	 { "new_ColumnMajorSample", _wrap_new_ColumnMajorSample, METH_VARARGS, "\n"
+		"ColumnMajorSample(int Rows=2, int Cols=3)\n"
+		"\n"
+		"Skeleton::ColumnMajorSample::ColumnMajorSample\n"
+		"Rows x Cols column-major array, with element (i, j) = 10 * i + j.  \n"
+		"\n"
+		""},
+	 { "ColumnMajorSample__v_data", _wrap_ColumnMajorSample__v_data, METH_VARARGS, "\n"
+		"_v_data(ColumnMajorSample self) -> BlitzArray_double_2\n"
+		"_v_data(ColumnMajorSample self, BlitzArray_double_2 V)\n"
+		"\n"
+		"Skeleton::ColumnMajorSample::data\n"
+		"Copy V into a new column-major array.  \n"
+		"\n"
+		""},
+	 { "ColumnMajorSample_strided_view", _wrap_ColumnMajorSample_strided_view, METH_O, "\n"
+		"strided_view(ColumnMajorSample self) -> BlitzArray_double_2\n"
+		"\n"
+		"Skeleton::ColumnMajorSample::strided_view\n"
+		"Every other column of data(), sharing its memory (not contiguous).  \n"
+		"\n"
+		""},
+	 { "ColumnMajorSample_layout", _wrap_ColumnMajorSample_layout, METH_O, "\n"
+		"layout(BlitzArray_double_2 A) -> std::string\n"
+		"\n"
+		"Skeleton::ColumnMajorSample::layout\n"
+		"\"row_major\", \"column_major\" or \"strided\", from the strides of A.  \n"
+		"\n"
+		""},
+	 { "ColumnMajorSample_data_address", _wrap_ColumnMajorSample_data_address, METH_O, "\n"
+		"data_address(BlitzArray_double_2 A) -> std::size_t\n"
+		"\n"
+		"Skeleton::ColumnMajorSample::data_address\n"
+		"Address of the first element, to check for zero copy.  \n"
+		"\n"
+		""},
+	 { "ColumnMajorSample_sum", _wrap_ColumnMajorSample_sum, METH_O, "\n"
+		"sum(BlitzArray_double_2 A) -> double\n"
+		"\n"
+		"Skeleton::ColumnMajorSample::sum\n"
+		"Sum of A (A may have any layout).  \n"
+		"\n"
+		""},
+	 { "ColumnMajorSample_scale_in_place", _wrap_ColumnMajorSample_scale_in_place, METH_VARARGS, "\n"
+		"scale_in_place(BlitzArray_double_2 A, double V)\n"
+		"\n"
+		"Skeleton::ColumnMajorSample::scale_in_place\n"
+		"Multiply A by V in place. With no copy, python sees the change.  \n"
+		"\n"
+		""},
+	 { "ColumnMajorSample___str__", _wrap_ColumnMajorSample___str__, METH_O, "__str__(ColumnMajorSample self) -> std::string"},
+	 { "delete_ColumnMajorSample", _wrap_delete_ColumnMajorSample, METH_O, "\n"
+		"delete_ColumnMajorSample(ColumnMajorSample self)\n"
+		"\n"
+		"Skeleton::ColumnMajorSample::~ColumnMajorSample\n"
+		""},
+	 { "ColumnMajorSample_swigregister", ColumnMajorSample_swigregister, METH_O, NULL},
+	 { "ColumnMajorSample_swiginit", ColumnMajorSample_swiginit, METH_VARARGS, NULL},
 	 { NULL, NULL, 0, NULL }
 };
 
@@ -7345,9 +8259,16 @@ static PyMethodDef SwigMethods_proxydocs[] = {
 static void *_p_Skeleton__ArraySampleTo_p_Skeleton__GenericObject(void *x, int *SWIGUNUSEDPARM(newmemory)) {
     return (void *)((Skeleton::GenericObject *)  ((Skeleton::ArraySample *) x));
 }
+static void *_p_Skeleton__ColumnMajorSampleTo_p_Skeleton__GenericObject(void *x, int *SWIGUNUSEDPARM(newmemory)) {
+    return (void *)((Skeleton::GenericObject *)  ((Skeleton::ColumnMajorSample *) x));
+}
 static void *_p_boost__shared_ptrT_Skeleton__ArraySample_tTo_p_boost__shared_ptrT_Skeleton__GenericObject_t(void *x, int *newmemory) {
     *newmemory = SWIG_CAST_NEW_MEMORY;
     return (void *) new boost::shared_ptr< Skeleton::GenericObject >(*(boost::shared_ptr< Skeleton::ArraySample > *)x);
+}
+static void *_p_boost__shared_ptrT_Skeleton__ColumnMajorSample_tTo_p_boost__shared_ptrT_Skeleton__GenericObject_t(void *x, int *newmemory) {
+    *newmemory = SWIG_CAST_NEW_MEMORY;
+    return (void *) new boost::shared_ptr< Skeleton::GenericObject >(*(boost::shared_ptr< Skeleton::ColumnMajorSample > *)x);
 }
 static void *_p_std__basic_iostreamT_char_tTo_p_std__basic_iosT_char_t(void *x, int *SWIGUNUSEDPARM(newmemory)) {
     return (void *)((std::basic_ios< char,std::char_traits< char > > *) (std::basic_istream< char > *) ((std::basic_iostream< char,std::char_traits< char > > *) x));
@@ -7365,6 +8286,7 @@ static void *_p_std__basic_iostreamT_char_tTo_p_std__basic_ostreamT_char_t(void 
     return (void *)((std::basic_ostream< char,std::char_traits< char > > *)  ((std::basic_iostream< char,std::char_traits< char > > *) x));
 }
 static swig_type_info _swigt__p_Skeleton__ArraySample = {"_p_Skeleton__ArraySample", "Skeleton::ArraySample *", 0, 0, (void*)0, 0};
+static swig_type_info _swigt__p_Skeleton__ColumnMajorSample = {"_p_Skeleton__ColumnMajorSample", "Skeleton::ColumnMajorSample *", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_Skeleton__GenericObject = {"_p_Skeleton__GenericObject", "Skeleton::GenericObject *", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_allocator_type = {"_p_allocator_type", "allocator_type *", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_blitz__ArrayT_bool_1_t = {"_p_blitz__ArrayT_bool_1_t", "blitz::Array< bool,1 > *", 0, 0, (void*)0, 0};
@@ -7441,6 +8363,7 @@ static swig_type_info _swigt__p_blitz__ArrayT_unsigned_short_7_t = {"_p_blitz__A
 static swig_type_info _swigt__p_blitz__ArrayT_unsigned_short_8_t = {"_p_blitz__ArrayT_unsigned_short_8_t", "blitz::Array< unsigned short,8 > *", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_blitz__Range = {"_p_blitz__Range", "blitz::Range *", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_boost__shared_ptrT_Skeleton__ArraySample_t = {"_p_boost__shared_ptrT_Skeleton__ArraySample_t", "boost::shared_ptr< Skeleton::ArraySample > *", 0, 0, (void*)0, 0};
+static swig_type_info _swigt__p_boost__shared_ptrT_Skeleton__ColumnMajorSample_t = {"_p_boost__shared_ptrT_Skeleton__ColumnMajorSample_t", "boost::shared_ptr< Skeleton::ColumnMajorSample > *", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_boost__shared_ptrT_Skeleton__GenericObject_t = {"_p_boost__shared_ptrT_Skeleton__GenericObject_t", "boost::shared_ptr< Skeleton::GenericObject > *", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_char = {"_p_char", "char *", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_char_type = {"_p_char_type", "char_type *", 0, 0, (void*)0, 0};
@@ -7468,6 +8391,7 @@ static swig_type_info _swigt__p_value_type = {"_p_value_type", "value_type *", 0
 
 static swig_type_info *swig_type_initial[] = {
   &_swigt__p_Skeleton__ArraySample,
+  &_swigt__p_Skeleton__ColumnMajorSample,
   &_swigt__p_Skeleton__GenericObject,
   &_swigt__p_allocator_type,
   &_swigt__p_blitz__ArrayT_bool_1_t,
@@ -7544,6 +8468,7 @@ static swig_type_info *swig_type_initial[] = {
   &_swigt__p_blitz__ArrayT_unsigned_short_8_t,
   &_swigt__p_blitz__Range,
   &_swigt__p_boost__shared_ptrT_Skeleton__ArraySample_t,
+  &_swigt__p_boost__shared_ptrT_Skeleton__ColumnMajorSample_t,
   &_swigt__p_boost__shared_ptrT_Skeleton__GenericObject_t,
   &_swigt__p_char,
   &_swigt__p_char_type,
@@ -7571,7 +8496,8 @@ static swig_type_info *swig_type_initial[] = {
 };
 
 static swig_cast_info _swigc__p_Skeleton__ArraySample[] = {  {&_swigt__p_Skeleton__ArraySample, 0, 0, 0},{0, 0, 0, 0}};
-static swig_cast_info _swigc__p_Skeleton__GenericObject[] = {  {&_swigt__p_Skeleton__GenericObject, 0, 0, 0},  {&_swigt__p_Skeleton__ArraySample, _p_Skeleton__ArraySampleTo_p_Skeleton__GenericObject, 0, 0},{0, 0, 0, 0}};
+static swig_cast_info _swigc__p_Skeleton__ColumnMajorSample[] = {  {&_swigt__p_Skeleton__ColumnMajorSample, 0, 0, 0},{0, 0, 0, 0}};
+static swig_cast_info _swigc__p_Skeleton__GenericObject[] = {  {&_swigt__p_Skeleton__GenericObject, 0, 0, 0},  {&_swigt__p_Skeleton__ArraySample, _p_Skeleton__ArraySampleTo_p_Skeleton__GenericObject, 0, 0},  {&_swigt__p_Skeleton__ColumnMajorSample, _p_Skeleton__ColumnMajorSampleTo_p_Skeleton__GenericObject, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_allocator_type[] = {  {&_swigt__p_allocator_type, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_blitz__ArrayT_bool_1_t[] = {  {&_swigt__p_blitz__ArrayT_bool_1_t, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_blitz__ArrayT_bool_2_t[] = {  {&_swigt__p_blitz__ArrayT_bool_2_t, 0, 0, 0},{0, 0, 0, 0}};
@@ -7647,7 +8573,8 @@ static swig_cast_info _swigc__p_blitz__ArrayT_unsigned_short_7_t[] = {  {&_swigt
 static swig_cast_info _swigc__p_blitz__ArrayT_unsigned_short_8_t[] = {  {&_swigt__p_blitz__ArrayT_unsigned_short_8_t, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_blitz__Range[] = {  {&_swigt__p_blitz__Range, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_boost__shared_ptrT_Skeleton__ArraySample_t[] = {  {&_swigt__p_boost__shared_ptrT_Skeleton__ArraySample_t, 0, 0, 0},{0, 0, 0, 0}};
-static swig_cast_info _swigc__p_boost__shared_ptrT_Skeleton__GenericObject_t[] = {  {&_swigt__p_boost__shared_ptrT_Skeleton__GenericObject_t, 0, 0, 0},  {&_swigt__p_boost__shared_ptrT_Skeleton__ArraySample_t, _p_boost__shared_ptrT_Skeleton__ArraySample_tTo_p_boost__shared_ptrT_Skeleton__GenericObject_t, 0, 0},{0, 0, 0, 0}};
+static swig_cast_info _swigc__p_boost__shared_ptrT_Skeleton__ColumnMajorSample_t[] = {  {&_swigt__p_boost__shared_ptrT_Skeleton__ColumnMajorSample_t, 0, 0, 0},{0, 0, 0, 0}};
+static swig_cast_info _swigc__p_boost__shared_ptrT_Skeleton__GenericObject_t[] = {  {&_swigt__p_boost__shared_ptrT_Skeleton__GenericObject_t, 0, 0, 0},  {&_swigt__p_boost__shared_ptrT_Skeleton__ArraySample_t, _p_boost__shared_ptrT_Skeleton__ArraySample_tTo_p_boost__shared_ptrT_Skeleton__GenericObject_t, 0, 0},  {&_swigt__p_boost__shared_ptrT_Skeleton__ColumnMajorSample_t, _p_boost__shared_ptrT_Skeleton__ColumnMajorSample_tTo_p_boost__shared_ptrT_Skeleton__GenericObject_t, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_char[] = {  {&_swigt__p_char, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_char_type[] = {  {&_swigt__p_char_type, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_difference_type[] = {  {&_swigt__p_difference_type, 0, 0, 0},{0, 0, 0, 0}};
@@ -7674,6 +8601,7 @@ static swig_cast_info _swigc__p_value_type[] = {  {&_swigt__p_value_type, 0, 0, 
 
 static swig_cast_info *swig_cast_initial[] = {
   _swigc__p_Skeleton__ArraySample,
+  _swigc__p_Skeleton__ColumnMajorSample,
   _swigc__p_Skeleton__GenericObject,
   _swigc__p_allocator_type,
   _swigc__p_blitz__ArrayT_bool_1_t,
@@ -7750,6 +8678,7 @@ static swig_cast_info *swig_cast_initial[] = {
   _swigc__p_blitz__ArrayT_unsigned_short_8_t,
   _swigc__p_blitz__Range,
   _swigc__p_boost__shared_ptrT_Skeleton__ArraySample_t,
+  _swigc__p_boost__shared_ptrT_Skeleton__ColumnMajorSample_t,
   _swigc__p_boost__shared_ptrT_Skeleton__GenericObject_t,
   _swigc__p_char,
   _swigc__p_char_type,
@@ -8494,6 +9423,9 @@ SWIGINTERN int SWIG_mod_exec(PyObject *m) {
   SWIG_Python_SetConstant(d, "SHARED_PTR_DISOWN",SWIG_From_int(static_cast< int >(0)));
   
   Skeleton::SwigTypeMapperBase::add(typeid(Skeleton::ArraySample), boost::make_shared<Skeleton::SwigTypeMapper< Skeleton::ArraySample > > ("boost::shared_ptr< Skeleton::ArraySample > *"));
+  
+  
+  Skeleton::SwigTypeMapperBase::add(typeid(Skeleton::ColumnMajorSample), boost::make_shared<Skeleton::SwigTypeMapper< Skeleton::ColumnMajorSample > > ("boost::shared_ptr< Skeleton::ColumnMajorSample > *"));
   
   return 0;
 }

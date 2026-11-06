@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<!DOCTYPE boost_serialization>
+<boost_serialization signature="serialization::archive" version="20">
+<geocal_object class_id="0" tracking_level="0" version="1">
+	<px class_id="2" class_name="Skeleton::ObserverExample" tracking_level="1" version="0" object_id="_0">
+		<ObserverObservableExample class_id="3" tracking_level="1" version="0" object_id="_1">
+			<placeholder>empty</placeholder>
+		</ObserverObservableExample>
+		<name>ctor</name>
+		<observed class_id="4" tracking_level="0" version="1">
+			<px class_id="5" tracking_level="1" version="0" object_id="_2">
+				<ObservableObservableExample class_id="6" tracking_level="0" version="0">
+					<olist class_id="7" tracking_level="0" version="0">
+						<count>4</count>
+						<item_version>0</item_version>
+						<item class_id="8" tracking_level="0" version="0">
+							<weak_ptr class_id="9" tracking_level="0" version="1">
+								<px class_id_reference="2" object_id_reference="_0"></px>
+							</weak_ptr>
+						</item>
+						<item>
+							<weak_ptr>
+								<px class_id="-1"></px>
+							</weak_ptr>
+						</item>
+						<item>
+							<weak_ptr>
+								<px class_id="-1"></px>
+							</weak_ptr>
+						</item>
+						<item>
+							<weak_ptr>
+								<px class_id_reference="2" object_id="_3">
+									<ObserverObservableExample object_id="_4">
+										<placeholder>empty</placeholder>
+									</ObserverObservableExample>
+									<name>kept</name>
+									<observed>
+										<px class_id="-1"></px>
+									</observed>
+									<notify_count>1</notify_count>
+									<add_count>1</add_count>
+									<remove_count>0</remove_count>
+									<last_value>2.50000000000000000e+00</last_value>
+								</px>
+							</weak_ptr>
+						</item>
+					</olist>
+					<colist class_id="10" tracking_level="0" version="0">
+						<count>1</count>
+						<item_version>0</item_version>
+						<item class_id="11" tracking_level="0" version="0">
+							<weak_ptr class_id="12" tracking_level="0" version="1">
+								<px class_id="-1"></px>
+							</weak_ptr>
+						</item>
+					</colist>
+					<ref_list class_id="14" tracking_level="0" version="0">
+						<count>1</count>
+						<item_version>1</item_version>
+						<item>
+							<px class_id_reference="2" object_id_reference="_3"></px>
+						</item>
+					</ref_list>
+				</ObservableObservableExample>
+				<value>2.50000000000000000e+00</value>
+			</px>
+		</observed>
+		<notify_count>1</notify_count>
+		<add_count>1</add_count>
+		<remove_count>0</remove_count>
+		<last_value>2.50000000000000000e+00</last_value>
+	</px>
+</geocal_object>
+</boost_serialization>
+

@@ -108,3 +108,15 @@ def test_python_exception_seen_from_cpp():
     # Propagated back to python, the original exception type comes through
     with pytest.raises(ValueError, match="raised in python"):
         PythonRaises().value_rethrow_copy()
+
+
+def test_exception_stacktrace():
+    """A Skeleton::Exception records its source location and stack trace."""
+    e = ExceptionSample.caught_exception("a message")
+    assert e.what() == "a message"
+    assert e.source_file().endswith("exception_sample.h")
+    assert e.source_line() > 0
+    assert "caught_exception" in e.source_function()
+    st = e.stacktrace()
+    assert st.startswith(" 0# ")
+    assert len(st.splitlines()) > 1

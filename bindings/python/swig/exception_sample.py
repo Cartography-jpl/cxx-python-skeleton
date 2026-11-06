@@ -159,6 +159,7 @@ class ExceptionSample(skeleton_swig.generic_object.GenericObject):
     value = _swig_new_instance_method(_exception_sample.ExceptionSample_value)
     value_error_message = _swig_new_instance_method(_exception_sample.ExceptionSample_value_error_message)
     value_rethrow_copy = _swig_new_instance_method(_exception_sample.ExceptionSample_value_rethrow_copy)
+    caught_exception = _swig_new_static_method(_exception_sample.ExceptionSample_caught_exception)
     __str__ = _swig_new_instance_method(_exception_sample.ExceptionSample___str__)
     def __disown__(self):
         self.this.disown()

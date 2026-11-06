@@ -12,6 +12,7 @@
 #include <boost/serialization/string.hpp>
 #include <boost/serialization/vector.hpp>
 #include <boost/serialization/map.hpp>
+#include <boost/serialization/list.hpp>
 // At boost 1.64, the header file to include for boost::array changed
 // names. Pretty annoying, but select the right file to include. array.hpp
 // is always needed too: it has the std::array serializer.

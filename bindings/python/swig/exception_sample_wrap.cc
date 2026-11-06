@@ -3756,107 +3756,109 @@ namespace Swig {
 
 /* -------- TYPES TABLE (BEGIN) -------- */
 
-#define SWIGTYPE_p_Skeleton__ExceptionSample swig_types[0]
-#define SWIGTYPE_p_Skeleton__GenericObject swig_types[1]
-#define SWIGTYPE_p_allocator_type swig_types[2]
-#define SWIGTYPE_p_blitz__ArrayT_bool_1_t swig_types[3]
-#define SWIGTYPE_p_blitz__ArrayT_bool_2_t swig_types[4]
-#define SWIGTYPE_p_blitz__ArrayT_bool_3_t swig_types[5]
-#define SWIGTYPE_p_blitz__ArrayT_bool_4_t swig_types[6]
-#define SWIGTYPE_p_blitz__ArrayT_bool_5_t swig_types[7]
-#define SWIGTYPE_p_blitz__ArrayT_bool_6_t swig_types[8]
-#define SWIGTYPE_p_blitz__ArrayT_bool_7_t swig_types[9]
-#define SWIGTYPE_p_blitz__ArrayT_bool_8_t swig_types[10]
-#define SWIGTYPE_p_blitz__ArrayT_char_1_t swig_types[11]
-#define SWIGTYPE_p_blitz__ArrayT_char_2_t swig_types[12]
-#define SWIGTYPE_p_blitz__ArrayT_char_3_t swig_types[13]
-#define SWIGTYPE_p_blitz__ArrayT_char_4_t swig_types[14]
-#define SWIGTYPE_p_blitz__ArrayT_char_5_t swig_types[15]
-#define SWIGTYPE_p_blitz__ArrayT_char_6_t swig_types[16]
-#define SWIGTYPE_p_blitz__ArrayT_char_7_t swig_types[17]
-#define SWIGTYPE_p_blitz__ArrayT_char_8_t swig_types[18]
-#define SWIGTYPE_p_blitz__ArrayT_double_1_t swig_types[19]
-#define SWIGTYPE_p_blitz__ArrayT_double_2_t swig_types[20]
-#define SWIGTYPE_p_blitz__ArrayT_double_3_t swig_types[21]
-#define SWIGTYPE_p_blitz__ArrayT_double_4_t swig_types[22]
-#define SWIGTYPE_p_blitz__ArrayT_double_5_t swig_types[23]
-#define SWIGTYPE_p_blitz__ArrayT_double_6_t swig_types[24]
-#define SWIGTYPE_p_blitz__ArrayT_double_7_t swig_types[25]
-#define SWIGTYPE_p_blitz__ArrayT_double_8_t swig_types[26]
-#define SWIGTYPE_p_blitz__ArrayT_float_1_t swig_types[27]
-#define SWIGTYPE_p_blitz__ArrayT_float_2_t swig_types[28]
-#define SWIGTYPE_p_blitz__ArrayT_float_3_t swig_types[29]
-#define SWIGTYPE_p_blitz__ArrayT_float_4_t swig_types[30]
-#define SWIGTYPE_p_blitz__ArrayT_float_5_t swig_types[31]
-#define SWIGTYPE_p_blitz__ArrayT_float_6_t swig_types[32]
-#define SWIGTYPE_p_blitz__ArrayT_float_7_t swig_types[33]
-#define SWIGTYPE_p_blitz__ArrayT_float_8_t swig_types[34]
-#define SWIGTYPE_p_blitz__ArrayT_int_1_t swig_types[35]
-#define SWIGTYPE_p_blitz__ArrayT_int_2_t swig_types[36]
-#define SWIGTYPE_p_blitz__ArrayT_int_3_t swig_types[37]
-#define SWIGTYPE_p_blitz__ArrayT_int_4_t swig_types[38]
-#define SWIGTYPE_p_blitz__ArrayT_int_5_t swig_types[39]
-#define SWIGTYPE_p_blitz__ArrayT_int_6_t swig_types[40]
-#define SWIGTYPE_p_blitz__ArrayT_int_7_t swig_types[41]
-#define SWIGTYPE_p_blitz__ArrayT_int_8_t swig_types[42]
-#define SWIGTYPE_p_blitz__ArrayT_short_1_t swig_types[43]
-#define SWIGTYPE_p_blitz__ArrayT_short_2_t swig_types[44]
-#define SWIGTYPE_p_blitz__ArrayT_short_3_t swig_types[45]
-#define SWIGTYPE_p_blitz__ArrayT_short_4_t swig_types[46]
-#define SWIGTYPE_p_blitz__ArrayT_short_5_t swig_types[47]
-#define SWIGTYPE_p_blitz__ArrayT_short_6_t swig_types[48]
-#define SWIGTYPE_p_blitz__ArrayT_short_7_t swig_types[49]
-#define SWIGTYPE_p_blitz__ArrayT_short_8_t swig_types[50]
-#define SWIGTYPE_p_blitz__ArrayT_unsigned_char_1_t swig_types[51]
-#define SWIGTYPE_p_blitz__ArrayT_unsigned_char_2_t swig_types[52]
-#define SWIGTYPE_p_blitz__ArrayT_unsigned_char_3_t swig_types[53]
-#define SWIGTYPE_p_blitz__ArrayT_unsigned_char_4_t swig_types[54]
-#define SWIGTYPE_p_blitz__ArrayT_unsigned_char_5_t swig_types[55]
-#define SWIGTYPE_p_blitz__ArrayT_unsigned_char_6_t swig_types[56]
-#define SWIGTYPE_p_blitz__ArrayT_unsigned_char_7_t swig_types[57]
-#define SWIGTYPE_p_blitz__ArrayT_unsigned_char_8_t swig_types[58]
-#define SWIGTYPE_p_blitz__ArrayT_unsigned_int_1_t swig_types[59]
-#define SWIGTYPE_p_blitz__ArrayT_unsigned_int_2_t swig_types[60]
-#define SWIGTYPE_p_blitz__ArrayT_unsigned_int_3_t swig_types[61]
-#define SWIGTYPE_p_blitz__ArrayT_unsigned_int_4_t swig_types[62]
-#define SWIGTYPE_p_blitz__ArrayT_unsigned_int_5_t swig_types[63]
-#define SWIGTYPE_p_blitz__ArrayT_unsigned_int_6_t swig_types[64]
-#define SWIGTYPE_p_blitz__ArrayT_unsigned_int_7_t swig_types[65]
-#define SWIGTYPE_p_blitz__ArrayT_unsigned_int_8_t swig_types[66]
-#define SWIGTYPE_p_blitz__ArrayT_unsigned_short_1_t swig_types[67]
-#define SWIGTYPE_p_blitz__ArrayT_unsigned_short_2_t swig_types[68]
-#define SWIGTYPE_p_blitz__ArrayT_unsigned_short_3_t swig_types[69]
-#define SWIGTYPE_p_blitz__ArrayT_unsigned_short_4_t swig_types[70]
-#define SWIGTYPE_p_blitz__ArrayT_unsigned_short_5_t swig_types[71]
-#define SWIGTYPE_p_blitz__ArrayT_unsigned_short_6_t swig_types[72]
-#define SWIGTYPE_p_blitz__ArrayT_unsigned_short_7_t swig_types[73]
-#define SWIGTYPE_p_blitz__ArrayT_unsigned_short_8_t swig_types[74]
-#define SWIGTYPE_p_blitz__Range swig_types[75]
-#define SWIGTYPE_p_boost__shared_ptrT_Skeleton__ExceptionSample_t swig_types[76]
-#define SWIGTYPE_p_boost__shared_ptrT_Skeleton__GenericObject_t swig_types[77]
-#define SWIGTYPE_p_char swig_types[78]
-#define SWIGTYPE_p_char_type swig_types[79]
-#define SWIGTYPE_p_difference_type swig_types[80]
-#define SWIGTYPE_p_fmtflags swig_types[81]
-#define SWIGTYPE_p_int_type swig_types[82]
-#define SWIGTYPE_p_iostate swig_types[83]
-#define SWIGTYPE_p_off_type swig_types[84]
-#define SWIGTYPE_p_openmode swig_types[85]
-#define SWIGTYPE_p_pos_type swig_types[86]
-#define SWIGTYPE_p_seekdir swig_types[87]
-#define SWIGTYPE_p_size_t swig_types[88]
-#define SWIGTYPE_p_size_type swig_types[89]
-#define SWIGTYPE_p_state_type swig_types[90]
-#define SWIGTYPE_p_std__basic_iosT_char_t swig_types[91]
-#define SWIGTYPE_p_std__basic_iostreamT_char_t swig_types[92]
-#define SWIGTYPE_p_std__basic_istreamT_char_t swig_types[93]
-#define SWIGTYPE_p_std__basic_ostreamT_char_t swig_types[94]
-#define SWIGTYPE_p_std__invalid_argument swig_types[95]
-#define SWIGTYPE_p_swig__SwigPyIterator swig_types[96]
-#define SWIGTYPE_p_traits_type swig_types[97]
-#define SWIGTYPE_p_value_type swig_types[98]
-static swig_type_info *swig_types[100];
-static swig_module_info swig_module = {swig_types, 99, 0, 0, 0, 0};
+#define SWIGTYPE_p_Skeleton__Exception swig_types[0]
+#define SWIGTYPE_p_Skeleton__ExceptionSample swig_types[1]
+#define SWIGTYPE_p_Skeleton__GenericObject swig_types[2]
+#define SWIGTYPE_p_allocator_type swig_types[3]
+#define SWIGTYPE_p_blitz__ArrayT_bool_1_t swig_types[4]
+#define SWIGTYPE_p_blitz__ArrayT_bool_2_t swig_types[5]
+#define SWIGTYPE_p_blitz__ArrayT_bool_3_t swig_types[6]
+#define SWIGTYPE_p_blitz__ArrayT_bool_4_t swig_types[7]
+#define SWIGTYPE_p_blitz__ArrayT_bool_5_t swig_types[8]
+#define SWIGTYPE_p_blitz__ArrayT_bool_6_t swig_types[9]
+#define SWIGTYPE_p_blitz__ArrayT_bool_7_t swig_types[10]
+#define SWIGTYPE_p_blitz__ArrayT_bool_8_t swig_types[11]
+#define SWIGTYPE_p_blitz__ArrayT_char_1_t swig_types[12]
+#define SWIGTYPE_p_blitz__ArrayT_char_2_t swig_types[13]
+#define SWIGTYPE_p_blitz__ArrayT_char_3_t swig_types[14]
+#define SWIGTYPE_p_blitz__ArrayT_char_4_t swig_types[15]
+#define SWIGTYPE_p_blitz__ArrayT_char_5_t swig_types[16]
+#define SWIGTYPE_p_blitz__ArrayT_char_6_t swig_types[17]
+#define SWIGTYPE_p_blitz__ArrayT_char_7_t swig_types[18]
+#define SWIGTYPE_p_blitz__ArrayT_char_8_t swig_types[19]
+#define SWIGTYPE_p_blitz__ArrayT_double_1_t swig_types[20]
+#define SWIGTYPE_p_blitz__ArrayT_double_2_t swig_types[21]
+#define SWIGTYPE_p_blitz__ArrayT_double_3_t swig_types[22]
+#define SWIGTYPE_p_blitz__ArrayT_double_4_t swig_types[23]
+#define SWIGTYPE_p_blitz__ArrayT_double_5_t swig_types[24]
+#define SWIGTYPE_p_blitz__ArrayT_double_6_t swig_types[25]
+#define SWIGTYPE_p_blitz__ArrayT_double_7_t swig_types[26]
+#define SWIGTYPE_p_blitz__ArrayT_double_8_t swig_types[27]
+#define SWIGTYPE_p_blitz__ArrayT_float_1_t swig_types[28]
+#define SWIGTYPE_p_blitz__ArrayT_float_2_t swig_types[29]
+#define SWIGTYPE_p_blitz__ArrayT_float_3_t swig_types[30]
+#define SWIGTYPE_p_blitz__ArrayT_float_4_t swig_types[31]
+#define SWIGTYPE_p_blitz__ArrayT_float_5_t swig_types[32]
+#define SWIGTYPE_p_blitz__ArrayT_float_6_t swig_types[33]
+#define SWIGTYPE_p_blitz__ArrayT_float_7_t swig_types[34]
+#define SWIGTYPE_p_blitz__ArrayT_float_8_t swig_types[35]
+#define SWIGTYPE_p_blitz__ArrayT_int_1_t swig_types[36]
+#define SWIGTYPE_p_blitz__ArrayT_int_2_t swig_types[37]
+#define SWIGTYPE_p_blitz__ArrayT_int_3_t swig_types[38]
+#define SWIGTYPE_p_blitz__ArrayT_int_4_t swig_types[39]
+#define SWIGTYPE_p_blitz__ArrayT_int_5_t swig_types[40]
+#define SWIGTYPE_p_blitz__ArrayT_int_6_t swig_types[41]
+#define SWIGTYPE_p_blitz__ArrayT_int_7_t swig_types[42]
+#define SWIGTYPE_p_blitz__ArrayT_int_8_t swig_types[43]
+#define SWIGTYPE_p_blitz__ArrayT_short_1_t swig_types[44]
+#define SWIGTYPE_p_blitz__ArrayT_short_2_t swig_types[45]
+#define SWIGTYPE_p_blitz__ArrayT_short_3_t swig_types[46]
+#define SWIGTYPE_p_blitz__ArrayT_short_4_t swig_types[47]
+#define SWIGTYPE_p_blitz__ArrayT_short_5_t swig_types[48]
+#define SWIGTYPE_p_blitz__ArrayT_short_6_t swig_types[49]
+#define SWIGTYPE_p_blitz__ArrayT_short_7_t swig_types[50]
+#define SWIGTYPE_p_blitz__ArrayT_short_8_t swig_types[51]
+#define SWIGTYPE_p_blitz__ArrayT_unsigned_char_1_t swig_types[52]
+#define SWIGTYPE_p_blitz__ArrayT_unsigned_char_2_t swig_types[53]
+#define SWIGTYPE_p_blitz__ArrayT_unsigned_char_3_t swig_types[54]
+#define SWIGTYPE_p_blitz__ArrayT_unsigned_char_4_t swig_types[55]
+#define SWIGTYPE_p_blitz__ArrayT_unsigned_char_5_t swig_types[56]
+#define SWIGTYPE_p_blitz__ArrayT_unsigned_char_6_t swig_types[57]
+#define SWIGTYPE_p_blitz__ArrayT_unsigned_char_7_t swig_types[58]
+#define SWIGTYPE_p_blitz__ArrayT_unsigned_char_8_t swig_types[59]
+#define SWIGTYPE_p_blitz__ArrayT_unsigned_int_1_t swig_types[60]
+#define SWIGTYPE_p_blitz__ArrayT_unsigned_int_2_t swig_types[61]
+#define SWIGTYPE_p_blitz__ArrayT_unsigned_int_3_t swig_types[62]
+#define SWIGTYPE_p_blitz__ArrayT_unsigned_int_4_t swig_types[63]
+#define SWIGTYPE_p_blitz__ArrayT_unsigned_int_5_t swig_types[64]
+#define SWIGTYPE_p_blitz__ArrayT_unsigned_int_6_t swig_types[65]
+#define SWIGTYPE_p_blitz__ArrayT_unsigned_int_7_t swig_types[66]
+#define SWIGTYPE_p_blitz__ArrayT_unsigned_int_8_t swig_types[67]
+#define SWIGTYPE_p_blitz__ArrayT_unsigned_short_1_t swig_types[68]
+#define SWIGTYPE_p_blitz__ArrayT_unsigned_short_2_t swig_types[69]
+#define SWIGTYPE_p_blitz__ArrayT_unsigned_short_3_t swig_types[70]
+#define SWIGTYPE_p_blitz__ArrayT_unsigned_short_4_t swig_types[71]
+#define SWIGTYPE_p_blitz__ArrayT_unsigned_short_5_t swig_types[72]
+#define SWIGTYPE_p_blitz__ArrayT_unsigned_short_6_t swig_types[73]
+#define SWIGTYPE_p_blitz__ArrayT_unsigned_short_7_t swig_types[74]
+#define SWIGTYPE_p_blitz__ArrayT_unsigned_short_8_t swig_types[75]
+#define SWIGTYPE_p_blitz__Range swig_types[76]
+#define SWIGTYPE_p_boost__shared_ptrT_Skeleton__ExceptionSample_t swig_types[77]
+#define SWIGTYPE_p_boost__shared_ptrT_Skeleton__Exception_t swig_types[78]
+#define SWIGTYPE_p_boost__shared_ptrT_Skeleton__GenericObject_t swig_types[79]
+#define SWIGTYPE_p_char swig_types[80]
+#define SWIGTYPE_p_char_type swig_types[81]
+#define SWIGTYPE_p_difference_type swig_types[82]
+#define SWIGTYPE_p_fmtflags swig_types[83]
+#define SWIGTYPE_p_int_type swig_types[84]
+#define SWIGTYPE_p_iostate swig_types[85]
+#define SWIGTYPE_p_off_type swig_types[86]
+#define SWIGTYPE_p_openmode swig_types[87]
+#define SWIGTYPE_p_pos_type swig_types[88]
+#define SWIGTYPE_p_seekdir swig_types[89]
+#define SWIGTYPE_p_size_t swig_types[90]
+#define SWIGTYPE_p_size_type swig_types[91]
+#define SWIGTYPE_p_state_type swig_types[92]
+#define SWIGTYPE_p_std__basic_iosT_char_t swig_types[93]
+#define SWIGTYPE_p_std__basic_iostreamT_char_t swig_types[94]
+#define SWIGTYPE_p_std__basic_istreamT_char_t swig_types[95]
+#define SWIGTYPE_p_std__basic_ostreamT_char_t swig_types[96]
+#define SWIGTYPE_p_std__invalid_argument swig_types[97]
+#define SWIGTYPE_p_swig__SwigPyIterator swig_types[98]
+#define SWIGTYPE_p_traits_type swig_types[99]
+#define SWIGTYPE_p_value_type swig_types[100]
+static swig_type_info *swig_types[102];
+static swig_module_info swig_module = {swig_types, 101, 0, 0, 0, 0};
 #define SWIG_TypeQuery(name) SWIG_TypeQueryModule(&swig_module, &swig_module, name)
 #define SWIG_MangledTypeQuery(name) SWIG_MangledTypeQueryModule(&swig_module, &swig_module, name)
 
@@ -6937,6 +6939,59 @@ fail:
 }
 
 
+SWIGINTERN PyObject *_wrap_ExceptionSample_caught_exception(PyObject *self, PyObject *args) {
+  PyObject *resultobj = 0;
+  std::string *arg1 = 0 ;
+  int res1 = SWIG_OLDOBJ ;
+  PyObject *swig_obj[1] ;
+  SwigValueWrapper< Skeleton::Exception > result;
+  
+  (void)self;
+  if (!args) SWIG_fail;
+  swig_obj[0] = args;
+  {
+    std::string *ptr = (std::string *)0;
+    res1 = SWIG_AsPtr_std_string(swig_obj[0], &ptr);
+    if (!SWIG_IsOK(res1)) {
+      SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "ExceptionSample_caught_exception" "', argument " "1"" of type '" "std::string const &""'"); 
+    }
+    if (!ptr) {
+      SWIG_exception_fail(SWIG_NullReferenceError, "invalid null reference " "in method '" "ExceptionSample_caught_exception" "', argument " "1"" of type '" "std::string const &""'"); 
+    }
+    arg1 = ptr;
+  }
+  {
+    try {
+      result = Skeleton::ExceptionSample::caught_exception((std::string const &)*arg1);
+    } catch(Swig::DirectorException& e) {
+      SWIG_fail;
+    } catch(const PythonException& e) {
+      e.restore_python_exception();
+      SWIG_fail;
+    } catch(const std::exception& e) {
+      SWIG_exception(SWIG_RuntimeError, e.what());
+    } catch(...) {
+      // Anything not derived from std::exception (a raw type, a
+      // third-party exception hierarchy that doesn't inherit
+      // std::exception, etc.) would otherwise propagate across the
+      // extern "C" boundary into CPython -- undefined behavior, in
+      // practice a process abort rather than a clean Python exception.
+      SWIG_exception(SWIG_RuntimeError, "unknown C++ exception");
+    }
+  }
+  {
+    boost::shared_ptr<  Skeleton::Exception > *smartresult = new boost::shared_ptr<  Skeleton::Exception >(new Skeleton::Exception(result));
+    
+    resultobj = SWIG_NewPointerObj(SWIG_as_voidptr(smartresult), SWIGTYPE_p_boost__shared_ptrT_Skeleton__Exception_t, SWIG_POINTER_OWN);
+  }
+  if (SWIG_IsNewObj(res1)) delete arg1;
+  return resultobj;
+fail:
+  if (SWIG_IsNewObj(res1)) delete arg1;
+  return NULL;
+}
+
+
 SWIGINTERN PyObject *_wrap_ExceptionSample___str__(PyObject *self, PyObject *args) {
   PyObject *resultobj = 0;
   Skeleton::ExceptionSample *arg1 = 0 ;
@@ -7126,6 +7181,14 @@ static PyMethodDef SwigMethods[] = {
 		"PythonException copy, which has to keep the python error).  \n"
 		"\n"
 		""},
+	 { "ExceptionSample_caught_exception", _wrap_ExceptionSample_caught_exception, METH_O, "\n"
+		"ExceptionSample_caught_exception(std::string const & Msg) -> Exception\n"
+		"\n"
+		"Skeleton::ExceptionSample::caught_exception\n"
+		"Throw a Skeleton::Exception and return the caught exception, so python can look\n"
+		"at its stack trace and source location.  \n"
+		"\n"
+		""},
 	 { "ExceptionSample___str__", _wrap_ExceptionSample___str__, METH_O, "ExceptionSample___str__(ExceptionSample self) -> std::string"},
 	 { "disown_ExceptionSample", _wrap_disown_ExceptionSample, METH_O, NULL},
 	 { "ExceptionSample_swigregister", ExceptionSample_swigregister, METH_O, NULL},
@@ -7218,6 +7281,14 @@ static PyMethodDef SwigMethods_proxydocs[] = {
 		"PythonException copy, which has to keep the python error).  \n"
 		"\n"
 		""},
+	 { "ExceptionSample_caught_exception", _wrap_ExceptionSample_caught_exception, METH_O, "\n"
+		"caught_exception(std::string const & Msg) -> Exception\n"
+		"\n"
+		"Skeleton::ExceptionSample::caught_exception\n"
+		"Throw a Skeleton::Exception and return the caught exception, so python can look\n"
+		"at its stack trace and source location.  \n"
+		"\n"
+		""},
 	 { "ExceptionSample___str__", _wrap_ExceptionSample___str__, METH_O, "__str__(ExceptionSample self) -> std::string"},
 	 { "disown_ExceptionSample", _wrap_disown_ExceptionSample, METH_O, NULL},
 	 { "ExceptionSample_swigregister", ExceptionSample_swigregister, METH_O, NULL},
@@ -7228,8 +7299,15 @@ static PyMethodDef SwigMethods_proxydocs[] = {
 
 /* -------- TYPE CONVERSION AND EQUIVALENCE RULES (BEGIN) -------- */
 
+static void *_p_Skeleton__ExceptionTo_p_Skeleton__GenericObject(void *x, int *SWIGUNUSEDPARM(newmemory)) {
+    return (void *)((Skeleton::GenericObject *)  ((Skeleton::Exception *) x));
+}
 static void *_p_Skeleton__ExceptionSampleTo_p_Skeleton__GenericObject(void *x, int *SWIGUNUSEDPARM(newmemory)) {
     return (void *)((Skeleton::GenericObject *)  ((Skeleton::ExceptionSample *) x));
+}
+static void *_p_boost__shared_ptrT_Skeleton__Exception_tTo_p_boost__shared_ptrT_Skeleton__GenericObject_t(void *x, int *newmemory) {
+    *newmemory = SWIG_CAST_NEW_MEMORY;
+    return (void *) new boost::shared_ptr< Skeleton::GenericObject >(*(boost::shared_ptr< Skeleton::Exception > *)x);
 }
 static void *_p_boost__shared_ptrT_Skeleton__ExceptionSample_tTo_p_boost__shared_ptrT_Skeleton__GenericObject_t(void *x, int *newmemory) {
     *newmemory = SWIG_CAST_NEW_MEMORY;
@@ -7250,6 +7328,7 @@ static void *_p_std__basic_iostreamT_char_tTo_p_std__basic_istreamT_char_t(void 
 static void *_p_std__basic_iostreamT_char_tTo_p_std__basic_ostreamT_char_t(void *x, int *SWIGUNUSEDPARM(newmemory)) {
     return (void *)((std::basic_ostream< char,std::char_traits< char > > *)  ((std::basic_iostream< char,std::char_traits< char > > *) x));
 }
+static swig_type_info _swigt__p_Skeleton__Exception = {"_p_Skeleton__Exception", "Skeleton::Exception *", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_Skeleton__ExceptionSample = {"_p_Skeleton__ExceptionSample", "Skeleton::ExceptionSample *", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_Skeleton__GenericObject = {"_p_Skeleton__GenericObject", "Skeleton::GenericObject *", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_allocator_type = {"_p_allocator_type", "allocator_type *", 0, 0, (void*)0, 0};
@@ -7327,6 +7406,7 @@ static swig_type_info _swigt__p_blitz__ArrayT_unsigned_short_7_t = {"_p_blitz__A
 static swig_type_info _swigt__p_blitz__ArrayT_unsigned_short_8_t = {"_p_blitz__ArrayT_unsigned_short_8_t", "blitz::Array< unsigned short,8 > *", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_blitz__Range = {"_p_blitz__Range", "blitz::Range *", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_boost__shared_ptrT_Skeleton__ExceptionSample_t = {"_p_boost__shared_ptrT_Skeleton__ExceptionSample_t", "boost::shared_ptr< Skeleton::ExceptionSample > *", 0, 0, (void*)0, 0};
+static swig_type_info _swigt__p_boost__shared_ptrT_Skeleton__Exception_t = {"_p_boost__shared_ptrT_Skeleton__Exception_t", "boost::shared_ptr< Skeleton::Exception > *", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_boost__shared_ptrT_Skeleton__GenericObject_t = {"_p_boost__shared_ptrT_Skeleton__GenericObject_t", "boost::shared_ptr< Skeleton::GenericObject > *", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_char = {"_p_char", "char *", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_char_type = {"_p_char_type", "char_type *", 0, 0, (void*)0, 0};
@@ -7351,6 +7431,7 @@ static swig_type_info _swigt__p_traits_type = {"_p_traits_type", "traits_type *"
 static swig_type_info _swigt__p_value_type = {"_p_value_type", "value_type *", 0, 0, (void*)0, 0};
 
 static swig_type_info *swig_type_initial[] = {
+  &_swigt__p_Skeleton__Exception,
   &_swigt__p_Skeleton__ExceptionSample,
   &_swigt__p_Skeleton__GenericObject,
   &_swigt__p_allocator_type,
@@ -7428,6 +7509,7 @@ static swig_type_info *swig_type_initial[] = {
   &_swigt__p_blitz__ArrayT_unsigned_short_8_t,
   &_swigt__p_blitz__Range,
   &_swigt__p_boost__shared_ptrT_Skeleton__ExceptionSample_t,
+  &_swigt__p_boost__shared_ptrT_Skeleton__Exception_t,
   &_swigt__p_boost__shared_ptrT_Skeleton__GenericObject_t,
   &_swigt__p_char,
   &_swigt__p_char_type,
@@ -7452,8 +7534,9 @@ static swig_type_info *swig_type_initial[] = {
   &_swigt__p_value_type,
 };
 
+static swig_cast_info _swigc__p_Skeleton__Exception[] = {  {&_swigt__p_Skeleton__Exception, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_Skeleton__ExceptionSample[] = {  {&_swigt__p_Skeleton__ExceptionSample, 0, 0, 0},{0, 0, 0, 0}};
-static swig_cast_info _swigc__p_Skeleton__GenericObject[] = {  {&_swigt__p_Skeleton__GenericObject, 0, 0, 0},  {&_swigt__p_Skeleton__ExceptionSample, _p_Skeleton__ExceptionSampleTo_p_Skeleton__GenericObject, 0, 0},{0, 0, 0, 0}};
+static swig_cast_info _swigc__p_Skeleton__GenericObject[] = {  {&_swigt__p_Skeleton__GenericObject, 0, 0, 0},  {&_swigt__p_Skeleton__Exception, _p_Skeleton__ExceptionTo_p_Skeleton__GenericObject, 0, 0},  {&_swigt__p_Skeleton__ExceptionSample, _p_Skeleton__ExceptionSampleTo_p_Skeleton__GenericObject, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_allocator_type[] = {  {&_swigt__p_allocator_type, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_blitz__ArrayT_bool_1_t[] = {  {&_swigt__p_blitz__ArrayT_bool_1_t, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_blitz__ArrayT_bool_2_t[] = {  {&_swigt__p_blitz__ArrayT_bool_2_t, 0, 0, 0},{0, 0, 0, 0}};
@@ -7529,7 +7612,8 @@ static swig_cast_info _swigc__p_blitz__ArrayT_unsigned_short_7_t[] = {  {&_swigt
 static swig_cast_info _swigc__p_blitz__ArrayT_unsigned_short_8_t[] = {  {&_swigt__p_blitz__ArrayT_unsigned_short_8_t, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_blitz__Range[] = {  {&_swigt__p_blitz__Range, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_boost__shared_ptrT_Skeleton__ExceptionSample_t[] = {  {&_swigt__p_boost__shared_ptrT_Skeleton__ExceptionSample_t, 0, 0, 0},{0, 0, 0, 0}};
-static swig_cast_info _swigc__p_boost__shared_ptrT_Skeleton__GenericObject_t[] = {  {&_swigt__p_boost__shared_ptrT_Skeleton__GenericObject_t, 0, 0, 0},  {&_swigt__p_boost__shared_ptrT_Skeleton__ExceptionSample_t, _p_boost__shared_ptrT_Skeleton__ExceptionSample_tTo_p_boost__shared_ptrT_Skeleton__GenericObject_t, 0, 0},{0, 0, 0, 0}};
+static swig_cast_info _swigc__p_boost__shared_ptrT_Skeleton__Exception_t[] = {  {&_swigt__p_boost__shared_ptrT_Skeleton__Exception_t, 0, 0, 0},{0, 0, 0, 0}};
+static swig_cast_info _swigc__p_boost__shared_ptrT_Skeleton__GenericObject_t[] = {  {&_swigt__p_boost__shared_ptrT_Skeleton__GenericObject_t, 0, 0, 0},  {&_swigt__p_boost__shared_ptrT_Skeleton__ExceptionSample_t, _p_boost__shared_ptrT_Skeleton__ExceptionSample_tTo_p_boost__shared_ptrT_Skeleton__GenericObject_t, 0, 0},  {&_swigt__p_boost__shared_ptrT_Skeleton__Exception_t, _p_boost__shared_ptrT_Skeleton__Exception_tTo_p_boost__shared_ptrT_Skeleton__GenericObject_t, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_char[] = {  {&_swigt__p_char, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_char_type[] = {  {&_swigt__p_char_type, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_difference_type[] = {  {&_swigt__p_difference_type, 0, 0, 0},{0, 0, 0, 0}};
@@ -7553,6 +7637,7 @@ static swig_cast_info _swigc__p_traits_type[] = {  {&_swigt__p_traits_type, 0, 0
 static swig_cast_info _swigc__p_value_type[] = {  {&_swigt__p_value_type, 0, 0, 0},{0, 0, 0, 0}};
 
 static swig_cast_info *swig_cast_initial[] = {
+  _swigc__p_Skeleton__Exception,
   _swigc__p_Skeleton__ExceptionSample,
   _swigc__p_Skeleton__GenericObject,
   _swigc__p_allocator_type,
@@ -7630,6 +7715,7 @@ static swig_cast_info *swig_cast_initial[] = {
   _swigc__p_blitz__ArrayT_unsigned_short_8_t,
   _swigc__p_blitz__Range,
   _swigc__p_boost__shared_ptrT_Skeleton__ExceptionSample_t,
+  _swigc__p_boost__shared_ptrT_Skeleton__Exception_t,
   _swigc__p_boost__shared_ptrT_Skeleton__GenericObject_t,
   _swigc__p_char,
   _swigc__p_char_type,

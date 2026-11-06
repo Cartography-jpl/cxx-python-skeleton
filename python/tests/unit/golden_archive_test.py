@@ -103,3 +103,27 @@ def test_array_sample(ext):
     assert e.count is None
     assert e.scale is None
     assert list(e.position_) == [1, 2, 3]
+
+
+def test_observer(ext):
+    """S5 samples, see the C++ test."""
+    m = get("observer_map", ext)
+    assert m.observable.value == 2.5
+    assert m.observable.number_observer == 3
+    assert m.observable.number_cache_observer == 1
+    m.observable.value = 4
+    assert m.ctor.notify_count == 2
+    assert m.plain.notify_count == 2
+    assert m.cache.value == 8
+    c = get("observer_ctor", ext)
+    assert c.name == "ctor"
+    assert c.observed.number_observer == 2
+
+
+def test_multi_base(ext):
+    cam = get("simple_camera_like", ext)
+    assert cam.focal_length == 10
+    assert cam.number_band == 3
+    d = get("diamond", ext)
+    assert d.root_name() == "Diamond d"
+    assert d.parameter_sum() == 3

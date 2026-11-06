@@ -19,6 +19,13 @@ extern "C" {
   INIT_TYPE INIT_FUNC(_swig_rules_sample)(void);
   INIT_TYPE INIT_FUNC(_file_reference_sample)(void);
   INIT_TYPE INIT_FUNC(_array_sample)(void);
+  INIT_TYPE INIT_FUNC(_observer)(void);
+  INIT_TYPE INIT_FUNC(_observer_example)(void);
+  INIT_TYPE INIT_FUNC(_with_parameter_like)(void);
+  INIT_TYPE INIT_FUNC(_multi_base_example)(void);
+  INIT_TYPE INIT_FUNC(_virtual_diamond_example)(void);
+  INIT_TYPE INIT_FUNC(_overload_example)(void);
+  INIT_TYPE INIT_FUNC(_thread_example)(void);
 }
 
 static void module_init(PyObject* module)
@@ -39,6 +46,13 @@ static void module_init(PyObject* module)
   INIT_MODULE(module, "_swig_rules_sample", INIT_FUNC(_swig_rules_sample));
   INIT_MODULE(module, "_file_reference_sample", INIT_FUNC(_file_reference_sample));
   INIT_MODULE(module, "_array_sample", INIT_FUNC(_array_sample));
+  INIT_MODULE(module, "_observer", INIT_FUNC(_observer));
+  INIT_MODULE(module, "_observer_example", INIT_FUNC(_observer_example));
+  INIT_MODULE(module, "_with_parameter_like", INIT_FUNC(_with_parameter_like));
+  INIT_MODULE(module, "_multi_base_example", INIT_FUNC(_multi_base_example));
+  INIT_MODULE(module, "_virtual_diamond_example", INIT_FUNC(_virtual_diamond_example));
+  INIT_MODULE(module, "_overload_example", INIT_FUNC(_overload_example));
+  INIT_MODULE(module, "_thread_example", INIT_FUNC(_thread_example));
 }
 
 

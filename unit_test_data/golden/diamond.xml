@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<!DOCTYPE boost_serialization>
+<boost_serialization signature="serialization::archive" version="20">
+<geocal_object class_id="0" tracking_level="0" version="1">
+	<px class_id="2" class_name="Skeleton::Diamond" tracking_level="1" version="0" object_id="_0">
+		<RootLike class_id="3" tracking_level="0" version="0"></RootLike>
+		<NestedLike class_id="4" tracking_level="0" version="0">
+			<WithParameterLike class_id="5" tracking_level="0" version="0"></WithParameterLike>
+		</NestedLike>
+		<name>d</name>
+		<parameter class_id="6" tracking_level="0" version="0">
+			<size>2</size>
+			<data>
+				<item>1.00000000000000000e+00</item>
+				<item>2.00000000000000000e+00</item>
+			</data>
+		</parameter>
+	</px>
+</geocal_object>
+</boost_serialization>
+
