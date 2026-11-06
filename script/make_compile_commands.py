@@ -29,6 +29,10 @@ import subprocess
 import glob
 import sys
 
+# gcc-only options that clang rejects with "unknown argument" (conda's debug
+# flags have -fvar-tracking-assignments). Add more here if they show up.
+GCC_ONLY = re.compile(r"^-f(no-)?var-tracking.*$")
+
 args_in = sys.argv[1:]
 clangd = "--clangd" in args_in
 args_in = [a for a in args_in if a != "--clangd"]
@@ -87,6 +91,9 @@ for line in out.splitlines():
         elif a in ("-MT", "-MF", "-o"):
             skip = 1
         elif a in ("-MD", "-MP"):
+            pass
+        elif GCC_ONLY.match(a):
+            # gcc options clang doesn't know; clang refuses the whole file.
             pass
         else:
             keep.append(a)

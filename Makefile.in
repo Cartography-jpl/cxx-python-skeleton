@@ -2890,9 +2890,11 @@ format-check:
 lint:
 	$(PYTHON) $(srcdir)/script/make_compile_commands.py --clangd \
 	  libskeleton.la skeleton_test_all golden_archive_generator _swig_wrap.la
-	$(PYTHON) -c 'import json, os; src = os.path.realpath("$(abs_top_srcdir)") + "/"; [print(e["file"]) for e in json.load(open("compile_commands.json")) if os.path.realpath(e["file"]).startswith(src) and not e["file"].endswith("_wrap.cc")]' | \
-	  xargs -r -P $(LINT_NJOB) -n 1 sh $(srcdir)/script/run_clang_tidy.sh $(CLANG_TIDY_FLAGS)
-	@echo "clang-tidy: no findings"
+	$(PYTHON) -c 'import json, os; src = os.path.realpath("$(abs_top_srcdir)") + "/"; [print(e["file"]) for e in json.load(open("compile_commands.json")) if os.path.realpath(e["file"]).startswith(src) and not e["file"].endswith("_wrap.cc")]' \
+	  > lint_files.txt
+	@test -s lint_files.txt || { echo "lint: no source files found in compile_commands.json"; exit 1; }
+	xargs -r -P $(LINT_NJOB) -n 1 sh $(srcdir)/script/run_clang_tidy.sh $(CLANG_TIDY_FLAGS) < lint_files.txt
+	@echo "clang-tidy: no findings in $$(wc -l < lint_files.txt) files"
 
 .PHONY: format format-check lint
 
