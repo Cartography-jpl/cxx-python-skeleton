@@ -7,7 +7,7 @@
 namespace Skeleton {
 /****************************************************************/ /**
   Simple class to test handling of numpy lifetime issues when wrapped
-  in swig. We define this here, then have a python test
+  in the python bindings. We define this here, then have a python test
   (numpy_sample_test.py) to test this out.
 *******************************************************************/
 class NumpySample : public Printable<NumpySample> {
@@ -16,7 +16,7 @@ public:
   NumpySample(const blitz::Array<double, 2>& Din) : data_(Din) {}
   const blitz::Array<double, 2>& data() const { return data_; }
   //-----------------------------------------------------------------------
-  /// Used to test the std::optional<blitz::Range> swig typemap. Returns
+  /// Used to test std::optional<blitz::Range> in the bindings. Returns
   /// a disengaged optional if Return_empty is true, otherwise a Range
   /// covering the rows of data().
   //-----------------------------------------------------------------------

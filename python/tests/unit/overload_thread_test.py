@@ -7,6 +7,7 @@ import textwrap
 
 import numpy as np
 import pytest
+
 from skeleton import DirectorExample, NumpySample, OverloadExample, ThreadExample
 
 
@@ -55,6 +56,7 @@ def run_director_script():
         [sys.executable, "-c", _director_script],
         capture_output=True,
         text=True,
+        check=False,
         timeout=60,
     )
 

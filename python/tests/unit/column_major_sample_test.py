@@ -4,6 +4,7 @@
 # give the same results.
 import numpy as np
 import pytest
+
 from skeleton import ColumnMajorSample
 
 

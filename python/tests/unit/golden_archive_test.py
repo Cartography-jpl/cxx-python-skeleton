@@ -4,21 +4,20 @@
 from pathlib import Path
 
 import pytest
-from skeleton.swig_shelve import read_shelve
-from skeleton import ArraySample
+
 from skeleton import (
+    ArraySample,
     DirectorExample,
     DirectorExampleNested,
     DirectorExampleUser,
     DirectorExampleWeakPtr,
-)
-from skeleton import GenericObjectMap
-from skeleton import (
     GenericObjectA,
     GenericObjectB,
     GenericObjectB2,
     GenericObjectC,
+    GenericObjectMap,
 )
+from skeleton.swig_shelve import read_shelve
 
 golden = Path(__file__).resolve().parents[3] / "unit_test_data" / "golden"
 
@@ -155,6 +154,7 @@ def test_python_director_written_by_swig():
 def test_python_director_rewrite(tmp_path):
     """Written again by nanobind, it reads back the same."""
     from fixtures.director_golden import GoldenPythonDirector
+
     from skeleton import write_shelve
 
     p = read_shelve(str(golden / "director_python.xml"))
@@ -169,7 +169,12 @@ def test_python_director_rewrite(tmp_path):
 
     from skeleton_swig._nanobind_support import director_loads
 
-    pat = re.compile(rb"<python_object>(.*?)</python_object>", re.S)
-    new, old = (tmp_path / "p.xml").read_bytes(), (golden / "director_python.xml").read_bytes()
+    pat = re.compile(rb"<python_object>(.*?)</python_object>", re.DOTALL)
+    new, old = (
+        (tmp_path / "p.xml").read_bytes(),
+        (golden / "director_python.xml").read_bytes(),
+    )
     assert pat.sub(b"", new) == pat.sub(b"", old)
-    assert director_loads(pat.search(new).group(1)) == director_loads(pat.search(old).group(1))
+    assert director_loads(pat.search(new).group(1)) == director_loads(
+        pat.search(old).group(1)
+    )

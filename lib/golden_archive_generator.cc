@@ -10,6 +10,14 @@
 // golden_archive_test.cc and python/tests/unit/golden_archive_test.py.
 
 #include "skeleton_serialize_support.h"
+#ifndef SKELETON_HAVE_BOOST_SERIALIZATION
+#include <iostream>
+int main()
+{
+  std::cerr << "Built without boost serialization support\n";
+  return 1;
+}
+#else
 #include "generic_object_sample.h"
 #include "generic_object_map.h"
 #include "director_example.h"
@@ -187,3 +195,4 @@ int main(int argc, char** argv)
   write_object("diamond", std::make_shared<Diamond>("d", 1, 2));
   return 0;
 }
+#endif

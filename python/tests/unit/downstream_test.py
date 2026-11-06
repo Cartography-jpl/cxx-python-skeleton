@@ -2,8 +2,9 @@
 # (lib/downstream_nb.cc, claude_notes/implementation_plan.md S6.1 item 10).
 import pickle
 
-from skeleton import GenericObjectA, GenericObjectB, GenericObjectMap
 from skeleton_swig import _skeleton_downstream as ds
+
+from skeleton import GenericObjectA, GenericObjectB, GenericObjectMap
 
 
 def test_downstream_creates_and_takes_main_types():

@@ -1,7 +1,13 @@
-This contains generic rules for wrapping code with SWIG.
+This contains generic rules for wrapping C++ code for python.
+
+**The name is historical.** These were SWIG rules until phase S6 of the modernization
+(`claude_notes/implementation_plan.md` in swig-rules-skeleton); the directory now holds the
+nanobind rules (`nanobind/`, see `nanobind/README.md`) and the C++ support code they use
+(`lib/`). The names `swig_rules`, `swig-rules-repo` and the `<package>_swig` python package are
+kept so paths and remotes keep working.
 
 This is not standalone code, it is meant to be included in a larger piece
-of code. But this contains the SWIG specific part of this code.
+of code.
 
 Look for example at the [swig-rules-skeleton](https://github.jpl.nasa.gov/Cartography/swig-rules-skeleton) repository for a skeleton of using
 this. A more full example can be found at 
@@ -42,37 +48,25 @@ Can try
 
 Classes needed in code that uses this
 -------------------------------------
-The shared_ptr_type_mapper.i code depends on having a GenericObject 
-available as generic_object.h. All the class should be derived from
-this base class in order to be able to be cast automatically to the 
-right type.
+All C++ classes exposed to python should derive (even indirectly, and usually
+virtually) from a class `GenericObject` with `std::enable_shared_from_this`, in
+the namespace given as `SWIG_MAPPER_NAMESPACE`. `lib/generic_object.h.sample`
+and `lib/printable.h.sample` are examples (the specific code isn't required).
+`Printable` maps the C++ `operator<<` to `print_to_string`, which the bindings
+use for `__str__`.
 
-There is a sample lib/generic_object.h.sample and closely related
-lib/printable.h.sample that reposistories can use as a example. This
-specific code is *not* required, just some base class called 
-"GenericObject". 
+`lib/serialize_function.cc` and `lib/weak_ptr_serialize_support.cc` are
+compiled into the C++ library, with `-DSWIG_MAPPER_NAMESPACE=<namespace>`.
+Serialization (boost) gives pickling; `lib/serialize_support.h.sample` is
+the pattern for the library's own support header. `lib/DirectorNotes.md`
+describes python subclasses of C++ classes (ownership, `weak_ptr`,
+serialization, threads).
 
-The Printable template is often useful, it maps the C++ friendly
-overloaded operator<< to a more python friendly print_to_string. There this
-then code in swig_print.i that maps this to the python name __str__, to
-print(Foo) calls the C++ operator<<. Again, this is optional but the
-convention used in GeoCal is to have almost all classes derive from Printable
-which derives from GenericObject.
+The python package files (`__init__.py`, `all.py`, `_nanobind_support.py`,
+`py.typed`) are installed next to the extension module.
 
-The code swig_type_mapper_base.cc should be compiled and included in
-the parent library. This should have -DSWIG_MAPPER_NAMESPACE=GeoCal
-or similar defined when compiled.
-
-It is not required, but it is very useful to be able to serialize the 
-swig python classes. There is sample code lib/serialize_support.h.sample
-that can be used to give serialization support.
-
-Developer notes
----------------
-Note that we have our own copy of boost_shared_ptr.i that properly handles
-directors (see swig_rules/lib/DirectorNotes.md). We have 
-swig_rules/nclude/my_shared_ptr.i that adds this extra fixes. This should
-work up to SWIG 4.2.1 (the current latest), but there are occasional changes
-as SWIG changes versions. For newer versions of SWIG, you can directly do
-a diff between my_shared_ptr.i and boost_shared_ptr.i to see any changes that
-need to be incorporated back in.
+Build
+-----
+Autotools: `swig_rules.am` (C++ support code) and `nanobind/nanobind.am`
+(the extension module), with `config/m4/ac_nanobind.m4` in configure. See
+the comment at the top of `nanobind.am` for the variables to set.

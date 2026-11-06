@@ -4,6 +4,7 @@
 import gc
 
 import pytest
+
 from skeleton import (
     DirectorExample,
     DirectorExampleUser,
@@ -90,6 +91,7 @@ def test_director_kept_alive_by_cpp():
 def test_docstrings():
     """help() text comes from the doxygen comments in the C++ headers."""
     assert "Like geocal's Camera" in SimpleCameraLike.__mro__[1].__doc__
-    assert "Constructor" in (DirectorExample.__init__.__doc__ or "") or True
     assert "Sum of the parameters" in SimpleCameraLike.parameter_sum.__doc__
-    assert "Twice the observed value" in __import__("skeleton").CacheExample.value.__doc__
+    assert (
+        "Twice the observed value" in __import__("skeleton").CacheExample.value.__doc__
+    )

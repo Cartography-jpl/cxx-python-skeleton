@@ -177,7 +177,18 @@ class Module:
 
 # Types a setter takes by value (swig_python_attribute.i declares
 # "void NAME(const TYPE& V)", but the C++ usually has "void NAME(TYPE V)" for these).
-SCALARS = {"bool", "int", "unsigned int", "long", "float", "double", "short", "char", "std::size_t", "size_t"}
+SCALARS = {
+    "bool",
+    "int",
+    "unsigned int",
+    "long",
+    "float",
+    "double",
+    "short",
+    "char",
+    "std::size_t",
+    "size_t",
+}
 
 FUNC_RE = re.compile(
     r"^(?P<pre>(?:(?:static|virtual|inline|explicit)\s+)*)"
@@ -243,7 +254,15 @@ def statements(body: str):
                     i += 1
                 cur = ""
                 continue
-            if name in ("template", "feature", "rename", "ignore", "nodefaultctor", "include", "import"):
+            if name in (
+                "template",
+                "feature",
+                "rename",
+                "ignore",
+                "nodefaultctor",
+                "include",
+                "import",
+            ):
                 k = body.index(";", i) if ";" in body[i:] else n
                 nl = body.find("\n", i)
                 if name in ("include", "import") and nl != -1 and nl < k:
@@ -285,9 +304,9 @@ def statements(body: str):
         elif c == "{":
             k = match_brace(body, i)
             s = cur.strip()
-            if re.match(r"^(template\s*<[^>]*>\s*)?(class|struct)\b", s) or s.startswith(
-                "namespace"
-            ):
+            if re.match(
+                r"^(template\s*<[^>]*>\s*)?(class|struct)\b", s
+            ) or s.startswith("namespace"):
                 yield ("block", s, body[i + 1 : k - 1])
             elif s:
                 # Inline function body; drop the body and any initializer list
@@ -314,7 +333,9 @@ def statements(body: str):
 
 
 class Converter:
-    def __init__(self, ns: str, header_dirs: list[Path], director_macro: str, prefix: str = "nb"):
+    def __init__(
+        self, ns: str, header_dirs: list[Path], director_macro: str, prefix: str = "nb"
+    ):
         self.prefix = prefix
         self.ns = ns
         self.header_dirs = header_dirs
@@ -338,7 +359,9 @@ class Converter:
             mod.includes += re.findall(r'#include\s*"([^"]+)"', b)
         text = re.sub(r"%\{.*?%\}", "", text, flags=re.S)
         text = strip_comments(text)
-        for m in re.finditer(r'%base_import\((\w+)\)|%import\s*(?:\([^)]*\))?\s*"(\w+)\.i"', text):
+        for m in re.finditer(
+            r'%base_import\((\w+)\)|%import\s*(?:\([^)]*\))?\s*"(\w+)\.i"', text
+        ):
             mod.imports.append(m.group(1) or m.group(2))
         self.parse_body(text, mod, None)
 
@@ -360,8 +383,13 @@ class Converter:
                     re.S,
                 )
                 tparam, name, bases = m.group(1), m.group(2), m.group(3)
-                bl = [re.sub(r"^(public|protected|private|virtual|\s)+", "", b) for b in split_top(bases or "")]
-                ci = ClassInfo(name, mod.name, [norm_type(b) for b in bl], inner, template=tparam)
+                bl = [
+                    re.sub(r"^(public|protected|private|virtual|\s)+", "", b)
+                    for b in split_top(bases or "")
+                ]
+                ci = ClassInfo(
+                    name, mod.name, [norm_type(b) for b in bl], inner, template=tparam
+                )
                 self.parse_body(inner, mod, ci)
                 if tparam:
                     self.templates[name] = ci
@@ -379,7 +407,11 @@ class Converter:
                 (cls.hand if cls else mod.hand).append(f"%extend {st[1]} {{{st[2]}}}")
                 continue
             stmt = st[1]
-            if stmt.startswith("template") or stmt.startswith("class ") or stmt.startswith("using"):
+            if (
+                stmt.startswith("template")
+                or stmt.startswith("class ")
+                or stmt.startswith("using")
+            ):
                 continue
             if cls is None:
                 if stmt.startswith("namespace") or stmt.startswith("%"):
@@ -412,8 +444,15 @@ class Converter:
     def macro(self, st, mod: Module, cls: ClassInfo | None) -> None:
         name, arg = st[1], st[2]
         args = split_top(arg)
-        if name in ("skeleton_shared_ptr", "python_export", "shared_ptr_value_traits",
-                    "base_import", "include", "import", "module"):
+        if name in (
+            "skeleton_shared_ptr",
+            "python_export",
+            "shared_ptr_value_traits",
+            "base_import",
+            "include",
+            "import",
+            "module",
+        ):
             return
         if name == "template":
             pyname, typ = arg.strip(), None
@@ -421,11 +460,19 @@ class Converter:
         if cls is not None:
             if name.startswith("python_attribute"):
                 if name == "python_attribute_std_array":
-                    cls.attrs.append(Attr(name, args[0], args[0], f"std::array<{args[1]}, {args[2]}>"))
+                    cls.attrs.append(
+                        Attr(
+                            name, args[0], args[0], f"std::array<{args[1]}, {args[2]}>"
+                        )
+                    )
                 elif name.startswith("python_attribute2"):
-                    cls.attrs.append(Attr(name, args[0], args[1], norm_type(", ".join(args[2:]))))
+                    cls.attrs.append(
+                        Attr(name, args[0], args[1], norm_type(", ".join(args[2:])))
+                    )
                 else:
-                    cls.attrs.append(Attr(name, args[0], args[0], norm_type(", ".join(args[1:]))))
+                    cls.attrs.append(
+                        Attr(name, args[0], args[0], norm_type(", ".join(args[1:])))
+                    )
                 return
             if name == "pickle_serialization":
                 cls.pickle.append("swig_rules_nb::pickle_serialization(c);")
@@ -435,18 +482,24 @@ class Converter:
                 return
             if name == "pickle_init":
                 attrs = ", ".join('"' + a.replace("self.", "") + '"' for a in args[1:])
-                cls.pickle.append(f"swig_rules_nb::pickle_init(c, {args[0]}, {{{attrs}}});")
+                cls.pickle.append(
+                    f"swig_rules_nb::pickle_init(c, {args[0]}, {{{attrs}}});"
+                )
                 return
             if name == "pythoncode":
                 cls.hand.append("%pythoncode " + st[-1].strip())
                 return
         if name == self.director_macro:
-            self.pending_director_serialization = getattr(self, "pending_director_serialization", [])
+            self.pending_director_serialization = getattr(
+                self, "pending_director_serialization", []
+            )
             self.pending_director_serialization.append(args[1])
             return
         if name == "extend" or (st[0] == "macro_block" and name == "extend"):
             pass
-        text = f"%{name}({arg})" + (" {" + st[3] + "}" if st[0] == "macro_block" else "")
+        text = f"%{name}({arg})" + (
+            " {" + st[3] + "}" if st[0] == "macro_block" else ""
+        )
         (cls.hand if cls else mod.hand).append(text)
 
     def directive(self, d: str, mod: Module, cls: ClassInfo | None) -> None:
@@ -468,11 +521,17 @@ class Converter:
             return
         m = re.match(r"%extend\s+(\S+)", d)
         if re.match(r"%(nodefaultctor)\s+(\S+)", d):
-            n = re.match(r"%nodefaultctor\s+(\S+)", d).group(1).replace(f"{self.ns}::", "")
+            n = (
+                re.match(r"%nodefaultctor\s+(\S+)", d)
+                .group(1)
+                .replace(f"{self.ns}::", "")
+            )
             self.nodefault = getattr(self, "nodefault", set())
             self.nodefault.add(n)
             return
-        if re.match(r"%(include|import|base_import|module|rename|naturalvar|ignore)\b", d):
+        if re.match(
+            r"%(include|import|base_import|module|rename|naturalvar|ignore)\b", d
+        ):
             return
         (cls.hand if cls else mod.hand).append(d)
 
@@ -500,7 +559,11 @@ class Converter:
         if m:
             for b in split_top(m.group(1)):
                 if "virtual" in b.split():
-                    res.add(re.sub(r"^(public|protected|private|virtual|\s)+", "", b).strip())
+                    res.add(
+                        re.sub(
+                            r"^(public|protected|private|virtual|\s)+", "", b
+                        ).strip()
+                    )
         return res
 
     def instantiate(self, typ: str, pyname: str) -> ClassInfo:
@@ -525,8 +588,13 @@ class Converter:
     @staticmethod
     def sub_func(f: Func, sub) -> Func:
         return Func(
-            f.name, sub(f.ret), [Param(sub(p.type), p.name, p.default) for p in f.params],
-            f.const, f.static, f.virtual, f.pure,
+            f.name,
+            sub(f.ret),
+            [Param(sub(p.type), p.name, p.default) for p in f.params],
+            f.const,
+            f.static,
+            f.virtual,
+            f.pure,
         )
 
     def finish(self) -> None:
@@ -564,7 +632,9 @@ class Converter:
                     ci.nb_base = b
                 elif b != "GenericObject":
                     self.secondary.add(b)
-            ci.extra_bases = [b for b in ci.bases if b != ci.nb_base and b in self.classes]
+            ci.extra_bases = [
+                b for b in ci.bases if b != ci.nb_base and b in self.classes
+            ]
 
     def qualify(self, t: str) -> str:
         """Add the namespace to the class names known to us in type t."""
@@ -615,11 +685,17 @@ class Converter:
         """Lambda parameter type for a .i parameter type."""
         q = self.qualify(t)
         m = re.match(r"^(const )?(\w[\w:<>, ]*?) &$", t)
-        if m and m.group(2) in self.secondary and m.group(2) in self.classes | {"GenericObject": None}:
+        if (
+            m
+            and m.group(2) in self.secondary
+            and m.group(2) in self.classes | {"GenericObject": None}
+        ):
             return f"const std::shared_ptr<{self.qualify(m.group(2))}>&"
         return q
 
-    def call_args(self, f: Func, pre: list[str], post: list[str]) -> tuple[list[str], list[str], list[str]]:
+    def call_args(
+        self, f: Func, pre: list[str], post: list[str]
+    ) -> tuple[list[str], list[str], list[str]]:
         """(lambda params, call arguments, output names)."""
         lp, ca, outs = [], [], []
         for p in f.params:
@@ -642,11 +718,17 @@ class Converter:
                 ca.append(f"{p.name}_is")
                 continue
             pt = self.ptype(p.type)
-            name = p.name if not p.name.startswith(("SHARED_PTR_NO_OWN", "FORCE_COPY")) else f"arg{len(lp)}"
+            name = (
+                p.name
+                if not p.name.startswith(("SHARED_PTR_NO_OWN", "FORCE_COPY"))
+                else f"arg{len(lp)}"
+            )
             lp.append(f"{pt} {name}")
             if p.name == "FORCE_COPY":
                 ca.append(f"{name}.copy()")
-            elif pt.startswith("const std::shared_ptr<") and not t.startswith("const std::shared_ptr"):
+            elif pt.startswith("const std::shared_ptr<") and not t.startswith(
+                "const std::shared_ptr"
+            ):
                 ca.append(f"*{name}")
             else:
                 ca.append(name)
@@ -657,7 +739,11 @@ class Converter:
         for i, p in enumerate(f.params):
             if p.name.startswith("OUTPUT"):
                 continue
-            n = p.name if not p.name.startswith(("SHARED_PTR_NO_OWN", "FORCE_COPY")) else f"arg{i}"
+            n = (
+                p.name
+                if not p.name.startswith(("SHARED_PTR_NO_OWN", "FORCE_COPY"))
+                else f"arg{i}"
+            )
             a = f'nb::arg("{n}")'
             # SWIG accepted None (an empty pointer) for a shared_ptr argument;
             # nanobind only does if the argument says so.
@@ -668,8 +754,14 @@ class Converter:
             res.append(a)
         return "".join(", " + a for a in res)
 
-    def method_def(self, ci_cpp: str, f: Func, pyname: str | None = None, self_t: str | None = None,
-                   tramp: str | None = None) -> str:
+    def method_def(
+        self,
+        ci_cpp: str,
+        f: Func,
+        pyname: str | None = None,
+        self_t: str | None = None,
+        tramp: str | None = None,
+    ) -> str:
         pyname = pyname or f.name
         pre: list[str] = []
         lp, ca, outs = self.call_args(f, pre, [])
@@ -687,13 +779,17 @@ class Converter:
                 # would call the python override again.
                 c = "const " if f.const else ""
                 qcall = f"self.{ci_cpp}::{f.name}({', '.join(ca)})"
-                return (f'    c.def("{pyname}", []({params}) -> decltype(auto) {{ {" ".join(pre)} '
-                        f"if(dynamic_cast<{c}{tramp}*>(&self)) return {qcall}; return {call}; }}"
-                        f'{self.arg_names(f)}, swig_rules_nb::doc("{ci_cpp}::{f.name}"));')
+                return (
+                    f'    c.def("{pyname}", []({params}) -> decltype(auto) {{ {" ".join(pre)} '
+                    f"if(dynamic_cast<{c}{tramp}*>(&self)) return {qcall}; return {call}; }}"
+                    f'{self.arg_names(f)}, swig_rules_nb::doc("{ci_cpp}::{f.name}"));'
+                )
         if outs:
             if f.ret == "void":
                 body = f"{call}; "
-                ret = outs[0] if len(outs) == 1 else f"nb::make_tuple({', '.join(outs)})"
+                ret = (
+                    outs[0] if len(outs) == 1 else f"nb::make_tuple({', '.join(outs)})"
+                )
                 body += f"return {ret};"
             else:
                 body = f"auto r = {call}; return nb::make_tuple(r, {', '.join(outs)});"
@@ -704,7 +800,9 @@ class Converter:
         doc = f'swig_rules_nb::doc("{ci_cpp}::{f.name}")'
         return f'    c.{d}("{pyname}", {lam}{self.arg_names(f)}, {doc});'
 
-    def attr_def(self, ci_cpp: str, a: Attr, self_t: str | None = None, tramp: str | None = None) -> list[str]:
+    def attr_def(
+        self, ci_cpp: str, a: Attr, self_t: str | None = None, tramp: str | None = None
+    ) -> list[str]:
         self_t = self_t or ci_cpp
         t = self.qualify(a.type.replace("virtual ", "").strip())
         doc = f'swig_rules_nb::doc("{ci_cpp}::{a.cppname}")'
@@ -715,13 +813,19 @@ class Converter:
                 f'    c.def_prop_rw("{a.pyname}", [](const {self_t}& self) {{ return self.{n}; }}, '
                 f"[]({self_t}& self, nb::handle v) {{ self.{n} = swig_rules_nb::to_std_array<{tt.group(1)}, {tt.group(2)}>(v); }}, {doc});"
             ]
-        getter = f"[]({get_self} self) -> decltype(auto) {{ return self.{a.cppname}(); }}"
+        getter = (
+            f"[]({get_self} self) -> decltype(auto) {{ return self.{a.cppname}(); }}"
+        )
         setter = f"[]({self_t}& self, const {t}& v) {{ self.{a.cppname}(v); }}"
         if a.kind == "python_attribute_with_set_virtual" and tramp:
-            getter = (f"[]({get_self} self) -> decltype(auto) {{ if(dynamic_cast<const {tramp}*>(&self)) "
-                      f"return self.{ci_cpp}::{a.cppname}(); return self.{a.cppname}(); }}")
-            setter = (f"[]({self_t}& self, const {t}& v) {{ if(dynamic_cast<{tramp}*>(&self)) "
-                      f"self.{ci_cpp}::{a.cppname}(v); else self.{a.cppname}(v); }}")
+            getter = (
+                f"[]({get_self} self) -> decltype(auto) {{ if(dynamic_cast<const {tramp}*>(&self)) "
+                f"return self.{ci_cpp}::{a.cppname}(); return self.{a.cppname}(); }}"
+            )
+            setter = (
+                f"[]({self_t}& self, const {t}& v) {{ if(dynamic_cast<{tramp}*>(&self)) "
+                f"self.{ci_cpp}::{a.cppname}(v); else self.{a.cppname}(v); }}"
+            )
         if a.kind == "python_attribute_with_set_virtual":
             return [
                 f'    c.def("_v_{a.pyname}", {getter});',
@@ -736,7 +840,11 @@ class Converter:
     def trampoline(self, ci: ClassInfo) -> list[str]:
         name = "Py" + re.sub(r"\W", "", ci.pyname)
         ms, attrs = self.all_methods(ci)
-        out = [f"class {name} : public {ci.cpp} {{", "public:", f"  NB_TRAMPOLINE({ci.cpp});"]
+        out = [
+            f"class {name} : public {ci.cpp} {{",
+            "public:",
+            f"  NB_TRAMPOLINE({ci.cpp});",
+        ]
         if ci.director_serialization:
             out.append(f"  {name}() : {ci.cpp}() {{}}")
         seen = set()
@@ -744,18 +852,46 @@ class Converter:
         for a in attrs:
             if a.kind in ("python_attribute_with_set_virtual",):
                 t = self.qualify(a.type)
-                virt.append(Func(a.cppname, t, [], const=True, virtual=True, pyname=f"_v_{a.pyname}"))
+                virt.append(
+                    Func(
+                        a.cppname,
+                        t,
+                        [],
+                        const=True,
+                        virtual=True,
+                        pyname=f"_v_{a.pyname}",
+                    )
+                )
                 pt = t if t in SCALARS else f"const {t} &"
                 # The setter's parameter type as the C++ header has it.
-                hm = re.search(rf"virtual\s+void\s+{a.cppname}\s*\(\s*([^)]*?)\s*\w+\s*\)",
-                               self.header_for(ci.name.split("<")[0]))
+                hm = re.search(
+                    rf"virtual\s+void\s+{a.cppname}\s*\(\s*([^)]*?)\s*\w+\s*\)",
+                    self.header_for(ci.name.split("<")[0]),
+                )
                 if hm:
                     pt = self.qualify(norm_type(hm.group(1)))
-                virt.append(Func(a.cppname, "void", [Param(pt, "V")], virtual=True, pyname=f"_v_{a.pyname}"))
+                virt.append(
+                    Func(
+                        a.cppname,
+                        "void",
+                        [Param(pt, "V")],
+                        virtual=True,
+                        pyname=f"_v_{a.pyname}",
+                    )
+                )
             elif "virtual" in a.type or a.kind == "python_attribute_abstract":
                 t = self.qualify(a.type.replace("virtual ", "").strip())
-                virt.append(Func(a.cppname, t, [], const=True, virtual=True, pyname=f"_v_{a.pyname}",
-                                 pure=a.kind == "python_attribute_abstract"))
+                virt.append(
+                    Func(
+                        a.cppname,
+                        t,
+                        [],
+                        const=True,
+                        virtual=True,
+                        pyname=f"_v_{a.pyname}",
+                        pure=a.kind == "python_attribute_abstract",
+                    )
+                )
         for f in virt:
             key = (f.name, tuple(self.qualify(p.type) for p in f.params), f.const)
             if key in seen:
@@ -783,20 +919,33 @@ class Converter:
             targs.append(self.classes[ci.nb_base].cpp)
         if tramp:
             targs.append(tramp)
-        body = [f"  {{", f'    nb::class_<{", ".join(targs)}> c(m, "{ci.pyname}", swig_rules_nb::doc("{ci.cpp}"));']
+        body = [
+            f"  {{",
+            f'    nb::class_<{", ".join(targs)}> c(m, "{ci.pyname}", swig_rules_nb::doc("{ci.cpp}"));',
+        ]
         unused = [b for b in ci.bases if b != ci.nb_base]
         if unused:
-            body.insert(1, f"    // Bases not bound as the nanobind base: {', '.join(unused)}")
-        abstract = ci.nodefaultctor or (any(f.pure for f in ci.methods) and not ci.director)
+            body.insert(
+                1, f"    // Bases not bound as the nanobind base: {', '.join(unused)}"
+            )
+        abstract = ci.nodefaultctor or (
+            any(f.pure for f in ci.methods) and not ci.director
+        )
         if not abstract:
             for f in ci.ctors:
                 types = ", ".join(self.qualify(p.type) for p in f.params)
                 if ci.director:
                     body.append(f"    c.def(nb::init<{types}>(){self.arg_names(f)});")
                 else:
-                    nm = [p.name if not p.name.startswith(("SHARED_PTR_NO_OWN", "FORCE_COPY")) else f"arg{i}"
-                          for i, p in enumerate(f.params)]
-                    lp = ", ".join(f"{self.qualify(p.type)} {n}" for p, n in zip(f.params, nm))
+                    nm = [
+                        p.name
+                        if not p.name.startswith(("SHARED_PTR_NO_OWN", "FORCE_COPY"))
+                        else f"arg{i}"
+                        for i, p in enumerate(f.params)
+                    ]
+                    lp = ", ".join(
+                        f"{self.qualify(p.type)} {n}" for p, n in zip(f.params, nm)
+                    )
                     an = ", ".join(nm)
                     body.append(
                         f"    c.def(nb::new_([]({lp}) {{ return std::make_shared<{ci.cpp}>({an}); }}){self.arg_names(f)});"
@@ -807,10 +956,14 @@ class Converter:
             if f.name == "print_to_string":
                 has_print = True
                 continue
-            body.append(self.method_def(ci.cpp, f, tramp=tramp if f in ci.methods else None))
+            body.append(
+                self.method_def(ci.cpp, f, tramp=tramp if f in ci.methods else None)
+            )
         for a in ci.attrs + extra_a:
             body += self.attr_def(ci.cpp, a, tramp=tramp if a in ci.attrs else None)
-        if has_print or any(f.name == "print_to_string" for f in self.all_methods(ci)[0]):
+        if has_print or any(
+            f.name == "print_to_string" for f in self.all_methods(ci)[0]
+        ):
             body.append("    swig_rules_nb::printable(c);")
         for p in ci.pickle:
             body.append("    " + p)
@@ -875,7 +1028,9 @@ class Converter:
             elif kind == "func":
                 f = it
                 body.append(
-                    self.method_def(self.ns, Func(f.name, f.ret, f.params, static=True)).replace("c.def_static", "m.def")
+                    self.method_def(
+                        self.ns, Func(f.name, f.ret, f.params, static=True)
+                    ).replace("c.def_static", "m.def")
                 )
         for typ, pyname, vmod in self.vectors:
             pass
@@ -883,18 +1038,27 @@ class Converter:
         for kind, it in mod.items:
             if kind == "class" and it.director_serialization:
                 t = "Py" + re.sub(r"\W", "", it.pyname)
-                ds.append(f"SWIG_RULES_NB_DIRECTOR_SERIALIZATION({t}, {it.cpp}, {it.name})")
-        hand = "".join("// HAND CONVERT: " + h.replace("\n", "\n//   ") + "\n" for h in mod.hand)
+                ds.append(
+                    f"SWIG_RULES_NB_DIRECTOR_SERIALIZATION({t}, {it.cpp}, {it.name})"
+                )
+        hand = "".join(
+            "// HAND CONVERT: " + h.replace("\n", "\n//   ") + "\n" for h in mod.hand
+        )
         incs = "".join(f'#include "{i}"\n' for i in mod.includes)
         text = (
             f"// Generated by swig_rules/nanobind/i_to_nanobind.py from {mod.path.name}.\n"
             f'#include "{self.prefix}_opaque.h"\n{incs}'
             f"#include <memory>\n\n"
             f"namespace nb = nanobind;\n\n"
-            f"namespace {{\n" + "\n".join(pre) + "\n}\n\n"
-            + "\n".join(ds) + ("\n\n" if ds else "")
+            f"namespace {{\n"
+            + "\n".join(pre)
+            + "\n}\n\n"
+            + "\n".join(ds)
+            + ("\n\n" if ds else "")
             + hand
-            + f"void init_{mod.name}(nb::module_& m)\n{{\n" + "\n".join(body) + "\n}\n"
+            + f"void init_{mod.name}(nb::module_& m)\n{{\n"
+            + "\n".join(body)
+            + "\n}\n"
         )
         (out_dir / f"{mod.name}_nb.cc").write_text(text)
 
@@ -905,15 +1069,25 @@ def main() -> int:
     ap.add_argument("--namespace", required=True)
     ap.add_argument("--header-dir", action="append", type=Path, default=[])
     ap.add_argument("--out-dir", type=Path, required=True)
-    ap.add_argument("--director-serialization-macro", default="skeleton_director_serialization")
-    ap.add_argument("--prefix", default="nb", help="name of the <prefix>_opaque.h and <prefix>_init.inc files")
+    ap.add_argument(
+        "--director-serialization-macro", default="skeleton_director_serialization"
+    )
+    ap.add_argument(
+        "--prefix",
+        default="nb",
+        help="name of the <prefix>_opaque.h and <prefix>_init.inc files",
+    )
     args = ap.parse_args()
-    c = Converter(args.namespace, args.header_dir, args.director_serialization_macro, args.prefix)
+    c = Converter(
+        args.namespace, args.header_dir, args.director_serialization_macro, args.prefix
+    )
     for f in args.files:
         c.read(f)
     # %extend std::vector<T> { %pickle_vector(); }
     for f in args.files:
-        for m in re.finditer(r"%extend\s+(std::vector<[^{]+>)\s*\{([^}]*)\}", f.read_text()):
+        for m in re.finditer(
+            r"%extend\s+(std::vector<[^{]+>)\s*\{([^}]*)\}", f.read_text()
+        ):
             if "pickle_vector" in m.group(2):
                 typ = norm_type(m.group(1)).replace(f"{args.namespace}::", "")
                 for t, pyname, _ in c.vectors:

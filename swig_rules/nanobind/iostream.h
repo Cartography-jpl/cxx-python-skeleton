@@ -19,78 +19,81 @@
 #include <streambuf>
 #include <string>
 
-namespace swig_rules_nb {
-namespace nb = nanobind;
+// Hidden, like nanobind's own namespace (these hold nanobind objects).
+namespace swig_rules_nb __attribute__((visibility("hidden"))) {
+  namespace nb = nanobind;
 
-class py_streambuf : public std::streambuf {
-public:
-  explicit py_streambuf(nb::object Fh) : fh(std::move(Fh))
-  {
-    setp(obuf, obuf + sizeof(obuf));
-  }
-  ~py_streambuf() override
-  {
-    try {
+  class py_streambuf : public std::streambuf {
+  public:
+    explicit py_streambuf(nb::object Fh) : fh(std::move(Fh))
+    {
+      setp(obuf, obuf + sizeof(obuf));
+    }
+    ~py_streambuf() override
+    {
+      try {
+        flush();
+      } catch(...) {
+      }
+    }
+  protected:
+    int_type underflow() override
+    {
+      nb::bytes r = nb::cast<nb::bytes>(fh.attr("read")(1));
+      if(r.size() == 0)
+        return traits_type::eof();
+      ibuf = r.c_str()[0];
+      setg(&ibuf, &ibuf, &ibuf + 1);
+      return traits_type::to_int_type(ibuf);
+    }
+    int_type overflow(int_type c) override
+    {
       flush();
-    } catch(...) {
+      if(!traits_type::eq_int_type(c, traits_type::eof())) {
+        *pptr() = traits_type::to_char_type(c);
+        pbump(1);
+      }
+      return traits_type::not_eof(c);
     }
-  }
-protected:
-  int_type underflow() override
-  {
-    nb::bytes r = nb::cast<nb::bytes>(fh.attr("read")(1));
-    if(r.size() == 0)
-      return traits_type::eof();
-    ibuf = r.c_str()[0];
-    setg(&ibuf, &ibuf, &ibuf + 1);
-    return traits_type::to_int_type(ibuf);
-  }
-  int_type overflow(int_type c) override
-  {
-    flush();
-    if(!traits_type::eq_int_type(c, traits_type::eof())) {
-      *pptr() = traits_type::to_char_type(c);
-      pbump(1);
+    int sync() override
+    {
+      flush();
+      return 0;
     }
-    return traits_type::not_eof(c);
-  }
-  int sync() override
-  {
-    flush();
-    return 0;
-  }
-private:
-  void flush()
-  {
-    std::ptrdiff_t n = pptr() - pbase();
-    if(n > 0)
-      fh.attr("write")(nb::bytes(pbase(), static_cast<size_t>(n)));
-    setp(obuf, obuf + sizeof(obuf));
-  }
-  nb::object fh;
-  char ibuf = 0;
-  char obuf[4096];
-};
+  private:
+    void flush()
+    {
+      std::ptrdiff_t n = pptr() - pbase();
+      if(n > 0)
+        fh.attr("write")(nb::bytes(pbase(), static_cast<size_t>(n)));
+      setp(obuf, obuf + sizeof(obuf));
+    }
+    nb::object fh;
+    char ibuf = 0;
+    char obuf[4096];
+  };
 
-class py_ostream : public std::ostream {
-public:
-  explicit py_ostream(nb::object Fh) : std::ostream(nullptr), buf(std::move(Fh))
-  {
-    rdbuf(&buf);
-  }
-  ~py_ostream() override { flush(); }
-private:
-  py_streambuf buf;
-};
+  class py_ostream : public std::ostream {
+  public:
+    explicit py_ostream(nb::object Fh)
+      : std::ostream(nullptr), buf(std::move(Fh))
+    {
+      rdbuf(&buf);
+    }
+    ~py_ostream() override { flush(); }
+  private:
+    py_streambuf buf;
+  };
 
-class py_istream : public std::istream {
-public:
-  explicit py_istream(nb::object Fh) : std::istream(nullptr), buf(std::move(Fh))
-  {
-    rdbuf(&buf);
-  }
-private:
-  py_streambuf buf;
-};
+  class py_istream : public std::istream {
+  public:
+    explicit py_istream(nb::object Fh)
+      : std::istream(nullptr), buf(std::move(Fh))
+    {
+      rdbuf(&buf);
+    }
+  private:
+    py_streambuf buf;
+  };
 }
 #endif

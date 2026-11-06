@@ -65,7 +65,8 @@ public:
 
   //-----------------------------------------------------------------------
   // Constructor taking a std::format format string and its arguments (see
-  // the class description). Hidden from doxygen with \cond: doxy2swig gives
+  // the class description). Hidden from doxygen with \cond: the docstring
+  // generator (doxy2swig, now doxy2nanobind) gives
   // all constructor overloads one docstring, so this C++-only overload
   // would replace the text of the python Exception.__init__, which wraps
   // the constructor above.

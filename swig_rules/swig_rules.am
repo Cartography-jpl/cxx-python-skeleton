@@ -3,6 +3,7 @@
 # (swig_rules/nanobind/nanobind.am); the name swig_rules is historical.
 
 EXTRA_DIST+= @swigrules@/README.md
+EXTRA_DIST+= CMakeLists.txt
 EXTRA_DIST+= @swigrules@/lib/generic_object.cc.sample
 EXTRA_DIST+= @swigrules@/lib/generic_object.h.sample
 EXTRA_DIST+= @swigrules@/lib/generic_object_map.cc.sample

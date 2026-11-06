@@ -6,6 +6,7 @@ import pickle
 
 import numpy as np
 import pytest
+
 from skeleton import (
     CameraLike,
     Diamond,

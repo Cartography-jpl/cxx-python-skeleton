@@ -44,7 +44,9 @@ def text_of(node) -> str:
                     out.append("".join(buf).strip())
                     buf = []
                     for item in c.findall("parameteritem"):
-                        names = ", ".join("".join(x.itertext()) for x in item.iter("parametername"))
+                        names = ", ".join(
+                            "".join(x.itertext()) for x in item.iter("parametername")
+                        )
                         desc = text_of(item.find("parameterdescription"))
                         out.append(f"{names}: {desc}")
                 elif c.tag == "simplesect":
@@ -52,11 +54,20 @@ def text_of(node) -> str:
                     buf = []
                     kind = c.get("kind", "")
                     t = " ".join(text_of(p) for p in c)
-                    out.append(f"{kind.capitalize()}: {t}" if kind not in ("see",) else f"See: {t}")
+                    out.append(
+                        f"{kind.capitalize()}: {t}"
+                        if kind not in ("see",)
+                        else f"See: {t}"
+                    )
                 elif c.tag in ("programlisting", "verbatim"):
                     out.append("".join(buf).strip())
                     buf = []
-                    out.append("\n".join("    " + "".join(l.itertext()) for l in c.iter("codeline")) or "".join(c.itertext()))
+                    out.append(
+                        "\n".join(
+                            "    " + "".join(l.itertext()) for l in c.iter("codeline")
+                        )
+                        or "".join(c.itertext())
+                    )
                 else:
                     buf.append("".join(c.itertext()))
                 buf.append(c.tail or "")
@@ -73,7 +84,10 @@ def text_of(node) -> str:
 
 
 def describe(node) -> str:
-    parts = [text_of(node.find("briefdescription")), text_of(node.find("detaileddescription"))]
+    parts = [
+        text_of(node.find("briefdescription")),
+        text_of(node.find("detaileddescription")),
+    ]
     return "\n\n".join(p for p in parts if p)
 
 

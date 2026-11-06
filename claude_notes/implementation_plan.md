@@ -18,10 +18,13 @@ Related documents:
 
 ## 0. Handoff: where to pick up (read this first)
 
-**Status (2026-11-05, later):** **Phases S0, ST and S1 are done** (progress log; suggested tag `phase1-cxx20`). Next is
-**Phase S2** (Boost → std, not in the API, §6): done (progress log; suggested tag `phase2-boost-std`). Next is
-**Phase S3** (`std::optional`, `std::array`, §7): done (suggested tag `phase3-std-types`). Next is **Phase S5** (new
-samples for consumer patterns, §9), which the plan does **before** S4 because S4 breaks the Python bindings until S6.
+**Status (2026-11-06):** **Phases S5, S4 and S6 are done** (in that order, progress log), committed on `modernize` at
+the maintainer's request (the earlier phases were staged for the maintainer to commit). The python bindings are
+nanobind; SWIG is gone. Suggested tags: `phase5-samples` and `swig-final` at the S5 commit, `phase4-std-shared-ptr`,
+`nanobind-1` at the S6.6 commit. Next is **Phase S7** (§11), or geocal's own phases using the "Notes for geocal" table.
+
+*Earlier (2026-11-05, later):* Phases S0, ST and S1–S3 were done (suggested tags `phase1-cxx20`, `phase2-boost-std`,
+`phase3-std-types`).
 
 *Earlier (2026-11-05):* Phase S0 is done, and ST steps 1–11 are done (progress log). What is left of ST is its
 exit checklist: all four builds were run on 2026-11-05. gcc 15, gcc 14 and `--without-boost-serialization` are green;
@@ -93,6 +96,10 @@ apply it there (or record why not) in geocal's plan:
 | `std::optional` / `std::array` (S3) | 2026-11-05 | Comes with the next `swig_rules/` copy: the optional typemap macro (both types), the `std::array` typemaps and `%python_attribute_std_array`, the `print_to_string` fix in `swig_boost_array.i`, and the **Boost #319 workaround** in `serialize_shared_ptr.h` (needed as soon as geocal serializes a `std::optional`). geocal's own `geocal_serialize_support.h` needs the same change as `skeleton_serialize_support.h`: always include `boost/serialization/array.hpp` (the `std::array` serializer). A returned `std::array` is a numpy array in python, not an `Array_double_N` object: record in `RELEASE_NOTES_2.0.md` when geocal converts. |
 | **Observer registered in `load()` added twice** | 2026-11-06, S5 | framework (and geocal, when it serializes observers): `FP_OBSERVER_SERIALIZE` loads `olist` directly. An observer that calls `add_observer(*this)` in its `load()` (5 such in framework) and is first reached through the Observable's `olist` registers before its own entry is read, so it is in `olist` twice and notified twice. The skeleton's `observer_serialize_support.h` splits `Observable::serialize` and merges (`merge_loaded`, archive order kept, same archive format). Copy it; test `observer/serialization` in `lib/observer_test.cc`. |
 | SWIG pin | decision 14 | geocal already pins `4.4.*`; the skeleton pins `4.5.*`. Keep each pinned to its committed wrappers. |
+| `std::shared_ptr` migration (S4) | 2026-11-06 | Run `script/boost_to_std_ptr.py` (`--dry-run` first; `--swig` would also do `.i` files, not needed if the bindings break until nanobind as here). Then fix what it reports (`BOOST_SP_*`, `scoped_ptr`, ...) and missing standard includes that Boost headers had pulled in (here one `<vector>`). Copy `serialize_shared_ptr.h` (same archive format) and `null_deleter.h`'s aliasing `to_ptr`/`const_pointer`. Check with the golden archives *and* a byte-identical rewrite of each (`golden_archive/rewrite_identical` in `lib/golden_archive_test.cc`). |
+| **nanobind bindings (S6)** | 2026-11-06 | Copy `swig_rules/nanobind/` and `swig_rules/lib/director_hook.h`, `config/m4/ac_nanobind.m4`, the `swig_rules/*.py` package files; drop `swig_rules/include` and the SWIG helpers (list in the S6.6 progress row). Add `std::enable_shared_from_this` to `GenericObject`. Generate the bindings with `i_to_nanobind.py --namespace GeoCal --header-dir lib/... --prefix geocal_nb --out-dir ... <all .i>`, keep the pristine output, then hand-fix the `HAND CONVERT` items (`%extend`, `%pythoncode`, `%typemap`). Things found here that apply there: (1) compile the binding files **without `-fvisibility=hidden`** (else director serialization breaks reading archives of the base class); (2) `nb::arg().none()` on `shared_ptr` arguments; (3) don't use `nb::new_` for director classes; (4) a director class's binding must call the C++ implementation non-virtually for python subclasses (`super()` ran the override twice); (5) a function that runs python callbacks on C++ worker threads (geocal's `ThreadPool` users) needs `nb::call_guard<nb::gil_scoped_release>()`, else it deadlocks; (6) nanobind crashes on a null docstring; (7) `make check` against the build tree needs `LD_PRELOAD` of the built library (RPATH, ST.11); (8) remove an old `<pkg>_swig/` install directory before installing (stale `__init__.pyi`). geocal's `RELEASE_NOTES_2.0.md` can take the "Python API changes" list in §10 (S6.6). |
+| `Exception::stacktrace()` with addr2line | 2026-11-06, S6 | Boost.Stacktrace's addr2line backend gives wrong file:line for code in shared libraries (it looks every frame up in the main executable) and runs addr2line per frame (11 s per trace from python). `lib/skeleton_exception.cc` now looks up the module of each frame with `dladdr` and runs addr2line once per module; copy it with the S1.5 `Exception` pattern. Also: from python, a library exception carries `cpp_exception` (a copy, so the trace is resolved only if asked for) and `cpp_source`. |
+| Golden shelves with python subclasses | 2026-11-06, S5/S6 | Before geocal's SWIG bindings go, write a few shelves with python subclass objects (as `unit_test_data/golden/director_python*.xml` here) and check the nanobind build reads them. |
 
 **Progress log** (update as phases complete; one line per step):
 | Phase / step | State | Notes |
@@ -136,6 +143,10 @@ apply it there (or record why not) in geocal's plan:
 | **S5 exit** | **done** | 2026-11-06, committed (maintainer asked for commits for S5/S4/S6). Suggested tags: `phase5-samples`, and `swig-final` (last state with working SWIG bindings). |
 | S4 `std::shared_ptr` | done | 2026-11-06. **`script/boost_to_std_ptr.py`** (for reuse in geocal/framework): rewrites `boost::`/`::boost::` `shared_ptr`, `weak_ptr`, `make_shared`, `allocate_shared`, `enable_shared_from_this`, `bad_weak_ptr`, `owner_less`, the four `*_pointer_cast`, and the smart_ptr includes → `<memory>` (once per file); reports what it won't touch (`scoped_ptr`, `intrusive_ptr`, `shared_array`, `BOOST_SP_*`, `using boost::...`); skips `*_wrap.*`; `.i` files only with `--swig`; `--dry-run`. On `lib/` and `swig_rules/lib/`: 327 changes in 34 files. Hand fixes: `BOOST_SP_NOEXCEPT` → `noexcept` (reported by the script), and a missing `<vector>` in `generic_object_map.h` (and its `.sample`), which Boost's headers had pulled in. **`serialize_shared_ptr.h`**: same code on `std::shared_ptr` (`our_shared_ptr` derives from it; version 1, `track_never`, `px`); its director hook is unchanged. **Aliasing constructor** (step 4): `to_ptr`/`const_pointer` (`null_deleter.h`, so also `Observer::this_obj` and `CacheInvalidatedObserver::this_obj_`) and the temporary null-deleter pointer in `our_shared_ptr::reset` are built from a `shared_ptr<void>`; new test `observer/shared_from_this_owner` (with `enable_shared_from_this` on a test class: `shared_from_this()` is the real owner; a stack observer has none). The `.i` files and the committed wrappers are not changed (§8), so plain `make` fails until S6; use `make skeleton-check`. **Acceptance:** C++ 46/46 (`build`, gcc 15); all golden archives load and `golden_archive/rewrite_identical` passes (every object archive byte-identical, XML and binary); `make golden-archives` changes no file; `--without-boost-serialization` 30/30; ASan (`build-asan`): no memory errors, only the accepted truncated-archive leak (finding B). |
 | **S4 exit** | **done** | 2026-11-06, committed. Suggested tag: `phase4-std-shared-ptr`. |
+| S6.1 design spike | done | 2026-11-06. All 11 items, as real tests (§10): (1) forked caster `swig_rules/nanobind/gc_shared_ptr.h` (nanobind 3.1.0; `dynamic_pointer_cast` for `enable_shared_from_this`, most derived *registered* type with a `dynamic_cast` to its subobject, `None` → empty pointer, registry fallback in the converting pass); `GenericObject : std::enable_shared_from_this<GenericObject>` (virtual root, compiles with the fork); no virtual base is ever a nanobind base. (2) `type_registry.h`: per bound class a `GenericObject*` → `B*` cast and a python → `shared_ptr<GenericObject>` function; trampolines registered as aliases; shared across modules through a capsule in `builtins`. (3) aliasing `this_obj` (S4) tested from python too (constructor-registered and python subclass observers notified). (4) `weak_ptr` matrix `python/tests/unit/nanobind_test.py`: plain classes use `nb::new_` + `make_shared` (always valid); **director classes** need `nb::init` (nanobind's `nb::new_` wraps a python subclass around a base instance, so overrides wouldn't work), so like python subclasses a `weak_ptr` is valid only while a C++ `shared_ptr` owns the object (decision 6 extended; `test_director_example_weak_ptr` changed to record it). (5) pickling: `__reduce__` helpers; python subclass objects in archives through `SWIG_RULES_NB_DIRECTOR_SERIALIZATION` (python part pickled as class + `__dict__` in SWIG's form, element and class names as SWIG wrote them): **shelves written by SWIG with a python subclass load** (`unit_test_data/golden/director_python*.xml`, written by the S5 SWIG build, class `python/tests/fixtures/director_golden.py`); identity within one archive kept (`u.value() is u.value_vec()[1]`). The S0 strict `xfail` `test_director_example_object_tracking` still fails, now only at the pickle of C++ objects inside a python `__dict__` (separate archives; re-entrant pickling set aside, decision 3). (6) exceptions: `register_exceptions<Exception, TypeError>`: `Skeleton::TypeError` (new, a library type) → `TypeError`, `nb::cast_error` → `TypeError`, every other `std::exception` → `RuntimeError` as with SWIG (nanobind's own mapping would give `IndexError` etc.), non-`std::exception` → `RuntimeError("unknown C++ exception")`; a `Skeleton::Exception` raised into python carries `cpp_exception` (copy, `.stacktrace()`) and `cpp_source`. (7) numpy ↔ Blitz through `mdspan` (conda-forge `mdspan` `0.6.1.dev20260223`, `lib/skeleton_mdspan.h`, `lib/blitz_mdspan.h` + `blitz_mdspan_test.cc`: contiguous, strided, column-major, owner lifetime, negative stride rejected; python side `swig_rules/nanobind/blitz_array.h`): exact dtype zero copy any strides, otherwise `numpy.array(copy=True)` in the converting pass only; returns are views (read-only except `T&`). Overload dispatch matches SWIG (float32 → array overload). New: a non-const `blitz::Array&` argument works (was a strict `xfail` under SWIG). (8) iostream: `iostream.h` streambuf (unbuffered input, file position as before). (9) `nb::bind_vector` for each `%template(Vector_*)` (`NB_MAKE_OPAQUE` in `lib/skeleton_nb_opaque.h`), STL caster elsewhere. (10) `lib/downstream_nb.cc` → `skeleton_swig._skeleton_downstream`: creates/takes main-module types, a class derived from a main-module class, `GenericObject` returns via the shared registry. (11) `ThreadExample.run` with `nb::call_guard<nb::gil_scoped_release>`: python override on C++ worker threads works and its exception arrives with type and message (segfaulted under SWIG). |
+| S6.2–6.5 rules, bindings, build, stubs | done | 2026-11-06. **Converter** `swig_rules/nanobind/i_to_nanobind.py` run once on the 20 `.i` files → `lib/*_nb.cc`; **hand changes: 92 of 2327 lines, in 7 files** (bytes typemaps in `serialize_function.i`, `GenericObjectMap`'s `%pythoncode`, `Exception`'s `%extend`, `GenericObject`'s output typemaps (now the caster's job), `throw_type_error`, the GIL release, a `%extend` comment). Converter features found necessary while testing: `.none()` on every `shared_ptr` argument (SWIG accepted `None`), setter types of virtual properties from the header, a non-virtual call of the C++ implementation when a python subclass calls `super()` (else the override ran twice), unique names for several `OUTPUT` arguments. **Docstrings** `doxy2nanobind.py` (doxygen XML → `swig_rules_nb::docstring_table()`, template members found without their arguments; nanobind crashes on a null docstring, so missing ones are `""`); pybind11_mkdoc not evaluated (needs libclang python bindings; the doxygen route reuses what exists). **Build**: `config/m4/ac_nanobind.m4`, `swig_rules/nanobind/nanobind.am` (nanobind's `nb_combined.cpp` once, hidden visibility, in `libnanobind_core.la`; binding files **default** visibility, see Notes for geocal), `--without-python-bindings`, extension skipped automatically with `--without-boost-serialization`; `make check` runs the python tests against the build tree (`nb_pkg/`, `LD_PRELOAD` of `.libs/libskeleton.so` for the ST.11 RPATH reason); `.pyi` stubs by `nanobind.stubgen` installed with `py.typed`; `mypy` on `python/skeleton` clean. **CMake reference** `CMakeLists.txt` (`nanobind_add_module`, library, docstrings, `ctest` runs C++ and python tests from the build tree): builds and passes. Also: `Exception::stacktrace()` now runs addr2line once per module with module-relative addresses (Boost's addr2line backend looked every frame up in the main executable: wrong file:line for shared libraries, 11 s per trace from python; now 0.4 s, correct). |
+| S6.6 remove SWIG | done | 2026-11-06. Removed: `lib/*.i`, `bindings/` (committed wrappers), `swig_rules/include/`, `create_python_init.py`, `swig_wrap.tmpl`, `doxy2swig.py`, `doxygen_single.cfg`, `interface_file_with_doc.sh`, `README.doxygen`, the SWIG CMake files, `swig_type_mapper*`, `python_exception.h`, `python_ref_ptr_cleanup.h`, `python_lib_init.h`, `swig_to_python.h`, the `.i.sample` files; `swig` from `env/linux/pixi.toml` (+ lock; `mdspan`, `cmake`, `ninja` added). `swig_type_mapper_base`'s director hook replaced by `swig_rules/lib/director_hook.h` (python-free). Rewritten: `DirectorNotes.md`, `swig_rules/README.md`, new `swig_rules/nanobind/README.md`, `README.md` (naming note), `CLAUDE.md`. `config/m4/ax_pkg_swig.m4` and the other shared m4 files are left (shared with geocal, unused here). |
+| **S6 exit** | **done** | 2026-11-06, frenchpeas. **gcc 15** (`build`, nanobind 3.1.0, Boost 1.90, Python 3.13): 0 warnings; `make check`: C++ 51/51 test cases, python **168 passed, 1 xfailed** (against the build tree); `make install` + `make installcheck`: the same. **gcc 14** (`build-gcc14`, conda compiler activation incl. `-fvisibility-inlines-hidden`): 0 warnings, the same results. **`--without-boost-serialization`** (`build-noserial`): plain `make` and `make check` now work (the extension isn't built; `golden_archive_generator` needed a guard), C++ 30 test cases. **ASan** (`build-asan`): C++ no memory errors, the only leak is finding B (now 224 bytes: the same 4 allocations, each 16 bytes bigger with `enable_shared_from_this`); python 168 passed, 1 xfailed, no ASan errors (`detect_leaks=0`). **CMake reference** (`build-cmake`): `ctest` C++ and python pass. `make format-check`, `make lint` (55 files, now including the binding code) clean; `make golden-archives` changes no file; all golden archives (and the SWIG-written python subclass shelves) load. The one strict `xfail` is `test_director_example_object_tracking` (decision 3). Committed; suggested tag `nanobind-1`. |
 
 ---
 
@@ -155,9 +166,10 @@ changes are made only in this repository's copy of `swig_rules/`, and it is unde
 this repository** (§13 item 9), so keep them self-contained and copyable.
 
 **S0 phase-end checklist (repeat at the end of each phase):** (1) gcc 15 env (`build-pixi`): `make check`, `make install`,
-`make installcheck`; (2) gcc 14 env (`build-pixi-gcc14`): the same; (3) `--without-boost-serialization --without-swig
---without-documentation` build with `make skeleton-check`; (4) ASan build (below); (5) golden archives load (part of 1-2).
-Expected at the end of S0: C++ 1/1, Python 21 passed + 6 xfailed.
+`make installcheck`; (2) gcc 14 env (`build-pixi-gcc14`): the same; (3) `--without-boost-serialization
+--without-documentation` build with `make check` (before S6: `--without-swig` and `make skeleton-check`); (4) ASan build
+(below); (5) golden archives load (part of 1-2); (6) since S6, `make format-check`, `make lint`, and the CMake reference
+build. Expected at the end of S0: C++ 1/1, Python 21 passed + 6 xfailed; at the end of S6: see the S6 exit row.
 
 **Sanitizer builds (S0.8).** No configure option was needed; this works:
 
@@ -1074,13 +1086,31 @@ Once all tests pass under nanobind (including the S0 `xfail`s that were meant to
 
 Tag `nanobind-1`.
 
-**Python API changes to record**:
-* the `.this` attribute no longer exists (tests use `olist[0].this`);
-* `Vector_*` proxy types (if not kept with `bind_vector`);
-* `print_to_string` (keep as a method or not);
-* the module name;
-* the `SerializeSessionLock`/pickler classes if they become unnecessary;
-* identity semantics: the same C++ object now gives the same Python object.
+**Python API changes (done in S6; for geocal's `RELEASE_NOTES_2.0.md`)**:
+* Module layout: one extension module `skeleton_swig._swig_wrap` (name kept, decision 2), everything at the top of
+  `skeleton_swig` (and re-exported by `skeleton`); the per-file modules `skeleton_swig.<file>` (e.g.
+  `skeleton_swig.serialize_function`) are gone. Installing over a SWIG install leaves the old `skeleton_swig/*.py` and
+  `__init__.pyi` behind (harmless at run time, but the stale `.pyi` misleads mypy): remove the directory first.
+* No `.this` attribute, no `_v_<name>` methods except for the `%python_attribute_with_set_virtual` properties (python
+  overrides them, as before).
+* Identity: the same C++ object returned twice is the same python object, also through another base.
+* `isinstance(obj, SecondaryBase)` is `False` (one bound base per class; the secondary base's methods are bound on the
+  class, and the object can be passed for it). `isinstance(x, GenericObject)` is `False` too.
+* `weak_ptr`: an object of a *director* class (or a python subclass) owned only by python has no C++ owner, so a
+  `weak_ptr` to it expires at once (SWIG's `SHARED_PTR_NO_OWN` kept it). Plain classes are unaffected.
+* `Vector_*` types: kept (`nb::bind_vector`); vectors without a `%template` are python lists (as before).
+* `print_to_string` kept as a method, and `__str__`.
+* Exceptions: still `RuntimeError` for C++ exceptions, now `TypeError` for `Skeleton::TypeError` and for a python
+  override returning the wrong type; a python exception raised in an override comes back unchanged (as before); the
+  C++ side's `what()` of such an exception is the python traceback text (SWIG's started "Python error occured:").
+  New attributes `cpp_exception`, `cpp_source` for library exceptions.
+* `boost::array` classes (`Array_double_3`, ... from `swig_boost_array.i`) are gone; `std::array` comes back as a numpy
+  array. `rational_int` and `Range` can now be constructed from python.
+* Returned Blitz arrays are read-only views unless the C++ returns a non-const reference (as before); a non-const
+  `blitz::Array&` argument now works.
+* Pickles made with the SWIG bindings can't be loaded (they name `skeleton_swig.<file>._new_from_serialization`);
+  boost archives and shelves (`.xml`, `.bin`, `.db`, `.json`) still load, including python subclass objects.
+* Not needed any more: `SerializeSessionLock`/pickler classes (were never on this branch).
 
 ---
 
@@ -1097,61 +1127,61 @@ Tag `nanobind-1`.
 ## 12. Test additions: summary checklist
 
 **Phase ST (§4a; before S1)**
-* [ ] Coverage tooling (`gcovr`, `pytest-cov`) in `env/linux/pixi.toml` and a `make coverage` target
-* [ ] Every `swig_rules` typemap/macro used by geocal or framework has a Python test (table in §4a)
-* [ ] Exact `str()` for every sample class; C++ `Exception` → `RuntimeError` with exact message; unknown throw
-* [ ] `operator<<` == `print_to_string`, short outputs (the `"blah"` bug); `Exception`/`range_check` C++ tests
-* [ ] `serialize_function` file entry points: XML, binary, `.gz`; missing file; working-directory restore on exception
-* [ ] `swig_shelve` every format, `shelve_time_after`, `extra_python_init`, `SQLiteShelf`
-* [ ] `multiprocessing.Pool` round trip (plain and director object)
-* [ ] `%shared_ptr_value_traits` vector sample (from geocal)
+* [x] Coverage tooling (`gcovr`, `pytest-cov`) in `env/linux/pixi.toml` and a `make coverage` target
+* [x] Every `swig_rules` typemap/macro used by geocal or framework has a Python test (table in §4a)
+* [x] Exact `str()` for every sample class; C++ `Exception` → `RuntimeError` with exact message; unknown throw
+* [x] `operator<<` == `print_to_string`, short outputs (the `"blah"` bug); `Exception`/`range_check` C++ tests
+* [x] `serialize_function` file entry points: XML, binary, `.gz`; missing file; working-directory restore on exception
+* [x] `swig_shelve` every format, `shelve_time_after`, `extra_python_init`, `SQLiteShelf`
+* [x] `multiprocessing.Pool` round trip (plain and director object)
+* [x] `%shared_ptr_value_traits` vector sample (from geocal)
 * [x] `make check` fails on a just-changed library after `make install` into the env is fixed (ST step 11, from geocal; done 2026-11-05)
 
 **C++ (Boost.Test)**
-* [ ] Golden-archive load test: every class, XML and binary (S0); byte-identical re-write after `std::shared_ptr` (S4)
-* [ ] `serialize_function` file entry points: XML, binary, `.gz`; working-directory restore on exception (ST; rerun in S2)
-* [ ] `--without-boost-serialization` build compiles and C++ tests pass (S0, every phase)
-* [ ] `std::formatter` == `operator<<`; `Exception` format constructor, `source_location`, stacktrace (S1)
-* [ ] `std::optional` and `std::array` serialization round trip, old-archive load (S3)
-* [ ] Observer/Observable: notification, dead-observer removal, `add_observer_and_keep_reference`, serialization of
+* [x] Golden-archive load test: every class, XML and binary (S0); byte-identical re-write after `std::shared_ptr` (S4)
+* [x] `serialize_function` file entry points: XML, binary, `.gz`; working-directory restore on exception (ST; rerun in S2)
+* [x] `--without-boost-serialization` build compiles and C++ tests pass (S0, every phase)
+* [x] `std::formatter` == `operator<<`; `Exception` format constructor, `source_location`, stacktrace (S1)
+* [x] `std::optional` and `std::array` serialization round trip, old-archive load (S3)
+* [x] Observer/Observable: notification, dead-observer removal, `add_observer_and_keep_reference`, serialization of
       observer lists with the two-pass `weak_ptr` rule (S5)
-* [ ] Multiple-base and virtual-diamond samples: `dynamic_pointer_cast` across every base, serialization through
+* [x] Multiple-base and virtual-diamond samples: `dynamic_pointer_cast` across every base, serialization through
       `shared_ptr<GenericObject>` (S5)
-* [ ] `shared_from_this()` never yields a non-owning pointer after the aliasing `this_obj`/`to_ptr` change (S4)
-* [ ] Observer notification for stack, member and `shared_ptr`-owned observers; constructor and `load()` registration (S5)
-* [ ] `mdspan` ↔ Blitz views: contiguous, strided slice, column-major; writes visible both ways (S6)
-* [ ] All of the above under AddressSanitizer at the end of S4 and S6
+* [x] `shared_from_this()` never yields a non-owning pointer after the aliasing `this_obj`/`to_ptr` change (S4)
+* [x] Observer notification for stack, member and `shared_ptr`-owned observers; constructor and `load()` registration (S5)
+* [x] `mdspan` ↔ Blitz views: contiguous, strided slice, column-major; writes visible both ways (S6)
+* [x] All of the above under AddressSanitizer at the end of S4 and S6
 
 **Python (pytest)**
 * [x] S0: explained `xfail(strict=True)` instead of `skip`/commented asserts (done; there was no `NameError`, and
       `test_director_example_weak_ptr` passes, so it is a normal test now)
-* [ ] Golden archives load via `read_shelve` (S0)
-* [ ] `str()` and exception text unchanged vs. baseline (S1)
-* [ ] Array property round trip (S3)
-* [ ] Downcast matrix: functions returning `shared_ptr` to the primary base, a secondary base, a virtual base, and
+* [x] Golden archives load via `read_shelve` (S0)
+* [x] `str()` and exception text unchanged vs. baseline (S1)
+* [x] Array property round trip (S3)
+* [x] Downcast matrix: functions returning `shared_ptr` to the primary base, a secondary base, a virtual base, and
       `GenericObject` → most-derived type **and a method call** (the crash case) (S5/S6)
-* [ ] Parameter matrix: pass a derived object to parameters typed as each of those bases (S5/S6)
-* [ ] Identity: same C++ object returned twice; record SWIG (different wrapper) vs nanobind (same object) (S6)
-* [ ] `weak_ptr` matrix (creator × owner, S6.1 item 4), including directors; `test_director_example_weak_ptr` (passes
+* [x] Parameter matrix: pass a derived object to parameters typed as each of those bases (S5/S6)
+* [x] Identity: same C++ object returned twice; record SWIG (different wrapper) vs nanobind (same object) (S6)
+* [x] `weak_ptr` matrix (creator × owner, S6.1 item 4), including directors; `test_director_example_weak_ptr` (passes
       under SWIG since S0) must keep passing, or record why not (S6)
-* [ ] Director lifetime: existing exact `__del__` count tests, plus "C++ keeps Python subclass alive after Python drops
+* [x] Director lifetime: existing exact `__del__` count tests, plus "C++ keeps Python subclass alive after Python drops
       it" (S6)
-* [ ] Exception propagation from Python overrides (existing) and C++ exceptions mapped to the right Python type,
+* [x] Exception propagation from Python overrides (existing) and C++ exceptions mapped to the right Python type,
       including `Skeleton::TypeError` → `TypeError` (S6)
-* [ ] Observer notification into Python-subclass observers; template director (S5/S6)
-* [ ] Pickle: every class; shared identity within one pickle (`GenericObjectMap`); `weak_ptr` inside a map; director
-      pickle; the nested C++→Python→C++ identity tests from S0 now passing (S6)
-* [ ] **`multiprocessing.Pool` round trip** of C++ objects and director objects (geocal production use) (ST under
+* [x] Observer notification into Python-subclass observers; template director (S5/S6)
+* [x] Pickle: every class; shared identity within one pickle (`GenericObjectMap`); `weak_ptr` inside a map; director
+      pickle (done); the nested C++→Python→C++ identity test from S0 still a strict `xfail` (pickle part; decision 3)
+* [x] **`multiprocessing.Pool` round trip** of C++ objects and director objects (geocal production use) (ST under
       SWIG; must keep passing in S6)
-* [ ] shelve (sqlite) round trip (existing, keep)
-* [ ] numpy (through the `mdspan` bridge in S6): existing three lifetime tests, plus Fortran-order input,
+* [x] shelve (sqlite) round trip (existing, keep)
+* [x] numpy (through the `mdspan` bridge in S6): existing three lifetime tests, plus Fortran-order input,
       non-contiguous input, read-only returns, wrong dtype/rank gives a clear error (S5/S6)
-* [ ] iostream tests (existing, keep)
-* [ ] Overload dispatch: Blitz `double` array vs. `GenericObject` class vs. `str`, with `float32` input (S6.1 item 7)
-* [ ] Director called from a C++ worker thread; exceptions from a worker thread reach Python (S6.1 item 11)
-* [ ] Cross-module: the downstream test module creates, receives and returns main-module types (S6)
-* [ ] `help()` shows docstrings; `mypy` passes against generated stubs (S6)
-* [ ] Python tests under AddressSanitizer or valgrind (S6)
+* [x] iostream tests (existing, keep)
+* [x] Overload dispatch: Blitz `double` array vs. `GenericObject` class vs. `str`, with `float32` input (S6.1 item 7)
+* [x] Director called from a C++ worker thread; exceptions from a worker thread reach Python (S6.1 item 11)
+* [x] Cross-module: the downstream test module creates, receives and returns main-module types (S6)
+* [x] `help()` shows docstrings; `mypy` passes against generated stubs (S6)
+* [x] Python tests under AddressSanitizer or valgrind (S6)
 
 ---
 
@@ -1230,8 +1260,8 @@ Tag `nanobind-1`.
     by AI) is no longer the plan. No `.git-blame-ignore-revs` (maintainer, 2026-11-05: this branch changes a lot anyway).
 
 **Open:**
-* Final module name (item 2).
-* **Threading sample in the skeleton?** (2026-11-05, §2.6). A small `std::thread` callback sample (no `ThreadPool`
+* Final module name (item 2): still `skeleton_swig._swig_wrap` after S6.
+* *Answered 2026-11-06 (added in S5, `ThreadExample`):* **Threading sample in the skeleton?** (2026-11-05, §2.6). A small `std::thread` callback sample (no `ThreadPool`
   copy) would let S6.1 item 11 test directors and exceptions on worker threads here. Without it, these are tested
   first in geocal's nanobind pilot. Recommendation: add it in S5, since it is small and the deadlock case is easier to
   debug in the skeleton.

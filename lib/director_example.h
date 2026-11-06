@@ -33,7 +33,8 @@ public:
   const std::string& name() const { return name_; }
   bool same_object(const DirectorExample& obj2) const { return this == &obj2; }
 protected:
-  // Directors with swig seems to need to have this available
+  // For the python bindings: reading a python subclass from an archive
+  // constructs the trampoline with this (SWIG_RULES_NB_DIRECTOR_SERIALIZATION)
   DirectorExample() = default;
 private:
   int value_to_add_;

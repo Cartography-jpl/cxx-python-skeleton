@@ -2,6 +2,7 @@
 # baseline strings later phases (C++20 Printable/Exception changes,
 # nanobind) must reproduce, see claude_notes/implementation_plan.md.
 import pytest
+from skeleton_swig import Exception as SkeletonException
 
 from skeleton import (
     ArrayTypemapSample,
@@ -17,7 +18,6 @@ from skeleton import (
     GenericObjectMap,
     IostreamSwig,
 )
-from skeleton_swig import Exception as SkeletonException
 
 
 def test_str():
