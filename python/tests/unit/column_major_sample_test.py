@@ -1,7 +1,7 @@
 # Column-major and strided Blitz arrays (ColumnMajorSample in
-# lib/array_sample.h), phase S5. Records what the SWIG typemaps in
-# swig_rules/include/swig_array.i do; the nanobind bridge (S6) must
-# give the same results.
+# lib/array_sample.h), phase S5. Recorded what the SWIG typemaps in
+# swig_rules/include/swig_array.i did; the nanobind bindings (S6) give
+# the same results.
 import numpy as np
 import pytest
 

@@ -10,7 +10,7 @@ namespace Skeleton {
 /****************************************************************/ /**
   A class that refers to a file by a (possibly relative) name, and
   reads it when created or loaded. This is like geocal's AirMspiIgc,
-  which uses %pickle_serialization_dir so a pickle can be loaded from
+  which uses pickle_serialization_dir so a pickle can be loaded from
   a different directory than the one it was made in (see
   cxx_python_rules_sample_test.py).
 *******************************************************************/

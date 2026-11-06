@@ -1,6 +1,6 @@
 # Observer/Observable (lib/observer.h), copied from framework's observer.h.
-# Phase S5 of claude_notes/implementation_plan.md: these pin down the
-# behavior under SWIG, and must keep passing under nanobind (S6).
+# Phase S5 of claude_notes/implementation_plan.md: these pinned down the
+# behavior under SWIG, and pass under nanobind (S6).
 import gc
 import pickle
 

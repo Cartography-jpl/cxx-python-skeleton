@@ -14,7 +14,7 @@ void DirectorExample::serialize(Archive& ar, const unsigned int)
   // an example, you probably want to do something a little higher
   // order like the Observer/Observable pattern in ReFRACtor rather
   // than directly calling add_ptr_serialized_reference. But for this
-  // skeleton of swig, we don't want to put all that code in place so
+  // skeleton, we don't want to put all that code in place so
   // we just do a low level example.
   add_ptr_serialized_reference(this);
 }

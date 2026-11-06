@@ -12,12 +12,34 @@ A C++ class that python may subclass and override (SWIG `%feature("director")`) 
 nanobind *trampoline*: a C++ class derived from it whose virtual functions call the python
 override if there is one (`NB_OVERRIDE_NAME`), otherwise the C++ one. The class is bound with
 `nb::class_<Base, ..., PyBase>` and `nb::init<...>` constructors, so nanobind constructs a
-`PyBase` when python constructs a subclass. `i_to_nanobind.py` writes the trampoline from the
-`.i` file: every virtual function declared there (for the class and its bases).
+`PyBase` when python constructs a subclass. The trampolines here were first written by
+`i_to_nanobind.py` from the SWIG `.i` files and are maintained by hand now; write one for a new
+class the same way (below).
 
 The binding of a virtual function calls the C++ base implementation directly when the object
 is a python subclass (`dynamic_cast` to the trampoline), so `super().func(v)` in an override
 doesn't call the override again.
+
+### Adding a class python can subclass
+
+Follow `lib/director_example_nb.cc`:
+
+1. In an anonymous namespace, a trampoline `class PyBase : public Base` with
+   `NB_TRAMPOLINE(Base)`, a public default constructor (needed for serialization), and one
+   override per virtual function python may override: `NB_OVERRIDE_NAME("name", name, args...)`
+   (`NB_OVERRIDE_PURE_NAME` for a pure virtual). Include the virtual functions of the bases.
+2. If the class is serialized, `CXX_PYTHON_RULES_NB_DIRECTOR_SERIALIZATION(PyBase, Base, Name)`
+   at namespace scope (see "Serialization of python subclasses").
+3. `nb::class_<Base, FirstNonVirtualBase, PyBase>` (leave out a virtual base, see
+   `cxx_python_rules/nanobind/README.md`) with `nb::init<...>` constructors, not `nb::new_`.
+4. Bind each virtual function as a lambda that calls `self.Base::func(...)` when
+   `dynamic_cast<const PyBase*>(&self)` succeeds, and `self.func(...)` otherwise.
+5. `cxx_python_rules_nb::register_type<Base>()` and then
+   `cxx_python_rules_nb::register_alias<PyBase, Base>()`, plus `pickle_serialization(c)` if
+   it is serialized.
+6. If C++ calls the overrides from worker threads, see "Threads and the GIL".
+7. Add tests in python: a subclass overriding each function, called from C++; and, if
+   serialized, a pickle/shelve round trip of the subclass (`director_example_test.py`).
 
 ## Who owns what
 

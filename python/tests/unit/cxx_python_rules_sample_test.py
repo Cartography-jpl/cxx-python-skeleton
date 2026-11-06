@@ -1,9 +1,8 @@
-# Tests for the smaller rules in swig_rules/include, using
-# lib/cxx_python_rules_sample.h: boost::optional, boost::rational, boost::array,
-# the %python_attribute variants, %pickle_init, %pickle_vector and
-# %shared_ptr_value_traits. Like the other tests, these describe behavior
-# that should survive the move to nanobind; comments mark SWIG-specific
-# details.
+# Tests for the smaller rules (cxx_python_rules/nanobind; the SWIG
+# swig_rules/include before phase S6), using lib/cxx_python_rules_sample.h:
+# std::optional, boost::rational, std::array, properties, pickle_init,
+# pickle_vector and a bound std::vector of values. Written under SWIG and
+# kept for nanobind; comments mark details that came from SWIG.
 import pickle
 
 import numpy as np
@@ -55,10 +54,10 @@ def test_optional_range():
 def test_rational():
     """boost::rational<int> returned from C++ and passed back in.
 
-    Note swig_rational.i defines the python class rational_int, but no
-    repository (skeleton, geocal, framework) builds swig_rational.i as a
-    module, so python can't construct one directly; only values returned
-    from C++ are usable. Recorded in claude_notes/implementation_plan.md."""
+    Under SWIG python couldn't construct a rational_int (swig_rational.i
+    was never built as a module), so the test only uses values returned
+    from C++. The nanobind bindings also bind the constructor,
+    rational_int(numerator, denominator=1) (cxx_python_rules_nb.cc)."""
     t = CxxPythonRulesSample()
     h = t.half()
     assert t.rational_value(h) == 0.5
@@ -83,8 +82,8 @@ def test_boost_array():
     np.testing.assert_array_equal(t.position_, [0.0, 2.0, 4.0])
     assert t.sum_array(np.arange(6.0)[::2]) == 6
     assert t.first_element(np.arange(6.0)[1::2]) == 1
-    # Wrong length. Records SWIG today: ValueError from the typemap for
-    # const&, TypeError (no overload matched) for by value.
+    # Wrong length. SWIG gave ValueError from the typemap for const&,
+    # TypeError (no overload matched) for by value; either is accepted.
     with pytest.raises((ValueError, TypeError)):
         t.sum_array([1, 2])
     with pytest.raises((ValueError, TypeError)):
@@ -120,8 +119,9 @@ class PythonWeight(CxxPythonRulesSample):
         self._w = 7.0
 
     def _v_weight(self, *args):
-        # %python_attribute_with_set_virtual: the python override replaces
-        # the renamed C++ virtual (SWIG specific name, _v_<name>).
+        # The python override replaces the C++ virtual under the name
+        # _v_<name> (from SWIG's %python_attribute_with_set_virtual; the
+        # nanobind trampoline keeps it).
         if len(args) == 0:
             return self._w
         self._w = args[0]

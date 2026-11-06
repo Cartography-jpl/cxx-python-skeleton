@@ -31,8 +31,7 @@ namespace Skeleton {
 template<class T> class Printable : public virtual GenericObject {
 public:
   //-----------------------------------------------------------------------
-  /// Print to string. This is primarily useful for SWIG wrappers to
-  /// this class, e.g. a to_s method in ruby.
+  /// Print to string. The python bindings use this for __str__.
   //-----------------------------------------------------------------------
 
   std::string print_to_string() const

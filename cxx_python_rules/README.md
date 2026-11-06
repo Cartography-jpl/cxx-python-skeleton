@@ -12,8 +12,8 @@ Look for example at the [cxx-python-skeleton](https://github.jpl.nasa.gov/Cartog
 this. A more full example can be found at 
 [geocal](https://github.jpl.nasa.gov/Cartography/geocal).
 
-Getting the SWIG rules into a repository
-----------------------------------------
+Getting the rules into a repository
+-----------------------------------
 
 Normally you use git subtree to put this cxx_python_rules. So assuming this has
 been added as a remote cxx-python-rules-repo you would do something like:

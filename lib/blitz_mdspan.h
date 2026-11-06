@@ -67,7 +67,7 @@ private:
 
 // Pointer to the private MemoryBlockReference<T>::block_ member, so a
 // blitz::Array can be given an OwnerMemoryBlock (blitz has no public way
-// to do that; the SWIG typemaps use a #define hack on blitz/memblock.h).
+// to do that; the SWIG typemaps used a #define hack on blitz/memblock.h).
 // Set in blitz_mdspan.cc with the usual explicit-instantiation access
 // trick, for the element types listed there.
 template<class T> struct BlockMember {

@@ -6,8 +6,10 @@
 
 namespace Skeleton {
 /****************************************************************/ /**
-  Simple class to test the blitz::Array <-> numpy typemaps in
-  swig_rules/include/swig_array.i (see array_typemap_sample_test.py).
+  Simple class to test blitz::Array <-> numpy in the python bindings
+  (cxx_python_rules/nanobind/blitz_array.h; the SWIG typemaps in
+  swig_rules/include/swig_array.i before phase S6). See
+  array_typemap_sample_test.py.
 
   The "echo" functions return what they were given, so python can
   check the values, shape and element type survive the round
@@ -86,7 +88,7 @@ public:
   }
 
   //-----------------------------------------------------------------------
-  /// Pass by value (a different typemap than const reference).
+  /// Pass by value (converted differently than a const reference).
   //-----------------------------------------------------------------------
 
   double sum_by_value(blitz::Array<double, 2> A) const { return blitz::sum(A); }
@@ -173,7 +175,7 @@ public:
 
   //-----------------------------------------------------------------------
   /// Virtual function a python subclass can override, taking and
-  /// returning a blitz::Array (the directorin/directorout typemaps).
+  /// returning a blitz::Array (converted in the trampoline).
   //-----------------------------------------------------------------------
 
   virtual blitz::Array<double, 1>

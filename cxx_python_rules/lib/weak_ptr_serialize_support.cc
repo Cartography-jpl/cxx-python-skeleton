@@ -14,7 +14,7 @@ void CXX_PYTHON_RULES_NAMESPACE::clear_ptr_serialized_reference()
 {
   // Only the outermost PtrSerializeLock for this thread should reset
   // the mark state -- a nested serialize_write* call (e.g. triggered
-  // while pickling a SWIG director object that itself holds other
+  // while pickling a python subclass object that itself holds other
   // framework objects) must not wipe out the still-in-progress outer
   // mark pass.
   //if(ptr_serialize_depth <= 1)

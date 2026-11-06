@@ -1,6 +1,6 @@
 # Overload dispatch (OverloadExample) and C++ worker threads
 # (ThreadExample), claude_notes/implementation_plan.md S6.1 items 7 and 11.
-# Phase S5 records the SWIG results.
+# Phase S5 recorded the SWIG results; comments note where nanobind differs.
 import subprocess
 import sys
 import textwrap

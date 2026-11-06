@@ -78,7 +78,7 @@ bool is_ptr_serialized(const GenericObject* P);
 /// different threads safe. RAII: locks in the constructor, unlocks
 /// in the destructor. Backed by a recursive_mutex because
 /// serialize_write* can itself recurse on the same thread (e.g. a
-/// SWIG director object being pickled can trigger another
+/// python subclass object being pickled can trigger another
 /// serialize_write_binary call on a framework object it holds
 /// before the outer call finishes); only the outermost lock clears
 /// the mark state, see clear_ptr_serialized_reference().

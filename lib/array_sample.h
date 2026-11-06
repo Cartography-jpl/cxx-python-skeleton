@@ -18,8 +18,8 @@ namespace Skeleton {
   (unit_test_data/golden/array_sample.*) still load, and writing them
   again gives the same bytes.
 
-  Python sees each member as a property: position_ as a numpy array
-  (%python_attribute_std_array), matrix as a 2 x 3 numpy array, and
+  Python sees each member as a property: position_ as a numpy array,
+  matrix as a 2 x 3 numpy array, and
   count and scale as an int / float or None.
 *******************************************************************/
 class ArraySample : public Printable<ArraySample> {
@@ -31,8 +31,8 @@ public:
   ~ArraySample() override = default;
 
   //-----------------------------------------------------------------------
-  /// A 3-vector. Public, because %python_attribute_std_array uses the
-  /// member directly.
+  /// A 3-vector. Public, because the python property (position_)
+  /// uses the member directly.
   //-----------------------------------------------------------------------
 
   std::array<double, 3> position_;

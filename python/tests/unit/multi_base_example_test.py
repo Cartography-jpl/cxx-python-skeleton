@@ -1,7 +1,7 @@
 # Multiple inheritance and virtual diamonds (lib/multi_base_example.h,
 # lib/virtual_diamond_example.h), the downcast and argument matrices of
 # claude_notes/implementation_plan.md §12. Phase S5: recorded under SWIG,
-# must keep passing under nanobind (S6).
+# pass under nanobind (S6).
 import pickle
 
 import numpy as np

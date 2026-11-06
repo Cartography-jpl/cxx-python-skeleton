@@ -9,9 +9,10 @@
 
 namespace Skeleton {
 /****************************************************************/ /**
-  Small value type, wrapped with %shared_ptr but also stored by value
+  Small value type, bound with std::shared_ptr but also stored by value
   in a std::vector (like GeoCal::Time in std::vector<Time>). Used to
-  test %shared_ptr_value_traits and %pickle_vector.
+  test a bound std::vector of values and its pickling
+  (cxx_python_rules_nb::pickle_vector).
 *******************************************************************/
 class ValueSample : public Printable<ValueSample> {
 public:
@@ -27,10 +28,10 @@ private:
 };
 
 /****************************************************************/ /**
-  Simple class to test the smaller rules in swig_rules/include
-  (see cxx_python_rules_sample_test.py): std::optional, boost::rational,
-  std::array, the %python_attribute variants and the pickle
-  macros.
+  Simple class to test the smaller rules (cxx_python_rules/nanobind,
+  the SWIG swig_rules/include before phase S6; see
+  cxx_python_rules_sample_test.py): std::optional, boost::rational,
+  std::array, properties and the pickle helpers.
 *******************************************************************/
 class CxxPythonRulesSample : public Printable<CxxPythonRulesSample> {
 public:
@@ -44,7 +45,7 @@ public:
   ~CxxPythonRulesSample() override = default;
 
   //-----------------------------------------------------------------------
-  /// Constructor arguments, used by %pickle_init.
+  /// Constructor arguments, used by cxx_python_rules_nb::pickle_init.
   //-----------------------------------------------------------------------
 
   int count() const { return count_; }
@@ -80,7 +81,7 @@ public:
   boost::rational<int> half() const { return boost::rational<int>(1, 2); }
 
   //-----------------------------------------------------------------------
-  /// std::array, as a member (%python_attribute_std_array) and as an
+  /// std::array, as a member (a numpy array property) and as an
   /// argument.
   //-----------------------------------------------------------------------
 
@@ -92,10 +93,9 @@ public:
   double first_element(std::array<double, 3> A) const { return A[0]; }
 
   //-----------------------------------------------------------------------
-  /// Accessors under a different name than the python attribute
-  /// (%python_attribute2), a non-const accessor
-  /// (%python_attribute_nonconst), and a virtual one a python
-  /// subclass can override (%python_attribute_with_set_virtual).
+  /// Accessors under a different name than the python property, a
+  /// non-const accessor, and a virtual one a python subclass can
+  /// override.
   //-----------------------------------------------------------------------
 
   int get_count_squared() const { return count_ * count_; }
@@ -110,7 +110,7 @@ public:
   double weight_from_cpp() const { return weight(); }
 
   //-----------------------------------------------------------------------
-  /// std::vector of a by-value type that is wrapped with %shared_ptr
+  /// std::vector of a by-value type that is bound with std::shared_ptr
   //-----------------------------------------------------------------------
 
   std::vector<ValueSample> values() const

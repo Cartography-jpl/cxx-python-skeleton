@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-"""Convert SWIG .i files (written with the cxx_python_rules conventions) to nanobind
+"""Convert SWIG .i files (written with the old swig_rules macros) to nanobind
 binding code.
 
     i_to_nanobind.py --namespace Skeleton --header-dir lib --out-dir OUT a.i b.i ...

@@ -1,8 +1,9 @@
-# Tests for the blitz::Array <-> numpy typemaps (swig_rules/include/swig_array.i),
-# using lib/array_typemap_sample.h. These describe behavior, so they should
-# keep passing when the bindings move to nanobind (claude_notes/implementation_plan.md
-# S6.1 item 7). Where a test records what SWIG happens to do rather than a
-# requirement, the comment says so.
+# Tests for blitz::Array <-> numpy in the bindings
+# (cxx_python_rules/nanobind/blitz_array.h), using lib/array_typemap_sample.h.
+# Written for the SWIG typemaps (swig_rules/include/swig_array.i) and kept
+# for nanobind (claude_notes/implementation_plan.md S6.1 item 7). Where a test
+# records what SWIG happened to do rather than a requirement, the comment
+# says so; the nanobind bindings do the same.
 import gc
 
 import numpy as np
@@ -71,7 +72,7 @@ def test_conversion_from_other_types():
     r = t.echo_double_2(np.array([[1, 2], [3, 4]], dtype=np.int64))
     assert r.dtype == np.float64
     # float to int: numpy's asarray(..., int32) truncates. Records what
-    # SWIG does today.
+    # SWIG did (nanobind does the same).
     np.testing.assert_array_equal(t.echo_int_1(np.array([1.7, -2.7])), [1, -2])
 
 
@@ -188,7 +189,7 @@ def test_returned_reference():
     r[0, 0] = 10
     assert t.stored_value(0, 0) == 10
     # The const reference return shares the same data (records what SWIG
-    # does today: the property is a view, not a copy)
+    # did, nanobind does the same: the property is a view, not a copy)
     assert t.stored[0, 0] == 10
 
 
