@@ -71,6 +71,9 @@ skeletoninc_HEADERS+= @srclib@/skeleton_mdspan.h
 skeletoninc_HEADERS+= @srclib@/blitz_mdspan.h
 libskeleton_la_SOURCES+= @srclib@/blitz_mdspan.cc
 libskeleton_la_SOURCES+= @srclib@/thread_example.cc
+# raw pointer plus size -> mdspan (phase S7)
+skeletoninc_HEADERS+= @srclib@/raster_sample.h
+libskeleton_la_SOURCES+= @srclib@/raster_sample.cc
 
 # Python bindings (nanobind), see swig_rules/nanobind/nanobind.am
 NB_SRC += @srclib@/array_sample_nb.cc
@@ -87,6 +90,7 @@ NB_SRC += @srclib@/numpy_sample_nb.cc
 NB_SRC += @srclib@/observer_example_nb.cc
 NB_SRC += @srclib@/observer_nb.cc
 NB_SRC += @srclib@/overload_example_nb.cc
+NB_SRC += @srclib@/raster_sample_nb.cc
 NB_SRC += @srclib@/serialize_function_nb.cc
 NB_SRC += @srclib@/skeleton_exception_nb.cc
 NB_SRC += @srclib@/swig_rules_sample_nb.cc
@@ -127,6 +131,7 @@ skeleton_test_all_SOURCES+= @srclib@/multi_base_example_test.cc
 skeleton_test_all_SOURCES+= @srclib@/array_sample_test.cc
 skeleton_test_all_SOURCES+= @srclib@/thread_example_test.cc
 skeleton_test_all_SOURCES+= @srclib@/blitz_mdspan_test.cc
+skeleton_test_all_SOURCES+= @srclib@/raster_sample_test.cc
 
 # Generator for the golden archives in unit_test_data/golden. These are
 # committed, so only regenerate deliberately, see

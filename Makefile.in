@@ -269,7 +269,7 @@ am___swig_wrap_la_SOURCES_DIST = @srclib@/array_sample_nb.cc \
 	@srclib@/iostream_swig_nb.cc @srclib@/multi_base_example_nb.cc \
 	@srclib@/numpy_sample_nb.cc @srclib@/observer_example_nb.cc \
 	@srclib@/observer_nb.cc @srclib@/overload_example_nb.cc \
-	@srclib@/serialize_function_nb.cc \
+	@srclib@/raster_sample_nb.cc @srclib@/serialize_function_nb.cc \
 	@srclib@/skeleton_exception_nb.cc \
 	@srclib@/swig_rules_sample_nb.cc @srclib@/thread_example_nb.cc \
 	@srclib@/virtual_diamond_example_nb.cc \
@@ -290,6 +290,7 @@ am__objects_1 = @srclib@/_swig_wrap_la-array_sample_nb.lo \
 	@srclib@/_swig_wrap_la-observer_example_nb.lo \
 	@srclib@/_swig_wrap_la-observer_nb.lo \
 	@srclib@/_swig_wrap_la-overload_example_nb.lo \
+	@srclib@/_swig_wrap_la-raster_sample_nb.lo \
 	@srclib@/_swig_wrap_la-serialize_function_nb.lo \
 	@srclib@/_swig_wrap_la-skeleton_exception_nb.lo \
 	@srclib@/_swig_wrap_la-swig_rules_sample_nb.lo \
@@ -339,7 +340,8 @@ am_libskeleton_la_OBJECTS =  \
 	@srclib@/libskeleton_la-multi_base_example.lo \
 	@srclib@/libskeleton_la-virtual_diamond_example.lo \
 	@srclib@/libskeleton_la-blitz_mdspan.lo \
-	@srclib@/libskeleton_la-thread_example.lo
+	@srclib@/libskeleton_la-thread_example.lo \
+	@srclib@/libskeleton_la-raster_sample.lo
 libskeleton_la_OBJECTS = $(am_libskeleton_la_OBJECTS)
 libskeleton_la_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CXX \
 	$(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=link $(CXXLD) \
@@ -367,7 +369,8 @@ am_skeleton_test_all_OBJECTS =  \
 	@srclib@/skeleton_test_all-multi_base_example_test.$(OBJEXT) \
 	@srclib@/skeleton_test_all-array_sample_test.$(OBJEXT) \
 	@srclib@/skeleton_test_all-thread_example_test.$(OBJEXT) \
-	@srclib@/skeleton_test_all-blitz_mdspan_test.$(OBJEXT)
+	@srclib@/skeleton_test_all-blitz_mdspan_test.$(OBJEXT) \
+	@srclib@/skeleton_test_all-raster_sample_test.$(OBJEXT)
 skeleton_test_all_OBJECTS = $(am_skeleton_test_all_OBJECTS)
 skeleton_test_all_DEPENDENCIES = libskeleton.la
 skeleton_test_all_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CXX \
@@ -406,6 +409,7 @@ am__depfiles_remade = ./$(DEPDIR)/_swig_wrap_la-nb_docstrings.Plo \
 	@srclib@/$(DEPDIR)/_swig_wrap_la-observer_example_nb.Plo \
 	@srclib@/$(DEPDIR)/_swig_wrap_la-observer_nb.Plo \
 	@srclib@/$(DEPDIR)/_swig_wrap_la-overload_example_nb.Plo \
+	@srclib@/$(DEPDIR)/_swig_wrap_la-raster_sample_nb.Plo \
 	@srclib@/$(DEPDIR)/_swig_wrap_la-serialize_function_nb.Plo \
 	@srclib@/$(DEPDIR)/_swig_wrap_la-skeleton_exception_nb.Plo \
 	@srclib@/$(DEPDIR)/_swig_wrap_la-skeleton_nb_module.Plo \
@@ -426,6 +430,7 @@ am__depfiles_remade = ./$(DEPDIR)/_swig_wrap_la-nb_docstrings.Plo \
 	@srclib@/$(DEPDIR)/libskeleton_la-multi_base_example.Plo \
 	@srclib@/$(DEPDIR)/libskeleton_la-observer.Plo \
 	@srclib@/$(DEPDIR)/libskeleton_la-observer_example.Plo \
+	@srclib@/$(DEPDIR)/libskeleton_la-raster_sample.Plo \
 	@srclib@/$(DEPDIR)/libskeleton_la-skeleton_exception.Plo \
 	@srclib@/$(DEPDIR)/libskeleton_la-thread_example.Plo \
 	@srclib@/$(DEPDIR)/libskeleton_la-virtual_diamond_example.Plo \
@@ -440,6 +445,7 @@ am__depfiles_remade = ./$(DEPDIR)/_swig_wrap_la-nb_docstrings.Plo \
 	@srclib@/$(DEPDIR)/skeleton_test_all-multi_base_example_test.Po \
 	@srclib@/$(DEPDIR)/skeleton_test_all-observer_test.Po \
 	@srclib@/$(DEPDIR)/skeleton_test_all-printable_test.Po \
+	@srclib@/$(DEPDIR)/skeleton_test_all-raster_sample_test.Po \
 	@srclib@/$(DEPDIR)/skeleton_test_all-serialize_function_test.Po \
 	@srclib@/$(DEPDIR)/skeleton_test_all-skeleton_exception_test.Po \
 	@srclib@/$(DEPDIR)/skeleton_test_all-test_all.Po \
@@ -782,7 +788,7 @@ FGREP = @FGREP@
 FILECMD = @FILECMD@
 GREP = @GREP@
 HAVE_CXX = @HAVE_CXX@
-HAVE_CXX20 = @HAVE_CXX20@
+HAVE_CXX23 = @HAVE_CXX23@
 INSTALL = @INSTALL@
 INSTALL_DATA = @INSTALL_DATA@
 INSTALL_PROGRAM = @INSTALL_PROGRAM@
@@ -1009,7 +1015,7 @@ libskeleton_la_SOURCES = @swigrules@/lib/serialize_function.cc \
 	@srclib@/observer.cc @srclib@/observer_example.cc \
 	@srclib@/with_parameter_like.cc @srclib@/multi_base_example.cc \
 	@srclib@/virtual_diamond_example.cc @srclib@/blitz_mdspan.cc \
-	@srclib@/thread_example.cc
+	@srclib@/thread_example.cc @srclib@/raster_sample.cc
 # Python binding sources (nanobind), swig_rules/nanobind/nanobind.am
 
 # Python bindings (nanobind), see swig_rules/nanobind/nanobind.am
@@ -1024,7 +1030,7 @@ NB_SRC = @srclib@/array_sample_nb.cc \
 	@srclib@/iostream_swig_nb.cc @srclib@/multi_base_example_nb.cc \
 	@srclib@/numpy_sample_nb.cc @srclib@/observer_example_nb.cc \
 	@srclib@/observer_nb.cc @srclib@/overload_example_nb.cc \
-	@srclib@/serialize_function_nb.cc \
+	@srclib@/raster_sample_nb.cc @srclib@/serialize_function_nb.cc \
 	@srclib@/skeleton_exception_nb.cc \
 	@srclib@/swig_rules_sample_nb.cc @srclib@/thread_example_nb.cc \
 	@srclib@/virtual_diamond_example_nb.cc \
@@ -1048,6 +1054,7 @@ skeletonincdir = @includedir@/skeleton
 #=================================================================
 # List of source files
 # Samples for consumer patterns (phase S5)
+# raw pointer plus size -> mdspan (phase S7)
 skeletoninc_HEADERS = @swigrules@/lib/serialize_function.h \
 	@swigrules@/lib/serialize_shared_ptr.h \
 	@swigrules@/lib/director_hook.h \
@@ -1067,7 +1074,7 @@ skeletoninc_HEADERS = @swigrules@/lib/serialize_function.h \
 	@srclib@/multi_base_example.h \
 	@srclib@/virtual_diamond_example.h @srclib@/overload_example.h \
 	@srclib@/thread_example.h @srclib@/skeleton_mdspan.h \
-	@srclib@/blitz_mdspan.h
+	@srclib@/blitz_mdspan.h @srclib@/raster_sample.h
 skeleton_test_all_SOURCES = @srclib@/test_all.cc \
 	@srclib@/global_fixture.cc @srclib@/global_fixture_default.cc \
 	@srclib@/generic_object_map_test.cc @srclib@/printable_test.cc \
@@ -1077,7 +1084,7 @@ skeleton_test_all_SOURCES = @srclib@/test_all.cc \
 	@srclib@/serialize_function_test.cc @srclib@/observer_test.cc \
 	@srclib@/multi_base_example_test.cc \
 	@srclib@/array_sample_test.cc @srclib@/thread_example_test.cc \
-	@srclib@/blitz_mdspan_test.cc
+	@srclib@/blitz_mdspan_test.cc @srclib@/raster_sample_test.cc
 dist_installskeleton_SCRIPTS = 
 
 # Make sure we don't have any pyc or pycache files floating around
@@ -1178,7 +1185,7 @@ golden_archive_generator_CPPFLAGS = $(AM_CPPFLAGS) $(BOOST_CPPFLAGS) \
 	$(BLITZ_CFLAGS) -DSWIG_MAPPER_NAMESPACE=Skeleton
 @BUILD_PYTHON_BINDINGS_TRUE@libnanobind_core_la_SOURCES = @swigrules@/nanobind/nb_combined.cc
 @BUILD_PYTHON_BINDINGS_TRUE@libnanobind_core_la_CPPFLAGS = $(PYTHON_CPPFLAGS) $(NANOBIND_CPPFLAGS) -I$(NANOBIND_SRCDIR)
-@BUILD_PYTHON_BINDINGS_TRUE@libnanobind_core_la_CXXFLAGS = -std=c++20 -O2 -fPIC -fvisibility=hidden -fno-strict-aliasing
+@BUILD_PYTHON_BINDINGS_TRUE@libnanobind_core_la_CXXFLAGS = -std=c++23 -O2 -fPIC -fvisibility=hidden -fno-strict-aliasing
 @BUILD_PYTHON_BINDINGS_TRUE@_swig_wrap_la_SOURCES = $(NB_SRC) \
 @BUILD_PYTHON_BINDINGS_TRUE@	@swigrules@/nanobind/swig_rules_nb.cc
 @BUILD_PYTHON_BINDINGS_TRUE@nodist__swig_wrap_la_SOURCES = nb_docstrings.cc
@@ -1428,6 +1435,8 @@ _skeleton_downstream.la: $(_skeleton_downstream_la_OBJECTS) $(_skeleton_downstre
 	@srclib@/$(DEPDIR)/$(am__dirstamp)
 @srclib@/_swig_wrap_la-overload_example_nb.lo:  \
 	@srclib@/$(am__dirstamp) @srclib@/$(DEPDIR)/$(am__dirstamp)
+@srclib@/_swig_wrap_la-raster_sample_nb.lo: @srclib@/$(am__dirstamp) \
+	@srclib@/$(DEPDIR)/$(am__dirstamp)
 @srclib@/_swig_wrap_la-serialize_function_nb.lo:  \
 	@srclib@/$(am__dirstamp) @srclib@/$(DEPDIR)/$(am__dirstamp)
 @srclib@/_swig_wrap_la-skeleton_exception_nb.lo:  \
@@ -1504,6 +1513,8 @@ libnanobind_core.la: $(libnanobind_core_la_OBJECTS) $(libnanobind_core_la_DEPEND
 	@srclib@/$(DEPDIR)/$(am__dirstamp)
 @srclib@/libskeleton_la-thread_example.lo: @srclib@/$(am__dirstamp) \
 	@srclib@/$(DEPDIR)/$(am__dirstamp)
+@srclib@/libskeleton_la-raster_sample.lo: @srclib@/$(am__dirstamp) \
+	@srclib@/$(DEPDIR)/$(am__dirstamp)
 
 libskeleton.la: $(libskeleton_la_OBJECTS) $(libskeleton_la_DEPENDENCIES) $(EXTRA_libskeleton_la_DEPENDENCIES) 
 	$(AM_V_CXXLD)$(libskeleton_la_LINK) -rpath $(libdir) $(libskeleton_la_OBJECTS) $(libskeleton_la_LIBADD) $(LIBS)
@@ -1540,6 +1551,8 @@ golden_archive_generator$(EXEEXT): $(golden_archive_generator_OBJECTS) $(golden_
 @srclib@/skeleton_test_all-thread_example_test.$(OBJEXT):  \
 	@srclib@/$(am__dirstamp) @srclib@/$(DEPDIR)/$(am__dirstamp)
 @srclib@/skeleton_test_all-blitz_mdspan_test.$(OBJEXT):  \
+	@srclib@/$(am__dirstamp) @srclib@/$(DEPDIR)/$(am__dirstamp)
+@srclib@/skeleton_test_all-raster_sample_test.$(OBJEXT):  \
 	@srclib@/$(am__dirstamp) @srclib@/$(DEPDIR)/$(am__dirstamp)
 
 skeleton_test_all$(EXEEXT): $(skeleton_test_all_OBJECTS) $(skeleton_test_all_DEPENDENCIES) $(EXTRA_skeleton_test_all_DEPENDENCIES) 
@@ -1644,6 +1657,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@@srclib@/$(DEPDIR)/_swig_wrap_la-observer_example_nb.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@@srclib@/$(DEPDIR)/_swig_wrap_la-observer_nb.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@@srclib@/$(DEPDIR)/_swig_wrap_la-overload_example_nb.Plo@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@@srclib@/$(DEPDIR)/_swig_wrap_la-raster_sample_nb.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@@srclib@/$(DEPDIR)/_swig_wrap_la-serialize_function_nb.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@@srclib@/$(DEPDIR)/_swig_wrap_la-skeleton_exception_nb.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@@srclib@/$(DEPDIR)/_swig_wrap_la-skeleton_nb_module.Plo@am__quote@ # am--include-marker
@@ -1664,6 +1678,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@@srclib@/$(DEPDIR)/libskeleton_la-multi_base_example.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@@srclib@/$(DEPDIR)/libskeleton_la-observer.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@@srclib@/$(DEPDIR)/libskeleton_la-observer_example.Plo@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@@srclib@/$(DEPDIR)/libskeleton_la-raster_sample.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@@srclib@/$(DEPDIR)/libskeleton_la-skeleton_exception.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@@srclib@/$(DEPDIR)/libskeleton_la-thread_example.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@@srclib@/$(DEPDIR)/libskeleton_la-virtual_diamond_example.Plo@am__quote@ # am--include-marker
@@ -1678,6 +1693,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@@srclib@/$(DEPDIR)/skeleton_test_all-multi_base_example_test.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@@srclib@/$(DEPDIR)/skeleton_test_all-observer_test.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@@srclib@/$(DEPDIR)/skeleton_test_all-printable_test.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@@srclib@/$(DEPDIR)/skeleton_test_all-raster_sample_test.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@@srclib@/$(DEPDIR)/skeleton_test_all-serialize_function_test.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@@srclib@/$(DEPDIR)/skeleton_test_all-skeleton_exception_test.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@@srclib@/$(DEPDIR)/skeleton_test_all-test_all.Po@am__quote@ # am--include-marker
@@ -1821,6 +1837,13 @@ am--depfiles: $(am__depfiles_remade)
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='@srclib@/overload_example_nb.cc' object='@srclib@/_swig_wrap_la-overload_example_nb.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(_swig_wrap_la_CPPFLAGS) $(CPPFLAGS) $(_swig_wrap_la_CXXFLAGS) $(CXXFLAGS) -c -o @srclib@/_swig_wrap_la-overload_example_nb.lo `test -f '@srclib@/overload_example_nb.cc' || echo '$(srcdir)/'`@srclib@/overload_example_nb.cc
+
+@srclib@/_swig_wrap_la-raster_sample_nb.lo: @srclib@/raster_sample_nb.cc
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(_swig_wrap_la_CPPFLAGS) $(CPPFLAGS) $(_swig_wrap_la_CXXFLAGS) $(CXXFLAGS) -MT @srclib@/_swig_wrap_la-raster_sample_nb.lo -MD -MP -MF @srclib@/$(DEPDIR)/_swig_wrap_la-raster_sample_nb.Tpo -c -o @srclib@/_swig_wrap_la-raster_sample_nb.lo `test -f '@srclib@/raster_sample_nb.cc' || echo '$(srcdir)/'`@srclib@/raster_sample_nb.cc
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) @srclib@/$(DEPDIR)/_swig_wrap_la-raster_sample_nb.Tpo @srclib@/$(DEPDIR)/_swig_wrap_la-raster_sample_nb.Plo
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='@srclib@/raster_sample_nb.cc' object='@srclib@/_swig_wrap_la-raster_sample_nb.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(_swig_wrap_la_CPPFLAGS) $(CPPFLAGS) $(_swig_wrap_la_CXXFLAGS) $(CXXFLAGS) -c -o @srclib@/_swig_wrap_la-raster_sample_nb.lo `test -f '@srclib@/raster_sample_nb.cc' || echo '$(srcdir)/'`@srclib@/raster_sample_nb.cc
 
 @srclib@/_swig_wrap_la-serialize_function_nb.lo: @srclib@/serialize_function_nb.cc
 @am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(_swig_wrap_la_CPPFLAGS) $(CPPFLAGS) $(_swig_wrap_la_CXXFLAGS) $(CXXFLAGS) -MT @srclib@/_swig_wrap_la-serialize_function_nb.lo -MD -MP -MF @srclib@/$(DEPDIR)/_swig_wrap_la-serialize_function_nb.Tpo -c -o @srclib@/_swig_wrap_la-serialize_function_nb.lo `test -f '@srclib@/serialize_function_nb.cc' || echo '$(srcdir)/'`@srclib@/serialize_function_nb.cc
@@ -2017,6 +2040,13 @@ _swig_wrap_la-nb_docstrings.lo: nb_docstrings.cc
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='@srclib@/thread_example.cc' object='@srclib@/libskeleton_la-thread_example.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libskeleton_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o @srclib@/libskeleton_la-thread_example.lo `test -f '@srclib@/thread_example.cc' || echo '$(srcdir)/'`@srclib@/thread_example.cc
+
+@srclib@/libskeleton_la-raster_sample.lo: @srclib@/raster_sample.cc
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libskeleton_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT @srclib@/libskeleton_la-raster_sample.lo -MD -MP -MF @srclib@/$(DEPDIR)/libskeleton_la-raster_sample.Tpo -c -o @srclib@/libskeleton_la-raster_sample.lo `test -f '@srclib@/raster_sample.cc' || echo '$(srcdir)/'`@srclib@/raster_sample.cc
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) @srclib@/$(DEPDIR)/libskeleton_la-raster_sample.Tpo @srclib@/$(DEPDIR)/libskeleton_la-raster_sample.Plo
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='@srclib@/raster_sample.cc' object='@srclib@/libskeleton_la-raster_sample.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libskeleton_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o @srclib@/libskeleton_la-raster_sample.lo `test -f '@srclib@/raster_sample.cc' || echo '$(srcdir)/'`@srclib@/raster_sample.cc
 
 @srclib@/golden_archive_generator-golden_archive_generator.o: @srclib@/golden_archive_generator.cc
 @am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(golden_archive_generator_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT @srclib@/golden_archive_generator-golden_archive_generator.o -MD -MP -MF @srclib@/$(DEPDIR)/golden_archive_generator-golden_archive_generator.Tpo -c -o @srclib@/golden_archive_generator-golden_archive_generator.o `test -f '@srclib@/golden_archive_generator.cc' || echo '$(srcdir)/'`@srclib@/golden_archive_generator.cc
@@ -2227,6 +2257,20 @@ _swig_wrap_la-nb_docstrings.lo: nb_docstrings.cc
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='@srclib@/blitz_mdspan_test.cc' object='@srclib@/skeleton_test_all-blitz_mdspan_test.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(skeleton_test_all_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o @srclib@/skeleton_test_all-blitz_mdspan_test.obj `if test -f '@srclib@/blitz_mdspan_test.cc'; then $(CYGPATH_W) '@srclib@/blitz_mdspan_test.cc'; else $(CYGPATH_W) '$(srcdir)/@srclib@/blitz_mdspan_test.cc'; fi`
+
+@srclib@/skeleton_test_all-raster_sample_test.o: @srclib@/raster_sample_test.cc
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(skeleton_test_all_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT @srclib@/skeleton_test_all-raster_sample_test.o -MD -MP -MF @srclib@/$(DEPDIR)/skeleton_test_all-raster_sample_test.Tpo -c -o @srclib@/skeleton_test_all-raster_sample_test.o `test -f '@srclib@/raster_sample_test.cc' || echo '$(srcdir)/'`@srclib@/raster_sample_test.cc
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) @srclib@/$(DEPDIR)/skeleton_test_all-raster_sample_test.Tpo @srclib@/$(DEPDIR)/skeleton_test_all-raster_sample_test.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='@srclib@/raster_sample_test.cc' object='@srclib@/skeleton_test_all-raster_sample_test.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(skeleton_test_all_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o @srclib@/skeleton_test_all-raster_sample_test.o `test -f '@srclib@/raster_sample_test.cc' || echo '$(srcdir)/'`@srclib@/raster_sample_test.cc
+
+@srclib@/skeleton_test_all-raster_sample_test.obj: @srclib@/raster_sample_test.cc
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(skeleton_test_all_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT @srclib@/skeleton_test_all-raster_sample_test.obj -MD -MP -MF @srclib@/$(DEPDIR)/skeleton_test_all-raster_sample_test.Tpo -c -o @srclib@/skeleton_test_all-raster_sample_test.obj `if test -f '@srclib@/raster_sample_test.cc'; then $(CYGPATH_W) '@srclib@/raster_sample_test.cc'; else $(CYGPATH_W) '$(srcdir)/@srclib@/raster_sample_test.cc'; fi`
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) @srclib@/$(DEPDIR)/skeleton_test_all-raster_sample_test.Tpo @srclib@/$(DEPDIR)/skeleton_test_all-raster_sample_test.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='@srclib@/raster_sample_test.cc' object='@srclib@/skeleton_test_all-raster_sample_test.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(skeleton_test_all_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o @srclib@/skeleton_test_all-raster_sample_test.obj `if test -f '@srclib@/raster_sample_test.cc'; then $(CYGPATH_W) '@srclib@/raster_sample_test.cc'; else $(CYGPATH_W) '$(srcdir)/@srclib@/raster_sample_test.cc'; fi`
 
 mostlyclean-libtool:
 	-rm -f *.lo
@@ -2910,6 +2954,7 @@ distclean: distclean-am
 	-rm -f @srclib@/$(DEPDIR)/_swig_wrap_la-observer_example_nb.Plo
 	-rm -f @srclib@/$(DEPDIR)/_swig_wrap_la-observer_nb.Plo
 	-rm -f @srclib@/$(DEPDIR)/_swig_wrap_la-overload_example_nb.Plo
+	-rm -f @srclib@/$(DEPDIR)/_swig_wrap_la-raster_sample_nb.Plo
 	-rm -f @srclib@/$(DEPDIR)/_swig_wrap_la-serialize_function_nb.Plo
 	-rm -f @srclib@/$(DEPDIR)/_swig_wrap_la-skeleton_exception_nb.Plo
 	-rm -f @srclib@/$(DEPDIR)/_swig_wrap_la-skeleton_nb_module.Plo
@@ -2930,6 +2975,7 @@ distclean: distclean-am
 	-rm -f @srclib@/$(DEPDIR)/libskeleton_la-multi_base_example.Plo
 	-rm -f @srclib@/$(DEPDIR)/libskeleton_la-observer.Plo
 	-rm -f @srclib@/$(DEPDIR)/libskeleton_la-observer_example.Plo
+	-rm -f @srclib@/$(DEPDIR)/libskeleton_la-raster_sample.Plo
 	-rm -f @srclib@/$(DEPDIR)/libskeleton_la-skeleton_exception.Plo
 	-rm -f @srclib@/$(DEPDIR)/libskeleton_la-thread_example.Plo
 	-rm -f @srclib@/$(DEPDIR)/libskeleton_la-virtual_diamond_example.Plo
@@ -2944,6 +2990,7 @@ distclean: distclean-am
 	-rm -f @srclib@/$(DEPDIR)/skeleton_test_all-multi_base_example_test.Po
 	-rm -f @srclib@/$(DEPDIR)/skeleton_test_all-observer_test.Po
 	-rm -f @srclib@/$(DEPDIR)/skeleton_test_all-printable_test.Po
+	-rm -f @srclib@/$(DEPDIR)/skeleton_test_all-raster_sample_test.Po
 	-rm -f @srclib@/$(DEPDIR)/skeleton_test_all-serialize_function_test.Po
 	-rm -f @srclib@/$(DEPDIR)/skeleton_test_all-skeleton_exception_test.Po
 	-rm -f @srclib@/$(DEPDIR)/skeleton_test_all-test_all.Po
@@ -3022,6 +3069,7 @@ maintainer-clean: maintainer-clean-am
 	-rm -f @srclib@/$(DEPDIR)/_swig_wrap_la-observer_example_nb.Plo
 	-rm -f @srclib@/$(DEPDIR)/_swig_wrap_la-observer_nb.Plo
 	-rm -f @srclib@/$(DEPDIR)/_swig_wrap_la-overload_example_nb.Plo
+	-rm -f @srclib@/$(DEPDIR)/_swig_wrap_la-raster_sample_nb.Plo
 	-rm -f @srclib@/$(DEPDIR)/_swig_wrap_la-serialize_function_nb.Plo
 	-rm -f @srclib@/$(DEPDIR)/_swig_wrap_la-skeleton_exception_nb.Plo
 	-rm -f @srclib@/$(DEPDIR)/_swig_wrap_la-skeleton_nb_module.Plo
@@ -3042,6 +3090,7 @@ maintainer-clean: maintainer-clean-am
 	-rm -f @srclib@/$(DEPDIR)/libskeleton_la-multi_base_example.Plo
 	-rm -f @srclib@/$(DEPDIR)/libskeleton_la-observer.Plo
 	-rm -f @srclib@/$(DEPDIR)/libskeleton_la-observer_example.Plo
+	-rm -f @srclib@/$(DEPDIR)/libskeleton_la-raster_sample.Plo
 	-rm -f @srclib@/$(DEPDIR)/libskeleton_la-skeleton_exception.Plo
 	-rm -f @srclib@/$(DEPDIR)/libskeleton_la-thread_example.Plo
 	-rm -f @srclib@/$(DEPDIR)/libskeleton_la-virtual_diamond_example.Plo
@@ -3056,6 +3105,7 @@ maintainer-clean: maintainer-clean-am
 	-rm -f @srclib@/$(DEPDIR)/skeleton_test_all-multi_base_example_test.Po
 	-rm -f @srclib@/$(DEPDIR)/skeleton_test_all-observer_test.Po
 	-rm -f @srclib@/$(DEPDIR)/skeleton_test_all-printable_test.Po
+	-rm -f @srclib@/$(DEPDIR)/skeleton_test_all-raster_sample_test.Po
 	-rm -f @srclib@/$(DEPDIR)/skeleton_test_all-serialize_function_test.Po
 	-rm -f @srclib@/$(DEPDIR)/skeleton_test_all-skeleton_exception_test.Po
 	-rm -f @srclib@/$(DEPDIR)/skeleton_test_all-test_all.Po

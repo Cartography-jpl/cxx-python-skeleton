@@ -18,7 +18,12 @@ Related documents:
 
 ## 0. Handoff: where to pick up (read this first)
 
-**Status (2026-11-06):** **Phases S5, S4 and S6 are done** (in that order, progress log), committed on `modernize` at
+**Status (2026-11-06, later):** **Phase S7 is done** (progress log; §11): C++23 with gcc 14 still the minimum
+(decision 22), a raw pointer plus size → `mdspan` sample (`lib/raster_sample.{h,cc}`), and the old bootstrap warning
+fixed. Staged, not committed (back to the normal commit policy after S4–S6). CMake set aside until framework. Next:
+geocal's own phases using the "Notes for geocal" table; open: the module/repository name (§13).
+
+*Earlier (2026-11-06):* **Phases S5, S4 and S6 are done** (in that order, progress log), committed on `modernize` at
 the maintainer's request (the earlier phases were staged for the maintainer to commit). The python bindings are
 nanobind; SWIG is gone. Suggested tags: `phase5-samples` and `swig-final` at the S5 commit, `phase4-std-shared-ptr`,
 `nanobind-1` at the S6.6 commit. Next is **Phase S7** (§11), or geocal's own phases using the "Notes for geocal" table.
@@ -100,6 +105,7 @@ apply it there (or record why not) in geocal's plan:
 | **nanobind bindings (S6)** | 2026-11-06 | Copy `swig_rules/nanobind/` and `swig_rules/lib/director_hook.h`, `config/m4/ac_nanobind.m4`, the `swig_rules/*.py` package files; drop `swig_rules/include` and the SWIG helpers (list in the S6.6 progress row). Add `std::enable_shared_from_this` to `GenericObject`. Generate the bindings with `i_to_nanobind.py --namespace GeoCal --header-dir lib/... --prefix geocal_nb --out-dir ... <all .i>`, keep the pristine output, then hand-fix the `HAND CONVERT` items (`%extend`, `%pythoncode`, `%typemap`). Things found here that apply there: (1) compile the binding files **without `-fvisibility=hidden`** (else director serialization breaks reading archives of the base class); (2) `nb::arg().none()` on `shared_ptr` arguments; (3) don't use `nb::new_` for director classes; (4) a director class's binding must call the C++ implementation non-virtually for python subclasses (`super()` ran the override twice); (5) a function that runs python callbacks on C++ worker threads (geocal's `ThreadPool` users) needs `nb::call_guard<nb::gil_scoped_release>()`, else it deadlocks; (6) nanobind crashes on a null docstring; (7) `make check` against the build tree needs `LD_PRELOAD` of the built library (RPATH, ST.11); (8) remove an old `<pkg>_swig/` install directory before installing (stale `__init__.pyi`). geocal's `RELEASE_NOTES_2.0.md` can take the "Python API changes" list in §10 (S6.6). |
 | `Exception::stacktrace()` with addr2line | 2026-11-06, S6 | Boost.Stacktrace's addr2line backend gives wrong file:line for code in shared libraries (it looks every frame up in the main executable) and runs addr2line per frame (11 s per trace from python). `lib/skeleton_exception.cc` now looks up the module of each frame with `dladdr` and runs addr2line once per module; copy it with the S1.5 `Exception` pattern. Also: from python, a library exception carries `cpp_exception` (a copy, so the trace is resolved only if asked for) and `cpp_source`. |
 | Golden shelves with python subclasses | 2026-11-06, S5/S6 | Before geocal's SWIG bindings go, write a few shelves with python subclass objects (as `unit_test_data/golden/director_python*.xml` here) and check the nanobind build reads them. |
+| **C++23 and `mdspan` for `read_ptr` (S7)** | 2026-11-06 | `AX_CXX_COMPILE_STDCXX([23], [noext], [mandatory])`; gcc 14 is fine (only gcc 14 library features: no range formatting, no `std::mdspan` before gcc 16). Kokkos mdspan in C++23 mode indexes with `m[i, j]` only (`m(i, j)` is off; drop any `MDSPAN_USE_PAREN_OPERATOR` define), and `m[i, j]` inside a macro (`BOOST_CHECK_EQUAL`) needs extra parentheses. Don't name a member `range_check`: `geocal_exception.h` has a `range_check` macro. For `RasterImage::read_ptr` and friends, `lib/raster_sample.h` is the worked pattern: a `layout_stride` mdspan virtual (`read_into`), `read_ptr`/`write_ptr` kept as non-virtual wrappers so callers move over gradually, a contiguity check plus temporary for C-library backends (VICAR, GDAL), `read_with_pad` through `submdspan`, `CalcRaster`'s writable `self.data` for python subclasses (a "publicist" to bind the protected `data_ptr`), and python `read_into` of a writable numpy array (`noconvert`). Not wrapped by geocal's SWIG, so it is a C++-only change there. Bootstrap: `AC_REQUIRE([AC_PROG_AWK])` at the top of the common macro silences `AC_PROG_AWK was expanded before it was required` (check whether geocal's `afids_common.m4` has the same warning). |
 
 **Progress log** (update as phases complete; one line per step):
 | Phase / step | State | Notes |
@@ -147,6 +153,10 @@ apply it there (or record why not) in geocal's plan:
 | S6.2–6.5 rules, bindings, build, stubs | done | 2026-11-06. **Converter** `swig_rules/nanobind/i_to_nanobind.py` run once on the 20 `.i` files → `lib/*_nb.cc`; **hand changes: 92 of 2327 lines, in 7 files** (bytes typemaps in `serialize_function.i`, `GenericObjectMap`'s `%pythoncode`, `Exception`'s `%extend`, `GenericObject`'s output typemaps (now the caster's job), `throw_type_error`, the GIL release, a `%extend` comment). Converter features found necessary while testing: `.none()` on every `shared_ptr` argument (SWIG accepted `None`), setter types of virtual properties from the header, a non-virtual call of the C++ implementation when a python subclass calls `super()` (else the override ran twice), unique names for several `OUTPUT` arguments. **Docstrings** `doxy2nanobind.py` (doxygen XML → `swig_rules_nb::docstring_table()`, template members found without their arguments; nanobind crashes on a null docstring, so missing ones are `""`); pybind11_mkdoc not evaluated (needs libclang python bindings; the doxygen route reuses what exists). **Build**: `config/m4/ac_nanobind.m4`, `swig_rules/nanobind/nanobind.am` (nanobind's `nb_combined.cpp` once, hidden visibility, in `libnanobind_core.la`; binding files **default** visibility, see Notes for geocal), `--without-python-bindings`, extension skipped automatically with `--without-boost-serialization`; `make check` runs the python tests against the build tree (`nb_pkg/`, `LD_PRELOAD` of `.libs/libskeleton.so` for the ST.11 RPATH reason); `.pyi` stubs by `nanobind.stubgen` installed with `py.typed`; `mypy` on `python/skeleton` clean. **CMake reference** `CMakeLists.txt` (`nanobind_add_module`, library, docstrings, `ctest` runs C++ and python tests from the build tree): builds and passes. Also: `Exception::stacktrace()` now runs addr2line once per module with module-relative addresses (Boost's addr2line backend looked every frame up in the main executable: wrong file:line for shared libraries, 11 s per trace from python; now 0.4 s, correct). |
 | S6.6 remove SWIG | done | 2026-11-06. Removed: `lib/*.i`, `bindings/` (committed wrappers), `swig_rules/include/`, `create_python_init.py`, `swig_wrap.tmpl`, `doxy2swig.py`, `doxygen_single.cfg`, `interface_file_with_doc.sh`, `README.doxygen`, the SWIG CMake files, `swig_type_mapper*`, `python_exception.h`, `python_ref_ptr_cleanup.h`, `python_lib_init.h`, `swig_to_python.h`, the `.i.sample` files; `swig` from `env/linux/pixi.toml` (+ lock; `mdspan`, `cmake`, `ninja` added). `swig_type_mapper_base`'s director hook replaced by `swig_rules/lib/director_hook.h` (python-free). Rewritten: `DirectorNotes.md`, `swig_rules/README.md`, new `swig_rules/nanobind/README.md`, `README.md` (naming note), `CLAUDE.md`. `config/m4/ax_pkg_swig.m4` and the other shared m4 files are left (shared with geocal, unused here). |
 | **S6 exit** | **done** | 2026-11-06, frenchpeas. **gcc 15** (`build`, nanobind 3.1.0, Boost 1.90, Python 3.13): 0 warnings; `make check`: C++ 51/51 test cases, python **168 passed, 1 xfailed** (against the build tree); `make install` + `make installcheck`: the same. **gcc 14** (`build-gcc14`, conda compiler activation incl. `-fvisibility-inlines-hidden`): 0 warnings, the same results. **`--without-boost-serialization`** (`build-noserial`): plain `make` and `make check` now work (the extension isn't built; `golden_archive_generator` needed a guard), C++ 30 test cases. **ASan** (`build-asan`): C++ no memory errors, the only leak is finding B (now 224 bytes: the same 4 allocations, each 16 bytes bigger with `enable_shared_from_this`); python 168 passed, 1 xfailed, no ASan errors (`detect_leaks=0`). **CMake reference** (`build-cmake`): `ctest` C++ and python pass. `make format-check`, `make lint` (55 files, now including the binding code) clean; `make golden-archives` changes no file; all golden archives (and the SWIG-written python subclass shelves) load. The one strict `xfail` is `test_director_example_object_tracking` (decision 3). Committed; suggested tag `nanobind-1`. |
+| S7.1 C++23 | done | 2026-11-06. `-std=c++23`: `skeleton_common.m4` (`AX_CXX_COMPILE_STDCXX([23], ...)`, the shipped macro supports it), `nanobind.am` (`libnanobind_core`), `CMAKE_CXX_STANDARD 23` (CMake not rebuilt, set aside). `.clang-format` stays `Standard: c++20` (clang-format 22 has no `c++23`; shared with geocal). `skeleton_mdspan.h`: dropped `MDSPAN_USE_PAREN_OPERATOR`, Kokkos uses `m[i, j]` in C++23 mode; `blitz_mdspan_test.cc` changed to match (with parentheses inside `BOOST_CHECK_EQUAL`, the comma splits macro arguments). Checked: gcc 15.3 has no `<mdspan>`, so `std::mdspan` needs gcc 16 (corrects what was said in chat). Language features used so far: multidimensional subscript; `views::cartesian_product` (gcc 13). Not done: deducing `this` for `Printable` (changes every class's base in geocal; planned for later, skeleton first, §11), `std::expected`. |
+| S7.2 `mdspan` sample | done | 2026-11-06. `lib/raster_sample.{h,cc}`, `raster_sample_nb.cc` (hand written), tests `raster_sample_test.cc` (6 cases) and `python/tests/unit/raster_sample_test.py` (8). Based on geocal: `RasterImage::read_ptr(..., int* Res)` (about 14 overrides, not in any `.i`) and `CalcRaster` (director, python fills `self.data` in `calc()`). Classes: `RasterSample` (abstract; virtual `read_into(Lstart, Sstart, RasterView)` and `write_from`, `RasterView` = `layout_stride` mdspan of `int`; non-virtual `read_ptr`/`write_ptr` wrappers, `read` → blitz/numpy, `read_with_pad` reading straight into a `submdspan` of the result, `write`), `MemoryRasterSample` (blitz assignment through `to_blitz` of the view), `BufferRasterSample` (a stand-in C API needing contiguous row-major memory: passes the pointer through when it can, else a temporary, counted by `number_copy`), `SubRasterSample` (forwards the view with an offset), `CalcRasterSample` (director; writable numpy `data`; protected `data_ptr` bound through a publicist), `copy_raster` (tiles through one `std::vector` buffer). Python: `read_into(l, s, out)` fills a writable `int32` numpy array in place, any strides; wrong dtype, read-only, a list or negative strides give `TypeError`. Found: a trampoline override of `desc()` needs `desc` bound on the class, else nanobind fails with "trampoline_enter ... lookup failed" (dropped the override). Not covered: serialization of these classes (the director serialization is already tested by `DirectorExample`). |
+| S7.3 bootstrap warning | done | 2026-11-06. `configure.ac:11: AC_PROG_AWK was expanded before it was required`: `AM_INIT_AUTOMAKE` inside `SKELETON_COMMON` expands it, then `LT_INIT` `AC_REQUIRE`s it. Fixed with `AC_REQUIRE([AC_PROG_AWK])` at the top of `SKELETON_COMMON` (hoisted); `./bootstrap` now prints no warnings. |
+| **S7 exit** | **done** | 2026-11-06, frenchpeas. **gcc 15** (`build`): 0 warnings; `make check` C++ 57 test cases, python **176 passed, 1 xfailed**; `make install` + `make installcheck` the same. **gcc 14** (`build-gcc14`): 0 warnings, the same. **`--without-boost-serialization`**: `make check` passes, 41 test cases. **ASan**: C++ no memory errors, only the accepted 224-byte leak (finding B); python 176 passed, 1 xfailed, no ASan errors. `make format-check`, `make lint` (58 files) clean. CMake reference not rebuilt (set aside, decision 22). Staged, not committed. |
 
 ---
 
@@ -284,7 +294,7 @@ What this means:
 | Topic | Decision (geocal plan) | Applies to the skeleton as |
 |---|---|---|
 | Branches | geocal: `develop_2_0`, with `maintain_1.28` for the gcc 11.2 system | Skeleton: work on `modernize`, tag phase boundaries |
-| C++ standard | **C++20 now**, minimum **gcc 14**; C++23 later (after SWIG is gone) | Same; switch in Phase 1 |
+| C++ standard | **C++20 now**, minimum **gcc 14**; C++23 later (after SWIG is gone). **C++23 done in S7, minimum still gcc 14** (decision 22) | Same; switch in Phase 1 |
 | macOS | Best-effort | Same |
 | Boost | Require current conda-forge Boost (≥ 1.84) | Same; the env already has 1.90 |
 | Boost → std | filesystem, regex, format, lexical_cast, foreach, noncopyable, scoped_ptr, multi_array, optional, array, shared_ptr | Same, plus the skeleton-only `boost::range`/`boost::assign` in `generic_object_map.h` |
@@ -450,7 +460,7 @@ passing (or explicitly `xfail`ed with a reason), the golden-archive test green, 
 | **S4** | `std::shared_ptr` in C++ and serialization; Python bindings broken until S6 (the state just before S4 is `swig-final`) | 5 |
 | **S5** | New samples for consumer patterns (Observer, multiple/virtual inheritance, template director, arrays). **Do all of S5 before S4**: S4 breaks the Python bindings until S6, so SWIG reference results for the new samples' Python tests can only be recorded before S4. Order of work: S0 → ST → S1 → S2 → S3 → S5 → S4 → S6 | (prerequisite for 4 and 6) |
 | **S6** | nanobind: rules library, bindings (numpy ↔ Blitz through `mdspan` views), build, stubs/docstrings, SWIG removal | 6 |
-| **S7** | Later: `mdspan` for raw pointer-plus-size interfaces, C++23, CMake reference expansion | 7 |
+| **S7** | C++23 (minimum still gcc 14), `mdspan` for raw pointer-plus-size interfaces (done 2026-11-06); CMake reference expansion later | 7 |
 
 ---
 
@@ -1114,13 +1124,27 @@ Tag `nanobind-1`.
 
 ---
 
-## 11. Phase S7: later
+## 11. Phase S7: C++23, raw pointer plus size → `mdspan`
 
-* `mdspan` for C++ interfaces that today pass a raw pointer plus sizes (in geocal: raster tiles, GDAL/VICAR buffers, FFT
-  input/output). The skeleton has few such interfaces, so add a small sample only if geocal wants a worked example
-  first. The Python boundary already uses `mdspan` from S6.
-* C++23 once SWIG is gone (deducing `this` for `Printable`, `std::expected`, `views::enumerate`/`zip`).
-* Expand the CMake reference if framework wants more from it.
+Started 2026-11-06 at the maintainer's request (decision 22): C++23 with gcc 14 as the minimum, a worked `mdspan`
+example based on what geocal needs, and the bootstrap warning if simple. CMake is set aside until framework.
+
+* **C++23** (S7.1): `-std=c++23` (configure, nanobind's own compile in `nanobind.am`, `CMAKE_CXX_STANDARD`). Only
+  language features and library features that gcc 14 has. Not available with gcc 14: range formatting (gcc 15),
+  `std::mdspan` (gcc 16; gcc 15.3 has no `<mdspan>`, checked). Kokkos mdspan turns on `m[i, j]` in C++23 mode and
+  turns `m(i, j)` off, so the code uses `m[i, j]` (as `std::mdspan` will). Not done (would change every class in
+  geocal): deducing `this` for `Printable<T>`; `std::expected`.
+* **`mdspan` for raw pointer plus size** (S7.2): `lib/raster_sample.{h,cc}`, modeled on geocal's
+  `RasterImage::read_ptr(int Lstart, int Sstart, int Number_line, int Number_sample, int* Res)` (overridden in about
+  14 geocal classes; not wrapped by SWIG, so a C++-only change there) and its `CalcRaster` (a director: python
+  subclasses fill `self.data` in `calc()`). See the progress row for what it covers.
+* **Later: deducing `this` in `Printable`** (maintainer, 2026-11-06). When geocal is ready for it, change `Printable<T>`
+  to use deducing `this` (C++23, gcc 14 has it) instead of the CRTP parameter. Do it **in this repository first**
+  (`lib/printable.h` and `swig_rules/lib/printable.h.sample`, the `PrintableObject` concept and the `std::formatter`,
+  the bindings' `printable()` helper, all the sample classes) and test it here before geocal changes every class's
+  base. Not part of S7.
+* Still later: expand the CMake reference if framework wants more from it; `std::mdspan` when gcc 16 is the
+  minimum (check `std::submdspan`, C++26, which `read_with_pad` uses).
 
 ---
 
@@ -1182,6 +1206,12 @@ Tag `nanobind-1`.
 * [x] Cross-module: the downstream test module creates, receives and returns main-module types (S6)
 * [x] `help()` shows docstrings; `mypy` passes against generated stubs (S6)
 * [x] Python tests under AddressSanitizer or valgrind (S6)
+
+**Phase S7**
+* [x] Raw pointer plus size → `mdspan`: old pointer wrappers, strided output (part of a bigger array), contiguous
+      fast path and temporary for a C-style API, padded read through `submdspan`, forwarding sub-image, tiled copy,
+      python subclass filling a writable numpy view in `calc()` and used from C++, `read_into` a numpy array (C++ and
+      python)
 
 ---
 
@@ -1259,8 +1289,19 @@ Tag `nanobind-1`.
     results); `make format`, `make format-check` and `make lint` (clang-tidy, `.clang-tidy`) in both. §5a (formatting
     by AI) is no longer the plan. No `.git-blame-ignore-revs` (maintainer, 2026-11-05: this branch changes a lot anyway).
 
+**Decided (maintainer, 2026-11-06):**
+22. **C++23, with gcc 14 still the minimum.** Range formatting (gcc 15) isn't worth raising the minimum for: printing
+    containers is rare, and it would print `Printable` objects in a vector quoted (S1.4). `std::mdspan` (gcc 16) is
+    replaced by the Kokkos alias until then. Add a raw pointer plus size → `mdspan` sample based on geocal's needs.
+    CMake issues are set aside until framework.
+
 **Open:**
-* Final module name (item 2): still `skeleton_swig._swig_wrap` after S6.
+* Final module name (item 2): still `skeleton_swig._swig_wrap` after S6. Raised again 2026-11-06 with the repository
+  name (it no longer tests SWIG rules); suggestion: something not tied to the binding tool, e.g. repository
+  `cxx-python-skeleton`, `swig_rules/` → `cxx_python_rules/`, module `skeleton._skeleton`. Boost archives and
+  shelves don't record the module name (a python subclass object records its own class and `object`), but pickles
+  do (`__reduce__` names the module's reconstruct function), so a module rename makes existing pickles unloadable
+  unless the old name is kept as a `sys.modules` alias.
 * *Answered 2026-11-06 (added in S5, `ThreadExample`):* **Threading sample in the skeleton?** (2026-11-05, §2.6). A small `std::thread` callback sample (no `ThreadPool`
   copy) would let S6.1 item 11 test directors and exceptions on worker threads here. Without it, these are tested
   first in geocal's nanobind pilot. Recommendation: add it in S5, since it is small and the deadlock case is easier to

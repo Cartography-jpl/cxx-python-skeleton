@@ -3,6 +3,9 @@
 
 AC_DEFUN([SKELETON_COMMON],[
 AC_REQUIRE([AC_CONFIG_AUX_DIR_DEFAULT])
+# Hoisted: AM_INIT_AUTOMAKE below expands it, and LT_INIT requires it
+# (else autoconf warns "AC_PROG_AWK was expanded before it was required").
+AC_REQUIRE([AC_PROG_AWK])
  AC_REQUIRE([AC_PROG_CC])
 # For some bizarre reason, this doesn't fail if there isn't a C++ compiler.
 # This seems to be a bug, which had some discussion on the forums a while back
@@ -79,13 +82,15 @@ case "$ADDR2LINE" in
 esac
 
 #=================================================================
-# Require C++20 (gcc >= 14, the minimum compiler tested; see
-# claude_notes/implementation_plan.md phase S1). Use -std=c++20, not
-# gnu++20: nothing here needs the GNU extensions, and the strict mode
-# catches nonportable code. nanobind needs at least C++17.
+# Require C++23 (gcc >= 14, the minimum compiler tested; see
+# claude_notes/implementation_plan.md phases S1 and S7). Use -std=c++23,
+# not gnu++23: nothing here needs the GNU extensions, and the strict mode
+# catches nonportable code. nanobind needs at least C++17. Library
+# features newer than gcc 14 (std::mdspan, gcc 16; range formatting,
+# gcc 15) aren't used.
 #=================================================================
 
-AX_CXX_COMPILE_STDCXX([20], [noext], [mandatory])
+AX_CXX_COMPILE_STDCXX([23], [noext], [mandatory])
 
 #=================================================================
 # C++ Threading requires pthread sometimes

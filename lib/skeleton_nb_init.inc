@@ -16,6 +16,7 @@ void init_multi_base_example(nb::module_& m);
 void init_numpy_sample(nb::module_& m);
 void init_observer_example(nb::module_& m);
 void init_overload_example(nb::module_& m);
+void init_raster_sample(nb::module_& m);
 void init_serialize_function(nb::module_& m);
 void init_swig_rules_sample(nb::module_& m);
 void init_thread_example(nb::module_& m);
@@ -37,6 +38,7 @@ void init_virtual_diamond_example(nb::module_& m);
   init_numpy_sample(m); \
   init_observer_example(m); \
   init_overload_example(m); \
+  init_raster_sample(m); \
   init_serialize_function(m); \
   init_swig_rules_sample(m); \
   init_thread_example(m); \

@@ -5,7 +5,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ## Current work: modernization (read first)
 
 A modernization of this repository is in progress. It rehearses the steps planned for geocal (and later framework):
-C++20, Boost → std, `std::shared_ptr`, and replacing SWIG with nanobind.
+C++20 (now C++23), Boost → std, `std::shared_ptr`, and replacing SWIG with nanobind.
 - **Plan of record and handoff notes: `claude_notes/implementation_plan.md`.** Start with its §0 ("Handoff: where
   to pick up"), which has the current status, the progress log, the next step, and the locations of related repos
   and build areas. Update the progress log there as steps complete.
@@ -15,7 +15,9 @@ C++20, Boost → std, `std::shared_ptr`, and replacing SWIG with nanobind.
 - Work on the **`modernize`** branch. Don't modify `master`.
 - **Stage changes with `git add`; never commit or push.** The maintainer reviews and commits.
 - Don't `git subtree push` to `swig-rules-repo`; this repo's `swig_rules/` is allowed to drift from it.
-- Phases S4–S6 are done: the bindings are nanobind now (SWIG was removed in S6.6). The names
+- Phases S4–S6 are done: the bindings are nanobind now (SWIG was removed in S6.6). S7 (C++23, minimum still gcc 14;
+  an `mdspan` sample for raw pointer plus size interfaces) is done too, see the plan. Use only library
+  features gcc 14 has (no range formatting, no `std::mdspan`: use `Skeleton::md`). The names
   `swig-rules-skeleton`, `swig_rules/` and `skeleton_swig` are kept for historical reasons.
 - Code work starts only when the maintainer says so.
 
@@ -164,7 +166,10 @@ instead of going through the top-level autotools build.
 - `Printable` (`lib/printable.h`): `print_to_string` is bound and used for `__str__`.
 - numpy <-> `blitz::Array` goes through an `mdspan` view (`lib/skeleton_mdspan.h`, `lib/blitz_mdspan.h`, C++ tested in
   `blitz_mdspan_test.cc`; python side `swig_rules/nanobind/blitz_array.h`): zero copy for the right dtype, the blitz
-  array keeps the numpy array alive.
+  array keeps the numpy array alive. Index an mdspan with `m[i, j]` (C++23); inside a macro such as
+  `BOOST_CHECK_EQUAL` it needs extra parentheses, `(m[i, j])`, since the comma splits the macro arguments.
+- `lib/raster_sample.{h,cc}` is the sample for replacing a raw pointer plus sizes with an `mdspan` (geocal's
+  `RasterImage::read_ptr` and `CalcRaster` patterns).
 - Pickling uses boost serialization (`swig_rules_nb::pickle_serialization`, `__reduce__`); see
   `lib/skeleton_serialize_support.h` and the `*.sample` files under `swig_rules/lib/`.
 - `swig_rules/lib/serialize_function.cc` and `weak_ptr_serialize_support.cc` are compiled into the C++ library with

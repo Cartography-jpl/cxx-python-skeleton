@@ -14,8 +14,8 @@ BOOST_AUTO_TEST_CASE(contiguous)
   BOOST_CHECK_EQUAL(m.extent(1), 3);
   BOOST_CHECK_EQUAL(m.stride(0), 3);
   BOOST_CHECK_EQUAL(m.stride(1), 1);
-  BOOST_CHECK_EQUAL(m(1, 2), 6);
-  m(0, 1) = 20;
+  BOOST_CHECK_EQUAL((m[1, 2]), 6);
+  m[0, 1] = 20;
   BOOST_CHECK_EQUAL(a(0, 1), 20);
   blitz::Array<double, 2> b = to_blitz(m);
   BOOST_CHECK(b.data() == a.data());
@@ -38,7 +38,7 @@ BOOST_AUTO_TEST_CASE(strided_slice)
   auto m = to_mdspan(s);
   BOOST_CHECK_EQUAL(m.stride(0), 8);
   BOOST_CHECK_EQUAL(m.stride(1), 2);
-  BOOST_CHECK_EQUAL(m(1, 1), 23);
+  BOOST_CHECK_EQUAL((m[1, 1]), 23);
   blitz::Array<double, 2> b = to_blitz(m);
   BOOST_CHECK_EQUAL(b(1, 0), 21);
   b(0, 1) = -1;
@@ -54,7 +54,7 @@ BOOST_AUTO_TEST_CASE(column_major)
   auto m = to_mdspan(a);
   BOOST_CHECK_EQUAL(m.stride(0), 1);
   BOOST_CHECK_EQUAL(m.stride(1), 2);
-  BOOST_CHECK_EQUAL(m(1, 2), 12);
+  BOOST_CHECK_EQUAL((m[1, 2]), 12);
   // layout_left mdspan
   std::array<double, 6> d{0, 10, 1, 11, 2, 12};
   md::mdspan<double, md::dextents<std::ptrdiff_t, 2>, md::layout_left> l(

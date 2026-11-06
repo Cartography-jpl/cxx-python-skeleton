@@ -731,7 +731,7 @@ PTHREAD_CXX
 PTHREAD_CC
 ax_pthread_config
 CPP
-HAVE_CXX20
+HAVE_CXX23
 ADDR2LINE
 DEBUG_FLAGS
 CXXCPP
@@ -814,7 +814,6 @@ INSTALL_SCRIPT
 INSTALL_PROGRAM
 ifnGNUmake
 ifGNUmake
-AWK
 HAVE_CXX
 ac_ct_CXX
 CXXFLAGS
@@ -826,6 +825,7 @@ CPPFLAGS
 LDFLAGS
 CFLAGS
 CC
+AWK
 target_alias
 host_alias
 build_alias
@@ -3162,6 +3162,54 @@ ac_config_files="$ac_config_files lib/global_fixture_default.cc"
 
 
 
+
+for ac_prog in gawk mawk nawk awk
+do
+  # Extract the first word of "$ac_prog", so it can be a program name with args.
+set dummy $ac_prog; ac_word=$2
+{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for $ac_word" >&5
+printf %s "checking for $ac_word... " >&6; }
+if test ${ac_cv_prog_AWK+y}
+then :
+  printf %s "(cached) " >&6
+else case e in #(
+  e) if test -n "$AWK"; then
+  ac_cv_prog_AWK="$AWK" # Let the user override the test.
+else
+as_save_IFS=$IFS; IFS=$PATH_SEPARATOR
+for as_dir in $PATH
+do
+  IFS=$as_save_IFS
+  case $as_dir in #(((
+    '') as_dir=./ ;;
+    */) ;;
+    *) as_dir=$as_dir/ ;;
+  esac
+    for ac_exec_ext in '' $ac_executable_extensions; do
+  if as_fn_executable_p "$as_dir$ac_word$ac_exec_ext"; then
+    ac_cv_prog_AWK="$ac_prog"
+    printf "%s\n" "$as_me:${as_lineno-$LINENO}: found $as_dir$ac_word$ac_exec_ext" >&5
+    break 2
+  fi
+done
+  done
+IFS=$as_save_IFS
+
+fi ;;
+esac
+fi
+AWK=$ac_cv_prog_AWK
+if test -n "$AWK"; then
+  { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $AWK" >&5
+printf "%s\n" "$AWK" >&6; }
+else
+  { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no" >&5
+printf "%s\n" "no" >&6; }
+fi
+
+
+  test -n "$AWK" && break
+done
 
 
 
@@ -7519,54 +7567,6 @@ esac
 
 
 
-for ac_prog in gawk mawk nawk awk
-do
-  # Extract the first word of "$ac_prog", so it can be a program name with args.
-set dummy $ac_prog; ac_word=$2
-{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for $ac_word" >&5
-printf %s "checking for $ac_word... " >&6; }
-if test ${ac_cv_prog_AWK+y}
-then :
-  printf %s "(cached) " >&6
-else case e in #(
-  e) if test -n "$AWK"; then
-  ac_cv_prog_AWK="$AWK" # Let the user override the test.
-else
-as_save_IFS=$IFS; IFS=$PATH_SEPARATOR
-for as_dir in $PATH
-do
-  IFS=$as_save_IFS
-  case $as_dir in #(((
-    '') as_dir=./ ;;
-    */) ;;
-    *) as_dir=$as_dir/ ;;
-  esac
-    for ac_exec_ext in '' $ac_executable_extensions; do
-  if as_fn_executable_p "$as_dir$ac_word$ac_exec_ext"; then
-    ac_cv_prog_AWK="$ac_prog"
-    printf "%s\n" "$as_me:${as_lineno-$LINENO}: found $as_dir$ac_word$ac_exec_ext" >&5
-    break 2
-  fi
-done
-  done
-IFS=$as_save_IFS
-
-fi ;;
-esac
-fi
-AWK=$ac_cv_prog_AWK
-if test -n "$AWK"; then
-  { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $AWK" >&5
-printf "%s\n" "$AWK" >&6; }
-else
-  { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no" >&5
-printf "%s\n" "no" >&6; }
-fi
-
-
-  test -n "$AWK" && break
-done
-
 
 
 
@@ -9547,6 +9547,9 @@ printf "%s\n" "$ac_cv_path_EGREP_TRADITIONAL" >&6; }
  EGREP_TRADITIONAL=$ac_cv_path_EGREP_TRADITIONAL
 
 
+
+# Hoisted: AM_INIT_AUTOMAKE below expands it, and LT_INIT requires it
+# (else autoconf warns "AC_PROG_AWK was expanded before it was required").
 
 
 # For some bizarre reason, this doesn't fail if there isn't a C++ compiler.
@@ -20439,13 +20442,15 @@ printf "%s\n" "#define SKELETON_ADDR2LINE $ADDR2LINE" >>confdefs.h
 esac
 
 #=================================================================
-# Require C++20 (gcc >= 14, the minimum compiler tested; see
-# claude_notes/implementation_plan.md phase S1). Use -std=c++20, not
-# gnu++20: nothing here needs the GNU extensions, and the strict mode
-# catches nonportable code. nanobind needs at least C++17.
+# Require C++23 (gcc >= 14, the minimum compiler tested; see
+# claude_notes/implementation_plan.md phases S1 and S7). Use -std=c++23,
+# not gnu++23: nothing here needs the GNU extensions, and the strict mode
+# catches nonportable code. nanobind needs at least C++17. Library
+# features newer than gcc 14 (std::mdspan, gcc 16; range formatting,
+# gcc 15) aren't used.
 #=================================================================
 
-  ax_cxx_compile_alternatives="20"    ax_cxx_compile_cxx20_required=true
+  ax_cxx_compile_alternatives="23"    ax_cxx_compile_cxx23_required=true
   ac_ext=cpp
 ac_cpp='$CXXCPP $CPPFLAGS'
 ac_compile='$CXX -c $CXXFLAGS $CPPFLAGS conftest.$ac_ext >&5'
@@ -20462,12 +20467,12 @@ ac_compiler_gnu=$ac_cv_cxx_compiler_gnu
       for switch in -std=c++${alternative} +std=c++${alternative} "-h std=c++${alternative}" MSVC; do
         if test x"$switch" = xMSVC; then
                                         switch=-std:c++${alternative}
-          cachevar=`printf "%s\n" "ax_cv_cxx_compile_cxx20_${switch}_MSVC" | sed "$as_sed_sh"`
+          cachevar=`printf "%s\n" "ax_cv_cxx_compile_cxx23_${switch}_MSVC" | sed "$as_sed_sh"`
         else
-          cachevar=`printf "%s\n" "ax_cv_cxx_compile_cxx20_$switch" | sed "$as_sed_sh"`
+          cachevar=`printf "%s\n" "ax_cv_cxx_compile_cxx23_$switch" | sed "$as_sed_sh"`
         fi
-        { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking whether $CXX supports C++20 features with $switch" >&5
-printf %s "checking whether $CXX supports C++20 features with $switch... " >&6; }
+        { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking whether $CXX supports C++23 features with $switch" >&5
+printf %s "checking whether $CXX supports C++23 features with $switch... " >&6; }
 if eval test \${$cachevar+y}
 then :
   printf %s "(cached) " >&6
@@ -21302,6 +21307,32 @@ namespace cxx20
 
 
 
+
+#ifndef __cplusplus
+
+#error "This is not a C++ compiler"
+
+#elif (defined _MSVC_LANG ? _MSVC_LANG : __cplusplus) < 202302L
+
+#error "This is not a C++23 compiler"
+
+#else
+
+#include <version>
+
+namespace cxx23
+{
+
+// As C++23 supports feature test macros in the standard, there is no
+// immediate need to actually test for feature availability on the
+// Autoconf side.
+
+}  // namespace cxx23
+
+#endif  // (defined _MSVC_LANG ? _MSVC_LANG : __cplusplus) < 202302L
+
+
+
 _ACEOF
 if ac_fn_cxx_try_compile "$LINENO"
 then :
@@ -21337,19 +21368,19 @@ ac_compile='$CC -c $CFLAGS $CPPFLAGS conftest.$ac_ext >&5'
 ac_link='$CC -o conftest$ac_exeext $CFLAGS $CPPFLAGS $LDFLAGS conftest.$ac_ext $LIBS >&5'
 ac_compiler_gnu=$ac_cv_c_compiler_gnu
 
-  if test x$ax_cxx_compile_cxx20_required = xtrue; then
+  if test x$ax_cxx_compile_cxx23_required = xtrue; then
     if test x$ac_success = xno; then
-      as_fn_error $? "*** A compiler with support for C++20 language features is required." "$LINENO" 5
+      as_fn_error $? "*** A compiler with support for C++23 language features is required." "$LINENO" 5
     fi
   fi
   if test x$ac_success = xno; then
-    HAVE_CXX20=0
-    { printf "%s\n" "$as_me:${as_lineno-$LINENO}: No compiler with C++20 support was found" >&5
-printf "%s\n" "$as_me: No compiler with C++20 support was found" >&6;}
+    HAVE_CXX23=0
+    { printf "%s\n" "$as_me:${as_lineno-$LINENO}: No compiler with C++23 support was found" >&5
+printf "%s\n" "$as_me: No compiler with C++23 support was found" >&6;}
   else
-    HAVE_CXX20=1
+    HAVE_CXX23=1
 
-printf "%s\n" "#define HAVE_CXX20 1" >>confdefs.h
+printf "%s\n" "#define HAVE_CXX23 1" >>confdefs.h
 
   fi
 

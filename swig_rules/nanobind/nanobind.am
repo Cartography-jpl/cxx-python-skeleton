@@ -20,7 +20,7 @@ if BUILD_PYTHON_BINDINGS
 noinst_LTLIBRARIES += libnanobind_core.la
 libnanobind_core_la_SOURCES = @swigrules@/nanobind/nb_combined.cc
 libnanobind_core_la_CPPFLAGS = $(PYTHON_CPPFLAGS) $(NANOBIND_CPPFLAGS) -I$(NANOBIND_SRCDIR)
-libnanobind_core_la_CXXFLAGS = -std=c++20 -O2 -fPIC -fvisibility=hidden -fno-strict-aliasing
+libnanobind_core_la_CXXFLAGS = -std=c++23 -O2 -fPIC -fvisibility=hidden -fno-strict-aliasing
 
 pkgpythonswig_LTLIBRARIES += _swig_wrap.la
 _swig_wrap_la_SOURCES = $(NB_SRC)
