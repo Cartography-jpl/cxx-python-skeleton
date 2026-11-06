@@ -3,6 +3,7 @@
 #include "generic_object_sample.h"
 #include "director_example.h"
 #include "generic_object_map.h"
+#include <format>
 
 using namespace Skeleton;
 
@@ -32,6 +33,11 @@ class DescTest : public Printable<DescTest> {
 public:
   void print(std::ostream& Os) const {Os << "print";}
   std::string desc() const override { return "desc"; }
+};
+
+// Derived from a Printable class, not from Printable<DerivedTest>
+// itself. "<<" and std::format both use Test's print.
+class DerivedTest : public Test {
 };
 
 template<class T> std::string stream_string(const T& V)
@@ -84,6 +90,32 @@ BOOST_AUTO_TEST_CASE(sample_classes)
   GenericObjectMap m;
   BOOST_CHECK_EQUAL(m.print_to_string(), "GenericObjectMap");
   BOOST_CHECK_EQUAL(stream_string(m), "GenericObjectMap");
+}
+
+BOOST_AUTO_TEST_CASE(format)
+{
+  // std::format gives the same text as "<<".
+  Test t;
+  BOOST_CHECK_EQUAL(std::format("{}", t), stream_string(t));
+  BOOST_CHECK_EQUAL(std::format("{}", ShortTest()), "A");
+  BOOST_CHECK_EQUAL(std::format("{}", EmptyTest()), "");
+  BOOST_CHECK_EQUAL(std::format("{}", DescTest()), "desc");
+  DerivedTest d;
+  BOOST_CHECK_EQUAL(std::format("{}", d), stream_string(d));
+  BOOST_CHECK_EQUAL(std::format("{}", d), "Test");
+  auto a = boost::make_shared<GenericObjectA>(1);
+  BOOST_CHECK_EQUAL(std::format("{}", *a), stream_string(*a));
+  GenericObjectMap m;
+  BOOST_CHECK_EQUAL(std::format("{}", m), stream_string(m));
+  // The std::string options work: width, fill, alignment.
+  BOOST_CHECK_EQUAL(std::format("[{:>6}]", t), "[  Test]");
+  BOOST_CHECK_EQUAL(std::format("[{:*<6}]", t), "[Test**]");
+  BOOST_CHECK_EQUAL(std::format("{} and {}", t, ShortTest()), "Test and A");
+  // A class that isn't Printable isn't picked up by the formatter.
+  static_assert(PrintableObject<Test>);
+  static_assert(PrintableObject<DerivedTest>);
+  static_assert(!PrintableObject<std::string>);
+  static_assert(!PrintableObject<int>);
 }
 
 BOOST_AUTO_TEST_SUITE_END()

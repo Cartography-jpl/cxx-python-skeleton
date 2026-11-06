@@ -1,7 +1,10 @@
 #ifndef GEOCAL_PRINTABLE_H
 #define GEOCAL_PRINTABLE_H
 #include "generic_object.h"
+#include <concepts>
+#include <format>
 #include <sstream>
+#include <string_view>
 
 namespace GeoCal {
 
@@ -19,6 +22,10 @@ namespace GeoCal {
 
   Classes T that want to be printable in both C++ and other languages
   should derive from Printable<T>, and then define print(ostream& Os). 
+
+  std::format works too: std::format("{}", foo) gives the same text as
+  "<<" (see the std::formatter at the end of this file), and the
+  std::string formatting options apply, e.g. std::format("{:>20}", foo).
 *******************************************************************/
 
 template<class T> class Printable : public virtual GenericObject {
@@ -31,7 +38,7 @@ public:
   std::string print_to_string() const
   {
     std::ostringstream os;
-    ((T*) this)->print_wrapper(os);
+    print_wrapper(os);
     return os.str();
   }
 
@@ -46,7 +53,7 @@ public:
     if(d != "")
       Os << d;
     else
-      ((T*) this)->print(Os);
+      static_cast<const T*>(this)->print(Os);
   }
   
 //-----------------------------------------------------------------------
@@ -57,5 +64,29 @@ public:
   { P.print_wrapper(Os); return Os;}
 };
 
+//-----------------------------------------------------------------------
+/// Anything that can be printed with "<<" through Printable: a class
+/// derived from Printable<T>, or from a class that is.
+//-----------------------------------------------------------------------
+
+template<class T>
+concept PrintableObject = requires(const T& V, std::ostream& Os) {
+  V.print_wrapper(Os);
+};
 }
+
+//-----------------------------------------------------------------------
+/// std::format support for Printable classes, the same text as "<<".
+/// This reuses the std::string_view formatter, so width, fill and
+/// alignment work (e.g. "{:>20}").
+//-----------------------------------------------------------------------
+
+template<GeoCal::PrintableObject T>
+struct std::formatter<T, char> : std::formatter<std::string_view, char> {
+  auto format(const T& V, std::format_context& Ctx) const
+  {
+    return std::formatter<std::string_view, char>::format(V.print_to_string(),
+                                                          Ctx);
+  }
+};
 #endif
