@@ -36,25 +36,24 @@
 
 # Nothing here yet, but put in place as a placeholder
 
-# Rules shared by projects using swig_rules. Since phase S6 of
-# claude_notes/implementation_plan.md the python bindings use nanobind
-# (swig_rules/nanobind/nanobind.am); the name swig_rules is historical.
+# Rules shared by projects using cxx_python_rules. The python bindings
+# are in cxx_python_rules/nanobind/nanobind.am.
 
 # Automake rules for a nanobind python extension module, the nanobind
-# replacement for swig_rules.am. Include from the top level .am file,
+# replacement for cxx_python_rules.am. Include from the top level .am file,
 # after setting:
 #
 #   NB_SRC              binding source files (the *_nb.cc files and the
 #                       file with NB_MODULE)
 #   NB_LIBADD           the C++ library the bindings wrap
-#   NB_MAPPER_NAMESPACE namespace of GenericObject (SWIG_MAPPER_NAMESPACE)
+#   NB_MAPPER_NAMESPACE namespace of GenericObject (CXX_PYTHON_RULES_NAMESPACE)
 #   NB_DOXYGEN_INPUT    headers to take docstrings from
-#   pkgpythonswigdir    where the python package goes
-#   pkgpythonswig_LTLIBRARIES (set, possibly empty, before this file and
+#   pkgpythoncxxdir    where the python package goes
+#   pkgpythoncxx_LTLIBRARIES (set, possibly empty, before this file and
 #                       before adding other modules to it)
 #
-# The module is <package>/_swig_wrap (the name is historical), with the
-# python files from swig_rules/ next to it. configure needs AC_NANOBIND
+# The module is <package>/_bindings, with the
+# python files from cxx_python_rules/ next to it. configure needs AC_NANOBIND
 # (config/m4/ac_nanobind.m4).
 
 
@@ -140,19 +139,19 @@ host_triplet = @host@
 bin_PROGRAMS =
 @BUILD_PYTHON_BINDINGS_TRUE@am__append_1 = python-check-build
 @BUILD_PYTHON_BINDINGS_TRUE@am__append_2 = clean-nb-pkg
-@HAVE_BOOST_SERIALIZATION_TRUE@am__append_3 = -DSWIG_HAVE_BOOST_SERIALIZATION
+@HAVE_BOOST_SERIALIZATION_TRUE@am__append_3 = -DCXX_PYTHON_RULES_HAVE_BOOST_SERIALIZATION
 check_PROGRAMS = skeleton_test_all$(EXEEXT) \
 	golden_archive_generator$(EXEEXT)
 
 # A second extension module using the main one's types (cross-module test,
 # python/tests/unit/downstream_test.py).
 @BUILD_PYTHON_BINDINGS_TRUE@am__append_4 = _skeleton_downstream.la \
-@BUILD_PYTHON_BINDINGS_TRUE@	_swig_wrap.la
+@BUILD_PYTHON_BINDINGS_TRUE@	_bindings.la
 
 # nanobind's own source, with its own flags (none of our warnings).
 @BUILD_PYTHON_BINDINGS_TRUE@am__append_5 = libnanobind_core.la
 @BUILD_PYTHON_BINDINGS_TRUE@am__append_6 = nb_docstrings.cc \
-@BUILD_PYTHON_BINDINGS_TRUE@	nb_pyi/_swig_wrap.pyi
+@BUILD_PYTHON_BINDINGS_TRUE@	nb_pyi/_bindings.pyi
 subdir = .
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps =  \
@@ -193,7 +192,7 @@ am__configure_deps = $(am__aclocal_m4_deps) $(CONFIGURE_DEPENDENCIES) \
 DIST_COMMON = $(srcdir)/Makefile.am $(top_srcdir)/configure \
 	$(am__configure_deps) $(dist_bin_SCRIPTS) \
 	$(dist_installskeleton_SCRIPTS) \
-	$(am__pkgpythonswig_PYTHON_DIST) $(include_HEADERS) \
+	$(am__pkgpythoncxx_PYTHON_DIST) $(include_HEADERS) \
 	$(skeletoninc_HEADERS) $(am__DIST_COMMON)
 am__CONFIG_DISTCLEAN_FILES = config.status config.cache config.log \
  configure.lineno config.status.lineno
@@ -203,12 +202,12 @@ CONFIG_CLEAN_FILES = script/setup_skeleton.csh \
 	script/setup_skeleton.sh lib/global_fixture_default.cc
 CONFIG_CLEAN_VPATH_FILES =
 am__installdirs = "$(DESTDIR)$(bindir)" "$(DESTDIR)$(libdir)" \
-	"$(DESTDIR)$(pkgpythonswigdir)" "$(DESTDIR)$(bindir)" \
+	"$(DESTDIR)$(pkgpythoncxxdir)" "$(DESTDIR)$(bindir)" \
 	"$(DESTDIR)$(installskeletondir)" \
-	"$(DESTDIR)$(pkgpythonswigdir)" \
+	"$(DESTDIR)$(pkgpythoncxxdir)" \
 	"$(DESTDIR)$(installskeletondir)" \
-	"$(DESTDIR)$(pkgpythonswigdir)" "$(DESTDIR)$(pkgconfigdir)" \
-	"$(DESTDIR)$(pkgpythonswigdir)" "$(DESTDIR)$(includedir)" \
+	"$(DESTDIR)$(pkgpythoncxxdir)" "$(DESTDIR)$(pkgconfigdir)" \
+	"$(DESTDIR)$(pkgpythoncxxdir)" "$(DESTDIR)$(includedir)" \
 	"$(DESTDIR)$(skeletonincdir)"
 PROGRAMS = $(bin_PROGRAMS)
 am__vpath_adj_setup = srcdirstrip=`echo "$(srcdir)" | sed 's|.|.|g'`;
@@ -238,27 +237,10 @@ am__uninstall_files_from_dir = { \
        $(am__cd) "$$dir" && echo $$files | $(am__xargs_n) 40 $(am__rm_f); }; \
   }
 LTLIBRARIES = $(lib_LTLIBRARIES) $(noinst_LTLIBRARIES) \
-	$(pkgpythonswig_LTLIBRARIES)
-@BUILD_PYTHON_BINDINGS_TRUE@_skeleton_downstream_la_DEPENDENCIES =  \
-@BUILD_PYTHON_BINDINGS_TRUE@	libnanobind_core.la libskeleton.la
-am___skeleton_downstream_la_SOURCES_DIST = @srclib@/downstream_nb.cc
-am__dirstamp = $(am__leading_dot)dirstamp
-@BUILD_PYTHON_BINDINGS_TRUE@am__skeleton_downstream_la_OBJECTS = @srclib@/_skeleton_downstream_la-downstream_nb.lo
-_skeleton_downstream_la_OBJECTS =  \
-	$(am__skeleton_downstream_la_OBJECTS)
-AM_V_lt = $(am__v_lt_@AM_V@)
-am__v_lt_ = $(am__v_lt_@AM_DEFAULT_V@)
-am__v_lt_0 = --silent
-am__v_lt_1 = 
-_skeleton_downstream_la_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CXX \
-	$(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=link $(CXXLD) \
-	$(_skeleton_downstream_la_CXXFLAGS) $(CXXFLAGS) \
-	$(_skeleton_downstream_la_LDFLAGS) $(LDFLAGS) -o $@
-@BUILD_PYTHON_BINDINGS_TRUE@am__skeleton_downstream_la_rpath = -rpath \
-@BUILD_PYTHON_BINDINGS_TRUE@	$(pkgpythonswigdir)
-@BUILD_PYTHON_BINDINGS_TRUE@_swig_wrap_la_DEPENDENCIES =  \
+	$(pkgpythoncxx_LTLIBRARIES)
+@BUILD_PYTHON_BINDINGS_TRUE@_bindings_la_DEPENDENCIES =  \
 @BUILD_PYTHON_BINDINGS_TRUE@	libnanobind_core.la $(NB_LIBADD)
-am___swig_wrap_la_SOURCES_DIST = @srclib@/array_sample_nb.cc \
+am___bindings_la_SOURCES_DIST = @srclib@/array_sample_nb.cc \
 	@srclib@/array_typemap_sample_nb.cc \
 	@srclib@/director_example_nb.cc \
 	@srclib@/exception_sample_nb.cc \
@@ -271,50 +253,67 @@ am___swig_wrap_la_SOURCES_DIST = @srclib@/array_sample_nb.cc \
 	@srclib@/observer_nb.cc @srclib@/overload_example_nb.cc \
 	@srclib@/raster_sample_nb.cc @srclib@/serialize_function_nb.cc \
 	@srclib@/skeleton_exception_nb.cc \
-	@srclib@/swig_rules_sample_nb.cc @srclib@/thread_example_nb.cc \
+	@srclib@/cxx_python_rules_sample_nb.cc \
+	@srclib@/thread_example_nb.cc \
 	@srclib@/virtual_diamond_example_nb.cc \
 	@srclib@/with_parameter_like_nb.cc \
 	@srclib@/skeleton_nb_module.cc \
-	@swigrules@/nanobind/swig_rules_nb.cc
-am__objects_1 = @srclib@/_swig_wrap_la-array_sample_nb.lo \
-	@srclib@/_swig_wrap_la-array_typemap_sample_nb.lo \
-	@srclib@/_swig_wrap_la-director_example_nb.lo \
-	@srclib@/_swig_wrap_la-exception_sample_nb.lo \
-	@srclib@/_swig_wrap_la-file_reference_sample_nb.lo \
-	@srclib@/_swig_wrap_la-generic_object_map_nb.lo \
-	@srclib@/_swig_wrap_la-generic_object_nb.lo \
-	@srclib@/_swig_wrap_la-generic_object_sample_nb.lo \
-	@srclib@/_swig_wrap_la-iostream_swig_nb.lo \
-	@srclib@/_swig_wrap_la-multi_base_example_nb.lo \
-	@srclib@/_swig_wrap_la-numpy_sample_nb.lo \
-	@srclib@/_swig_wrap_la-observer_example_nb.lo \
-	@srclib@/_swig_wrap_la-observer_nb.lo \
-	@srclib@/_swig_wrap_la-overload_example_nb.lo \
-	@srclib@/_swig_wrap_la-raster_sample_nb.lo \
-	@srclib@/_swig_wrap_la-serialize_function_nb.lo \
-	@srclib@/_swig_wrap_la-skeleton_exception_nb.lo \
-	@srclib@/_swig_wrap_la-swig_rules_sample_nb.lo \
-	@srclib@/_swig_wrap_la-thread_example_nb.lo \
-	@srclib@/_swig_wrap_la-virtual_diamond_example_nb.lo \
-	@srclib@/_swig_wrap_la-with_parameter_like_nb.lo \
-	@srclib@/_swig_wrap_la-skeleton_nb_module.lo
-@BUILD_PYTHON_BINDINGS_TRUE@am__swig_wrap_la_OBJECTS =  \
+	@cxxpythonrules@/nanobind/cxx_python_rules_nb.cc
+am__dirstamp = $(am__leading_dot)dirstamp
+am__objects_1 = @srclib@/_bindings_la-array_sample_nb.lo \
+	@srclib@/_bindings_la-array_typemap_sample_nb.lo \
+	@srclib@/_bindings_la-director_example_nb.lo \
+	@srclib@/_bindings_la-exception_sample_nb.lo \
+	@srclib@/_bindings_la-file_reference_sample_nb.lo \
+	@srclib@/_bindings_la-generic_object_map_nb.lo \
+	@srclib@/_bindings_la-generic_object_nb.lo \
+	@srclib@/_bindings_la-generic_object_sample_nb.lo \
+	@srclib@/_bindings_la-iostream_swig_nb.lo \
+	@srclib@/_bindings_la-multi_base_example_nb.lo \
+	@srclib@/_bindings_la-numpy_sample_nb.lo \
+	@srclib@/_bindings_la-observer_example_nb.lo \
+	@srclib@/_bindings_la-observer_nb.lo \
+	@srclib@/_bindings_la-overload_example_nb.lo \
+	@srclib@/_bindings_la-raster_sample_nb.lo \
+	@srclib@/_bindings_la-serialize_function_nb.lo \
+	@srclib@/_bindings_la-skeleton_exception_nb.lo \
+	@srclib@/_bindings_la-cxx_python_rules_sample_nb.lo \
+	@srclib@/_bindings_la-thread_example_nb.lo \
+	@srclib@/_bindings_la-virtual_diamond_example_nb.lo \
+	@srclib@/_bindings_la-with_parameter_like_nb.lo \
+	@srclib@/_bindings_la-skeleton_nb_module.lo
+@BUILD_PYTHON_BINDINGS_TRUE@am__bindings_la_OBJECTS =  \
 @BUILD_PYTHON_BINDINGS_TRUE@	$(am__objects_1) \
-@BUILD_PYTHON_BINDINGS_TRUE@	@swigrules@/nanobind/_swig_wrap_la-swig_rules_nb.lo
-@BUILD_PYTHON_BINDINGS_TRUE@nodist__swig_wrap_la_OBJECTS =  \
-@BUILD_PYTHON_BINDINGS_TRUE@	_swig_wrap_la-nb_docstrings.lo
-_swig_wrap_la_OBJECTS = $(am__swig_wrap_la_OBJECTS) \
-	$(nodist__swig_wrap_la_OBJECTS)
-_swig_wrap_la_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CXX \
+@BUILD_PYTHON_BINDINGS_TRUE@	@cxxpythonrules@/nanobind/_bindings_la-cxx_python_rules_nb.lo
+@BUILD_PYTHON_BINDINGS_TRUE@nodist__bindings_la_OBJECTS =  \
+@BUILD_PYTHON_BINDINGS_TRUE@	_bindings_la-nb_docstrings.lo
+_bindings_la_OBJECTS = $(am__bindings_la_OBJECTS) \
+	$(nodist__bindings_la_OBJECTS)
+AM_V_lt = $(am__v_lt_@AM_V@)
+am__v_lt_ = $(am__v_lt_@AM_DEFAULT_V@)
+am__v_lt_0 = --silent
+am__v_lt_1 = 
+_bindings_la_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) \
+	$(LIBTOOLFLAGS) --mode=link $(CXXLD) $(_bindings_la_CXXFLAGS) \
+	$(CXXFLAGS) $(_bindings_la_LDFLAGS) $(LDFLAGS) -o $@
+@BUILD_PYTHON_BINDINGS_TRUE@am__bindings_la_rpath = -rpath \
+@BUILD_PYTHON_BINDINGS_TRUE@	$(pkgpythoncxxdir)
+@BUILD_PYTHON_BINDINGS_TRUE@_skeleton_downstream_la_DEPENDENCIES =  \
+@BUILD_PYTHON_BINDINGS_TRUE@	libnanobind_core.la libskeleton.la
+am___skeleton_downstream_la_SOURCES_DIST = @srclib@/downstream_nb.cc
+@BUILD_PYTHON_BINDINGS_TRUE@am__skeleton_downstream_la_OBJECTS = @srclib@/_skeleton_downstream_la-downstream_nb.lo
+_skeleton_downstream_la_OBJECTS =  \
+	$(am__skeleton_downstream_la_OBJECTS)
+_skeleton_downstream_la_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CXX \
 	$(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=link $(CXXLD) \
-	$(_swig_wrap_la_CXXFLAGS) $(CXXFLAGS) $(_swig_wrap_la_LDFLAGS) \
-	$(LDFLAGS) -o $@
-@BUILD_PYTHON_BINDINGS_TRUE@am__swig_wrap_la_rpath = -rpath \
-@BUILD_PYTHON_BINDINGS_TRUE@	$(pkgpythonswigdir)
+	$(_skeleton_downstream_la_CXXFLAGS) $(CXXFLAGS) \
+	$(_skeleton_downstream_la_LDFLAGS) $(LDFLAGS) -o $@
+@BUILD_PYTHON_BINDINGS_TRUE@am__skeleton_downstream_la_rpath = -rpath \
+@BUILD_PYTHON_BINDINGS_TRUE@	$(pkgpythoncxxdir)
 libnanobind_core_la_LIBADD =
 am__libnanobind_core_la_SOURCES_DIST =  \
-	@swigrules@/nanobind/nb_combined.cc
-@BUILD_PYTHON_BINDINGS_TRUE@am_libnanobind_core_la_OBJECTS = @swigrules@/nanobind/libnanobind_core_la-nb_combined.lo
+	@cxxpythonrules@/nanobind/nb_combined.cc
+@BUILD_PYTHON_BINDINGS_TRUE@am_libnanobind_core_la_OBJECTS = @cxxpythonrules@/nanobind/libnanobind_core_la-nb_combined.lo
 libnanobind_core_la_OBJECTS = $(am_libnanobind_core_la_OBJECTS)
 libnanobind_core_la_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CXX \
 	$(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=link $(CXXLD) \
@@ -323,8 +322,8 @@ libnanobind_core_la_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CXX \
 @BUILD_PYTHON_BINDINGS_TRUE@am_libnanobind_core_la_rpath =
 libskeleton_la_LIBADD =
 am_libskeleton_la_OBJECTS =  \
-	@swigrules@/lib/libskeleton_la-serialize_function.lo \
-	@swigrules@/lib/libskeleton_la-weak_ptr_serialize_support.lo \
+	@cxxpythonrules@/lib/libskeleton_la-serialize_function.lo \
+	@cxxpythonrules@/lib/libskeleton_la-weak_ptr_serialize_support.lo \
 	@srclib@/libskeleton_la-generic_object.lo \
 	@srclib@/libskeleton_la-generic_object_sample.lo \
 	@srclib@/libskeleton_la-director_example.lo \
@@ -393,30 +392,34 @@ am__v_at_1 =
 DEFAULT_INCLUDES = 
 depcomp = $(SHELL) $(top_srcdir)/config/depcomp
 am__maybe_remake_depfiles = depfiles
-am__depfiles_remade = ./$(DEPDIR)/_swig_wrap_la-nb_docstrings.Plo \
+am__depfiles_remade = ./$(DEPDIR)/_bindings_la-nb_docstrings.Plo \
+	@cxxpythonrules@/lib/$(DEPDIR)/libskeleton_la-serialize_function.Plo \
+	@cxxpythonrules@/lib/$(DEPDIR)/libskeleton_la-weak_ptr_serialize_support.Plo \
+	@cxxpythonrules@/nanobind/$(DEPDIR)/_bindings_la-cxx_python_rules_nb.Plo \
+	@cxxpythonrules@/nanobind/$(DEPDIR)/libnanobind_core_la-nb_combined.Plo \
+	@srclib@/$(DEPDIR)/_bindings_la-array_sample_nb.Plo \
+	@srclib@/$(DEPDIR)/_bindings_la-array_typemap_sample_nb.Plo \
+	@srclib@/$(DEPDIR)/_bindings_la-cxx_python_rules_sample_nb.Plo \
+	@srclib@/$(DEPDIR)/_bindings_la-director_example_nb.Plo \
+	@srclib@/$(DEPDIR)/_bindings_la-exception_sample_nb.Plo \
+	@srclib@/$(DEPDIR)/_bindings_la-file_reference_sample_nb.Plo \
+	@srclib@/$(DEPDIR)/_bindings_la-generic_object_map_nb.Plo \
+	@srclib@/$(DEPDIR)/_bindings_la-generic_object_nb.Plo \
+	@srclib@/$(DEPDIR)/_bindings_la-generic_object_sample_nb.Plo \
+	@srclib@/$(DEPDIR)/_bindings_la-iostream_swig_nb.Plo \
+	@srclib@/$(DEPDIR)/_bindings_la-multi_base_example_nb.Plo \
+	@srclib@/$(DEPDIR)/_bindings_la-numpy_sample_nb.Plo \
+	@srclib@/$(DEPDIR)/_bindings_la-observer_example_nb.Plo \
+	@srclib@/$(DEPDIR)/_bindings_la-observer_nb.Plo \
+	@srclib@/$(DEPDIR)/_bindings_la-overload_example_nb.Plo \
+	@srclib@/$(DEPDIR)/_bindings_la-raster_sample_nb.Plo \
+	@srclib@/$(DEPDIR)/_bindings_la-serialize_function_nb.Plo \
+	@srclib@/$(DEPDIR)/_bindings_la-skeleton_exception_nb.Plo \
+	@srclib@/$(DEPDIR)/_bindings_la-skeleton_nb_module.Plo \
+	@srclib@/$(DEPDIR)/_bindings_la-thread_example_nb.Plo \
+	@srclib@/$(DEPDIR)/_bindings_la-virtual_diamond_example_nb.Plo \
+	@srclib@/$(DEPDIR)/_bindings_la-with_parameter_like_nb.Plo \
 	@srclib@/$(DEPDIR)/_skeleton_downstream_la-downstream_nb.Plo \
-	@srclib@/$(DEPDIR)/_swig_wrap_la-array_sample_nb.Plo \
-	@srclib@/$(DEPDIR)/_swig_wrap_la-array_typemap_sample_nb.Plo \
-	@srclib@/$(DEPDIR)/_swig_wrap_la-director_example_nb.Plo \
-	@srclib@/$(DEPDIR)/_swig_wrap_la-exception_sample_nb.Plo \
-	@srclib@/$(DEPDIR)/_swig_wrap_la-file_reference_sample_nb.Plo \
-	@srclib@/$(DEPDIR)/_swig_wrap_la-generic_object_map_nb.Plo \
-	@srclib@/$(DEPDIR)/_swig_wrap_la-generic_object_nb.Plo \
-	@srclib@/$(DEPDIR)/_swig_wrap_la-generic_object_sample_nb.Plo \
-	@srclib@/$(DEPDIR)/_swig_wrap_la-iostream_swig_nb.Plo \
-	@srclib@/$(DEPDIR)/_swig_wrap_la-multi_base_example_nb.Plo \
-	@srclib@/$(DEPDIR)/_swig_wrap_la-numpy_sample_nb.Plo \
-	@srclib@/$(DEPDIR)/_swig_wrap_la-observer_example_nb.Plo \
-	@srclib@/$(DEPDIR)/_swig_wrap_la-observer_nb.Plo \
-	@srclib@/$(DEPDIR)/_swig_wrap_la-overload_example_nb.Plo \
-	@srclib@/$(DEPDIR)/_swig_wrap_la-raster_sample_nb.Plo \
-	@srclib@/$(DEPDIR)/_swig_wrap_la-serialize_function_nb.Plo \
-	@srclib@/$(DEPDIR)/_swig_wrap_la-skeleton_exception_nb.Plo \
-	@srclib@/$(DEPDIR)/_swig_wrap_la-skeleton_nb_module.Plo \
-	@srclib@/$(DEPDIR)/_swig_wrap_la-swig_rules_sample_nb.Plo \
-	@srclib@/$(DEPDIR)/_swig_wrap_la-thread_example_nb.Plo \
-	@srclib@/$(DEPDIR)/_swig_wrap_la-virtual_diamond_example_nb.Plo \
-	@srclib@/$(DEPDIR)/_swig_wrap_la-with_parameter_like_nb.Plo \
 	@srclib@/$(DEPDIR)/golden_archive_generator-golden_archive_generator.Po \
 	@srclib@/$(DEPDIR)/libskeleton_la-array_sample.Plo \
 	@srclib@/$(DEPDIR)/libskeleton_la-blitz_array_serialize_support.Plo \
@@ -449,11 +452,7 @@ am__depfiles_remade = ./$(DEPDIR)/_swig_wrap_la-nb_docstrings.Plo \
 	@srclib@/$(DEPDIR)/skeleton_test_all-serialize_function_test.Po \
 	@srclib@/$(DEPDIR)/skeleton_test_all-skeleton_exception_test.Po \
 	@srclib@/$(DEPDIR)/skeleton_test_all-test_all.Po \
-	@srclib@/$(DEPDIR)/skeleton_test_all-thread_example_test.Po \
-	@swigrules@/lib/$(DEPDIR)/libskeleton_la-serialize_function.Plo \
-	@swigrules@/lib/$(DEPDIR)/libskeleton_la-weak_ptr_serialize_support.Plo \
-	@swigrules@/nanobind/$(DEPDIR)/_swig_wrap_la-swig_rules_nb.Plo \
-	@swigrules@/nanobind/$(DEPDIR)/libnanobind_core_la-nb_combined.Plo
+	@srclib@/$(DEPDIR)/skeleton_test_all-thread_example_test.Po
 am__mv = mv -f
 CXXCOMPILE = $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) \
 	$(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS)
@@ -473,12 +472,13 @@ AM_V_CXXLD = $(am__v_CXXLD_@AM_V@)
 am__v_CXXLD_ = $(am__v_CXXLD_@AM_DEFAULT_V@)
 am__v_CXXLD_0 = @echo "  CXXLD   " $@;
 am__v_CXXLD_1 = 
-SOURCES = $(_skeleton_downstream_la_SOURCES) $(_swig_wrap_la_SOURCES) \
-	$(nodist__swig_wrap_la_SOURCES) $(libnanobind_core_la_SOURCES) \
-	$(libskeleton_la_SOURCES) $(golden_archive_generator_SOURCES) \
+SOURCES = $(_bindings_la_SOURCES) $(nodist__bindings_la_SOURCES) \
+	$(_skeleton_downstream_la_SOURCES) \
+	$(libnanobind_core_la_SOURCES) $(libskeleton_la_SOURCES) \
+	$(golden_archive_generator_SOURCES) \
 	$(skeleton_test_all_SOURCES)
-DIST_SOURCES = $(am___skeleton_downstream_la_SOURCES_DIST) \
-	$(am___swig_wrap_la_SOURCES_DIST) \
+DIST_SOURCES = $(am___bindings_la_SOURCES_DIST) \
+	$(am___skeleton_downstream_la_SOURCES_DIST) \
 	$(am__libnanobind_core_la_SOURCES_DIST) \
 	$(libskeleton_la_SOURCES) $(golden_archive_generator_SOURCES) \
 	$(skeleton_test_all_SOURCES)
@@ -487,14 +487,14 @@ am__can_run_installinfo = \
     n|no|NO) false;; \
     *) (install-info --version) >/dev/null 2>&1;; \
   esac
-am__pkgpythonswig_PYTHON_DIST = @swigrules@/__init__.py \
-	@swigrules@/all.py @swigrules@/_nanobind_support.py
+am__pkgpythoncxx_PYTHON_DIST = @cxxpythonrules@/__init__.py \
+	@cxxpythonrules@/all.py @cxxpythonrules@/_nanobind_support.py
 am__py_compile = PYTHON=$(PYTHON) $(SHELL) $(py_compile)
 am__pep3147_tweak = \
   sed -e 's|\.py$$||' -e 's|[^/]*$$|__pycache__/&.*.pyc __pycache__/&.*.pyo|'
 py_compile = $(top_srcdir)/config/py-compile
-DATA = $(installskeleton_DATA) $(nodist_pkgpythonswig_DATA) \
-	$(pkgconfig_DATA) $(pkgpythonswig_DATA)
+DATA = $(installskeleton_DATA) $(nodist_pkgpythoncxx_DATA) \
+	$(pkgconfig_DATA) $(pkgpythoncxx_DATA)
 HEADERS = $(include_HEADERS) $(skeletoninc_HEADERS)
 am__tagged_files = $(HEADERS) $(SOURCES) $(TAGS_FILES) $(LISP)
 # Read a list of newline-separated strings from the standard input,
@@ -698,11 +698,11 @@ TEST_LOG_DRIVER = $(SHELL) $(top_srcdir)/config/test-driver
 TEST_LOG_COMPILE = $(TEST_LOG_COMPILER) $(AM_TEST_LOG_FLAGS) \
 	$(TEST_LOG_FLAGS)
 am__DIST_COMMON = $(srcdir)/Makefile.in $(srcdir)/common.am \
+	$(srcdir)/cxx_python_rules/cxx_python_rules.am \
+	$(srcdir)/cxx_python_rules/nanobind/nanobind.am \
 	$(srcdir)/include.am $(srcdir)/lib/lib.am \
 	$(srcdir)/python/bin/bin.am $(srcdir)/python/python.am \
 	$(srcdir)/script/script.am $(srcdir)/skeleton.am \
-	$(srcdir)/swig_rules/nanobind/nanobind.am \
-	$(srcdir)/swig_rules/swig_rules.am \
 	$(srcdir)/unit_test_data/unit_test_data.am \
 	$(top_srcdir)/config/compile $(top_srcdir)/config/config.guess \
 	$(top_srcdir)/config/config.sub $(top_srcdir)/config/depcomp \
@@ -872,6 +872,7 @@ build_cpu = @build_cpu@
 build_os = @build_os@
 build_vendor = @build_vendor@
 builddir = @builddir@
+cxxpythonrules = @cxxpythonrules@
 datadir = @datadir@
 datarootdir = @datarootdir@
 docdir = @docdir@
@@ -905,21 +906,16 @@ program_transform_name = @program_transform_name@
 psdir = @psdir@
 python_editable_mode_default = @python_editable_mode_default@
 pythondir = @pythondir@
-pythonswigsrc = @pythonswigsrc@
 runstatedir = @runstatedir@
 sbindir = @sbindir@
 sharedstatedir = @sharedstatedir@
 skeletonpkgpythondir = @skeletonpkgpythondir@
-skeletonswigincdir = @skeletonswigincdir@
 srccython = @srccython@
 srcdir = @srcdir@
 srclib = @srclib@
 srcpython = @srcpython@
 srcpythonbin = @srcpythonbin@
 srcscript = @srcscript@
-swigincdir = @swigincdir@
-swigrules = @swigrules@
-swigsrc = @swigsrc@
 sysconfdir = @sysconfdir@
 target_alias = @target_alias@
 top_build_prefix = @top_build_prefix@
@@ -952,32 +948,30 @@ include_HEADERS =
 # Test files
 EXTRA_DIST = README.md bootstrap config/m4_local/README config/m4 \
 	@srcscript@/make_compile_commands.py \
-	@srcscript@/run_clang_tidy.sh @swigrules@/README.md \
-	CMakeLists.txt @swigrules@/lib/generic_object.cc.sample \
-	@swigrules@/lib/generic_object.h.sample \
-	@swigrules@/lib/generic_object_map.cc.sample \
-	@swigrules@/lib/generic_object_map.h.sample \
-	@swigrules@/lib/printable.h.sample \
-	@swigrules@/lib/DirectorNotes.md \
-	@swigrules@/lib/serialize_support.h.sample \
-	@swigrules@/lib/blitz_array_serialize_support.h.sample \
-	@swigrules@/lib/blitz_array_serialize_support.cc.sample \
-	@swigrules@/python/swig_shelve.py.sample \
-	@swigrules@/python/swig_shelve_test.py.sample \
+	@srcscript@/run_clang_tidy.sh @cxxpythonrules@/README.md \
+	CMakeLists.txt @cxxpythonrules@/lib/generic_object.cc.sample \
+	@cxxpythonrules@/lib/generic_object.h.sample \
+	@cxxpythonrules@/lib/generic_object_map.cc.sample \
+	@cxxpythonrules@/lib/generic_object_map.h.sample \
+	@cxxpythonrules@/lib/printable.h.sample \
+	@cxxpythonrules@/lib/DirectorNotes.md \
+	@cxxpythonrules@/lib/serialize_support.h.sample \
+	@cxxpythonrules@/lib/blitz_array_serialize_support.h.sample \
+	@cxxpythonrules@/lib/blitz_array_serialize_support.cc.sample \
+	@cxxpythonrules@/python/swig_shelve.py.sample \
+	@cxxpythonrules@/python/swig_shelve_test.py.sample \
 	@srclib@/test_all.sh @srclib@/skeleton_nb_opaque.h \
 	@srclib@/skeleton_nb_init.inc @srclib@/unit_test_support.h \
 	@srclib@/global_fixture.h \
-	@swigrules@/nanobind/i_to_nanobind.py \
-	@swigrules@/nanobind/doxy2nanobind.py \
-	@swigrules@/nanobind/doxygen_nanobind.cfg \
-	@swigrules@/nanobind/README.md
+	@cxxpythonrules@/nanobind/i_to_nanobind.py \
+	@cxxpythonrules@/nanobind/doxy2nanobind.py \
+	@cxxpythonrules@/nanobind/doxygen_nanobind.cfg \
+	@cxxpythonrules@/nanobind/README.md
 CYTHON_SRC = 
 pkgconfig_DATA = 
 MOSTLYCLEANFILES = $(am__append_6)
-# Hand-written .pyi stubs for SWIG modules (see swig_rules/swig_rules.am)
-SWIG_PYI = 
 # To pick up generated skeleton_config.h file
-AM_CPPFLAGS = -I$(srcdir)/@swigrules@/lib -I$(srcdir)/@srclib@ \
+AM_CPPFLAGS = -I$(srcdir)/@cxxpythonrules@/lib -I$(srcdir)/@srclib@ \
 	-I@srclib@
 
 #=================================================================
@@ -1005,8 +999,8 @@ check_PROGRAM =
 check_DATA = 
 
 # Build these up as we go
-libskeleton_la_SOURCES = @swigrules@/lib/serialize_function.cc \
-	@swigrules@/lib/weak_ptr_serialize_support.cc \
+libskeleton_la_SOURCES = @cxxpythonrules@/lib/serialize_function.cc \
+	@cxxpythonrules@/lib/weak_ptr_serialize_support.cc \
 	@srclib@/generic_object.cc @srclib@/generic_object_sample.cc \
 	@srclib@/director_example.cc @srclib@/generic_object_map.cc \
 	@srclib@/skeleton_exception.cc @srclib@/iostream_swig.cc \
@@ -1016,9 +1010,9 @@ libskeleton_la_SOURCES = @swigrules@/lib/serialize_function.cc \
 	@srclib@/with_parameter_like.cc @srclib@/multi_base_example.cc \
 	@srclib@/virtual_diamond_example.cc @srclib@/blitz_mdspan.cc \
 	@srclib@/thread_example.cc @srclib@/raster_sample.cc
-# Python binding sources (nanobind), swig_rules/nanobind/nanobind.am
+# Python binding sources (nanobind), cxx_python_rules/nanobind/nanobind.am
 
-# Python bindings (nanobind), see swig_rules/nanobind/nanobind.am
+# Python bindings (nanobind), see cxx_python_rules/nanobind/nanobind.am
 NB_SRC = @srclib@/array_sample_nb.cc \
 	@srclib@/array_typemap_sample_nb.cc \
 	@srclib@/director_example_nb.cc \
@@ -1032,7 +1026,8 @@ NB_SRC = @srclib@/array_sample_nb.cc \
 	@srclib@/observer_nb.cc @srclib@/overload_example_nb.cc \
 	@srclib@/raster_sample_nb.cc @srclib@/serialize_function_nb.cc \
 	@srclib@/skeleton_exception_nb.cc \
-	@srclib@/swig_rules_sample_nb.cc @srclib@/thread_example_nb.cc \
+	@srclib@/cxx_python_rules_sample_nb.cc \
+	@srclib@/thread_example_nb.cc \
 	@srclib@/virtual_diamond_example_nb.cc \
 	@srclib@/with_parameter_like_nb.cc \
 	@srclib@/skeleton_nb_module.cc
@@ -1049,16 +1044,16 @@ libskeleton_la_LDFLAGS = -R $(BOOST_LIBDIR) -L$(BOOST_LIBDIR) \
 	$(BLITZ_LIBS) -ldl
 skeletonincdir = @includedir@/skeleton
 
-# The C++ code from swig_rules/lib, compiled into the library.
+# The C++ code from cxx_python_rules/lib, compiled into the library.
 
 #=================================================================
 # List of source files
 # Samples for consumer patterns (phase S5)
 # raw pointer plus size -> mdspan (phase S7)
-skeletoninc_HEADERS = @swigrules@/lib/serialize_function.h \
-	@swigrules@/lib/serialize_shared_ptr.h \
-	@swigrules@/lib/director_hook.h \
-	@swigrules@/lib/weak_ptr_serialize_support.h \
+skeletoninc_HEADERS = @cxxpythonrules@/lib/serialize_function.h \
+	@cxxpythonrules@/lib/serialize_shared_ptr.h \
+	@cxxpythonrules@/lib/director_hook.h \
+	@cxxpythonrules@/lib/weak_ptr_serialize_support.h \
 	@srclib@/skeleton_serialize_support.h \
 	@srclib@/generic_object.h @srclib@/generic_object_sample.h \
 	@srclib@/director_example.h @srclib@/generic_object_map.h \
@@ -1066,7 +1061,8 @@ skeletoninc_HEADERS = @swigrules@/lib/serialize_function.h \
 	@srclib@/iostream_swig.h \
 	@srclib@/blitz_array_serialize_support.h \
 	@srclib@/numpy_sample.h @srclib@/exception_sample.h \
-	@srclib@/array_typemap_sample.h @srclib@/swig_rules_sample.h \
+	@srclib@/array_typemap_sample.h \
+	@srclib@/cxx_python_rules_sample.h \
 	@srclib@/file_reference_sample.h @srclib@/array_sample.h \
 	@srclib@/null_deleter.h @srclib@/observer.h \
 	@srclib@/observer_serialize_support.h \
@@ -1090,7 +1086,7 @@ dist_installskeleton_SCRIPTS =
 # Make sure we don't have any pyc or pycache files floating around
 DIST_HOOK = dist-clean-up-python
 libskeleton_la_CPPFLAGS = $(AM_CPPFLAGS) $(BOOST_CPPFLAGS) \
-	$(BLITZ_CFLAGS) -DSWIG_MAPPER_NAMESPACE=Skeleton \
+	$(BLITZ_CFLAGS) -DCXX_PYTHON_RULES_NAMESPACE=Skeleton \
 	$(am__append_3)
 
 #=================================================================
@@ -1128,8 +1124,8 @@ CLANG_TIDY_FLAGS = --quiet --warnings-as-errors='*' \
   --config-file=$(abs_top_srcdir)/.clang-tidy
 
 LINT_NJOB = 10
-FORMAT_FILES = 'lib/*.h' 'lib/*.cc' 'swig_rules/lib/*.h' 'swig_rules/lib/*.cc' \
-  'swig_rules/nanobind/*.h' 'swig_rules/nanobind/*.cc'
+FORMAT_FILES = 'lib/*.h' 'lib/*.cc' 'cxx_python_rules/lib/*.h' 'cxx_python_rules/lib/*.cc' \
+  'cxx_python_rules/nanobind/*.h' 'cxx_python_rules/nanobind/*.cc'
 
 installskeleton_DATA = @srcscript@/setup_skeleton.csh @srcscript@/setup_skeleton.sh
 
@@ -1151,8 +1147,8 @@ PYTEST_EXTRAFLAGS =
 PYTEST_FLAGS = -q -n $(PYTEST_NJOB)
 
 # Where the python package with the extension module goes.
-pkgpythonswigdir = $(prefix)/@pythondir@/skeleton_swig
-pkgpythonswig_LTLIBRARIES = $(am__append_4)
+pkgpythoncxxdir = $(prefix)/@pythondir@/skeleton_cxx
+pkgpythoncxx_LTLIBRARIES = $(am__append_4)
 #=================================================================
 # LDFLAGS for programs run from the build tree and never installed (the
 # unit tests, the golden archive generator). The -rpath makes them use the
@@ -1172,9 +1168,9 @@ skeleton_test_all_LDFLAGS = $(UNINSTALLED_PROGRAM_LINK_FLAGS)
 skeleton_test_all_CPPFLAGS = $(AM_CPPFLAGS)
 NB_LIBADD = libskeleton.la
 @BUILD_PYTHON_BINDINGS_TRUE@_skeleton_downstream_la_SOURCES = @srclib@/downstream_nb.cc
-@BUILD_PYTHON_BINDINGS_TRUE@_skeleton_downstream_la_CPPFLAGS = $(_swig_wrap_la_CPPFLAGS)
-@BUILD_PYTHON_BINDINGS_TRUE@_skeleton_downstream_la_CXXFLAGS = $(_swig_wrap_la_CXXFLAGS)
-@BUILD_PYTHON_BINDINGS_TRUE@_skeleton_downstream_la_LDFLAGS = $(_swig_wrap_la_LDFLAGS)
+@BUILD_PYTHON_BINDINGS_TRUE@_skeleton_downstream_la_CPPFLAGS = $(_bindings_la_CPPFLAGS)
+@BUILD_PYTHON_BINDINGS_TRUE@_skeleton_downstream_la_CXXFLAGS = $(_bindings_la_CXXFLAGS)
+@BUILD_PYTHON_BINDINGS_TRUE@_skeleton_downstream_la_LDFLAGS = $(_bindings_la_LDFLAGS)
 @BUILD_PYTHON_BINDINGS_TRUE@_skeleton_downstream_la_LIBADD = libnanobind_core.la libskeleton.la
 NB_MAPPER_NAMESPACE = Skeleton
 NB_DOXYGEN_INPUT = $(addprefix $(srcdir)/, $(filter %.h, $(skeletoninc_HEADERS)))
@@ -1182,37 +1178,37 @@ golden_archive_generator_SOURCES = @srclib@/golden_archive_generator.cc
 golden_archive_generator_LDADD = libskeleton.la
 golden_archive_generator_LDFLAGS = $(UNINSTALLED_PROGRAM_LINK_FLAGS)
 golden_archive_generator_CPPFLAGS = $(AM_CPPFLAGS) $(BOOST_CPPFLAGS) \
-	$(BLITZ_CFLAGS) -DSWIG_MAPPER_NAMESPACE=Skeleton
-@BUILD_PYTHON_BINDINGS_TRUE@libnanobind_core_la_SOURCES = @swigrules@/nanobind/nb_combined.cc
+	$(BLITZ_CFLAGS) -DCXX_PYTHON_RULES_NAMESPACE=Skeleton
+@BUILD_PYTHON_BINDINGS_TRUE@libnanobind_core_la_SOURCES = @cxxpythonrules@/nanobind/nb_combined.cc
 @BUILD_PYTHON_BINDINGS_TRUE@libnanobind_core_la_CPPFLAGS = $(PYTHON_CPPFLAGS) $(NANOBIND_CPPFLAGS) -I$(NANOBIND_SRCDIR)
 @BUILD_PYTHON_BINDINGS_TRUE@libnanobind_core_la_CXXFLAGS = -std=c++23 -O2 -fPIC -fvisibility=hidden -fno-strict-aliasing
-@BUILD_PYTHON_BINDINGS_TRUE@_swig_wrap_la_SOURCES = $(NB_SRC) \
-@BUILD_PYTHON_BINDINGS_TRUE@	@swigrules@/nanobind/swig_rules_nb.cc
-@BUILD_PYTHON_BINDINGS_TRUE@nodist__swig_wrap_la_SOURCES = nb_docstrings.cc
-@BUILD_PYTHON_BINDINGS_TRUE@_swig_wrap_la_CPPFLAGS = $(AM_CPPFLAGS) \
+@BUILD_PYTHON_BINDINGS_TRUE@_bindings_la_SOURCES = $(NB_SRC) \
+@BUILD_PYTHON_BINDINGS_TRUE@	@cxxpythonrules@/nanobind/cxx_python_rules_nb.cc
+@BUILD_PYTHON_BINDINGS_TRUE@nodist__bindings_la_SOURCES = nb_docstrings.cc
+@BUILD_PYTHON_BINDINGS_TRUE@_bindings_la_CPPFLAGS = $(AM_CPPFLAGS) \
 @BUILD_PYTHON_BINDINGS_TRUE@	$(PYTHON_CPPFLAGS) \
 @BUILD_PYTHON_BINDINGS_TRUE@	$(NANOBIND_CPPFLAGS) \
-@BUILD_PYTHON_BINDINGS_TRUE@	-I$(srcdir)/@swigrules@/nanobind \
-@BUILD_PYTHON_BINDINGS_TRUE@	-I$(srcdir)/@swigrules@/lib \
-@BUILD_PYTHON_BINDINGS_TRUE@	-DSWIG_MAPPER_NAMESPACE=$(NB_MAPPER_NAMESPACE) \
-@BUILD_PYTHON_BINDINGS_TRUE@	-DSWIG_RULES_NB_PACKAGE='"$(notdir \
-@BUILD_PYTHON_BINDINGS_TRUE@	$(pkgpythonswigdir))"' \
-@BUILD_PYTHON_BINDINGS_TRUE@	-DSWIG_HAVE_BOOST_SERIALIZATION
+@BUILD_PYTHON_BINDINGS_TRUE@	-I$(srcdir)/@cxxpythonrules@/nanobind \
+@BUILD_PYTHON_BINDINGS_TRUE@	-I$(srcdir)/@cxxpythonrules@/lib \
+@BUILD_PYTHON_BINDINGS_TRUE@	-DCXX_PYTHON_RULES_NAMESPACE=$(NB_MAPPER_NAMESPACE) \
+@BUILD_PYTHON_BINDINGS_TRUE@	-DCXX_PYTHON_RULES_NB_PACKAGE='"$(notdir \
+@BUILD_PYTHON_BINDINGS_TRUE@	$(pkgpythoncxxdir))"' \
+@BUILD_PYTHON_BINDINGS_TRUE@	-DCXX_PYTHON_RULES_HAVE_BOOST_SERIALIZATION
 # Not -fvisibility=hidden (nanobind recommends it, and nanobind's own code
 # above has it): the binding code instantiates Boost.Serialization
 # templates for library classes (director serialization), and with hidden
 # visibility the module gets its own copies of their singletons, separate
 # from the library's, which breaks serialization of those classes.
-@BUILD_PYTHON_BINDINGS_TRUE@_swig_wrap_la_CXXFLAGS = $(AM_CXXFLAGS)
+@BUILD_PYTHON_BINDINGS_TRUE@_bindings_la_CXXFLAGS = $(AM_CXXFLAGS)
 # No -lpython: the interpreter provides the symbols.
-@BUILD_PYTHON_BINDINGS_TRUE@_swig_wrap_la_LDFLAGS = -module -avoid-version -shared
-@BUILD_PYTHON_BINDINGS_TRUE@_swig_wrap_la_LIBADD = libnanobind_core.la $(NB_LIBADD)
-@BUILD_PYTHON_BINDINGS_TRUE@pkgpythonswig_PYTHON =  \
-@BUILD_PYTHON_BINDINGS_TRUE@	@swigrules@/__init__.py \
-@BUILD_PYTHON_BINDINGS_TRUE@	@swigrules@/all.py \
-@BUILD_PYTHON_BINDINGS_TRUE@	@swigrules@/_nanobind_support.py
-@BUILD_PYTHON_BINDINGS_TRUE@pkgpythonswig_DATA = @swigrules@/py.typed
-@BUILD_PYTHON_BINDINGS_TRUE@nodist_pkgpythonswig_DATA = nb_pyi/_swig_wrap.pyi
+@BUILD_PYTHON_BINDINGS_TRUE@_bindings_la_LDFLAGS = -module -avoid-version -shared
+@BUILD_PYTHON_BINDINGS_TRUE@_bindings_la_LIBADD = libnanobind_core.la $(NB_LIBADD)
+@BUILD_PYTHON_BINDINGS_TRUE@pkgpythoncxx_PYTHON =  \
+@BUILD_PYTHON_BINDINGS_TRUE@	@cxxpythonrules@/__init__.py \
+@BUILD_PYTHON_BINDINGS_TRUE@	@cxxpythonrules@/all.py \
+@BUILD_PYTHON_BINDINGS_TRUE@	@cxxpythonrules@/_nanobind_support.py
+@BUILD_PYTHON_BINDINGS_TRUE@pkgpythoncxx_DATA = @cxxpythonrules@/py.typed
+@BUILD_PYTHON_BINDINGS_TRUE@nodist_pkgpythoncxx_DATA = nb_pyi/_bindings.pyi
 all: $(BUILT_SOURCES)
 	$(MAKE) $(AM_MAKEFLAGS) all-am
 
@@ -1220,7 +1216,7 @@ all: $(BUILT_SOURCES)
 .SUFFIXES: .cc .lo .log .o .obj .test .test$(EXEEXT) .trs
 am--refresh: Makefile
 	@:
-$(srcdir)/Makefile.in: @MAINTAINER_MODE_TRUE@ $(srcdir)/Makefile.am $(srcdir)/common.am $(srcdir)/include.am $(srcdir)/skeleton.am $(srcdir)/script/script.am $(srcdir)/python/python.am $(srcdir)/python/bin/bin.am $(srcdir)/swig_rules/swig_rules.am $(srcdir)/lib/lib.am $(srcdir)/swig_rules/nanobind/nanobind.am $(srcdir)/unit_test_data/unit_test_data.am $(am__configure_deps)
+$(srcdir)/Makefile.in: @MAINTAINER_MODE_TRUE@ $(srcdir)/Makefile.am $(srcdir)/common.am $(srcdir)/include.am $(srcdir)/skeleton.am $(srcdir)/script/script.am $(srcdir)/python/python.am $(srcdir)/python/bin/bin.am $(srcdir)/cxx_python_rules/cxx_python_rules.am $(srcdir)/lib/lib.am $(srcdir)/cxx_python_rules/nanobind/nanobind.am $(srcdir)/unit_test_data/unit_test_data.am $(am__configure_deps)
 	@for dep in $?; do \
 	  case '$(am__configure_deps)' in \
 	    *$$dep*) \
@@ -1242,7 +1238,7 @@ Makefile: $(srcdir)/Makefile.in $(top_builddir)/config.status
 	    echo ' cd $(top_builddir) && $(SHELL) ./config.status $@ $(am__maybe_remake_depfiles)'; \
 	    cd $(top_builddir) && $(SHELL) ./config.status $@ $(am__maybe_remake_depfiles);; \
 	esac;
-$(srcdir)/common.am $(srcdir)/include.am $(srcdir)/skeleton.am $(srcdir)/script/script.am $(srcdir)/python/python.am $(srcdir)/python/bin/bin.am $(srcdir)/swig_rules/swig_rules.am $(srcdir)/lib/lib.am $(srcdir)/swig_rules/nanobind/nanobind.am $(srcdir)/unit_test_data/unit_test_data.am $(am__empty):
+$(srcdir)/common.am $(srcdir)/include.am $(srcdir)/skeleton.am $(srcdir)/script/script.am $(srcdir)/python/python.am $(srcdir)/python/bin/bin.am $(srcdir)/cxx_python_rules/cxx_python_rules.am $(srcdir)/lib/lib.am $(srcdir)/cxx_python_rules/nanobind/nanobind.am $(srcdir)/unit_test_data/unit_test_data.am $(am__empty):
 
 $(top_builddir)/config.status: $(top_srcdir)/configure $(CONFIG_STATUS_DEPENDENCIES)
 	$(SHELL) ./config.status --recheck
@@ -1364,33 +1360,33 @@ clean-noinstLTLIBRARIES:
 	echo rm -f $${locs}; \
 	$(am__rm_f) $${locs}
 
-install-pkgpythonswigLTLIBRARIES: $(pkgpythonswig_LTLIBRARIES)
+install-pkgpythoncxxLTLIBRARIES: $(pkgpythoncxx_LTLIBRARIES)
 	@$(NORMAL_INSTALL)
-	@list='$(pkgpythonswig_LTLIBRARIES)'; test -n "$(pkgpythonswigdir)" || list=; \
+	@list='$(pkgpythoncxx_LTLIBRARIES)'; test -n "$(pkgpythoncxxdir)" || list=; \
 	list2=; for p in $$list; do \
 	  if test -f $$p; then \
 	    list2="$$list2 $$p"; \
 	  else :; fi; \
 	done; \
 	test -z "$$list2" || { \
-	  echo " $(MKDIR_P) '$(DESTDIR)$(pkgpythonswigdir)'"; \
-	  $(MKDIR_P) "$(DESTDIR)$(pkgpythonswigdir)" || exit 1; \
-	  echo " $(LIBTOOL) $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=install $(INSTALL) $(INSTALL_STRIP_FLAG) $$list2 '$(DESTDIR)$(pkgpythonswigdir)'"; \
-	  $(LIBTOOL) $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=install $(INSTALL) $(INSTALL_STRIP_FLAG) $$list2 "$(DESTDIR)$(pkgpythonswigdir)"; \
+	  echo " $(MKDIR_P) '$(DESTDIR)$(pkgpythoncxxdir)'"; \
+	  $(MKDIR_P) "$(DESTDIR)$(pkgpythoncxxdir)" || exit 1; \
+	  echo " $(LIBTOOL) $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=install $(INSTALL) $(INSTALL_STRIP_FLAG) $$list2 '$(DESTDIR)$(pkgpythoncxxdir)'"; \
+	  $(LIBTOOL) $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=install $(INSTALL) $(INSTALL_STRIP_FLAG) $$list2 "$(DESTDIR)$(pkgpythoncxxdir)"; \
 	}
 
-uninstall-pkgpythonswigLTLIBRARIES:
+uninstall-pkgpythoncxxLTLIBRARIES:
 	@$(NORMAL_UNINSTALL)
-	@list='$(pkgpythonswig_LTLIBRARIES)'; test -n "$(pkgpythonswigdir)" || list=; \
+	@list='$(pkgpythoncxx_LTLIBRARIES)'; test -n "$(pkgpythoncxxdir)" || list=; \
 	for p in $$list; do \
 	  $(am__strip_dir) \
-	  echo " $(LIBTOOL) $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=uninstall rm -f '$(DESTDIR)$(pkgpythonswigdir)/$$f'"; \
-	  $(LIBTOOL) $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=uninstall rm -f "$(DESTDIR)$(pkgpythonswigdir)/$$f"; \
+	  echo " $(LIBTOOL) $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=uninstall rm -f '$(DESTDIR)$(pkgpythoncxxdir)/$$f'"; \
+	  $(LIBTOOL) $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=uninstall rm -f "$(DESTDIR)$(pkgpythoncxxdir)/$$f"; \
 	done
 
-clean-pkgpythonswigLTLIBRARIES:
-	-$(am__rm_f) $(pkgpythonswig_LTLIBRARIES)
-	@list='$(pkgpythonswig_LTLIBRARIES)'; \
+clean-pkgpythoncxxLTLIBRARIES:
+	-$(am__rm_f) $(pkgpythoncxx_LTLIBRARIES)
+	@list='$(pkgpythoncxx_LTLIBRARIES)'; \
 	locs=`for p in $$list; do echo $$p; done | \
 	      sed 's|^[^/]*$$|.|; s|/[^/]*$$||; s|$$|/so_locations|' | \
 	      sort -u`; \
@@ -1402,85 +1398,85 @@ clean-pkgpythonswigLTLIBRARIES:
 @srclib@/$(DEPDIR)/$(am__dirstamp):
 	@$(MKDIR_P) @srclib@/$(DEPDIR)
 	@: >>@srclib@/$(DEPDIR)/$(am__dirstamp)
+@srclib@/_bindings_la-array_sample_nb.lo: @srclib@/$(am__dirstamp) \
+	@srclib@/$(DEPDIR)/$(am__dirstamp)
+@srclib@/_bindings_la-array_typemap_sample_nb.lo:  \
+	@srclib@/$(am__dirstamp) @srclib@/$(DEPDIR)/$(am__dirstamp)
+@srclib@/_bindings_la-director_example_nb.lo:  \
+	@srclib@/$(am__dirstamp) @srclib@/$(DEPDIR)/$(am__dirstamp)
+@srclib@/_bindings_la-exception_sample_nb.lo:  \
+	@srclib@/$(am__dirstamp) @srclib@/$(DEPDIR)/$(am__dirstamp)
+@srclib@/_bindings_la-file_reference_sample_nb.lo:  \
+	@srclib@/$(am__dirstamp) @srclib@/$(DEPDIR)/$(am__dirstamp)
+@srclib@/_bindings_la-generic_object_map_nb.lo:  \
+	@srclib@/$(am__dirstamp) @srclib@/$(DEPDIR)/$(am__dirstamp)
+@srclib@/_bindings_la-generic_object_nb.lo: @srclib@/$(am__dirstamp) \
+	@srclib@/$(DEPDIR)/$(am__dirstamp)
+@srclib@/_bindings_la-generic_object_sample_nb.lo:  \
+	@srclib@/$(am__dirstamp) @srclib@/$(DEPDIR)/$(am__dirstamp)
+@srclib@/_bindings_la-iostream_swig_nb.lo: @srclib@/$(am__dirstamp) \
+	@srclib@/$(DEPDIR)/$(am__dirstamp)
+@srclib@/_bindings_la-multi_base_example_nb.lo:  \
+	@srclib@/$(am__dirstamp) @srclib@/$(DEPDIR)/$(am__dirstamp)
+@srclib@/_bindings_la-numpy_sample_nb.lo: @srclib@/$(am__dirstamp) \
+	@srclib@/$(DEPDIR)/$(am__dirstamp)
+@srclib@/_bindings_la-observer_example_nb.lo:  \
+	@srclib@/$(am__dirstamp) @srclib@/$(DEPDIR)/$(am__dirstamp)
+@srclib@/_bindings_la-observer_nb.lo: @srclib@/$(am__dirstamp) \
+	@srclib@/$(DEPDIR)/$(am__dirstamp)
+@srclib@/_bindings_la-overload_example_nb.lo:  \
+	@srclib@/$(am__dirstamp) @srclib@/$(DEPDIR)/$(am__dirstamp)
+@srclib@/_bindings_la-raster_sample_nb.lo: @srclib@/$(am__dirstamp) \
+	@srclib@/$(DEPDIR)/$(am__dirstamp)
+@srclib@/_bindings_la-serialize_function_nb.lo:  \
+	@srclib@/$(am__dirstamp) @srclib@/$(DEPDIR)/$(am__dirstamp)
+@srclib@/_bindings_la-skeleton_exception_nb.lo:  \
+	@srclib@/$(am__dirstamp) @srclib@/$(DEPDIR)/$(am__dirstamp)
+@srclib@/_bindings_la-cxx_python_rules_sample_nb.lo:  \
+	@srclib@/$(am__dirstamp) @srclib@/$(DEPDIR)/$(am__dirstamp)
+@srclib@/_bindings_la-thread_example_nb.lo: @srclib@/$(am__dirstamp) \
+	@srclib@/$(DEPDIR)/$(am__dirstamp)
+@srclib@/_bindings_la-virtual_diamond_example_nb.lo:  \
+	@srclib@/$(am__dirstamp) @srclib@/$(DEPDIR)/$(am__dirstamp)
+@srclib@/_bindings_la-with_parameter_like_nb.lo:  \
+	@srclib@/$(am__dirstamp) @srclib@/$(DEPDIR)/$(am__dirstamp)
+@srclib@/_bindings_la-skeleton_nb_module.lo: @srclib@/$(am__dirstamp) \
+	@srclib@/$(DEPDIR)/$(am__dirstamp)
+@cxxpythonrules@/nanobind/$(am__dirstamp):
+	@$(MKDIR_P) @cxxpythonrules@/nanobind
+	@: >>@cxxpythonrules@/nanobind/$(am__dirstamp)
+@cxxpythonrules@/nanobind/$(DEPDIR)/$(am__dirstamp):
+	@$(MKDIR_P) @cxxpythonrules@/nanobind/$(DEPDIR)
+	@: >>@cxxpythonrules@/nanobind/$(DEPDIR)/$(am__dirstamp)
+@cxxpythonrules@/nanobind/_bindings_la-cxx_python_rules_nb.lo:  \
+	@cxxpythonrules@/nanobind/$(am__dirstamp) \
+	@cxxpythonrules@/nanobind/$(DEPDIR)/$(am__dirstamp)
+
+_bindings.la: $(_bindings_la_OBJECTS) $(_bindings_la_DEPENDENCIES) $(EXTRA__bindings_la_DEPENDENCIES) 
+	$(AM_V_CXXLD)$(_bindings_la_LINK) $(am__bindings_la_rpath) $(_bindings_la_OBJECTS) $(_bindings_la_LIBADD) $(LIBS)
 @srclib@/_skeleton_downstream_la-downstream_nb.lo:  \
 	@srclib@/$(am__dirstamp) @srclib@/$(DEPDIR)/$(am__dirstamp)
 
 _skeleton_downstream.la: $(_skeleton_downstream_la_OBJECTS) $(_skeleton_downstream_la_DEPENDENCIES) $(EXTRA__skeleton_downstream_la_DEPENDENCIES) 
 	$(AM_V_CXXLD)$(_skeleton_downstream_la_LINK) $(am__skeleton_downstream_la_rpath) $(_skeleton_downstream_la_OBJECTS) $(_skeleton_downstream_la_LIBADD) $(LIBS)
-@srclib@/_swig_wrap_la-array_sample_nb.lo: @srclib@/$(am__dirstamp) \
-	@srclib@/$(DEPDIR)/$(am__dirstamp)
-@srclib@/_swig_wrap_la-array_typemap_sample_nb.lo:  \
-	@srclib@/$(am__dirstamp) @srclib@/$(DEPDIR)/$(am__dirstamp)
-@srclib@/_swig_wrap_la-director_example_nb.lo:  \
-	@srclib@/$(am__dirstamp) @srclib@/$(DEPDIR)/$(am__dirstamp)
-@srclib@/_swig_wrap_la-exception_sample_nb.lo:  \
-	@srclib@/$(am__dirstamp) @srclib@/$(DEPDIR)/$(am__dirstamp)
-@srclib@/_swig_wrap_la-file_reference_sample_nb.lo:  \
-	@srclib@/$(am__dirstamp) @srclib@/$(DEPDIR)/$(am__dirstamp)
-@srclib@/_swig_wrap_la-generic_object_map_nb.lo:  \
-	@srclib@/$(am__dirstamp) @srclib@/$(DEPDIR)/$(am__dirstamp)
-@srclib@/_swig_wrap_la-generic_object_nb.lo: @srclib@/$(am__dirstamp) \
-	@srclib@/$(DEPDIR)/$(am__dirstamp)
-@srclib@/_swig_wrap_la-generic_object_sample_nb.lo:  \
-	@srclib@/$(am__dirstamp) @srclib@/$(DEPDIR)/$(am__dirstamp)
-@srclib@/_swig_wrap_la-iostream_swig_nb.lo: @srclib@/$(am__dirstamp) \
-	@srclib@/$(DEPDIR)/$(am__dirstamp)
-@srclib@/_swig_wrap_la-multi_base_example_nb.lo:  \
-	@srclib@/$(am__dirstamp) @srclib@/$(DEPDIR)/$(am__dirstamp)
-@srclib@/_swig_wrap_la-numpy_sample_nb.lo: @srclib@/$(am__dirstamp) \
-	@srclib@/$(DEPDIR)/$(am__dirstamp)
-@srclib@/_swig_wrap_la-observer_example_nb.lo:  \
-	@srclib@/$(am__dirstamp) @srclib@/$(DEPDIR)/$(am__dirstamp)
-@srclib@/_swig_wrap_la-observer_nb.lo: @srclib@/$(am__dirstamp) \
-	@srclib@/$(DEPDIR)/$(am__dirstamp)
-@srclib@/_swig_wrap_la-overload_example_nb.lo:  \
-	@srclib@/$(am__dirstamp) @srclib@/$(DEPDIR)/$(am__dirstamp)
-@srclib@/_swig_wrap_la-raster_sample_nb.lo: @srclib@/$(am__dirstamp) \
-	@srclib@/$(DEPDIR)/$(am__dirstamp)
-@srclib@/_swig_wrap_la-serialize_function_nb.lo:  \
-	@srclib@/$(am__dirstamp) @srclib@/$(DEPDIR)/$(am__dirstamp)
-@srclib@/_swig_wrap_la-skeleton_exception_nb.lo:  \
-	@srclib@/$(am__dirstamp) @srclib@/$(DEPDIR)/$(am__dirstamp)
-@srclib@/_swig_wrap_la-swig_rules_sample_nb.lo:  \
-	@srclib@/$(am__dirstamp) @srclib@/$(DEPDIR)/$(am__dirstamp)
-@srclib@/_swig_wrap_la-thread_example_nb.lo: @srclib@/$(am__dirstamp) \
-	@srclib@/$(DEPDIR)/$(am__dirstamp)
-@srclib@/_swig_wrap_la-virtual_diamond_example_nb.lo:  \
-	@srclib@/$(am__dirstamp) @srclib@/$(DEPDIR)/$(am__dirstamp)
-@srclib@/_swig_wrap_la-with_parameter_like_nb.lo:  \
-	@srclib@/$(am__dirstamp) @srclib@/$(DEPDIR)/$(am__dirstamp)
-@srclib@/_swig_wrap_la-skeleton_nb_module.lo:  \
-	@srclib@/$(am__dirstamp) @srclib@/$(DEPDIR)/$(am__dirstamp)
-@swigrules@/nanobind/$(am__dirstamp):
-	@$(MKDIR_P) @swigrules@/nanobind
-	@: >>@swigrules@/nanobind/$(am__dirstamp)
-@swigrules@/nanobind/$(DEPDIR)/$(am__dirstamp):
-	@$(MKDIR_P) @swigrules@/nanobind/$(DEPDIR)
-	@: >>@swigrules@/nanobind/$(DEPDIR)/$(am__dirstamp)
-@swigrules@/nanobind/_swig_wrap_la-swig_rules_nb.lo:  \
-	@swigrules@/nanobind/$(am__dirstamp) \
-	@swigrules@/nanobind/$(DEPDIR)/$(am__dirstamp)
-
-_swig_wrap.la: $(_swig_wrap_la_OBJECTS) $(_swig_wrap_la_DEPENDENCIES) $(EXTRA__swig_wrap_la_DEPENDENCIES) 
-	$(AM_V_CXXLD)$(_swig_wrap_la_LINK) $(am__swig_wrap_la_rpath) $(_swig_wrap_la_OBJECTS) $(_swig_wrap_la_LIBADD) $(LIBS)
-@swigrules@/nanobind/libnanobind_core_la-nb_combined.lo:  \
-	@swigrules@/nanobind/$(am__dirstamp) \
-	@swigrules@/nanobind/$(DEPDIR)/$(am__dirstamp)
+@cxxpythonrules@/nanobind/libnanobind_core_la-nb_combined.lo:  \
+	@cxxpythonrules@/nanobind/$(am__dirstamp) \
+	@cxxpythonrules@/nanobind/$(DEPDIR)/$(am__dirstamp)
 
 libnanobind_core.la: $(libnanobind_core_la_OBJECTS) $(libnanobind_core_la_DEPENDENCIES) $(EXTRA_libnanobind_core_la_DEPENDENCIES) 
 	$(AM_V_CXXLD)$(libnanobind_core_la_LINK) $(am_libnanobind_core_la_rpath) $(libnanobind_core_la_OBJECTS) $(libnanobind_core_la_LIBADD) $(LIBS)
-@swigrules@/lib/$(am__dirstamp):
-	@$(MKDIR_P) @swigrules@/lib
-	@: >>@swigrules@/lib/$(am__dirstamp)
-@swigrules@/lib/$(DEPDIR)/$(am__dirstamp):
-	@$(MKDIR_P) @swigrules@/lib/$(DEPDIR)
-	@: >>@swigrules@/lib/$(DEPDIR)/$(am__dirstamp)
-@swigrules@/lib/libskeleton_la-serialize_function.lo:  \
-	@swigrules@/lib/$(am__dirstamp) \
-	@swigrules@/lib/$(DEPDIR)/$(am__dirstamp)
-@swigrules@/lib/libskeleton_la-weak_ptr_serialize_support.lo:  \
-	@swigrules@/lib/$(am__dirstamp) \
-	@swigrules@/lib/$(DEPDIR)/$(am__dirstamp)
+@cxxpythonrules@/lib/$(am__dirstamp):
+	@$(MKDIR_P) @cxxpythonrules@/lib
+	@: >>@cxxpythonrules@/lib/$(am__dirstamp)
+@cxxpythonrules@/lib/$(DEPDIR)/$(am__dirstamp):
+	@$(MKDIR_P) @cxxpythonrules@/lib/$(DEPDIR)
+	@: >>@cxxpythonrules@/lib/$(DEPDIR)/$(am__dirstamp)
+@cxxpythonrules@/lib/libskeleton_la-serialize_function.lo:  \
+	@cxxpythonrules@/lib/$(am__dirstamp) \
+	@cxxpythonrules@/lib/$(DEPDIR)/$(am__dirstamp)
+@cxxpythonrules@/lib/libskeleton_la-weak_ptr_serialize_support.lo:  \
+	@cxxpythonrules@/lib/$(am__dirstamp) \
+	@cxxpythonrules@/lib/$(DEPDIR)/$(am__dirstamp)
 @srclib@/libskeleton_la-generic_object.lo: @srclib@/$(am__dirstamp) \
 	@srclib@/$(DEPDIR)/$(am__dirstamp)
 @srclib@/libskeleton_la-generic_object_sample.lo:  \
@@ -1631,40 +1627,44 @@ uninstall-dist_installskeletonSCRIPTS:
 
 mostlyclean-compile:
 	-rm -f *.$(OBJEXT)
+	-rm -f @cxxpythonrules@/lib/*.$(OBJEXT)
+	-rm -f @cxxpythonrules@/lib/*.lo
+	-rm -f @cxxpythonrules@/nanobind/*.$(OBJEXT)
+	-rm -f @cxxpythonrules@/nanobind/*.lo
 	-rm -f @srclib@/*.$(OBJEXT)
 	-rm -f @srclib@/*.lo
-	-rm -f @swigrules@/lib/*.$(OBJEXT)
-	-rm -f @swigrules@/lib/*.lo
-	-rm -f @swigrules@/nanobind/*.$(OBJEXT)
-	-rm -f @swigrules@/nanobind/*.lo
 
 distclean-compile:
 	-rm -f *.tab.c
 
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/_swig_wrap_la-nb_docstrings.Plo@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/_bindings_la-nb_docstrings.Plo@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@@cxxpythonrules@/lib/$(DEPDIR)/libskeleton_la-serialize_function.Plo@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@@cxxpythonrules@/lib/$(DEPDIR)/libskeleton_la-weak_ptr_serialize_support.Plo@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@@cxxpythonrules@/nanobind/$(DEPDIR)/_bindings_la-cxx_python_rules_nb.Plo@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@@cxxpythonrules@/nanobind/$(DEPDIR)/libnanobind_core_la-nb_combined.Plo@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@@srclib@/$(DEPDIR)/_bindings_la-array_sample_nb.Plo@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@@srclib@/$(DEPDIR)/_bindings_la-array_typemap_sample_nb.Plo@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@@srclib@/$(DEPDIR)/_bindings_la-cxx_python_rules_sample_nb.Plo@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@@srclib@/$(DEPDIR)/_bindings_la-director_example_nb.Plo@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@@srclib@/$(DEPDIR)/_bindings_la-exception_sample_nb.Plo@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@@srclib@/$(DEPDIR)/_bindings_la-file_reference_sample_nb.Plo@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@@srclib@/$(DEPDIR)/_bindings_la-generic_object_map_nb.Plo@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@@srclib@/$(DEPDIR)/_bindings_la-generic_object_nb.Plo@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@@srclib@/$(DEPDIR)/_bindings_la-generic_object_sample_nb.Plo@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@@srclib@/$(DEPDIR)/_bindings_la-iostream_swig_nb.Plo@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@@srclib@/$(DEPDIR)/_bindings_la-multi_base_example_nb.Plo@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@@srclib@/$(DEPDIR)/_bindings_la-numpy_sample_nb.Plo@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@@srclib@/$(DEPDIR)/_bindings_la-observer_example_nb.Plo@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@@srclib@/$(DEPDIR)/_bindings_la-observer_nb.Plo@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@@srclib@/$(DEPDIR)/_bindings_la-overload_example_nb.Plo@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@@srclib@/$(DEPDIR)/_bindings_la-raster_sample_nb.Plo@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@@srclib@/$(DEPDIR)/_bindings_la-serialize_function_nb.Plo@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@@srclib@/$(DEPDIR)/_bindings_la-skeleton_exception_nb.Plo@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@@srclib@/$(DEPDIR)/_bindings_la-skeleton_nb_module.Plo@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@@srclib@/$(DEPDIR)/_bindings_la-thread_example_nb.Plo@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@@srclib@/$(DEPDIR)/_bindings_la-virtual_diamond_example_nb.Plo@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@@srclib@/$(DEPDIR)/_bindings_la-with_parameter_like_nb.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@@srclib@/$(DEPDIR)/_skeleton_downstream_la-downstream_nb.Plo@am__quote@ # am--include-marker
-@AMDEP_TRUE@@am__include@ @am__quote@@srclib@/$(DEPDIR)/_swig_wrap_la-array_sample_nb.Plo@am__quote@ # am--include-marker
-@AMDEP_TRUE@@am__include@ @am__quote@@srclib@/$(DEPDIR)/_swig_wrap_la-array_typemap_sample_nb.Plo@am__quote@ # am--include-marker
-@AMDEP_TRUE@@am__include@ @am__quote@@srclib@/$(DEPDIR)/_swig_wrap_la-director_example_nb.Plo@am__quote@ # am--include-marker
-@AMDEP_TRUE@@am__include@ @am__quote@@srclib@/$(DEPDIR)/_swig_wrap_la-exception_sample_nb.Plo@am__quote@ # am--include-marker
-@AMDEP_TRUE@@am__include@ @am__quote@@srclib@/$(DEPDIR)/_swig_wrap_la-file_reference_sample_nb.Plo@am__quote@ # am--include-marker
-@AMDEP_TRUE@@am__include@ @am__quote@@srclib@/$(DEPDIR)/_swig_wrap_la-generic_object_map_nb.Plo@am__quote@ # am--include-marker
-@AMDEP_TRUE@@am__include@ @am__quote@@srclib@/$(DEPDIR)/_swig_wrap_la-generic_object_nb.Plo@am__quote@ # am--include-marker
-@AMDEP_TRUE@@am__include@ @am__quote@@srclib@/$(DEPDIR)/_swig_wrap_la-generic_object_sample_nb.Plo@am__quote@ # am--include-marker
-@AMDEP_TRUE@@am__include@ @am__quote@@srclib@/$(DEPDIR)/_swig_wrap_la-iostream_swig_nb.Plo@am__quote@ # am--include-marker
-@AMDEP_TRUE@@am__include@ @am__quote@@srclib@/$(DEPDIR)/_swig_wrap_la-multi_base_example_nb.Plo@am__quote@ # am--include-marker
-@AMDEP_TRUE@@am__include@ @am__quote@@srclib@/$(DEPDIR)/_swig_wrap_la-numpy_sample_nb.Plo@am__quote@ # am--include-marker
-@AMDEP_TRUE@@am__include@ @am__quote@@srclib@/$(DEPDIR)/_swig_wrap_la-observer_example_nb.Plo@am__quote@ # am--include-marker
-@AMDEP_TRUE@@am__include@ @am__quote@@srclib@/$(DEPDIR)/_swig_wrap_la-observer_nb.Plo@am__quote@ # am--include-marker
-@AMDEP_TRUE@@am__include@ @am__quote@@srclib@/$(DEPDIR)/_swig_wrap_la-overload_example_nb.Plo@am__quote@ # am--include-marker
-@AMDEP_TRUE@@am__include@ @am__quote@@srclib@/$(DEPDIR)/_swig_wrap_la-raster_sample_nb.Plo@am__quote@ # am--include-marker
-@AMDEP_TRUE@@am__include@ @am__quote@@srclib@/$(DEPDIR)/_swig_wrap_la-serialize_function_nb.Plo@am__quote@ # am--include-marker
-@AMDEP_TRUE@@am__include@ @am__quote@@srclib@/$(DEPDIR)/_swig_wrap_la-skeleton_exception_nb.Plo@am__quote@ # am--include-marker
-@AMDEP_TRUE@@am__include@ @am__quote@@srclib@/$(DEPDIR)/_swig_wrap_la-skeleton_nb_module.Plo@am__quote@ # am--include-marker
-@AMDEP_TRUE@@am__include@ @am__quote@@srclib@/$(DEPDIR)/_swig_wrap_la-swig_rules_sample_nb.Plo@am__quote@ # am--include-marker
-@AMDEP_TRUE@@am__include@ @am__quote@@srclib@/$(DEPDIR)/_swig_wrap_la-thread_example_nb.Plo@am__quote@ # am--include-marker
-@AMDEP_TRUE@@am__include@ @am__quote@@srclib@/$(DEPDIR)/_swig_wrap_la-virtual_diamond_example_nb.Plo@am__quote@ # am--include-marker
-@AMDEP_TRUE@@am__include@ @am__quote@@srclib@/$(DEPDIR)/_swig_wrap_la-with_parameter_like_nb.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@@srclib@/$(DEPDIR)/golden_archive_generator-golden_archive_generator.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@@srclib@/$(DEPDIR)/libskeleton_la-array_sample.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@@srclib@/$(DEPDIR)/libskeleton_la-blitz_array_serialize_support.Plo@am__quote@ # am--include-marker
@@ -1698,10 +1698,6 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@@srclib@/$(DEPDIR)/skeleton_test_all-skeleton_exception_test.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@@srclib@/$(DEPDIR)/skeleton_test_all-test_all.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@@srclib@/$(DEPDIR)/skeleton_test_all-thread_example_test.Po@am__quote@ # am--include-marker
-@AMDEP_TRUE@@am__include@ @am__quote@@swigrules@/lib/$(DEPDIR)/libskeleton_la-serialize_function.Plo@am__quote@ # am--include-marker
-@AMDEP_TRUE@@am__include@ @am__quote@@swigrules@/lib/$(DEPDIR)/libskeleton_la-weak_ptr_serialize_support.Plo@am__quote@ # am--include-marker
-@AMDEP_TRUE@@am__include@ @am__quote@@swigrules@/nanobind/$(DEPDIR)/_swig_wrap_la-swig_rules_nb.Plo@am__quote@ # am--include-marker
-@AMDEP_TRUE@@am__include@ @am__quote@@swigrules@/nanobind/$(DEPDIR)/libnanobind_core_la-nb_combined.Plo@am__quote@ # am--include-marker
 
 $(am__depfiles_remade):
 	@$(MKDIR_P) $(@D)
@@ -1733,6 +1729,174 @@ am--depfiles: $(am__depfiles_remade)
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LTCXXCOMPILE) -c -o $@ $<
 
+@srclib@/_bindings_la-array_sample_nb.lo: @srclib@/array_sample_nb.cc
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(_bindings_la_CPPFLAGS) $(CPPFLAGS) $(_bindings_la_CXXFLAGS) $(CXXFLAGS) -MT @srclib@/_bindings_la-array_sample_nb.lo -MD -MP -MF @srclib@/$(DEPDIR)/_bindings_la-array_sample_nb.Tpo -c -o @srclib@/_bindings_la-array_sample_nb.lo `test -f '@srclib@/array_sample_nb.cc' || echo '$(srcdir)/'`@srclib@/array_sample_nb.cc
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) @srclib@/$(DEPDIR)/_bindings_la-array_sample_nb.Tpo @srclib@/$(DEPDIR)/_bindings_la-array_sample_nb.Plo
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='@srclib@/array_sample_nb.cc' object='@srclib@/_bindings_la-array_sample_nb.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(_bindings_la_CPPFLAGS) $(CPPFLAGS) $(_bindings_la_CXXFLAGS) $(CXXFLAGS) -c -o @srclib@/_bindings_la-array_sample_nb.lo `test -f '@srclib@/array_sample_nb.cc' || echo '$(srcdir)/'`@srclib@/array_sample_nb.cc
+
+@srclib@/_bindings_la-array_typemap_sample_nb.lo: @srclib@/array_typemap_sample_nb.cc
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(_bindings_la_CPPFLAGS) $(CPPFLAGS) $(_bindings_la_CXXFLAGS) $(CXXFLAGS) -MT @srclib@/_bindings_la-array_typemap_sample_nb.lo -MD -MP -MF @srclib@/$(DEPDIR)/_bindings_la-array_typemap_sample_nb.Tpo -c -o @srclib@/_bindings_la-array_typemap_sample_nb.lo `test -f '@srclib@/array_typemap_sample_nb.cc' || echo '$(srcdir)/'`@srclib@/array_typemap_sample_nb.cc
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) @srclib@/$(DEPDIR)/_bindings_la-array_typemap_sample_nb.Tpo @srclib@/$(DEPDIR)/_bindings_la-array_typemap_sample_nb.Plo
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='@srclib@/array_typemap_sample_nb.cc' object='@srclib@/_bindings_la-array_typemap_sample_nb.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(_bindings_la_CPPFLAGS) $(CPPFLAGS) $(_bindings_la_CXXFLAGS) $(CXXFLAGS) -c -o @srclib@/_bindings_la-array_typemap_sample_nb.lo `test -f '@srclib@/array_typemap_sample_nb.cc' || echo '$(srcdir)/'`@srclib@/array_typemap_sample_nb.cc
+
+@srclib@/_bindings_la-director_example_nb.lo: @srclib@/director_example_nb.cc
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(_bindings_la_CPPFLAGS) $(CPPFLAGS) $(_bindings_la_CXXFLAGS) $(CXXFLAGS) -MT @srclib@/_bindings_la-director_example_nb.lo -MD -MP -MF @srclib@/$(DEPDIR)/_bindings_la-director_example_nb.Tpo -c -o @srclib@/_bindings_la-director_example_nb.lo `test -f '@srclib@/director_example_nb.cc' || echo '$(srcdir)/'`@srclib@/director_example_nb.cc
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) @srclib@/$(DEPDIR)/_bindings_la-director_example_nb.Tpo @srclib@/$(DEPDIR)/_bindings_la-director_example_nb.Plo
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='@srclib@/director_example_nb.cc' object='@srclib@/_bindings_la-director_example_nb.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(_bindings_la_CPPFLAGS) $(CPPFLAGS) $(_bindings_la_CXXFLAGS) $(CXXFLAGS) -c -o @srclib@/_bindings_la-director_example_nb.lo `test -f '@srclib@/director_example_nb.cc' || echo '$(srcdir)/'`@srclib@/director_example_nb.cc
+
+@srclib@/_bindings_la-exception_sample_nb.lo: @srclib@/exception_sample_nb.cc
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(_bindings_la_CPPFLAGS) $(CPPFLAGS) $(_bindings_la_CXXFLAGS) $(CXXFLAGS) -MT @srclib@/_bindings_la-exception_sample_nb.lo -MD -MP -MF @srclib@/$(DEPDIR)/_bindings_la-exception_sample_nb.Tpo -c -o @srclib@/_bindings_la-exception_sample_nb.lo `test -f '@srclib@/exception_sample_nb.cc' || echo '$(srcdir)/'`@srclib@/exception_sample_nb.cc
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) @srclib@/$(DEPDIR)/_bindings_la-exception_sample_nb.Tpo @srclib@/$(DEPDIR)/_bindings_la-exception_sample_nb.Plo
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='@srclib@/exception_sample_nb.cc' object='@srclib@/_bindings_la-exception_sample_nb.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(_bindings_la_CPPFLAGS) $(CPPFLAGS) $(_bindings_la_CXXFLAGS) $(CXXFLAGS) -c -o @srclib@/_bindings_la-exception_sample_nb.lo `test -f '@srclib@/exception_sample_nb.cc' || echo '$(srcdir)/'`@srclib@/exception_sample_nb.cc
+
+@srclib@/_bindings_la-file_reference_sample_nb.lo: @srclib@/file_reference_sample_nb.cc
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(_bindings_la_CPPFLAGS) $(CPPFLAGS) $(_bindings_la_CXXFLAGS) $(CXXFLAGS) -MT @srclib@/_bindings_la-file_reference_sample_nb.lo -MD -MP -MF @srclib@/$(DEPDIR)/_bindings_la-file_reference_sample_nb.Tpo -c -o @srclib@/_bindings_la-file_reference_sample_nb.lo `test -f '@srclib@/file_reference_sample_nb.cc' || echo '$(srcdir)/'`@srclib@/file_reference_sample_nb.cc
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) @srclib@/$(DEPDIR)/_bindings_la-file_reference_sample_nb.Tpo @srclib@/$(DEPDIR)/_bindings_la-file_reference_sample_nb.Plo
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='@srclib@/file_reference_sample_nb.cc' object='@srclib@/_bindings_la-file_reference_sample_nb.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(_bindings_la_CPPFLAGS) $(CPPFLAGS) $(_bindings_la_CXXFLAGS) $(CXXFLAGS) -c -o @srclib@/_bindings_la-file_reference_sample_nb.lo `test -f '@srclib@/file_reference_sample_nb.cc' || echo '$(srcdir)/'`@srclib@/file_reference_sample_nb.cc
+
+@srclib@/_bindings_la-generic_object_map_nb.lo: @srclib@/generic_object_map_nb.cc
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(_bindings_la_CPPFLAGS) $(CPPFLAGS) $(_bindings_la_CXXFLAGS) $(CXXFLAGS) -MT @srclib@/_bindings_la-generic_object_map_nb.lo -MD -MP -MF @srclib@/$(DEPDIR)/_bindings_la-generic_object_map_nb.Tpo -c -o @srclib@/_bindings_la-generic_object_map_nb.lo `test -f '@srclib@/generic_object_map_nb.cc' || echo '$(srcdir)/'`@srclib@/generic_object_map_nb.cc
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) @srclib@/$(DEPDIR)/_bindings_la-generic_object_map_nb.Tpo @srclib@/$(DEPDIR)/_bindings_la-generic_object_map_nb.Plo
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='@srclib@/generic_object_map_nb.cc' object='@srclib@/_bindings_la-generic_object_map_nb.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(_bindings_la_CPPFLAGS) $(CPPFLAGS) $(_bindings_la_CXXFLAGS) $(CXXFLAGS) -c -o @srclib@/_bindings_la-generic_object_map_nb.lo `test -f '@srclib@/generic_object_map_nb.cc' || echo '$(srcdir)/'`@srclib@/generic_object_map_nb.cc
+
+@srclib@/_bindings_la-generic_object_nb.lo: @srclib@/generic_object_nb.cc
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(_bindings_la_CPPFLAGS) $(CPPFLAGS) $(_bindings_la_CXXFLAGS) $(CXXFLAGS) -MT @srclib@/_bindings_la-generic_object_nb.lo -MD -MP -MF @srclib@/$(DEPDIR)/_bindings_la-generic_object_nb.Tpo -c -o @srclib@/_bindings_la-generic_object_nb.lo `test -f '@srclib@/generic_object_nb.cc' || echo '$(srcdir)/'`@srclib@/generic_object_nb.cc
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) @srclib@/$(DEPDIR)/_bindings_la-generic_object_nb.Tpo @srclib@/$(DEPDIR)/_bindings_la-generic_object_nb.Plo
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='@srclib@/generic_object_nb.cc' object='@srclib@/_bindings_la-generic_object_nb.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(_bindings_la_CPPFLAGS) $(CPPFLAGS) $(_bindings_la_CXXFLAGS) $(CXXFLAGS) -c -o @srclib@/_bindings_la-generic_object_nb.lo `test -f '@srclib@/generic_object_nb.cc' || echo '$(srcdir)/'`@srclib@/generic_object_nb.cc
+
+@srclib@/_bindings_la-generic_object_sample_nb.lo: @srclib@/generic_object_sample_nb.cc
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(_bindings_la_CPPFLAGS) $(CPPFLAGS) $(_bindings_la_CXXFLAGS) $(CXXFLAGS) -MT @srclib@/_bindings_la-generic_object_sample_nb.lo -MD -MP -MF @srclib@/$(DEPDIR)/_bindings_la-generic_object_sample_nb.Tpo -c -o @srclib@/_bindings_la-generic_object_sample_nb.lo `test -f '@srclib@/generic_object_sample_nb.cc' || echo '$(srcdir)/'`@srclib@/generic_object_sample_nb.cc
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) @srclib@/$(DEPDIR)/_bindings_la-generic_object_sample_nb.Tpo @srclib@/$(DEPDIR)/_bindings_la-generic_object_sample_nb.Plo
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='@srclib@/generic_object_sample_nb.cc' object='@srclib@/_bindings_la-generic_object_sample_nb.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(_bindings_la_CPPFLAGS) $(CPPFLAGS) $(_bindings_la_CXXFLAGS) $(CXXFLAGS) -c -o @srclib@/_bindings_la-generic_object_sample_nb.lo `test -f '@srclib@/generic_object_sample_nb.cc' || echo '$(srcdir)/'`@srclib@/generic_object_sample_nb.cc
+
+@srclib@/_bindings_la-iostream_swig_nb.lo: @srclib@/iostream_swig_nb.cc
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(_bindings_la_CPPFLAGS) $(CPPFLAGS) $(_bindings_la_CXXFLAGS) $(CXXFLAGS) -MT @srclib@/_bindings_la-iostream_swig_nb.lo -MD -MP -MF @srclib@/$(DEPDIR)/_bindings_la-iostream_swig_nb.Tpo -c -o @srclib@/_bindings_la-iostream_swig_nb.lo `test -f '@srclib@/iostream_swig_nb.cc' || echo '$(srcdir)/'`@srclib@/iostream_swig_nb.cc
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) @srclib@/$(DEPDIR)/_bindings_la-iostream_swig_nb.Tpo @srclib@/$(DEPDIR)/_bindings_la-iostream_swig_nb.Plo
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='@srclib@/iostream_swig_nb.cc' object='@srclib@/_bindings_la-iostream_swig_nb.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(_bindings_la_CPPFLAGS) $(CPPFLAGS) $(_bindings_la_CXXFLAGS) $(CXXFLAGS) -c -o @srclib@/_bindings_la-iostream_swig_nb.lo `test -f '@srclib@/iostream_swig_nb.cc' || echo '$(srcdir)/'`@srclib@/iostream_swig_nb.cc
+
+@srclib@/_bindings_la-multi_base_example_nb.lo: @srclib@/multi_base_example_nb.cc
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(_bindings_la_CPPFLAGS) $(CPPFLAGS) $(_bindings_la_CXXFLAGS) $(CXXFLAGS) -MT @srclib@/_bindings_la-multi_base_example_nb.lo -MD -MP -MF @srclib@/$(DEPDIR)/_bindings_la-multi_base_example_nb.Tpo -c -o @srclib@/_bindings_la-multi_base_example_nb.lo `test -f '@srclib@/multi_base_example_nb.cc' || echo '$(srcdir)/'`@srclib@/multi_base_example_nb.cc
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) @srclib@/$(DEPDIR)/_bindings_la-multi_base_example_nb.Tpo @srclib@/$(DEPDIR)/_bindings_la-multi_base_example_nb.Plo
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='@srclib@/multi_base_example_nb.cc' object='@srclib@/_bindings_la-multi_base_example_nb.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(_bindings_la_CPPFLAGS) $(CPPFLAGS) $(_bindings_la_CXXFLAGS) $(CXXFLAGS) -c -o @srclib@/_bindings_la-multi_base_example_nb.lo `test -f '@srclib@/multi_base_example_nb.cc' || echo '$(srcdir)/'`@srclib@/multi_base_example_nb.cc
+
+@srclib@/_bindings_la-numpy_sample_nb.lo: @srclib@/numpy_sample_nb.cc
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(_bindings_la_CPPFLAGS) $(CPPFLAGS) $(_bindings_la_CXXFLAGS) $(CXXFLAGS) -MT @srclib@/_bindings_la-numpy_sample_nb.lo -MD -MP -MF @srclib@/$(DEPDIR)/_bindings_la-numpy_sample_nb.Tpo -c -o @srclib@/_bindings_la-numpy_sample_nb.lo `test -f '@srclib@/numpy_sample_nb.cc' || echo '$(srcdir)/'`@srclib@/numpy_sample_nb.cc
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) @srclib@/$(DEPDIR)/_bindings_la-numpy_sample_nb.Tpo @srclib@/$(DEPDIR)/_bindings_la-numpy_sample_nb.Plo
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='@srclib@/numpy_sample_nb.cc' object='@srclib@/_bindings_la-numpy_sample_nb.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(_bindings_la_CPPFLAGS) $(CPPFLAGS) $(_bindings_la_CXXFLAGS) $(CXXFLAGS) -c -o @srclib@/_bindings_la-numpy_sample_nb.lo `test -f '@srclib@/numpy_sample_nb.cc' || echo '$(srcdir)/'`@srclib@/numpy_sample_nb.cc
+
+@srclib@/_bindings_la-observer_example_nb.lo: @srclib@/observer_example_nb.cc
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(_bindings_la_CPPFLAGS) $(CPPFLAGS) $(_bindings_la_CXXFLAGS) $(CXXFLAGS) -MT @srclib@/_bindings_la-observer_example_nb.lo -MD -MP -MF @srclib@/$(DEPDIR)/_bindings_la-observer_example_nb.Tpo -c -o @srclib@/_bindings_la-observer_example_nb.lo `test -f '@srclib@/observer_example_nb.cc' || echo '$(srcdir)/'`@srclib@/observer_example_nb.cc
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) @srclib@/$(DEPDIR)/_bindings_la-observer_example_nb.Tpo @srclib@/$(DEPDIR)/_bindings_la-observer_example_nb.Plo
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='@srclib@/observer_example_nb.cc' object='@srclib@/_bindings_la-observer_example_nb.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(_bindings_la_CPPFLAGS) $(CPPFLAGS) $(_bindings_la_CXXFLAGS) $(CXXFLAGS) -c -o @srclib@/_bindings_la-observer_example_nb.lo `test -f '@srclib@/observer_example_nb.cc' || echo '$(srcdir)/'`@srclib@/observer_example_nb.cc
+
+@srclib@/_bindings_la-observer_nb.lo: @srclib@/observer_nb.cc
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(_bindings_la_CPPFLAGS) $(CPPFLAGS) $(_bindings_la_CXXFLAGS) $(CXXFLAGS) -MT @srclib@/_bindings_la-observer_nb.lo -MD -MP -MF @srclib@/$(DEPDIR)/_bindings_la-observer_nb.Tpo -c -o @srclib@/_bindings_la-observer_nb.lo `test -f '@srclib@/observer_nb.cc' || echo '$(srcdir)/'`@srclib@/observer_nb.cc
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) @srclib@/$(DEPDIR)/_bindings_la-observer_nb.Tpo @srclib@/$(DEPDIR)/_bindings_la-observer_nb.Plo
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='@srclib@/observer_nb.cc' object='@srclib@/_bindings_la-observer_nb.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(_bindings_la_CPPFLAGS) $(CPPFLAGS) $(_bindings_la_CXXFLAGS) $(CXXFLAGS) -c -o @srclib@/_bindings_la-observer_nb.lo `test -f '@srclib@/observer_nb.cc' || echo '$(srcdir)/'`@srclib@/observer_nb.cc
+
+@srclib@/_bindings_la-overload_example_nb.lo: @srclib@/overload_example_nb.cc
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(_bindings_la_CPPFLAGS) $(CPPFLAGS) $(_bindings_la_CXXFLAGS) $(CXXFLAGS) -MT @srclib@/_bindings_la-overload_example_nb.lo -MD -MP -MF @srclib@/$(DEPDIR)/_bindings_la-overload_example_nb.Tpo -c -o @srclib@/_bindings_la-overload_example_nb.lo `test -f '@srclib@/overload_example_nb.cc' || echo '$(srcdir)/'`@srclib@/overload_example_nb.cc
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) @srclib@/$(DEPDIR)/_bindings_la-overload_example_nb.Tpo @srclib@/$(DEPDIR)/_bindings_la-overload_example_nb.Plo
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='@srclib@/overload_example_nb.cc' object='@srclib@/_bindings_la-overload_example_nb.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(_bindings_la_CPPFLAGS) $(CPPFLAGS) $(_bindings_la_CXXFLAGS) $(CXXFLAGS) -c -o @srclib@/_bindings_la-overload_example_nb.lo `test -f '@srclib@/overload_example_nb.cc' || echo '$(srcdir)/'`@srclib@/overload_example_nb.cc
+
+@srclib@/_bindings_la-raster_sample_nb.lo: @srclib@/raster_sample_nb.cc
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(_bindings_la_CPPFLAGS) $(CPPFLAGS) $(_bindings_la_CXXFLAGS) $(CXXFLAGS) -MT @srclib@/_bindings_la-raster_sample_nb.lo -MD -MP -MF @srclib@/$(DEPDIR)/_bindings_la-raster_sample_nb.Tpo -c -o @srclib@/_bindings_la-raster_sample_nb.lo `test -f '@srclib@/raster_sample_nb.cc' || echo '$(srcdir)/'`@srclib@/raster_sample_nb.cc
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) @srclib@/$(DEPDIR)/_bindings_la-raster_sample_nb.Tpo @srclib@/$(DEPDIR)/_bindings_la-raster_sample_nb.Plo
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='@srclib@/raster_sample_nb.cc' object='@srclib@/_bindings_la-raster_sample_nb.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(_bindings_la_CPPFLAGS) $(CPPFLAGS) $(_bindings_la_CXXFLAGS) $(CXXFLAGS) -c -o @srclib@/_bindings_la-raster_sample_nb.lo `test -f '@srclib@/raster_sample_nb.cc' || echo '$(srcdir)/'`@srclib@/raster_sample_nb.cc
+
+@srclib@/_bindings_la-serialize_function_nb.lo: @srclib@/serialize_function_nb.cc
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(_bindings_la_CPPFLAGS) $(CPPFLAGS) $(_bindings_la_CXXFLAGS) $(CXXFLAGS) -MT @srclib@/_bindings_la-serialize_function_nb.lo -MD -MP -MF @srclib@/$(DEPDIR)/_bindings_la-serialize_function_nb.Tpo -c -o @srclib@/_bindings_la-serialize_function_nb.lo `test -f '@srclib@/serialize_function_nb.cc' || echo '$(srcdir)/'`@srclib@/serialize_function_nb.cc
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) @srclib@/$(DEPDIR)/_bindings_la-serialize_function_nb.Tpo @srclib@/$(DEPDIR)/_bindings_la-serialize_function_nb.Plo
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='@srclib@/serialize_function_nb.cc' object='@srclib@/_bindings_la-serialize_function_nb.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(_bindings_la_CPPFLAGS) $(CPPFLAGS) $(_bindings_la_CXXFLAGS) $(CXXFLAGS) -c -o @srclib@/_bindings_la-serialize_function_nb.lo `test -f '@srclib@/serialize_function_nb.cc' || echo '$(srcdir)/'`@srclib@/serialize_function_nb.cc
+
+@srclib@/_bindings_la-skeleton_exception_nb.lo: @srclib@/skeleton_exception_nb.cc
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(_bindings_la_CPPFLAGS) $(CPPFLAGS) $(_bindings_la_CXXFLAGS) $(CXXFLAGS) -MT @srclib@/_bindings_la-skeleton_exception_nb.lo -MD -MP -MF @srclib@/$(DEPDIR)/_bindings_la-skeleton_exception_nb.Tpo -c -o @srclib@/_bindings_la-skeleton_exception_nb.lo `test -f '@srclib@/skeleton_exception_nb.cc' || echo '$(srcdir)/'`@srclib@/skeleton_exception_nb.cc
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) @srclib@/$(DEPDIR)/_bindings_la-skeleton_exception_nb.Tpo @srclib@/$(DEPDIR)/_bindings_la-skeleton_exception_nb.Plo
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='@srclib@/skeleton_exception_nb.cc' object='@srclib@/_bindings_la-skeleton_exception_nb.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(_bindings_la_CPPFLAGS) $(CPPFLAGS) $(_bindings_la_CXXFLAGS) $(CXXFLAGS) -c -o @srclib@/_bindings_la-skeleton_exception_nb.lo `test -f '@srclib@/skeleton_exception_nb.cc' || echo '$(srcdir)/'`@srclib@/skeleton_exception_nb.cc
+
+@srclib@/_bindings_la-cxx_python_rules_sample_nb.lo: @srclib@/cxx_python_rules_sample_nb.cc
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(_bindings_la_CPPFLAGS) $(CPPFLAGS) $(_bindings_la_CXXFLAGS) $(CXXFLAGS) -MT @srclib@/_bindings_la-cxx_python_rules_sample_nb.lo -MD -MP -MF @srclib@/$(DEPDIR)/_bindings_la-cxx_python_rules_sample_nb.Tpo -c -o @srclib@/_bindings_la-cxx_python_rules_sample_nb.lo `test -f '@srclib@/cxx_python_rules_sample_nb.cc' || echo '$(srcdir)/'`@srclib@/cxx_python_rules_sample_nb.cc
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) @srclib@/$(DEPDIR)/_bindings_la-cxx_python_rules_sample_nb.Tpo @srclib@/$(DEPDIR)/_bindings_la-cxx_python_rules_sample_nb.Plo
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='@srclib@/cxx_python_rules_sample_nb.cc' object='@srclib@/_bindings_la-cxx_python_rules_sample_nb.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(_bindings_la_CPPFLAGS) $(CPPFLAGS) $(_bindings_la_CXXFLAGS) $(CXXFLAGS) -c -o @srclib@/_bindings_la-cxx_python_rules_sample_nb.lo `test -f '@srclib@/cxx_python_rules_sample_nb.cc' || echo '$(srcdir)/'`@srclib@/cxx_python_rules_sample_nb.cc
+
+@srclib@/_bindings_la-thread_example_nb.lo: @srclib@/thread_example_nb.cc
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(_bindings_la_CPPFLAGS) $(CPPFLAGS) $(_bindings_la_CXXFLAGS) $(CXXFLAGS) -MT @srclib@/_bindings_la-thread_example_nb.lo -MD -MP -MF @srclib@/$(DEPDIR)/_bindings_la-thread_example_nb.Tpo -c -o @srclib@/_bindings_la-thread_example_nb.lo `test -f '@srclib@/thread_example_nb.cc' || echo '$(srcdir)/'`@srclib@/thread_example_nb.cc
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) @srclib@/$(DEPDIR)/_bindings_la-thread_example_nb.Tpo @srclib@/$(DEPDIR)/_bindings_la-thread_example_nb.Plo
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='@srclib@/thread_example_nb.cc' object='@srclib@/_bindings_la-thread_example_nb.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(_bindings_la_CPPFLAGS) $(CPPFLAGS) $(_bindings_la_CXXFLAGS) $(CXXFLAGS) -c -o @srclib@/_bindings_la-thread_example_nb.lo `test -f '@srclib@/thread_example_nb.cc' || echo '$(srcdir)/'`@srclib@/thread_example_nb.cc
+
+@srclib@/_bindings_la-virtual_diamond_example_nb.lo: @srclib@/virtual_diamond_example_nb.cc
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(_bindings_la_CPPFLAGS) $(CPPFLAGS) $(_bindings_la_CXXFLAGS) $(CXXFLAGS) -MT @srclib@/_bindings_la-virtual_diamond_example_nb.lo -MD -MP -MF @srclib@/$(DEPDIR)/_bindings_la-virtual_diamond_example_nb.Tpo -c -o @srclib@/_bindings_la-virtual_diamond_example_nb.lo `test -f '@srclib@/virtual_diamond_example_nb.cc' || echo '$(srcdir)/'`@srclib@/virtual_diamond_example_nb.cc
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) @srclib@/$(DEPDIR)/_bindings_la-virtual_diamond_example_nb.Tpo @srclib@/$(DEPDIR)/_bindings_la-virtual_diamond_example_nb.Plo
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='@srclib@/virtual_diamond_example_nb.cc' object='@srclib@/_bindings_la-virtual_diamond_example_nb.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(_bindings_la_CPPFLAGS) $(CPPFLAGS) $(_bindings_la_CXXFLAGS) $(CXXFLAGS) -c -o @srclib@/_bindings_la-virtual_diamond_example_nb.lo `test -f '@srclib@/virtual_diamond_example_nb.cc' || echo '$(srcdir)/'`@srclib@/virtual_diamond_example_nb.cc
+
+@srclib@/_bindings_la-with_parameter_like_nb.lo: @srclib@/with_parameter_like_nb.cc
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(_bindings_la_CPPFLAGS) $(CPPFLAGS) $(_bindings_la_CXXFLAGS) $(CXXFLAGS) -MT @srclib@/_bindings_la-with_parameter_like_nb.lo -MD -MP -MF @srclib@/$(DEPDIR)/_bindings_la-with_parameter_like_nb.Tpo -c -o @srclib@/_bindings_la-with_parameter_like_nb.lo `test -f '@srclib@/with_parameter_like_nb.cc' || echo '$(srcdir)/'`@srclib@/with_parameter_like_nb.cc
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) @srclib@/$(DEPDIR)/_bindings_la-with_parameter_like_nb.Tpo @srclib@/$(DEPDIR)/_bindings_la-with_parameter_like_nb.Plo
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='@srclib@/with_parameter_like_nb.cc' object='@srclib@/_bindings_la-with_parameter_like_nb.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(_bindings_la_CPPFLAGS) $(CPPFLAGS) $(_bindings_la_CXXFLAGS) $(CXXFLAGS) -c -o @srclib@/_bindings_la-with_parameter_like_nb.lo `test -f '@srclib@/with_parameter_like_nb.cc' || echo '$(srcdir)/'`@srclib@/with_parameter_like_nb.cc
+
+@srclib@/_bindings_la-skeleton_nb_module.lo: @srclib@/skeleton_nb_module.cc
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(_bindings_la_CPPFLAGS) $(CPPFLAGS) $(_bindings_la_CXXFLAGS) $(CXXFLAGS) -MT @srclib@/_bindings_la-skeleton_nb_module.lo -MD -MP -MF @srclib@/$(DEPDIR)/_bindings_la-skeleton_nb_module.Tpo -c -o @srclib@/_bindings_la-skeleton_nb_module.lo `test -f '@srclib@/skeleton_nb_module.cc' || echo '$(srcdir)/'`@srclib@/skeleton_nb_module.cc
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) @srclib@/$(DEPDIR)/_bindings_la-skeleton_nb_module.Tpo @srclib@/$(DEPDIR)/_bindings_la-skeleton_nb_module.Plo
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='@srclib@/skeleton_nb_module.cc' object='@srclib@/_bindings_la-skeleton_nb_module.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(_bindings_la_CPPFLAGS) $(CPPFLAGS) $(_bindings_la_CXXFLAGS) $(CXXFLAGS) -c -o @srclib@/_bindings_la-skeleton_nb_module.lo `test -f '@srclib@/skeleton_nb_module.cc' || echo '$(srcdir)/'`@srclib@/skeleton_nb_module.cc
+
+@cxxpythonrules@/nanobind/_bindings_la-cxx_python_rules_nb.lo: @cxxpythonrules@/nanobind/cxx_python_rules_nb.cc
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(_bindings_la_CPPFLAGS) $(CPPFLAGS) $(_bindings_la_CXXFLAGS) $(CXXFLAGS) -MT @cxxpythonrules@/nanobind/_bindings_la-cxx_python_rules_nb.lo -MD -MP -MF @cxxpythonrules@/nanobind/$(DEPDIR)/_bindings_la-cxx_python_rules_nb.Tpo -c -o @cxxpythonrules@/nanobind/_bindings_la-cxx_python_rules_nb.lo `test -f '@cxxpythonrules@/nanobind/cxx_python_rules_nb.cc' || echo '$(srcdir)/'`@cxxpythonrules@/nanobind/cxx_python_rules_nb.cc
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) @cxxpythonrules@/nanobind/$(DEPDIR)/_bindings_la-cxx_python_rules_nb.Tpo @cxxpythonrules@/nanobind/$(DEPDIR)/_bindings_la-cxx_python_rules_nb.Plo
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='@cxxpythonrules@/nanobind/cxx_python_rules_nb.cc' object='@cxxpythonrules@/nanobind/_bindings_la-cxx_python_rules_nb.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(_bindings_la_CPPFLAGS) $(CPPFLAGS) $(_bindings_la_CXXFLAGS) $(CXXFLAGS) -c -o @cxxpythonrules@/nanobind/_bindings_la-cxx_python_rules_nb.lo `test -f '@cxxpythonrules@/nanobind/cxx_python_rules_nb.cc' || echo '$(srcdir)/'`@cxxpythonrules@/nanobind/cxx_python_rules_nb.cc
+
+_bindings_la-nb_docstrings.lo: nb_docstrings.cc
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(_bindings_la_CPPFLAGS) $(CPPFLAGS) $(_bindings_la_CXXFLAGS) $(CXXFLAGS) -MT _bindings_la-nb_docstrings.lo -MD -MP -MF $(DEPDIR)/_bindings_la-nb_docstrings.Tpo -c -o _bindings_la-nb_docstrings.lo `test -f 'nb_docstrings.cc' || echo '$(srcdir)/'`nb_docstrings.cc
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/_bindings_la-nb_docstrings.Tpo $(DEPDIR)/_bindings_la-nb_docstrings.Plo
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='nb_docstrings.cc' object='_bindings_la-nb_docstrings.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(_bindings_la_CPPFLAGS) $(CPPFLAGS) $(_bindings_la_CXXFLAGS) $(CXXFLAGS) -c -o _bindings_la-nb_docstrings.lo `test -f 'nb_docstrings.cc' || echo '$(srcdir)/'`nb_docstrings.cc
+
 @srclib@/_skeleton_downstream_la-downstream_nb.lo: @srclib@/downstream_nb.cc
 @am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(_skeleton_downstream_la_CPPFLAGS) $(CPPFLAGS) $(_skeleton_downstream_la_CXXFLAGS) $(CXXFLAGS) -MT @srclib@/_skeleton_downstream_la-downstream_nb.lo -MD -MP -MF @srclib@/$(DEPDIR)/_skeleton_downstream_la-downstream_nb.Tpo -c -o @srclib@/_skeleton_downstream_la-downstream_nb.lo `test -f '@srclib@/downstream_nb.cc' || echo '$(srcdir)/'`@srclib@/downstream_nb.cc
 @am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) @srclib@/$(DEPDIR)/_skeleton_downstream_la-downstream_nb.Tpo @srclib@/$(DEPDIR)/_skeleton_downstream_la-downstream_nb.Plo
@@ -1740,194 +1904,26 @@ am--depfiles: $(am__depfiles_remade)
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(_skeleton_downstream_la_CPPFLAGS) $(CPPFLAGS) $(_skeleton_downstream_la_CXXFLAGS) $(CXXFLAGS) -c -o @srclib@/_skeleton_downstream_la-downstream_nb.lo `test -f '@srclib@/downstream_nb.cc' || echo '$(srcdir)/'`@srclib@/downstream_nb.cc
 
-@srclib@/_swig_wrap_la-array_sample_nb.lo: @srclib@/array_sample_nb.cc
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(_swig_wrap_la_CPPFLAGS) $(CPPFLAGS) $(_swig_wrap_la_CXXFLAGS) $(CXXFLAGS) -MT @srclib@/_swig_wrap_la-array_sample_nb.lo -MD -MP -MF @srclib@/$(DEPDIR)/_swig_wrap_la-array_sample_nb.Tpo -c -o @srclib@/_swig_wrap_la-array_sample_nb.lo `test -f '@srclib@/array_sample_nb.cc' || echo '$(srcdir)/'`@srclib@/array_sample_nb.cc
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) @srclib@/$(DEPDIR)/_swig_wrap_la-array_sample_nb.Tpo @srclib@/$(DEPDIR)/_swig_wrap_la-array_sample_nb.Plo
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='@srclib@/array_sample_nb.cc' object='@srclib@/_swig_wrap_la-array_sample_nb.lo' libtool=yes @AMDEPBACKSLASH@
+@cxxpythonrules@/nanobind/libnanobind_core_la-nb_combined.lo: @cxxpythonrules@/nanobind/nb_combined.cc
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libnanobind_core_la_CPPFLAGS) $(CPPFLAGS) $(libnanobind_core_la_CXXFLAGS) $(CXXFLAGS) -MT @cxxpythonrules@/nanobind/libnanobind_core_la-nb_combined.lo -MD -MP -MF @cxxpythonrules@/nanobind/$(DEPDIR)/libnanobind_core_la-nb_combined.Tpo -c -o @cxxpythonrules@/nanobind/libnanobind_core_la-nb_combined.lo `test -f '@cxxpythonrules@/nanobind/nb_combined.cc' || echo '$(srcdir)/'`@cxxpythonrules@/nanobind/nb_combined.cc
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) @cxxpythonrules@/nanobind/$(DEPDIR)/libnanobind_core_la-nb_combined.Tpo @cxxpythonrules@/nanobind/$(DEPDIR)/libnanobind_core_la-nb_combined.Plo
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='@cxxpythonrules@/nanobind/nb_combined.cc' object='@cxxpythonrules@/nanobind/libnanobind_core_la-nb_combined.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(_swig_wrap_la_CPPFLAGS) $(CPPFLAGS) $(_swig_wrap_la_CXXFLAGS) $(CXXFLAGS) -c -o @srclib@/_swig_wrap_la-array_sample_nb.lo `test -f '@srclib@/array_sample_nb.cc' || echo '$(srcdir)/'`@srclib@/array_sample_nb.cc
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libnanobind_core_la_CPPFLAGS) $(CPPFLAGS) $(libnanobind_core_la_CXXFLAGS) $(CXXFLAGS) -c -o @cxxpythonrules@/nanobind/libnanobind_core_la-nb_combined.lo `test -f '@cxxpythonrules@/nanobind/nb_combined.cc' || echo '$(srcdir)/'`@cxxpythonrules@/nanobind/nb_combined.cc
 
-@srclib@/_swig_wrap_la-array_typemap_sample_nb.lo: @srclib@/array_typemap_sample_nb.cc
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(_swig_wrap_la_CPPFLAGS) $(CPPFLAGS) $(_swig_wrap_la_CXXFLAGS) $(CXXFLAGS) -MT @srclib@/_swig_wrap_la-array_typemap_sample_nb.lo -MD -MP -MF @srclib@/$(DEPDIR)/_swig_wrap_la-array_typemap_sample_nb.Tpo -c -o @srclib@/_swig_wrap_la-array_typemap_sample_nb.lo `test -f '@srclib@/array_typemap_sample_nb.cc' || echo '$(srcdir)/'`@srclib@/array_typemap_sample_nb.cc
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) @srclib@/$(DEPDIR)/_swig_wrap_la-array_typemap_sample_nb.Tpo @srclib@/$(DEPDIR)/_swig_wrap_la-array_typemap_sample_nb.Plo
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='@srclib@/array_typemap_sample_nb.cc' object='@srclib@/_swig_wrap_la-array_typemap_sample_nb.lo' libtool=yes @AMDEPBACKSLASH@
+@cxxpythonrules@/lib/libskeleton_la-serialize_function.lo: @cxxpythonrules@/lib/serialize_function.cc
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libskeleton_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT @cxxpythonrules@/lib/libskeleton_la-serialize_function.lo -MD -MP -MF @cxxpythonrules@/lib/$(DEPDIR)/libskeleton_la-serialize_function.Tpo -c -o @cxxpythonrules@/lib/libskeleton_la-serialize_function.lo `test -f '@cxxpythonrules@/lib/serialize_function.cc' || echo '$(srcdir)/'`@cxxpythonrules@/lib/serialize_function.cc
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) @cxxpythonrules@/lib/$(DEPDIR)/libskeleton_la-serialize_function.Tpo @cxxpythonrules@/lib/$(DEPDIR)/libskeleton_la-serialize_function.Plo
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='@cxxpythonrules@/lib/serialize_function.cc' object='@cxxpythonrules@/lib/libskeleton_la-serialize_function.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(_swig_wrap_la_CPPFLAGS) $(CPPFLAGS) $(_swig_wrap_la_CXXFLAGS) $(CXXFLAGS) -c -o @srclib@/_swig_wrap_la-array_typemap_sample_nb.lo `test -f '@srclib@/array_typemap_sample_nb.cc' || echo '$(srcdir)/'`@srclib@/array_typemap_sample_nb.cc
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libskeleton_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o @cxxpythonrules@/lib/libskeleton_la-serialize_function.lo `test -f '@cxxpythonrules@/lib/serialize_function.cc' || echo '$(srcdir)/'`@cxxpythonrules@/lib/serialize_function.cc
 
-@srclib@/_swig_wrap_la-director_example_nb.lo: @srclib@/director_example_nb.cc
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(_swig_wrap_la_CPPFLAGS) $(CPPFLAGS) $(_swig_wrap_la_CXXFLAGS) $(CXXFLAGS) -MT @srclib@/_swig_wrap_la-director_example_nb.lo -MD -MP -MF @srclib@/$(DEPDIR)/_swig_wrap_la-director_example_nb.Tpo -c -o @srclib@/_swig_wrap_la-director_example_nb.lo `test -f '@srclib@/director_example_nb.cc' || echo '$(srcdir)/'`@srclib@/director_example_nb.cc
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) @srclib@/$(DEPDIR)/_swig_wrap_la-director_example_nb.Tpo @srclib@/$(DEPDIR)/_swig_wrap_la-director_example_nb.Plo
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='@srclib@/director_example_nb.cc' object='@srclib@/_swig_wrap_la-director_example_nb.lo' libtool=yes @AMDEPBACKSLASH@
+@cxxpythonrules@/lib/libskeleton_la-weak_ptr_serialize_support.lo: @cxxpythonrules@/lib/weak_ptr_serialize_support.cc
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libskeleton_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT @cxxpythonrules@/lib/libskeleton_la-weak_ptr_serialize_support.lo -MD -MP -MF @cxxpythonrules@/lib/$(DEPDIR)/libskeleton_la-weak_ptr_serialize_support.Tpo -c -o @cxxpythonrules@/lib/libskeleton_la-weak_ptr_serialize_support.lo `test -f '@cxxpythonrules@/lib/weak_ptr_serialize_support.cc' || echo '$(srcdir)/'`@cxxpythonrules@/lib/weak_ptr_serialize_support.cc
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) @cxxpythonrules@/lib/$(DEPDIR)/libskeleton_la-weak_ptr_serialize_support.Tpo @cxxpythonrules@/lib/$(DEPDIR)/libskeleton_la-weak_ptr_serialize_support.Plo
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='@cxxpythonrules@/lib/weak_ptr_serialize_support.cc' object='@cxxpythonrules@/lib/libskeleton_la-weak_ptr_serialize_support.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(_swig_wrap_la_CPPFLAGS) $(CPPFLAGS) $(_swig_wrap_la_CXXFLAGS) $(CXXFLAGS) -c -o @srclib@/_swig_wrap_la-director_example_nb.lo `test -f '@srclib@/director_example_nb.cc' || echo '$(srcdir)/'`@srclib@/director_example_nb.cc
-
-@srclib@/_swig_wrap_la-exception_sample_nb.lo: @srclib@/exception_sample_nb.cc
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(_swig_wrap_la_CPPFLAGS) $(CPPFLAGS) $(_swig_wrap_la_CXXFLAGS) $(CXXFLAGS) -MT @srclib@/_swig_wrap_la-exception_sample_nb.lo -MD -MP -MF @srclib@/$(DEPDIR)/_swig_wrap_la-exception_sample_nb.Tpo -c -o @srclib@/_swig_wrap_la-exception_sample_nb.lo `test -f '@srclib@/exception_sample_nb.cc' || echo '$(srcdir)/'`@srclib@/exception_sample_nb.cc
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) @srclib@/$(DEPDIR)/_swig_wrap_la-exception_sample_nb.Tpo @srclib@/$(DEPDIR)/_swig_wrap_la-exception_sample_nb.Plo
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='@srclib@/exception_sample_nb.cc' object='@srclib@/_swig_wrap_la-exception_sample_nb.lo' libtool=yes @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(_swig_wrap_la_CPPFLAGS) $(CPPFLAGS) $(_swig_wrap_la_CXXFLAGS) $(CXXFLAGS) -c -o @srclib@/_swig_wrap_la-exception_sample_nb.lo `test -f '@srclib@/exception_sample_nb.cc' || echo '$(srcdir)/'`@srclib@/exception_sample_nb.cc
-
-@srclib@/_swig_wrap_la-file_reference_sample_nb.lo: @srclib@/file_reference_sample_nb.cc
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(_swig_wrap_la_CPPFLAGS) $(CPPFLAGS) $(_swig_wrap_la_CXXFLAGS) $(CXXFLAGS) -MT @srclib@/_swig_wrap_la-file_reference_sample_nb.lo -MD -MP -MF @srclib@/$(DEPDIR)/_swig_wrap_la-file_reference_sample_nb.Tpo -c -o @srclib@/_swig_wrap_la-file_reference_sample_nb.lo `test -f '@srclib@/file_reference_sample_nb.cc' || echo '$(srcdir)/'`@srclib@/file_reference_sample_nb.cc
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) @srclib@/$(DEPDIR)/_swig_wrap_la-file_reference_sample_nb.Tpo @srclib@/$(DEPDIR)/_swig_wrap_la-file_reference_sample_nb.Plo
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='@srclib@/file_reference_sample_nb.cc' object='@srclib@/_swig_wrap_la-file_reference_sample_nb.lo' libtool=yes @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(_swig_wrap_la_CPPFLAGS) $(CPPFLAGS) $(_swig_wrap_la_CXXFLAGS) $(CXXFLAGS) -c -o @srclib@/_swig_wrap_la-file_reference_sample_nb.lo `test -f '@srclib@/file_reference_sample_nb.cc' || echo '$(srcdir)/'`@srclib@/file_reference_sample_nb.cc
-
-@srclib@/_swig_wrap_la-generic_object_map_nb.lo: @srclib@/generic_object_map_nb.cc
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(_swig_wrap_la_CPPFLAGS) $(CPPFLAGS) $(_swig_wrap_la_CXXFLAGS) $(CXXFLAGS) -MT @srclib@/_swig_wrap_la-generic_object_map_nb.lo -MD -MP -MF @srclib@/$(DEPDIR)/_swig_wrap_la-generic_object_map_nb.Tpo -c -o @srclib@/_swig_wrap_la-generic_object_map_nb.lo `test -f '@srclib@/generic_object_map_nb.cc' || echo '$(srcdir)/'`@srclib@/generic_object_map_nb.cc
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) @srclib@/$(DEPDIR)/_swig_wrap_la-generic_object_map_nb.Tpo @srclib@/$(DEPDIR)/_swig_wrap_la-generic_object_map_nb.Plo
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='@srclib@/generic_object_map_nb.cc' object='@srclib@/_swig_wrap_la-generic_object_map_nb.lo' libtool=yes @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(_swig_wrap_la_CPPFLAGS) $(CPPFLAGS) $(_swig_wrap_la_CXXFLAGS) $(CXXFLAGS) -c -o @srclib@/_swig_wrap_la-generic_object_map_nb.lo `test -f '@srclib@/generic_object_map_nb.cc' || echo '$(srcdir)/'`@srclib@/generic_object_map_nb.cc
-
-@srclib@/_swig_wrap_la-generic_object_nb.lo: @srclib@/generic_object_nb.cc
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(_swig_wrap_la_CPPFLAGS) $(CPPFLAGS) $(_swig_wrap_la_CXXFLAGS) $(CXXFLAGS) -MT @srclib@/_swig_wrap_la-generic_object_nb.lo -MD -MP -MF @srclib@/$(DEPDIR)/_swig_wrap_la-generic_object_nb.Tpo -c -o @srclib@/_swig_wrap_la-generic_object_nb.lo `test -f '@srclib@/generic_object_nb.cc' || echo '$(srcdir)/'`@srclib@/generic_object_nb.cc
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) @srclib@/$(DEPDIR)/_swig_wrap_la-generic_object_nb.Tpo @srclib@/$(DEPDIR)/_swig_wrap_la-generic_object_nb.Plo
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='@srclib@/generic_object_nb.cc' object='@srclib@/_swig_wrap_la-generic_object_nb.lo' libtool=yes @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(_swig_wrap_la_CPPFLAGS) $(CPPFLAGS) $(_swig_wrap_la_CXXFLAGS) $(CXXFLAGS) -c -o @srclib@/_swig_wrap_la-generic_object_nb.lo `test -f '@srclib@/generic_object_nb.cc' || echo '$(srcdir)/'`@srclib@/generic_object_nb.cc
-
-@srclib@/_swig_wrap_la-generic_object_sample_nb.lo: @srclib@/generic_object_sample_nb.cc
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(_swig_wrap_la_CPPFLAGS) $(CPPFLAGS) $(_swig_wrap_la_CXXFLAGS) $(CXXFLAGS) -MT @srclib@/_swig_wrap_la-generic_object_sample_nb.lo -MD -MP -MF @srclib@/$(DEPDIR)/_swig_wrap_la-generic_object_sample_nb.Tpo -c -o @srclib@/_swig_wrap_la-generic_object_sample_nb.lo `test -f '@srclib@/generic_object_sample_nb.cc' || echo '$(srcdir)/'`@srclib@/generic_object_sample_nb.cc
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) @srclib@/$(DEPDIR)/_swig_wrap_la-generic_object_sample_nb.Tpo @srclib@/$(DEPDIR)/_swig_wrap_la-generic_object_sample_nb.Plo
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='@srclib@/generic_object_sample_nb.cc' object='@srclib@/_swig_wrap_la-generic_object_sample_nb.lo' libtool=yes @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(_swig_wrap_la_CPPFLAGS) $(CPPFLAGS) $(_swig_wrap_la_CXXFLAGS) $(CXXFLAGS) -c -o @srclib@/_swig_wrap_la-generic_object_sample_nb.lo `test -f '@srclib@/generic_object_sample_nb.cc' || echo '$(srcdir)/'`@srclib@/generic_object_sample_nb.cc
-
-@srclib@/_swig_wrap_la-iostream_swig_nb.lo: @srclib@/iostream_swig_nb.cc
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(_swig_wrap_la_CPPFLAGS) $(CPPFLAGS) $(_swig_wrap_la_CXXFLAGS) $(CXXFLAGS) -MT @srclib@/_swig_wrap_la-iostream_swig_nb.lo -MD -MP -MF @srclib@/$(DEPDIR)/_swig_wrap_la-iostream_swig_nb.Tpo -c -o @srclib@/_swig_wrap_la-iostream_swig_nb.lo `test -f '@srclib@/iostream_swig_nb.cc' || echo '$(srcdir)/'`@srclib@/iostream_swig_nb.cc
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) @srclib@/$(DEPDIR)/_swig_wrap_la-iostream_swig_nb.Tpo @srclib@/$(DEPDIR)/_swig_wrap_la-iostream_swig_nb.Plo
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='@srclib@/iostream_swig_nb.cc' object='@srclib@/_swig_wrap_la-iostream_swig_nb.lo' libtool=yes @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(_swig_wrap_la_CPPFLAGS) $(CPPFLAGS) $(_swig_wrap_la_CXXFLAGS) $(CXXFLAGS) -c -o @srclib@/_swig_wrap_la-iostream_swig_nb.lo `test -f '@srclib@/iostream_swig_nb.cc' || echo '$(srcdir)/'`@srclib@/iostream_swig_nb.cc
-
-@srclib@/_swig_wrap_la-multi_base_example_nb.lo: @srclib@/multi_base_example_nb.cc
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(_swig_wrap_la_CPPFLAGS) $(CPPFLAGS) $(_swig_wrap_la_CXXFLAGS) $(CXXFLAGS) -MT @srclib@/_swig_wrap_la-multi_base_example_nb.lo -MD -MP -MF @srclib@/$(DEPDIR)/_swig_wrap_la-multi_base_example_nb.Tpo -c -o @srclib@/_swig_wrap_la-multi_base_example_nb.lo `test -f '@srclib@/multi_base_example_nb.cc' || echo '$(srcdir)/'`@srclib@/multi_base_example_nb.cc
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) @srclib@/$(DEPDIR)/_swig_wrap_la-multi_base_example_nb.Tpo @srclib@/$(DEPDIR)/_swig_wrap_la-multi_base_example_nb.Plo
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='@srclib@/multi_base_example_nb.cc' object='@srclib@/_swig_wrap_la-multi_base_example_nb.lo' libtool=yes @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(_swig_wrap_la_CPPFLAGS) $(CPPFLAGS) $(_swig_wrap_la_CXXFLAGS) $(CXXFLAGS) -c -o @srclib@/_swig_wrap_la-multi_base_example_nb.lo `test -f '@srclib@/multi_base_example_nb.cc' || echo '$(srcdir)/'`@srclib@/multi_base_example_nb.cc
-
-@srclib@/_swig_wrap_la-numpy_sample_nb.lo: @srclib@/numpy_sample_nb.cc
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(_swig_wrap_la_CPPFLAGS) $(CPPFLAGS) $(_swig_wrap_la_CXXFLAGS) $(CXXFLAGS) -MT @srclib@/_swig_wrap_la-numpy_sample_nb.lo -MD -MP -MF @srclib@/$(DEPDIR)/_swig_wrap_la-numpy_sample_nb.Tpo -c -o @srclib@/_swig_wrap_la-numpy_sample_nb.lo `test -f '@srclib@/numpy_sample_nb.cc' || echo '$(srcdir)/'`@srclib@/numpy_sample_nb.cc
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) @srclib@/$(DEPDIR)/_swig_wrap_la-numpy_sample_nb.Tpo @srclib@/$(DEPDIR)/_swig_wrap_la-numpy_sample_nb.Plo
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='@srclib@/numpy_sample_nb.cc' object='@srclib@/_swig_wrap_la-numpy_sample_nb.lo' libtool=yes @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(_swig_wrap_la_CPPFLAGS) $(CPPFLAGS) $(_swig_wrap_la_CXXFLAGS) $(CXXFLAGS) -c -o @srclib@/_swig_wrap_la-numpy_sample_nb.lo `test -f '@srclib@/numpy_sample_nb.cc' || echo '$(srcdir)/'`@srclib@/numpy_sample_nb.cc
-
-@srclib@/_swig_wrap_la-observer_example_nb.lo: @srclib@/observer_example_nb.cc
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(_swig_wrap_la_CPPFLAGS) $(CPPFLAGS) $(_swig_wrap_la_CXXFLAGS) $(CXXFLAGS) -MT @srclib@/_swig_wrap_la-observer_example_nb.lo -MD -MP -MF @srclib@/$(DEPDIR)/_swig_wrap_la-observer_example_nb.Tpo -c -o @srclib@/_swig_wrap_la-observer_example_nb.lo `test -f '@srclib@/observer_example_nb.cc' || echo '$(srcdir)/'`@srclib@/observer_example_nb.cc
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) @srclib@/$(DEPDIR)/_swig_wrap_la-observer_example_nb.Tpo @srclib@/$(DEPDIR)/_swig_wrap_la-observer_example_nb.Plo
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='@srclib@/observer_example_nb.cc' object='@srclib@/_swig_wrap_la-observer_example_nb.lo' libtool=yes @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(_swig_wrap_la_CPPFLAGS) $(CPPFLAGS) $(_swig_wrap_la_CXXFLAGS) $(CXXFLAGS) -c -o @srclib@/_swig_wrap_la-observer_example_nb.lo `test -f '@srclib@/observer_example_nb.cc' || echo '$(srcdir)/'`@srclib@/observer_example_nb.cc
-
-@srclib@/_swig_wrap_la-observer_nb.lo: @srclib@/observer_nb.cc
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(_swig_wrap_la_CPPFLAGS) $(CPPFLAGS) $(_swig_wrap_la_CXXFLAGS) $(CXXFLAGS) -MT @srclib@/_swig_wrap_la-observer_nb.lo -MD -MP -MF @srclib@/$(DEPDIR)/_swig_wrap_la-observer_nb.Tpo -c -o @srclib@/_swig_wrap_la-observer_nb.lo `test -f '@srclib@/observer_nb.cc' || echo '$(srcdir)/'`@srclib@/observer_nb.cc
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) @srclib@/$(DEPDIR)/_swig_wrap_la-observer_nb.Tpo @srclib@/$(DEPDIR)/_swig_wrap_la-observer_nb.Plo
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='@srclib@/observer_nb.cc' object='@srclib@/_swig_wrap_la-observer_nb.lo' libtool=yes @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(_swig_wrap_la_CPPFLAGS) $(CPPFLAGS) $(_swig_wrap_la_CXXFLAGS) $(CXXFLAGS) -c -o @srclib@/_swig_wrap_la-observer_nb.lo `test -f '@srclib@/observer_nb.cc' || echo '$(srcdir)/'`@srclib@/observer_nb.cc
-
-@srclib@/_swig_wrap_la-overload_example_nb.lo: @srclib@/overload_example_nb.cc
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(_swig_wrap_la_CPPFLAGS) $(CPPFLAGS) $(_swig_wrap_la_CXXFLAGS) $(CXXFLAGS) -MT @srclib@/_swig_wrap_la-overload_example_nb.lo -MD -MP -MF @srclib@/$(DEPDIR)/_swig_wrap_la-overload_example_nb.Tpo -c -o @srclib@/_swig_wrap_la-overload_example_nb.lo `test -f '@srclib@/overload_example_nb.cc' || echo '$(srcdir)/'`@srclib@/overload_example_nb.cc
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) @srclib@/$(DEPDIR)/_swig_wrap_la-overload_example_nb.Tpo @srclib@/$(DEPDIR)/_swig_wrap_la-overload_example_nb.Plo
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='@srclib@/overload_example_nb.cc' object='@srclib@/_swig_wrap_la-overload_example_nb.lo' libtool=yes @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(_swig_wrap_la_CPPFLAGS) $(CPPFLAGS) $(_swig_wrap_la_CXXFLAGS) $(CXXFLAGS) -c -o @srclib@/_swig_wrap_la-overload_example_nb.lo `test -f '@srclib@/overload_example_nb.cc' || echo '$(srcdir)/'`@srclib@/overload_example_nb.cc
-
-@srclib@/_swig_wrap_la-raster_sample_nb.lo: @srclib@/raster_sample_nb.cc
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(_swig_wrap_la_CPPFLAGS) $(CPPFLAGS) $(_swig_wrap_la_CXXFLAGS) $(CXXFLAGS) -MT @srclib@/_swig_wrap_la-raster_sample_nb.lo -MD -MP -MF @srclib@/$(DEPDIR)/_swig_wrap_la-raster_sample_nb.Tpo -c -o @srclib@/_swig_wrap_la-raster_sample_nb.lo `test -f '@srclib@/raster_sample_nb.cc' || echo '$(srcdir)/'`@srclib@/raster_sample_nb.cc
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) @srclib@/$(DEPDIR)/_swig_wrap_la-raster_sample_nb.Tpo @srclib@/$(DEPDIR)/_swig_wrap_la-raster_sample_nb.Plo
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='@srclib@/raster_sample_nb.cc' object='@srclib@/_swig_wrap_la-raster_sample_nb.lo' libtool=yes @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(_swig_wrap_la_CPPFLAGS) $(CPPFLAGS) $(_swig_wrap_la_CXXFLAGS) $(CXXFLAGS) -c -o @srclib@/_swig_wrap_la-raster_sample_nb.lo `test -f '@srclib@/raster_sample_nb.cc' || echo '$(srcdir)/'`@srclib@/raster_sample_nb.cc
-
-@srclib@/_swig_wrap_la-serialize_function_nb.lo: @srclib@/serialize_function_nb.cc
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(_swig_wrap_la_CPPFLAGS) $(CPPFLAGS) $(_swig_wrap_la_CXXFLAGS) $(CXXFLAGS) -MT @srclib@/_swig_wrap_la-serialize_function_nb.lo -MD -MP -MF @srclib@/$(DEPDIR)/_swig_wrap_la-serialize_function_nb.Tpo -c -o @srclib@/_swig_wrap_la-serialize_function_nb.lo `test -f '@srclib@/serialize_function_nb.cc' || echo '$(srcdir)/'`@srclib@/serialize_function_nb.cc
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) @srclib@/$(DEPDIR)/_swig_wrap_la-serialize_function_nb.Tpo @srclib@/$(DEPDIR)/_swig_wrap_la-serialize_function_nb.Plo
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='@srclib@/serialize_function_nb.cc' object='@srclib@/_swig_wrap_la-serialize_function_nb.lo' libtool=yes @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(_swig_wrap_la_CPPFLAGS) $(CPPFLAGS) $(_swig_wrap_la_CXXFLAGS) $(CXXFLAGS) -c -o @srclib@/_swig_wrap_la-serialize_function_nb.lo `test -f '@srclib@/serialize_function_nb.cc' || echo '$(srcdir)/'`@srclib@/serialize_function_nb.cc
-
-@srclib@/_swig_wrap_la-skeleton_exception_nb.lo: @srclib@/skeleton_exception_nb.cc
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(_swig_wrap_la_CPPFLAGS) $(CPPFLAGS) $(_swig_wrap_la_CXXFLAGS) $(CXXFLAGS) -MT @srclib@/_swig_wrap_la-skeleton_exception_nb.lo -MD -MP -MF @srclib@/$(DEPDIR)/_swig_wrap_la-skeleton_exception_nb.Tpo -c -o @srclib@/_swig_wrap_la-skeleton_exception_nb.lo `test -f '@srclib@/skeleton_exception_nb.cc' || echo '$(srcdir)/'`@srclib@/skeleton_exception_nb.cc
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) @srclib@/$(DEPDIR)/_swig_wrap_la-skeleton_exception_nb.Tpo @srclib@/$(DEPDIR)/_swig_wrap_la-skeleton_exception_nb.Plo
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='@srclib@/skeleton_exception_nb.cc' object='@srclib@/_swig_wrap_la-skeleton_exception_nb.lo' libtool=yes @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(_swig_wrap_la_CPPFLAGS) $(CPPFLAGS) $(_swig_wrap_la_CXXFLAGS) $(CXXFLAGS) -c -o @srclib@/_swig_wrap_la-skeleton_exception_nb.lo `test -f '@srclib@/skeleton_exception_nb.cc' || echo '$(srcdir)/'`@srclib@/skeleton_exception_nb.cc
-
-@srclib@/_swig_wrap_la-swig_rules_sample_nb.lo: @srclib@/swig_rules_sample_nb.cc
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(_swig_wrap_la_CPPFLAGS) $(CPPFLAGS) $(_swig_wrap_la_CXXFLAGS) $(CXXFLAGS) -MT @srclib@/_swig_wrap_la-swig_rules_sample_nb.lo -MD -MP -MF @srclib@/$(DEPDIR)/_swig_wrap_la-swig_rules_sample_nb.Tpo -c -o @srclib@/_swig_wrap_la-swig_rules_sample_nb.lo `test -f '@srclib@/swig_rules_sample_nb.cc' || echo '$(srcdir)/'`@srclib@/swig_rules_sample_nb.cc
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) @srclib@/$(DEPDIR)/_swig_wrap_la-swig_rules_sample_nb.Tpo @srclib@/$(DEPDIR)/_swig_wrap_la-swig_rules_sample_nb.Plo
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='@srclib@/swig_rules_sample_nb.cc' object='@srclib@/_swig_wrap_la-swig_rules_sample_nb.lo' libtool=yes @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(_swig_wrap_la_CPPFLAGS) $(CPPFLAGS) $(_swig_wrap_la_CXXFLAGS) $(CXXFLAGS) -c -o @srclib@/_swig_wrap_la-swig_rules_sample_nb.lo `test -f '@srclib@/swig_rules_sample_nb.cc' || echo '$(srcdir)/'`@srclib@/swig_rules_sample_nb.cc
-
-@srclib@/_swig_wrap_la-thread_example_nb.lo: @srclib@/thread_example_nb.cc
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(_swig_wrap_la_CPPFLAGS) $(CPPFLAGS) $(_swig_wrap_la_CXXFLAGS) $(CXXFLAGS) -MT @srclib@/_swig_wrap_la-thread_example_nb.lo -MD -MP -MF @srclib@/$(DEPDIR)/_swig_wrap_la-thread_example_nb.Tpo -c -o @srclib@/_swig_wrap_la-thread_example_nb.lo `test -f '@srclib@/thread_example_nb.cc' || echo '$(srcdir)/'`@srclib@/thread_example_nb.cc
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) @srclib@/$(DEPDIR)/_swig_wrap_la-thread_example_nb.Tpo @srclib@/$(DEPDIR)/_swig_wrap_la-thread_example_nb.Plo
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='@srclib@/thread_example_nb.cc' object='@srclib@/_swig_wrap_la-thread_example_nb.lo' libtool=yes @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(_swig_wrap_la_CPPFLAGS) $(CPPFLAGS) $(_swig_wrap_la_CXXFLAGS) $(CXXFLAGS) -c -o @srclib@/_swig_wrap_la-thread_example_nb.lo `test -f '@srclib@/thread_example_nb.cc' || echo '$(srcdir)/'`@srclib@/thread_example_nb.cc
-
-@srclib@/_swig_wrap_la-virtual_diamond_example_nb.lo: @srclib@/virtual_diamond_example_nb.cc
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(_swig_wrap_la_CPPFLAGS) $(CPPFLAGS) $(_swig_wrap_la_CXXFLAGS) $(CXXFLAGS) -MT @srclib@/_swig_wrap_la-virtual_diamond_example_nb.lo -MD -MP -MF @srclib@/$(DEPDIR)/_swig_wrap_la-virtual_diamond_example_nb.Tpo -c -o @srclib@/_swig_wrap_la-virtual_diamond_example_nb.lo `test -f '@srclib@/virtual_diamond_example_nb.cc' || echo '$(srcdir)/'`@srclib@/virtual_diamond_example_nb.cc
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) @srclib@/$(DEPDIR)/_swig_wrap_la-virtual_diamond_example_nb.Tpo @srclib@/$(DEPDIR)/_swig_wrap_la-virtual_diamond_example_nb.Plo
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='@srclib@/virtual_diamond_example_nb.cc' object='@srclib@/_swig_wrap_la-virtual_diamond_example_nb.lo' libtool=yes @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(_swig_wrap_la_CPPFLAGS) $(CPPFLAGS) $(_swig_wrap_la_CXXFLAGS) $(CXXFLAGS) -c -o @srclib@/_swig_wrap_la-virtual_diamond_example_nb.lo `test -f '@srclib@/virtual_diamond_example_nb.cc' || echo '$(srcdir)/'`@srclib@/virtual_diamond_example_nb.cc
-
-@srclib@/_swig_wrap_la-with_parameter_like_nb.lo: @srclib@/with_parameter_like_nb.cc
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(_swig_wrap_la_CPPFLAGS) $(CPPFLAGS) $(_swig_wrap_la_CXXFLAGS) $(CXXFLAGS) -MT @srclib@/_swig_wrap_la-with_parameter_like_nb.lo -MD -MP -MF @srclib@/$(DEPDIR)/_swig_wrap_la-with_parameter_like_nb.Tpo -c -o @srclib@/_swig_wrap_la-with_parameter_like_nb.lo `test -f '@srclib@/with_parameter_like_nb.cc' || echo '$(srcdir)/'`@srclib@/with_parameter_like_nb.cc
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) @srclib@/$(DEPDIR)/_swig_wrap_la-with_parameter_like_nb.Tpo @srclib@/$(DEPDIR)/_swig_wrap_la-with_parameter_like_nb.Plo
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='@srclib@/with_parameter_like_nb.cc' object='@srclib@/_swig_wrap_la-with_parameter_like_nb.lo' libtool=yes @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(_swig_wrap_la_CPPFLAGS) $(CPPFLAGS) $(_swig_wrap_la_CXXFLAGS) $(CXXFLAGS) -c -o @srclib@/_swig_wrap_la-with_parameter_like_nb.lo `test -f '@srclib@/with_parameter_like_nb.cc' || echo '$(srcdir)/'`@srclib@/with_parameter_like_nb.cc
-
-@srclib@/_swig_wrap_la-skeleton_nb_module.lo: @srclib@/skeleton_nb_module.cc
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(_swig_wrap_la_CPPFLAGS) $(CPPFLAGS) $(_swig_wrap_la_CXXFLAGS) $(CXXFLAGS) -MT @srclib@/_swig_wrap_la-skeleton_nb_module.lo -MD -MP -MF @srclib@/$(DEPDIR)/_swig_wrap_la-skeleton_nb_module.Tpo -c -o @srclib@/_swig_wrap_la-skeleton_nb_module.lo `test -f '@srclib@/skeleton_nb_module.cc' || echo '$(srcdir)/'`@srclib@/skeleton_nb_module.cc
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) @srclib@/$(DEPDIR)/_swig_wrap_la-skeleton_nb_module.Tpo @srclib@/$(DEPDIR)/_swig_wrap_la-skeleton_nb_module.Plo
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='@srclib@/skeleton_nb_module.cc' object='@srclib@/_swig_wrap_la-skeleton_nb_module.lo' libtool=yes @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(_swig_wrap_la_CPPFLAGS) $(CPPFLAGS) $(_swig_wrap_la_CXXFLAGS) $(CXXFLAGS) -c -o @srclib@/_swig_wrap_la-skeleton_nb_module.lo `test -f '@srclib@/skeleton_nb_module.cc' || echo '$(srcdir)/'`@srclib@/skeleton_nb_module.cc
-
-@swigrules@/nanobind/_swig_wrap_la-swig_rules_nb.lo: @swigrules@/nanobind/swig_rules_nb.cc
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(_swig_wrap_la_CPPFLAGS) $(CPPFLAGS) $(_swig_wrap_la_CXXFLAGS) $(CXXFLAGS) -MT @swigrules@/nanobind/_swig_wrap_la-swig_rules_nb.lo -MD -MP -MF @swigrules@/nanobind/$(DEPDIR)/_swig_wrap_la-swig_rules_nb.Tpo -c -o @swigrules@/nanobind/_swig_wrap_la-swig_rules_nb.lo `test -f '@swigrules@/nanobind/swig_rules_nb.cc' || echo '$(srcdir)/'`@swigrules@/nanobind/swig_rules_nb.cc
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) @swigrules@/nanobind/$(DEPDIR)/_swig_wrap_la-swig_rules_nb.Tpo @swigrules@/nanobind/$(DEPDIR)/_swig_wrap_la-swig_rules_nb.Plo
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='@swigrules@/nanobind/swig_rules_nb.cc' object='@swigrules@/nanobind/_swig_wrap_la-swig_rules_nb.lo' libtool=yes @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(_swig_wrap_la_CPPFLAGS) $(CPPFLAGS) $(_swig_wrap_la_CXXFLAGS) $(CXXFLAGS) -c -o @swigrules@/nanobind/_swig_wrap_la-swig_rules_nb.lo `test -f '@swigrules@/nanobind/swig_rules_nb.cc' || echo '$(srcdir)/'`@swigrules@/nanobind/swig_rules_nb.cc
-
-_swig_wrap_la-nb_docstrings.lo: nb_docstrings.cc
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(_swig_wrap_la_CPPFLAGS) $(CPPFLAGS) $(_swig_wrap_la_CXXFLAGS) $(CXXFLAGS) -MT _swig_wrap_la-nb_docstrings.lo -MD -MP -MF $(DEPDIR)/_swig_wrap_la-nb_docstrings.Tpo -c -o _swig_wrap_la-nb_docstrings.lo `test -f 'nb_docstrings.cc' || echo '$(srcdir)/'`nb_docstrings.cc
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/_swig_wrap_la-nb_docstrings.Tpo $(DEPDIR)/_swig_wrap_la-nb_docstrings.Plo
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='nb_docstrings.cc' object='_swig_wrap_la-nb_docstrings.lo' libtool=yes @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(_swig_wrap_la_CPPFLAGS) $(CPPFLAGS) $(_swig_wrap_la_CXXFLAGS) $(CXXFLAGS) -c -o _swig_wrap_la-nb_docstrings.lo `test -f 'nb_docstrings.cc' || echo '$(srcdir)/'`nb_docstrings.cc
-
-@swigrules@/nanobind/libnanobind_core_la-nb_combined.lo: @swigrules@/nanobind/nb_combined.cc
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libnanobind_core_la_CPPFLAGS) $(CPPFLAGS) $(libnanobind_core_la_CXXFLAGS) $(CXXFLAGS) -MT @swigrules@/nanobind/libnanobind_core_la-nb_combined.lo -MD -MP -MF @swigrules@/nanobind/$(DEPDIR)/libnanobind_core_la-nb_combined.Tpo -c -o @swigrules@/nanobind/libnanobind_core_la-nb_combined.lo `test -f '@swigrules@/nanobind/nb_combined.cc' || echo '$(srcdir)/'`@swigrules@/nanobind/nb_combined.cc
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) @swigrules@/nanobind/$(DEPDIR)/libnanobind_core_la-nb_combined.Tpo @swigrules@/nanobind/$(DEPDIR)/libnanobind_core_la-nb_combined.Plo
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='@swigrules@/nanobind/nb_combined.cc' object='@swigrules@/nanobind/libnanobind_core_la-nb_combined.lo' libtool=yes @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libnanobind_core_la_CPPFLAGS) $(CPPFLAGS) $(libnanobind_core_la_CXXFLAGS) $(CXXFLAGS) -c -o @swigrules@/nanobind/libnanobind_core_la-nb_combined.lo `test -f '@swigrules@/nanobind/nb_combined.cc' || echo '$(srcdir)/'`@swigrules@/nanobind/nb_combined.cc
-
-@swigrules@/lib/libskeleton_la-serialize_function.lo: @swigrules@/lib/serialize_function.cc
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libskeleton_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT @swigrules@/lib/libskeleton_la-serialize_function.lo -MD -MP -MF @swigrules@/lib/$(DEPDIR)/libskeleton_la-serialize_function.Tpo -c -o @swigrules@/lib/libskeleton_la-serialize_function.lo `test -f '@swigrules@/lib/serialize_function.cc' || echo '$(srcdir)/'`@swigrules@/lib/serialize_function.cc
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) @swigrules@/lib/$(DEPDIR)/libskeleton_la-serialize_function.Tpo @swigrules@/lib/$(DEPDIR)/libskeleton_la-serialize_function.Plo
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='@swigrules@/lib/serialize_function.cc' object='@swigrules@/lib/libskeleton_la-serialize_function.lo' libtool=yes @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libskeleton_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o @swigrules@/lib/libskeleton_la-serialize_function.lo `test -f '@swigrules@/lib/serialize_function.cc' || echo '$(srcdir)/'`@swigrules@/lib/serialize_function.cc
-
-@swigrules@/lib/libskeleton_la-weak_ptr_serialize_support.lo: @swigrules@/lib/weak_ptr_serialize_support.cc
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libskeleton_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT @swigrules@/lib/libskeleton_la-weak_ptr_serialize_support.lo -MD -MP -MF @swigrules@/lib/$(DEPDIR)/libskeleton_la-weak_ptr_serialize_support.Tpo -c -o @swigrules@/lib/libskeleton_la-weak_ptr_serialize_support.lo `test -f '@swigrules@/lib/weak_ptr_serialize_support.cc' || echo '$(srcdir)/'`@swigrules@/lib/weak_ptr_serialize_support.cc
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) @swigrules@/lib/$(DEPDIR)/libskeleton_la-weak_ptr_serialize_support.Tpo @swigrules@/lib/$(DEPDIR)/libskeleton_la-weak_ptr_serialize_support.Plo
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='@swigrules@/lib/weak_ptr_serialize_support.cc' object='@swigrules@/lib/libskeleton_la-weak_ptr_serialize_support.lo' libtool=yes @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libskeleton_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o @swigrules@/lib/libskeleton_la-weak_ptr_serialize_support.lo `test -f '@swigrules@/lib/weak_ptr_serialize_support.cc' || echo '$(srcdir)/'`@swigrules@/lib/weak_ptr_serialize_support.cc
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libskeleton_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o @cxxpythonrules@/lib/libskeleton_la-weak_ptr_serialize_support.lo `test -f '@cxxpythonrules@/lib/weak_ptr_serialize_support.cc' || echo '$(srcdir)/'`@cxxpythonrules@/lib/weak_ptr_serialize_support.cc
 
 @srclib@/libskeleton_la-generic_object.lo: @srclib@/generic_object.cc
 @am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libskeleton_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT @srclib@/libskeleton_la-generic_object.lo -MD -MP -MF @srclib@/$(DEPDIR)/libskeleton_la-generic_object.Tpo -c -o @srclib@/libskeleton_la-generic_object.lo `test -f '@srclib@/generic_object.cc' || echo '$(srcdir)/'`@srclib@/generic_object.cc
@@ -2277,18 +2273,18 @@ mostlyclean-libtool:
 
 clean-libtool:
 	-rm -rf .libs _libs
+	-rm -rf @cxxpythonrules@/lib/.libs @cxxpythonrules@/lib/_libs
+	-rm -rf @cxxpythonrules@/nanobind/.libs @cxxpythonrules@/nanobind/_libs
 	-rm -rf @srclib@/.libs @srclib@/_libs
-	-rm -rf @swigrules@/lib/.libs @swigrules@/lib/_libs
-	-rm -rf @swigrules@/nanobind/.libs @swigrules@/nanobind/_libs
 
 distclean-libtool:
 	-rm -f libtool config.lt
-install-pkgpythonswigPYTHON: $(pkgpythonswig_PYTHON)
+install-pkgpythoncxxPYTHON: $(pkgpythoncxx_PYTHON)
 	@$(NORMAL_INSTALL)
-	@list='$(pkgpythonswig_PYTHON)'; dlist=; list2=; test -n "$(pkgpythonswigdir)" || list=; \
+	@list='$(pkgpythoncxx_PYTHON)'; dlist=; list2=; test -n "$(pkgpythoncxxdir)" || list=; \
 	if test -n "$$list"; then \
-	  echo " $(MKDIR_P) '$(DESTDIR)$(pkgpythonswigdir)'"; \
-	  $(MKDIR_P) "$(DESTDIR)$(pkgpythonswigdir)" || exit 1; \
+	  echo " $(MKDIR_P) '$(DESTDIR)$(pkgpythoncxxdir)'"; \
+	  $(MKDIR_P) "$(DESTDIR)$(pkgpythoncxxdir)" || exit 1; \
 	fi; \
 	for p in $$list; do \
 	  if test -f "$$p"; then b=; else b="$(srcdir)/"; fi; \
@@ -2300,27 +2296,27 @@ install-pkgpythonswigPYTHON: $(pkgpythonswig_PYTHON)
 	done; \
 	for file in $$list2; do echo $$file; done | $(am__base_list) | \
 	while read files; do \
-	  echo " $(INSTALL_DATA) $$files '$(DESTDIR)$(pkgpythonswigdir)'"; \
-	  $(INSTALL_DATA) $$files "$(DESTDIR)$(pkgpythonswigdir)" || exit $$?; \
+	  echo " $(INSTALL_DATA) $$files '$(DESTDIR)$(pkgpythoncxxdir)'"; \
+	  $(INSTALL_DATA) $$files "$(DESTDIR)$(pkgpythoncxxdir)" || exit $$?; \
 	done || exit $$?; \
 	if test -n "$$dlist"; then \
 	  $(am__py_compile) --destdir "$(DESTDIR)" \
-	                    --basedir "$(pkgpythonswigdir)" $$dlist; \
+	                    --basedir "$(pkgpythoncxxdir)" $$dlist; \
 	else :; fi
 
-uninstall-pkgpythonswigPYTHON:
+uninstall-pkgpythoncxxPYTHON:
 	@$(NORMAL_UNINSTALL)
-	@list='$(pkgpythonswig_PYTHON)'; test -n "$(pkgpythonswigdir)" || list=; \
+	@list='$(pkgpythoncxx_PYTHON)'; test -n "$(pkgpythoncxxdir)" || list=; \
 	py_files=`for p in $$list; do echo $$p; done | sed -e 's|^.*/||'`; \
 	test -n "$$py_files" || exit 0; \
-	dir='$(DESTDIR)$(pkgpythonswigdir)'; \
+	dir='$(DESTDIR)$(pkgpythoncxxdir)'; \
 	pyc_files=`echo "$$py_files" | sed 's|$$|c|'`; \
 	pyo_files=`echo "$$py_files" | sed 's|$$|o|'`; \
 	st=0; \
 	for files in "$$py_files" "$$pyc_files" "$$pyo_files"; do \
 	  $(am__uninstall_files_from_dir) || st=$$?; \
 	done; \
-	dir='$(DESTDIR)$(pkgpythonswigdir)'; \
+	dir='$(DESTDIR)$(pkgpythoncxxdir)'; \
 	files=`echo "$$py_files" | $(am__pep3147_tweak)`; \
 	$(am__uninstall_files_from_dir) || st=$$?; \
 	exit $$st
@@ -2345,27 +2341,27 @@ uninstall-installskeletonDATA:
 	@list='$(installskeleton_DATA)'; test -n "$(installskeletondir)" || list=; \
 	files=`for p in $$list; do echo $$p; done | sed -e 's|^.*/||'`; \
 	dir='$(DESTDIR)$(installskeletondir)'; $(am__uninstall_files_from_dir)
-install-nodist_pkgpythonswigDATA: $(nodist_pkgpythonswig_DATA)
+install-nodist_pkgpythoncxxDATA: $(nodist_pkgpythoncxx_DATA)
 	@$(NORMAL_INSTALL)
-	@list='$(nodist_pkgpythonswig_DATA)'; test -n "$(pkgpythonswigdir)" || list=; \
+	@list='$(nodist_pkgpythoncxx_DATA)'; test -n "$(pkgpythoncxxdir)" || list=; \
 	if test -n "$$list"; then \
-	  echo " $(MKDIR_P) '$(DESTDIR)$(pkgpythonswigdir)'"; \
-	  $(MKDIR_P) "$(DESTDIR)$(pkgpythonswigdir)" || exit 1; \
+	  echo " $(MKDIR_P) '$(DESTDIR)$(pkgpythoncxxdir)'"; \
+	  $(MKDIR_P) "$(DESTDIR)$(pkgpythoncxxdir)" || exit 1; \
 	fi; \
 	for p in $$list; do \
 	  if test -f "$$p"; then d=; else d="$(srcdir)/"; fi; \
 	  echo "$$d$$p"; \
 	done | $(am__base_list) | \
 	while read files; do \
-	  echo " $(INSTALL_DATA) $$files '$(DESTDIR)$(pkgpythonswigdir)'"; \
-	  $(INSTALL_DATA) $$files "$(DESTDIR)$(pkgpythonswigdir)" || exit $$?; \
+	  echo " $(INSTALL_DATA) $$files '$(DESTDIR)$(pkgpythoncxxdir)'"; \
+	  $(INSTALL_DATA) $$files "$(DESTDIR)$(pkgpythoncxxdir)" || exit $$?; \
 	done
 
-uninstall-nodist_pkgpythonswigDATA:
+uninstall-nodist_pkgpythoncxxDATA:
 	@$(NORMAL_UNINSTALL)
-	@list='$(nodist_pkgpythonswig_DATA)'; test -n "$(pkgpythonswigdir)" || list=; \
+	@list='$(nodist_pkgpythoncxx_DATA)'; test -n "$(pkgpythoncxxdir)" || list=; \
 	files=`for p in $$list; do echo $$p; done | sed -e 's|^.*/||'`; \
-	dir='$(DESTDIR)$(pkgpythonswigdir)'; $(am__uninstall_files_from_dir)
+	dir='$(DESTDIR)$(pkgpythoncxxdir)'; $(am__uninstall_files_from_dir)
 install-pkgconfigDATA: $(pkgconfig_DATA)
 	@$(NORMAL_INSTALL)
 	@list='$(pkgconfig_DATA)'; test -n "$(pkgconfigdir)" || list=; \
@@ -2387,27 +2383,27 @@ uninstall-pkgconfigDATA:
 	@list='$(pkgconfig_DATA)'; test -n "$(pkgconfigdir)" || list=; \
 	files=`for p in $$list; do echo $$p; done | sed -e 's|^.*/||'`; \
 	dir='$(DESTDIR)$(pkgconfigdir)'; $(am__uninstall_files_from_dir)
-install-pkgpythonswigDATA: $(pkgpythonswig_DATA)
+install-pkgpythoncxxDATA: $(pkgpythoncxx_DATA)
 	@$(NORMAL_INSTALL)
-	@list='$(pkgpythonswig_DATA)'; test -n "$(pkgpythonswigdir)" || list=; \
+	@list='$(pkgpythoncxx_DATA)'; test -n "$(pkgpythoncxxdir)" || list=; \
 	if test -n "$$list"; then \
-	  echo " $(MKDIR_P) '$(DESTDIR)$(pkgpythonswigdir)'"; \
-	  $(MKDIR_P) "$(DESTDIR)$(pkgpythonswigdir)" || exit 1; \
+	  echo " $(MKDIR_P) '$(DESTDIR)$(pkgpythoncxxdir)'"; \
+	  $(MKDIR_P) "$(DESTDIR)$(pkgpythoncxxdir)" || exit 1; \
 	fi; \
 	for p in $$list; do \
 	  if test -f "$$p"; then d=; else d="$(srcdir)/"; fi; \
 	  echo "$$d$$p"; \
 	done | $(am__base_list) | \
 	while read files; do \
-	  echo " $(INSTALL_DATA) $$files '$(DESTDIR)$(pkgpythonswigdir)'"; \
-	  $(INSTALL_DATA) $$files "$(DESTDIR)$(pkgpythonswigdir)" || exit $$?; \
+	  echo " $(INSTALL_DATA) $$files '$(DESTDIR)$(pkgpythoncxxdir)'"; \
+	  $(INSTALL_DATA) $$files "$(DESTDIR)$(pkgpythoncxxdir)" || exit $$?; \
 	done
 
-uninstall-pkgpythonswigDATA:
+uninstall-pkgpythoncxxDATA:
 	@$(NORMAL_UNINSTALL)
-	@list='$(pkgpythonswig_DATA)'; test -n "$(pkgpythonswigdir)" || list=; \
+	@list='$(pkgpythoncxx_DATA)'; test -n "$(pkgpythoncxxdir)" || list=; \
 	files=`for p in $$list; do echo $$p; done | sed -e 's|^.*/||'`; \
-	dir='$(DESTDIR)$(pkgpythonswigdir)'; $(am__uninstall_files_from_dir)
+	dir='$(DESTDIR)$(pkgpythoncxxdir)'; $(am__uninstall_files_from_dir)
 install-includeHEADERS: $(include_HEADERS)
 	@$(NORMAL_INSTALL)
 	@list='$(include_HEADERS)'; test -n "$(includedir)" || list=; \
@@ -2880,10 +2876,10 @@ install-binPROGRAMS: install-libLTLIBRARIES
 
 install-checkPROGRAMS: install-libLTLIBRARIES
 
-install-pkgpythonswigLTLIBRARIES: install-libLTLIBRARIES
+install-pkgpythoncxxLTLIBRARIES: install-libLTLIBRARIES
 
 installdirs:
-	for dir in "$(DESTDIR)$(bindir)" "$(DESTDIR)$(libdir)" "$(DESTDIR)$(pkgpythonswigdir)" "$(DESTDIR)$(bindir)" "$(DESTDIR)$(installskeletondir)" "$(DESTDIR)$(pkgpythonswigdir)" "$(DESTDIR)$(installskeletondir)" "$(DESTDIR)$(pkgpythonswigdir)" "$(DESTDIR)$(pkgconfigdir)" "$(DESTDIR)$(pkgpythonswigdir)" "$(DESTDIR)$(includedir)" "$(DESTDIR)$(skeletonincdir)"; do \
+	for dir in "$(DESTDIR)$(bindir)" "$(DESTDIR)$(libdir)" "$(DESTDIR)$(pkgpythoncxxdir)" "$(DESTDIR)$(bindir)" "$(DESTDIR)$(installskeletondir)" "$(DESTDIR)$(pkgpythoncxxdir)" "$(DESTDIR)$(installskeletondir)" "$(DESTDIR)$(pkgpythoncxxdir)" "$(DESTDIR)$(pkgconfigdir)" "$(DESTDIR)$(pkgpythoncxxdir)" "$(DESTDIR)$(includedir)" "$(DESTDIR)$(skeletonincdir)"; do \
 	  test -z "$$dir" || $(MKDIR_P) "$$dir"; \
 	done
 install: $(BUILT_SOURCES)
@@ -2918,12 +2914,12 @@ clean-generic:
 distclean-generic:
 	-$(am__rm_f) $(CONFIG_CLEAN_FILES)
 	-test . = "$(srcdir)" || $(am__rm_f) $(CONFIG_CLEAN_VPATH_FILES)
+	-$(am__rm_f) @cxxpythonrules@/lib/$(DEPDIR)/$(am__dirstamp)
+	-$(am__rm_f) @cxxpythonrules@/lib/$(am__dirstamp)
+	-$(am__rm_f) @cxxpythonrules@/nanobind/$(DEPDIR)/$(am__dirstamp)
+	-$(am__rm_f) @cxxpythonrules@/nanobind/$(am__dirstamp)
 	-$(am__rm_f) @srclib@/$(DEPDIR)/$(am__dirstamp)
 	-$(am__rm_f) @srclib@/$(am__dirstamp)
-	-$(am__rm_f) @swigrules@/lib/$(DEPDIR)/$(am__dirstamp)
-	-$(am__rm_f) @swigrules@/lib/$(am__dirstamp)
-	-$(am__rm_f) @swigrules@/nanobind/$(DEPDIR)/$(am__dirstamp)
-	-$(am__rm_f) @swigrules@/nanobind/$(am__dirstamp)
 
 maintainer-clean-generic:
 	@echo "This command is intended for maintainers to use"
@@ -2933,35 +2929,39 @@ clean: clean-am
 
 clean-am: clean-binPROGRAMS clean-checkPROGRAMS clean-generic \
 	clean-libLTLIBRARIES clean-libtool clean-local \
-	clean-noinstLTLIBRARIES clean-pkgpythonswigLTLIBRARIES \
+	clean-noinstLTLIBRARIES clean-pkgpythoncxxLTLIBRARIES \
 	mostlyclean-am
 
 distclean: distclean-am
 	-rm -f $(am__CONFIG_DISTCLEAN_FILES)
-	-rm -f ./$(DEPDIR)/_swig_wrap_la-nb_docstrings.Plo
+	-rm -f ./$(DEPDIR)/_bindings_la-nb_docstrings.Plo
+	-rm -f @cxxpythonrules@/lib/$(DEPDIR)/libskeleton_la-serialize_function.Plo
+	-rm -f @cxxpythonrules@/lib/$(DEPDIR)/libskeleton_la-weak_ptr_serialize_support.Plo
+	-rm -f @cxxpythonrules@/nanobind/$(DEPDIR)/_bindings_la-cxx_python_rules_nb.Plo
+	-rm -f @cxxpythonrules@/nanobind/$(DEPDIR)/libnanobind_core_la-nb_combined.Plo
+	-rm -f @srclib@/$(DEPDIR)/_bindings_la-array_sample_nb.Plo
+	-rm -f @srclib@/$(DEPDIR)/_bindings_la-array_typemap_sample_nb.Plo
+	-rm -f @srclib@/$(DEPDIR)/_bindings_la-cxx_python_rules_sample_nb.Plo
+	-rm -f @srclib@/$(DEPDIR)/_bindings_la-director_example_nb.Plo
+	-rm -f @srclib@/$(DEPDIR)/_bindings_la-exception_sample_nb.Plo
+	-rm -f @srclib@/$(DEPDIR)/_bindings_la-file_reference_sample_nb.Plo
+	-rm -f @srclib@/$(DEPDIR)/_bindings_la-generic_object_map_nb.Plo
+	-rm -f @srclib@/$(DEPDIR)/_bindings_la-generic_object_nb.Plo
+	-rm -f @srclib@/$(DEPDIR)/_bindings_la-generic_object_sample_nb.Plo
+	-rm -f @srclib@/$(DEPDIR)/_bindings_la-iostream_swig_nb.Plo
+	-rm -f @srclib@/$(DEPDIR)/_bindings_la-multi_base_example_nb.Plo
+	-rm -f @srclib@/$(DEPDIR)/_bindings_la-numpy_sample_nb.Plo
+	-rm -f @srclib@/$(DEPDIR)/_bindings_la-observer_example_nb.Plo
+	-rm -f @srclib@/$(DEPDIR)/_bindings_la-observer_nb.Plo
+	-rm -f @srclib@/$(DEPDIR)/_bindings_la-overload_example_nb.Plo
+	-rm -f @srclib@/$(DEPDIR)/_bindings_la-raster_sample_nb.Plo
+	-rm -f @srclib@/$(DEPDIR)/_bindings_la-serialize_function_nb.Plo
+	-rm -f @srclib@/$(DEPDIR)/_bindings_la-skeleton_exception_nb.Plo
+	-rm -f @srclib@/$(DEPDIR)/_bindings_la-skeleton_nb_module.Plo
+	-rm -f @srclib@/$(DEPDIR)/_bindings_la-thread_example_nb.Plo
+	-rm -f @srclib@/$(DEPDIR)/_bindings_la-virtual_diamond_example_nb.Plo
+	-rm -f @srclib@/$(DEPDIR)/_bindings_la-with_parameter_like_nb.Plo
 	-rm -f @srclib@/$(DEPDIR)/_skeleton_downstream_la-downstream_nb.Plo
-	-rm -f @srclib@/$(DEPDIR)/_swig_wrap_la-array_sample_nb.Plo
-	-rm -f @srclib@/$(DEPDIR)/_swig_wrap_la-array_typemap_sample_nb.Plo
-	-rm -f @srclib@/$(DEPDIR)/_swig_wrap_la-director_example_nb.Plo
-	-rm -f @srclib@/$(DEPDIR)/_swig_wrap_la-exception_sample_nb.Plo
-	-rm -f @srclib@/$(DEPDIR)/_swig_wrap_la-file_reference_sample_nb.Plo
-	-rm -f @srclib@/$(DEPDIR)/_swig_wrap_la-generic_object_map_nb.Plo
-	-rm -f @srclib@/$(DEPDIR)/_swig_wrap_la-generic_object_nb.Plo
-	-rm -f @srclib@/$(DEPDIR)/_swig_wrap_la-generic_object_sample_nb.Plo
-	-rm -f @srclib@/$(DEPDIR)/_swig_wrap_la-iostream_swig_nb.Plo
-	-rm -f @srclib@/$(DEPDIR)/_swig_wrap_la-multi_base_example_nb.Plo
-	-rm -f @srclib@/$(DEPDIR)/_swig_wrap_la-numpy_sample_nb.Plo
-	-rm -f @srclib@/$(DEPDIR)/_swig_wrap_la-observer_example_nb.Plo
-	-rm -f @srclib@/$(DEPDIR)/_swig_wrap_la-observer_nb.Plo
-	-rm -f @srclib@/$(DEPDIR)/_swig_wrap_la-overload_example_nb.Plo
-	-rm -f @srclib@/$(DEPDIR)/_swig_wrap_la-raster_sample_nb.Plo
-	-rm -f @srclib@/$(DEPDIR)/_swig_wrap_la-serialize_function_nb.Plo
-	-rm -f @srclib@/$(DEPDIR)/_swig_wrap_la-skeleton_exception_nb.Plo
-	-rm -f @srclib@/$(DEPDIR)/_swig_wrap_la-skeleton_nb_module.Plo
-	-rm -f @srclib@/$(DEPDIR)/_swig_wrap_la-swig_rules_sample_nb.Plo
-	-rm -f @srclib@/$(DEPDIR)/_swig_wrap_la-thread_example_nb.Plo
-	-rm -f @srclib@/$(DEPDIR)/_swig_wrap_la-virtual_diamond_example_nb.Plo
-	-rm -f @srclib@/$(DEPDIR)/_swig_wrap_la-with_parameter_like_nb.Plo
 	-rm -f @srclib@/$(DEPDIR)/golden_archive_generator-golden_archive_generator.Po
 	-rm -f @srclib@/$(DEPDIR)/libskeleton_la-array_sample.Plo
 	-rm -f @srclib@/$(DEPDIR)/libskeleton_la-blitz_array_serialize_support.Plo
@@ -2995,10 +2995,6 @@ distclean: distclean-am
 	-rm -f @srclib@/$(DEPDIR)/skeleton_test_all-skeleton_exception_test.Po
 	-rm -f @srclib@/$(DEPDIR)/skeleton_test_all-test_all.Po
 	-rm -f @srclib@/$(DEPDIR)/skeleton_test_all-thread_example_test.Po
-	-rm -f @swigrules@/lib/$(DEPDIR)/libskeleton_la-serialize_function.Plo
-	-rm -f @swigrules@/lib/$(DEPDIR)/libskeleton_la-weak_ptr_serialize_support.Plo
-	-rm -f @swigrules@/nanobind/$(DEPDIR)/_swig_wrap_la-swig_rules_nb.Plo
-	-rm -f @swigrules@/nanobind/$(DEPDIR)/libnanobind_core_la-nb_combined.Plo
 	-rm -f Makefile
 distclean-am: clean-am distclean-compile distclean-generic \
 	distclean-hdr distclean-libtool distclean-tags
@@ -3017,9 +3013,9 @@ info-am:
 
 install-data-am: install-dist_installskeletonSCRIPTS \
 	install-includeHEADERS install-installskeletonDATA \
-	install-nodist_pkgpythonswigDATA install-pkgconfigDATA \
-	install-pkgpythonswigDATA install-pkgpythonswigLTLIBRARIES \
-	install-pkgpythonswigPYTHON install-skeletonincHEADERS
+	install-nodist_pkgpythoncxxDATA install-pkgconfigDATA \
+	install-pkgpythoncxxDATA install-pkgpythoncxxLTLIBRARIES \
+	install-pkgpythoncxxPYTHON install-skeletonincHEADERS
 	@$(NORMAL_INSTALL)
 	$(MAKE) $(AM_MAKEFLAGS) install-data-hook
 install-dvi: install-dvi-am
@@ -3053,30 +3049,34 @@ installcheck-am: installcheck-local
 maintainer-clean: maintainer-clean-am
 	-rm -f $(am__CONFIG_DISTCLEAN_FILES)
 	-rm -rf $(top_srcdir)/autom4te.cache
-	-rm -f ./$(DEPDIR)/_swig_wrap_la-nb_docstrings.Plo
+	-rm -f ./$(DEPDIR)/_bindings_la-nb_docstrings.Plo
+	-rm -f @cxxpythonrules@/lib/$(DEPDIR)/libskeleton_la-serialize_function.Plo
+	-rm -f @cxxpythonrules@/lib/$(DEPDIR)/libskeleton_la-weak_ptr_serialize_support.Plo
+	-rm -f @cxxpythonrules@/nanobind/$(DEPDIR)/_bindings_la-cxx_python_rules_nb.Plo
+	-rm -f @cxxpythonrules@/nanobind/$(DEPDIR)/libnanobind_core_la-nb_combined.Plo
+	-rm -f @srclib@/$(DEPDIR)/_bindings_la-array_sample_nb.Plo
+	-rm -f @srclib@/$(DEPDIR)/_bindings_la-array_typemap_sample_nb.Plo
+	-rm -f @srclib@/$(DEPDIR)/_bindings_la-cxx_python_rules_sample_nb.Plo
+	-rm -f @srclib@/$(DEPDIR)/_bindings_la-director_example_nb.Plo
+	-rm -f @srclib@/$(DEPDIR)/_bindings_la-exception_sample_nb.Plo
+	-rm -f @srclib@/$(DEPDIR)/_bindings_la-file_reference_sample_nb.Plo
+	-rm -f @srclib@/$(DEPDIR)/_bindings_la-generic_object_map_nb.Plo
+	-rm -f @srclib@/$(DEPDIR)/_bindings_la-generic_object_nb.Plo
+	-rm -f @srclib@/$(DEPDIR)/_bindings_la-generic_object_sample_nb.Plo
+	-rm -f @srclib@/$(DEPDIR)/_bindings_la-iostream_swig_nb.Plo
+	-rm -f @srclib@/$(DEPDIR)/_bindings_la-multi_base_example_nb.Plo
+	-rm -f @srclib@/$(DEPDIR)/_bindings_la-numpy_sample_nb.Plo
+	-rm -f @srclib@/$(DEPDIR)/_bindings_la-observer_example_nb.Plo
+	-rm -f @srclib@/$(DEPDIR)/_bindings_la-observer_nb.Plo
+	-rm -f @srclib@/$(DEPDIR)/_bindings_la-overload_example_nb.Plo
+	-rm -f @srclib@/$(DEPDIR)/_bindings_la-raster_sample_nb.Plo
+	-rm -f @srclib@/$(DEPDIR)/_bindings_la-serialize_function_nb.Plo
+	-rm -f @srclib@/$(DEPDIR)/_bindings_la-skeleton_exception_nb.Plo
+	-rm -f @srclib@/$(DEPDIR)/_bindings_la-skeleton_nb_module.Plo
+	-rm -f @srclib@/$(DEPDIR)/_bindings_la-thread_example_nb.Plo
+	-rm -f @srclib@/$(DEPDIR)/_bindings_la-virtual_diamond_example_nb.Plo
+	-rm -f @srclib@/$(DEPDIR)/_bindings_la-with_parameter_like_nb.Plo
 	-rm -f @srclib@/$(DEPDIR)/_skeleton_downstream_la-downstream_nb.Plo
-	-rm -f @srclib@/$(DEPDIR)/_swig_wrap_la-array_sample_nb.Plo
-	-rm -f @srclib@/$(DEPDIR)/_swig_wrap_la-array_typemap_sample_nb.Plo
-	-rm -f @srclib@/$(DEPDIR)/_swig_wrap_la-director_example_nb.Plo
-	-rm -f @srclib@/$(DEPDIR)/_swig_wrap_la-exception_sample_nb.Plo
-	-rm -f @srclib@/$(DEPDIR)/_swig_wrap_la-file_reference_sample_nb.Plo
-	-rm -f @srclib@/$(DEPDIR)/_swig_wrap_la-generic_object_map_nb.Plo
-	-rm -f @srclib@/$(DEPDIR)/_swig_wrap_la-generic_object_nb.Plo
-	-rm -f @srclib@/$(DEPDIR)/_swig_wrap_la-generic_object_sample_nb.Plo
-	-rm -f @srclib@/$(DEPDIR)/_swig_wrap_la-iostream_swig_nb.Plo
-	-rm -f @srclib@/$(DEPDIR)/_swig_wrap_la-multi_base_example_nb.Plo
-	-rm -f @srclib@/$(DEPDIR)/_swig_wrap_la-numpy_sample_nb.Plo
-	-rm -f @srclib@/$(DEPDIR)/_swig_wrap_la-observer_example_nb.Plo
-	-rm -f @srclib@/$(DEPDIR)/_swig_wrap_la-observer_nb.Plo
-	-rm -f @srclib@/$(DEPDIR)/_swig_wrap_la-overload_example_nb.Plo
-	-rm -f @srclib@/$(DEPDIR)/_swig_wrap_la-raster_sample_nb.Plo
-	-rm -f @srclib@/$(DEPDIR)/_swig_wrap_la-serialize_function_nb.Plo
-	-rm -f @srclib@/$(DEPDIR)/_swig_wrap_la-skeleton_exception_nb.Plo
-	-rm -f @srclib@/$(DEPDIR)/_swig_wrap_la-skeleton_nb_module.Plo
-	-rm -f @srclib@/$(DEPDIR)/_swig_wrap_la-swig_rules_sample_nb.Plo
-	-rm -f @srclib@/$(DEPDIR)/_swig_wrap_la-thread_example_nb.Plo
-	-rm -f @srclib@/$(DEPDIR)/_swig_wrap_la-virtual_diamond_example_nb.Plo
-	-rm -f @srclib@/$(DEPDIR)/_swig_wrap_la-with_parameter_like_nb.Plo
 	-rm -f @srclib@/$(DEPDIR)/golden_archive_generator-golden_archive_generator.Po
 	-rm -f @srclib@/$(DEPDIR)/libskeleton_la-array_sample.Plo
 	-rm -f @srclib@/$(DEPDIR)/libskeleton_la-blitz_array_serialize_support.Plo
@@ -3110,10 +3110,6 @@ maintainer-clean: maintainer-clean-am
 	-rm -f @srclib@/$(DEPDIR)/skeleton_test_all-skeleton_exception_test.Po
 	-rm -f @srclib@/$(DEPDIR)/skeleton_test_all-test_all.Po
 	-rm -f @srclib@/$(DEPDIR)/skeleton_test_all-thread_example_test.Po
-	-rm -f @swigrules@/lib/$(DEPDIR)/libskeleton_la-serialize_function.Plo
-	-rm -f @swigrules@/lib/$(DEPDIR)/libskeleton_la-weak_ptr_serialize_support.Plo
-	-rm -f @swigrules@/nanobind/$(DEPDIR)/_swig_wrap_la-swig_rules_nb.Plo
-	-rm -f @swigrules@/nanobind/$(DEPDIR)/libnanobind_core_la-nb_combined.Plo
 	-rm -f Makefile
 maintainer-clean-am: distclean-am maintainer-clean-generic
 
@@ -3133,9 +3129,9 @@ ps-am:
 uninstall-am: uninstall-binPROGRAMS uninstall-dist_binSCRIPTS \
 	uninstall-dist_installskeletonSCRIPTS uninstall-includeHEADERS \
 	uninstall-installskeletonDATA uninstall-libLTLIBRARIES \
-	uninstall-nodist_pkgpythonswigDATA uninstall-pkgconfigDATA \
-	uninstall-pkgpythonswigDATA uninstall-pkgpythonswigLTLIBRARIES \
-	uninstall-pkgpythonswigPYTHON uninstall-skeletonincHEADERS
+	uninstall-nodist_pkgpythoncxxDATA uninstall-pkgconfigDATA \
+	uninstall-pkgpythoncxxDATA uninstall-pkgpythoncxxLTLIBRARIES \
+	uninstall-pkgpythoncxxPYTHON uninstall-skeletonincHEADERS
 	@$(NORMAL_INSTALL)
 	$(MAKE) $(AM_MAKEFLAGS) uninstall-hook
 .MAKE: all check check-am install install-am install-data-am \
@@ -3145,7 +3141,7 @@ uninstall-am: uninstall-binPROGRAMS uninstall-dist_binSCRIPTS \
 	check-TESTS check-am check-local clean clean-binPROGRAMS \
 	clean-checkPROGRAMS clean-cscope clean-generic \
 	clean-libLTLIBRARIES clean-libtool clean-local \
-	clean-noinstLTLIBRARIES clean-pkgpythonswigLTLIBRARIES cscope \
+	clean-noinstLTLIBRARIES clean-pkgpythoncxxLTLIBRARIES cscope \
 	cscopelist-am ctags ctags-am dist dist-all dist-bzip2 \
 	dist-gzip dist-lzip dist-shar dist-tarZ dist-xz dist-zip \
 	dist-zstd distcheck distclean distclean-compile \
@@ -3159,9 +3155,9 @@ uninstall-am: uninstall-binPROGRAMS uninstall-dist_binSCRIPTS \
 	install-html-am install-includeHEADERS install-info \
 	install-info-am install-installskeletonDATA \
 	install-libLTLIBRARIES install-man \
-	install-nodist_pkgpythonswigDATA install-pdf install-pdf-am \
-	install-pkgconfigDATA install-pkgpythonswigDATA \
-	install-pkgpythonswigLTLIBRARIES install-pkgpythonswigPYTHON \
+	install-nodist_pkgpythoncxxDATA install-pdf install-pdf-am \
+	install-pkgconfigDATA install-pkgpythoncxxDATA \
+	install-pkgpythoncxxLTLIBRARIES install-pkgpythoncxxPYTHON \
 	install-ps install-ps-am install-skeletonincHEADERS \
 	install-strip installcheck installcheck-am installcheck-local \
 	installdirs maintainer-clean maintainer-clean-generic \
@@ -3171,10 +3167,10 @@ uninstall-am: uninstall-binPROGRAMS uninstall-dist_binSCRIPTS \
 	uninstall-dist_binSCRIPTS \
 	uninstall-dist_installskeletonSCRIPTS uninstall-hook \
 	uninstall-includeHEADERS uninstall-installskeletonDATA \
-	uninstall-libLTLIBRARIES uninstall-nodist_pkgpythonswigDATA \
-	uninstall-pkgconfigDATA uninstall-pkgpythonswigDATA \
-	uninstall-pkgpythonswigLTLIBRARIES \
-	uninstall-pkgpythonswigPYTHON uninstall-skeletonincHEADERS
+	uninstall-libLTLIBRARIES uninstall-nodist_pkgpythoncxxDATA \
+	uninstall-pkgconfigDATA uninstall-pkgpythoncxxDATA \
+	uninstall-pkgpythoncxxLTLIBRARIES uninstall-pkgpythoncxxPYTHON \
+	uninstall-skeletonincHEADERS
 
 .PRECIOUS: Makefile
 
@@ -3212,7 +3208,7 @@ coverage:
 	  -p no:cacheprovider --cov=skeleton --cov-report=term \
 	  --cov-report=html:$(abs_builddir)/coverage/python tests
 	$(GCOVR) -r $(realpath $(abs_top_srcdir)) . \
-	  --filter '$(realpath $(abs_top_srcdir))/(lib|swig_rules/lib)/' \
+	  --filter '$(realpath $(abs_top_srcdir))/(lib|cxx_python_rules/lib)/' \
 	  --exclude '.*_test\.cc' --exclude '.*golden_archive_generator.*' \
 	  --exclude '.*(global_fixture|test_all).*' \
 	  --merge-lines --print-summary --html-details coverage/index.html
@@ -3229,7 +3225,7 @@ format-check:
 
 lint:
 	$(PYTHON) $(srcdir)/script/make_compile_commands.py --clangd \
-	  libskeleton.la skeleton_test_all golden_archive_generator _swig_wrap.la \
+	  libskeleton.la skeleton_test_all golden_archive_generator _bindings.la \
 	  _skeleton_downstream.la
 	$(PYTHON) -c 'import json, os; src = os.path.realpath("$(abs_top_srcdir)") + "/"; [print(e["file"]) for e in json.load(open("compile_commands.json")) if os.path.realpath(e["file"]).startswith(src) and not e["file"].endswith("nb_combined.cc")]' \
 	  > lint_files.txt
@@ -3279,11 +3275,11 @@ python-check: script/setup_skeleton.sh
 # since the modules' RPATH (conda links with --disable-new-dtags) would
 # otherwise find an installed libskeleton first, as in ST.11.
 @BUILD_PYTHON_BINDINGS_TRUE@python-check-build: all
-@BUILD_PYTHON_BINDINGS_TRUE@	rm -rf nb_pkg && $(MKDIR_P) nb_pkg/skeleton_swig
+@BUILD_PYTHON_BINDINGS_TRUE@	rm -rf nb_pkg && $(MKDIR_P) nb_pkg/skeleton_cxx
 @BUILD_PYTHON_BINDINGS_TRUE@	for f in __init__.py all.py _nanobind_support.py py.typed; do \
-@BUILD_PYTHON_BINDINGS_TRUE@	  ln -s $(abs_top_srcdir)/@swigrules@/$$f nb_pkg/skeleton_swig/$$f; done
-@BUILD_PYTHON_BINDINGS_TRUE@	for m in _swig_wrap _skeleton_downstream; do \
-@BUILD_PYTHON_BINDINGS_TRUE@	  ln -s $(abs_builddir)/.libs/$$m.so nb_pkg/skeleton_swig/$$m.so; done
+@BUILD_PYTHON_BINDINGS_TRUE@	  ln -s $(abs_top_srcdir)/@cxxpythonrules@/$$f nb_pkg/skeleton_cxx/$$f; done
+@BUILD_PYTHON_BINDINGS_TRUE@	for m in _bindings _skeleton_downstream; do \
+@BUILD_PYTHON_BINDINGS_TRUE@	  ln -s $(abs_builddir)/.libs/$$m.so nb_pkg/skeleton_cxx/$$m.so; done
 @BUILD_PYTHON_BINDINGS_TRUE@	ln -s $(abs_top_srcdir)/@srcpython@/skeleton nb_pkg/skeleton
 @BUILD_PYTHON_BINDINGS_TRUE@	cd $(srcdir)/@srcpython@ && \
 @BUILD_PYTHON_BINDINGS_TRUE@	  PYTHONPATH=$(abs_builddir)/nb_pkg:$$PYTHONPATH \
@@ -3293,7 +3289,7 @@ python-check: script/setup_skeleton.sh
 @BUILD_PYTHON_BINDINGS_TRUE@	rm -rf nb_pkg
 
 # Shortcut for building and installing just the library and python
-install-python-2: install-libLTLIBRARIES install-python-skeleton install-pkgpythonswigLTLIBRARIES install-pkgpythonswigPYTHON install-pkgpythonswigDATA install-nodist_pkgpythonswigDATA
+install-python-2: install-libLTLIBRARIES install-python-skeleton install-pkgpythoncxxLTLIBRARIES install-pkgpythoncxxPYTHON install-pkgpythoncxxDATA install-nodist_pkgpythoncxxDATA
 	$(noop)
 
 install-python: all
@@ -3332,23 +3328,23 @@ vpath %.i $(srcdir)/@srclib@
 
 # Docstrings from the doxygen documentation of NB_DOXYGEN_INPUT. Without
 # doxygen, the table is empty.
-@BUILD_PYTHON_BINDINGS_TRUE@nb_docstrings.cc: $(NB_DOXYGEN_INPUT) @swigrules@/nanobind/doxy2nanobind.py @swigrules@/nanobind/doxygen_nanobind.cfg
+@BUILD_PYTHON_BINDINGS_TRUE@nb_docstrings.cc: $(NB_DOXYGEN_INPUT) @cxxpythonrules@/nanobind/doxy2nanobind.py @cxxpythonrules@/nanobind/doxygen_nanobind.cfg
 @BUILD_PYTHON_BINDINGS_TRUE@	rm -rf nb_doc && mkdir -p nb_doc
 @BUILD_PYTHON_BINDINGS_TRUE@	if test -n "$(DOXYGEN)" -a "$(DOXYGEN)" != "no"; then \
-@BUILD_PYTHON_BINDINGS_TRUE@	  OUTDIR=nb_doc INPUT="$(NB_DOXYGEN_INPUT)" $(DOXYGEN) $(srcdir)/@swigrules@/nanobind/doxygen_nanobind.cfg > /dev/null; \
+@BUILD_PYTHON_BINDINGS_TRUE@	  OUTDIR=nb_doc INPUT="$(NB_DOXYGEN_INPUT)" $(DOXYGEN) $(srcdir)/@cxxpythonrules@/nanobind/doxygen_nanobind.cfg > /dev/null; \
 @BUILD_PYTHON_BINDINGS_TRUE@	fi
-@BUILD_PYTHON_BINDINGS_TRUE@	$(PYTHON) $(srcdir)/@swigrules@/nanobind/doxy2nanobind.py nb_doc/xml $@.tmp
+@BUILD_PYTHON_BINDINGS_TRUE@	$(PYTHON) $(srcdir)/@cxxpythonrules@/nanobind/doxy2nanobind.py nb_doc/xml $@.tmp
 @BUILD_PYTHON_BINDINGS_TRUE@	mv $@.tmp $@
 @BUILD_PYTHON_BINDINGS_TRUE@	rm -rf nb_doc
 
 # Python stubs (.pyi) for mypy and editors, from the built module.
-@BUILD_PYTHON_BINDINGS_TRUE@nb_pyi/_swig_wrap.pyi: _swig_wrap.la
-@BUILD_PYTHON_BINDINGS_TRUE@	rm -rf nb_pyi && mkdir -p nb_pyi/$(notdir $(pkgpythonswigdir))
-@BUILD_PYTHON_BINDINGS_TRUE@	cp $(srcdir)/@swigrules@/__init__.py $(srcdir)/@swigrules@/_nanobind_support.py nb_pyi/$(notdir $(pkgpythonswigdir))/
-@BUILD_PYTHON_BINDINGS_TRUE@	cp .libs/_swig_wrap$(PYTHON_EXT_SUFFIX_SO) nb_pyi/$(notdir $(pkgpythonswigdir))/ 2>/dev/null || cp .libs/_swig_wrap.so nb_pyi/$(notdir $(pkgpythonswigdir))/
+@BUILD_PYTHON_BINDINGS_TRUE@nb_pyi/_bindings.pyi: _bindings.la
+@BUILD_PYTHON_BINDINGS_TRUE@	rm -rf nb_pyi && mkdir -p nb_pyi/$(notdir $(pkgpythoncxxdir))
+@BUILD_PYTHON_BINDINGS_TRUE@	cp $(srcdir)/@cxxpythonrules@/__init__.py $(srcdir)/@cxxpythonrules@/_nanobind_support.py nb_pyi/$(notdir $(pkgpythoncxxdir))/
+@BUILD_PYTHON_BINDINGS_TRUE@	cp .libs/_bindings$(PYTHON_EXT_SUFFIX_SO) nb_pyi/$(notdir $(pkgpythoncxxdir))/ 2>/dev/null || cp .libs/_bindings.so nb_pyi/$(notdir $(pkgpythoncxxdir))/
 @BUILD_PYTHON_BINDINGS_TRUE@	cd nb_pyi && PYTHONPATH=.:$${PYTHONPATH} LD_LIBRARY_PATH=$(abs_top_builddir)/.libs:$${LD_LIBRARY_PATH} \
-@BUILD_PYTHON_BINDINGS_TRUE@	  $(PYTHON) -m nanobind.stubgen -m $(notdir $(pkgpythonswigdir))._swig_wrap -o _swig_wrap.pyi -q
-@BUILD_PYTHON_BINDINGS_TRUE@	rm -rf nb_pyi/$(notdir $(pkgpythonswigdir))
+@BUILD_PYTHON_BINDINGS_TRUE@	  $(PYTHON) -m nanobind.stubgen -m $(notdir $(pkgpythoncxxdir))._bindings -o _bindings.pyi -q
+@BUILD_PYTHON_BINDINGS_TRUE@	rm -rf nb_pyi/$(notdir $(pkgpythoncxxdir))
 
 # Nothing here yet, but put in place as a placeholder
 

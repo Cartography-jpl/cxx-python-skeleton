@@ -4,7 +4,7 @@
 #include <string>
 #include <memory>
 
-namespace SWIG_MAPPER_NAMESPACE {
+namespace CXX_PYTHON_RULES_NAMESPACE {
 bool skip_weak_ptr_handling();
 void skip_weak_ptr_handling(bool Skip);
 bool have_serialize_supported();

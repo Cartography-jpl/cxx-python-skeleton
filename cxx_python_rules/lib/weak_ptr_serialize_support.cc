@@ -4,13 +4,13 @@
 #include <mutex>
 #include <iostream>
 
-using namespace SWIG_MAPPER_NAMESPACE;
+using namespace CXX_PYTHON_RULES_NAMESPACE;
 
 static std::set<const GenericObject*> ptr_referenced;
 static std::recursive_mutex ptr_referenced_mutex;
 static thread_local int ptr_serialize_depth = 0;
 
-void SWIG_MAPPER_NAMESPACE::clear_ptr_serialized_reference()
+void CXX_PYTHON_RULES_NAMESPACE::clear_ptr_serialized_reference()
 {
   // Only the outermost PtrSerializeLock for this thread should reset
   // the mark state -- a nested serialize_write* call (e.g. triggered
@@ -34,29 +34,31 @@ void SWIG_MAPPER_NAMESPACE::clear_ptr_serialized_reference()
   ptr_referenced.clear();
 }
 
-void SWIG_MAPPER_NAMESPACE::add_ptr_serialized_reference(const GenericObject* P)
+void CXX_PYTHON_RULES_NAMESPACE::add_ptr_serialized_reference(
+    const GenericObject* P)
 {
   ptr_referenced.insert(P);
 }
 
-bool SWIG_MAPPER_NAMESPACE::is_ptr_serialized(const GenericObject* P)
+bool CXX_PYTHON_RULES_NAMESPACE::is_ptr_serialized(const GenericObject* P)
 {
   return ptr_referenced.find(P) != ptr_referenced.end();
 }
 
-SWIG_MAPPER_NAMESPACE::PtrSerializeLock::PtrSerializeLock()
+CXX_PYTHON_RULES_NAMESPACE::PtrSerializeLock::PtrSerializeLock()
 {
   ptr_referenced_mutex.lock();
   ++ptr_serialize_depth;
 }
 
-SWIG_MAPPER_NAMESPACE::PtrSerializeLock::~PtrSerializeLock()
+CXX_PYTHON_RULES_NAMESPACE::PtrSerializeLock::~PtrSerializeLock()
 {
   --ptr_serialize_depth;
   ptr_referenced_mutex.unlock();
 }
 
-SWIG_MAPPER_NAMESPACE::DirectorHook& SWIG_MAPPER_NAMESPACE::director_hook()
+CXX_PYTHON_RULES_NAMESPACE::DirectorHook&
+CXX_PYTHON_RULES_NAMESPACE::director_hook()
 {
   static DirectorHook h = nullptr;
   return h;

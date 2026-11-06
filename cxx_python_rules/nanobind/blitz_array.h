@@ -1,5 +1,5 @@
-#ifndef SWIG_RULES_NB_BLITZ_ARRAY_H
-#define SWIG_RULES_NB_BLITZ_ARRAY_H
+#ifndef CXX_PYTHON_RULES_NB_BLITZ_ARRAY_H
+#define CXX_PYTHON_RULES_NB_BLITZ_ARRAY_H
 // numpy <-> blitz::Array<T, N> for nanobind, through an mdspan view
 // (blitz_mdspan.h has the mdspan <-> Blitz half, which doesn't depend on
 // python). Replaces swig_rules/include/swig_array.i; the behavior is the
@@ -26,7 +26,7 @@
 #include <blitz/array.h>
 #include <memory>
 
-namespace SWIG_MAPPER_NAMESPACE {
+namespace CXX_PYTHON_RULES_NAMESPACE {
 namespace nbblitz {
 namespace nb = nanobind;
 
@@ -138,7 +138,7 @@ template<class T, int N> struct type_caster<blitz::Array<T, N>> {
 
   bool from_python(handle src, uint32_t flags, cleanup_list*) noexcept
   {
-    namespace b = SWIG_MAPPER_NAMESPACE::nbblitz;
+    namespace b = CXX_PYTHON_RULES_NAMESPACE::nbblitz;
     try {
       if(b::view_of<T, N>(src, value))
         return true;
@@ -169,7 +169,7 @@ private:
   static handle convert(const Value& v, bool Writable) noexcept
   {
     try {
-      return SWIG_MAPPER_NAMESPACE::nbblitz::to_numpy<T, N>(v, Writable);
+      return CXX_PYTHON_RULES_NAMESPACE::nbblitz::to_numpy<T, N>(v, Writable);
     } catch(python_error& e) {
       e.restore();
     } catch(const std::exception& e) {

@@ -7,7 +7,7 @@
 #   Find nanobind (https://nanobind.readthedocs.io) through the configured
 #   python (run AFIDS_PYTHON or AC_PYTHON_DEVEL first). nanobind has no
 #   library to link to; an extension module compiles its source
-#   (nb_combined.cpp) once, see swig_rules/nanobind/nanobind.am. Sets
+#   (nb_combined.cpp) once, see cxx_python_rules/nanobind/nanobind.am. Sets
 #
 #     NANOBIND_CPPFLAGS  -isystem for nanobind's include directory and
 #                        its bundled robin_map

@@ -1,5 +1,5 @@
-#ifndef SWIG_RULES_SAMPLE_H
-#define SWIG_RULES_SAMPLE_H
+#ifndef CXX_PYTHON_RULES_SAMPLE_H
+#define CXX_PYTHON_RULES_SAMPLE_H
 #include "printable.h"
 #include <optional>
 #include <boost/rational.hpp>
@@ -28,20 +28,20 @@ private:
 
 /****************************************************************/ /**
   Simple class to test the smaller rules in swig_rules/include
-  (see swig_rules_sample_test.py): std::optional, boost::rational,
+  (see cxx_python_rules_sample_test.py): std::optional, boost::rational,
   std::array, the %python_attribute variants and the pickle
   macros.
 *******************************************************************/
-class SwigRulesSample : public Printable<SwigRulesSample> {
+class CxxPythonRulesSample : public Printable<CxxPythonRulesSample> {
 public:
-  SwigRulesSample(int Count = 0, const std::string& Name = "")
+  CxxPythonRulesSample(int Count = 0, const std::string& Name = "")
     : count_(Count), name_(Name), scale_(1.0)
   {
     position_ = {{1.0, 2.0, 3.0}};
     data_.resize(2, 2);
     data_ = 0;
   }
-  ~SwigRulesSample() override = default;
+  ~CxxPythonRulesSample() override = default;
 
   //-----------------------------------------------------------------------
   /// Constructor arguments, used by %pickle_init.
@@ -135,7 +135,7 @@ public:
 
   virtual void print(std::ostream& Os) const
   {
-    Os << "SwigRulesSample(" << count_ << ", " << name_ << ")";
+    Os << "CxxPythonRulesSample(" << count_ << ", " << name_ << ")";
   }
 private:
   int count_;

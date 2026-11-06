@@ -1,3 +1,3 @@
 # Copies of upstream code, kept diffable against Boost/nanobind
-swig_rules/lib/serialize_shared_ptr.h
-swig_rules/nanobind/gc_shared_ptr.h
+cxx_python_rules/lib/serialize_shared_ptr.h
+cxx_python_rules/nanobind/gc_shared_ptr.h

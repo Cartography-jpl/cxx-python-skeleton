@@ -1,12 +1,11 @@
-#ifndef SWIG_RULES_NB_H
-#define SWIG_RULES_NB_H
+#ifndef CXX_PYTHON_RULES_NB_H
+#define CXX_PYTHON_RULES_NB_H
 // The nanobind rules library: include this (first) in every binding file.
-// It replaces the SWIG rules in swig_rules/include. The directory name is
-// historical (claude_notes/implementation_plan.md "Naming").
+// It replaced the SWIG rules (swig_rules/include, removed in phase S6).
 //
-// Needs SWIG_MAPPER_NAMESPACE (the namespace of GenericObject and of
-// serialize_function.h) and SWIG_RULES_NB_PACKAGE (the python package the
-// extension module is in, e.g. "skeleton_swig") to be defined.
+// Needs CXX_PYTHON_RULES_NAMESPACE (the namespace of GenericObject and of
+// serialize_function.h) and CXX_PYTHON_RULES_NB_PACKAGE (the python package the
+// extension module is in, e.g. "skeleton_cxx") to be defined.
 #include <nanobind/nanobind.h>
 #include <nanobind/stl/string.h>
 #include <nanobind/stl/vector.h>
@@ -32,27 +31,27 @@
 #include <string>
 #include <vector>
 
-#ifndef SWIG_RULES_NB_PACKAGE
+#ifndef CXX_PYTHON_RULES_NB_PACKAGE
 #error                                                                         \
-    "Define SWIG_RULES_NB_PACKAGE, the python package of the extension module"
+    "Define CXX_PYTHON_RULES_NB_PACKAGE, the python package of the extension module"
 #endif
 
-namespace swig_rules_nb {
+namespace cxx_python_rules_nb {
 namespace nb = nanobind;
-using GenericObject = SWIG_MAPPER_NAMESPACE::GenericObject;
-using SWIG_MAPPER_NAMESPACE::nbblitz::to_std_array;
-using SWIG_MAPPER_NAMESPACE::nbreg::register_alias;
-using SWIG_MAPPER_NAMESPACE::nbreg::register_type;
+using GenericObject = CXX_PYTHON_RULES_NAMESPACE::GenericObject;
+using CXX_PYTHON_RULES_NAMESPACE::nbblitz::to_std_array;
+using CXX_PYTHON_RULES_NAMESPACE::nbreg::register_alias;
+using CXX_PYTHON_RULES_NAMESPACE::nbreg::register_type;
 
 //-----------------------------------------------------------------------
-/// The python helper module (swig_rules/_nanobind_support.py, installed
+/// The python helper module (cxx_python_rules/_nanobind_support.py, installed
 /// as <package>._nanobind_support).
 //-----------------------------------------------------------------------
 
 inline nb::module_& support()
 {
   static nb::module_* m = new nb::module_(
-      nb::module_::import_(SWIG_RULES_NB_PACKAGE "._nanobind_support"));
+      nb::module_::import_(CXX_PYTHON_RULES_NB_PACKAGE "._nanobind_support"));
   return *m;
 }
 
@@ -174,7 +173,7 @@ template<class ExceptionT, class TypeErrorT> void register_exceptions()
 inline nb::bytes serialize_self(nb::handle self)
 {
   auto obj = nb::cast<std::shared_ptr<GenericObject>>(self);
-  std::string d = SWIG_MAPPER_NAMESPACE::serialize_write_binary(obj);
+  std::string d = CXX_PYTHON_RULES_NAMESPACE::serialize_write_binary(obj);
   return nb::bytes(d.data(), d.size());
 }
 
@@ -286,7 +285,7 @@ void director_load(const std::string& Python_object, Tramp* D,
 /// at namespace scope in a .cc file.
 //-----------------------------------------------------------------------
 
-#define SWIG_RULES_NB_DIRECTOR_SERIALIZATION(TRAMP, BASE, NAME)                \
+#define CXX_PYTHON_RULES_NB_DIRECTOR_SERIALIZATION(TRAMP, BASE, NAME)          \
   namespace boost {                                                            \
   namespace serialization {                                                    \
   template<class Archive>                                                      \
@@ -299,7 +298,7 @@ void director_load(const std::string& Python_object, Tramp* D,
   void save_construct_data(Archive& ar, const TRAMP* d, const unsigned int)    \
   {                                                                            \
     std::string python_object =                                                \
-        swig_rules_nb::director_dumps(d->nb_trampoline.base());                \
+        cxx_python_rules_nb::director_dumps(d->nb_trampoline.base());          \
     ar& BOOST_SERIALIZATION_NVP(python_object);                                \
   }                                                                            \
   template<class Archive>                                                      \
@@ -307,8 +306,8 @@ void director_load(const std::string& Python_object, Tramp* D,
   {                                                                            \
     std::string python_object;                                                 \
     ar& BOOST_SERIALIZATION_NVP(python_object);                                \
-    swig_rules_nb::director_load(python_object, d,                             \
-                                 [](TRAMP* p) { ::new(p) TRAMP(); });          \
+    cxx_python_rules_nb::director_load(python_object, d,                       \
+                                       [](TRAMP* p) { ::new(p) TRAMP(); });    \
   }                                                                            \
   }                                                                            \
   }                                                                            \

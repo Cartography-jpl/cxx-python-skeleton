@@ -57,7 +57,7 @@ void init_raster_sample(nb::module_& m)
     // Bases not bound as the nanobind base: GenericObject. Abstract, no
     // constructor.
     nb::class_<Skeleton::RasterSample> c(
-        m, "RasterSample", swig_rules_nb::doc("Skeleton::RasterSample"));
+        m, "RasterSample", cxx_python_rules_nb::doc("Skeleton::RasterSample"));
     c.def_prop_ro("number_line", [](const Skeleton::RasterSample& self) {
       return self.number_line();
     });
@@ -72,7 +72,7 @@ void init_raster_sample(nb::module_& m)
         },
         nb::arg("Lstart"), nb::arg("Sstart"), nb::arg("Number_line"),
         nb::arg("Number_sample"),
-        swig_rules_nb::doc("Skeleton::RasterSample::read"));
+        cxx_python_rules_nb::doc("Skeleton::RasterSample::read"));
     c.def(
         "read_with_pad",
         [](const Skeleton::RasterSample& self, int Lstart, int Sstart,
@@ -82,7 +82,7 @@ void init_raster_sample(nb::module_& m)
         },
         nb::arg("Lstart"), nb::arg("Sstart"), nb::arg("Number_line"),
         nb::arg("Number_sample"), nb::arg("Fill_value") = 0,
-        swig_rules_nb::doc("Skeleton::RasterSample::read_with_pad"));
+        cxx_python_rules_nb::doc("Skeleton::RasterSample::read_with_pad"));
     c.def(
         "read_into",
         [](const Skeleton::RasterSample& self, int Lstart, int Sstart,
@@ -97,14 +97,14 @@ void init_raster_sample(nb::module_& m)
         [](Skeleton::RasterSample& self, int Lstart, int Sstart,
            const blitz::Array<int, 2>& V) { self.write(Lstart, Sstart, V); },
         nb::arg("Lstart"), nb::arg("Sstart"), nb::arg("V"),
-        swig_rules_nb::doc("Skeleton::RasterSample::write"));
-    swig_rules_nb::printable(c);
-    swig_rules_nb::register_type<Skeleton::RasterSample>();
+        cxx_python_rules_nb::doc("Skeleton::RasterSample::write"));
+    cxx_python_rules_nb::printable(c);
+    cxx_python_rules_nb::register_type<Skeleton::RasterSample>();
   }
   {
     nb::class_<Skeleton::MemoryRasterSample, Skeleton::RasterSample> c(
         m, "MemoryRasterSample",
-        swig_rules_nb::doc("Skeleton::MemoryRasterSample"));
+        cxx_python_rules_nb::doc("Skeleton::MemoryRasterSample"));
     c.def(nb::new_([](int Number_line, int Number_sample, int Fill_value) {
             return std::make_shared<Skeleton::MemoryRasterSample>(
                 Number_line, Number_sample, Fill_value);
@@ -120,13 +120,13 @@ void init_raster_sample(nb::module_& m)
         [](const Skeleton::MemoryRasterSample& self) -> decltype(auto) {
           return self.data();
         },
-        swig_rules_nb::doc("Skeleton::MemoryRasterSample::data"));
-    swig_rules_nb::register_type<Skeleton::MemoryRasterSample>();
+        cxx_python_rules_nb::doc("Skeleton::MemoryRasterSample::data"));
+    cxx_python_rules_nb::register_type<Skeleton::MemoryRasterSample>();
   }
   {
     nb::class_<Skeleton::BufferRasterSample, Skeleton::RasterSample> c(
         m, "BufferRasterSample",
-        swig_rules_nb::doc("Skeleton::BufferRasterSample"));
+        cxx_python_rules_nb::doc("Skeleton::BufferRasterSample"));
     c.def(nb::new_([](int Number_line, int Number_sample) {
             return std::make_shared<Skeleton::BufferRasterSample>(
                 Number_line, Number_sample);
@@ -135,11 +135,12 @@ void init_raster_sample(nb::module_& m)
     c.def_prop_ro("number_copy", [](const Skeleton::BufferRasterSample& self) {
       return self.number_copy();
     });
-    swig_rules_nb::register_type<Skeleton::BufferRasterSample>();
+    cxx_python_rules_nb::register_type<Skeleton::BufferRasterSample>();
   }
   {
     nb::class_<Skeleton::SubRasterSample, Skeleton::RasterSample> c(
-        m, "SubRasterSample", swig_rules_nb::doc("Skeleton::SubRasterSample"));
+        m, "SubRasterSample",
+        cxx_python_rules_nb::doc("Skeleton::SubRasterSample"));
     c.def(nb::new_([](const std::shared_ptr<Skeleton::RasterSample>& Full,
                       int Lstart, int Sstart, int Number_line,
                       int Number_sample) {
@@ -153,14 +154,14 @@ void init_raster_sample(nb::module_& m)
         [](const Skeleton::SubRasterSample& self) -> decltype(auto) {
           return self.full();
         },
-        swig_rules_nb::doc("Skeleton::SubRasterSample::full"));
-    swig_rules_nb::register_type<Skeleton::SubRasterSample>();
+        cxx_python_rules_nb::doc("Skeleton::SubRasterSample::full"));
+    cxx_python_rules_nb::register_type<Skeleton::SubRasterSample>();
   }
   {
     nb::class_<Skeleton::CalcRasterSample, Skeleton::RasterSample,
                PyCalcRasterSample>
         c(m, "CalcRasterSample",
-          swig_rules_nb::doc("Skeleton::CalcRasterSample"));
+          cxx_python_rules_nb::doc("Skeleton::CalcRasterSample"));
     // Abstract: only a python subclass can be constructed.
     c.def(nb::init<int, int>(), nb::arg("Number_line"),
           nb::arg("Number_sample"));
@@ -172,10 +173,10 @@ void init_raster_sample(nb::module_& m)
         [](Skeleton::CalcRasterSample& self) -> blitz::Array<double, 2>& {
           return (self.*(&CalcPublicist::data_ptr))();
         },
-        swig_rules_nb::doc("Skeleton::CalcRasterSample::data_ptr"));
-    swig_rules_nb::register_type<Skeleton::CalcRasterSample>();
-    swig_rules_nb::register_alias<PyCalcRasterSample,
-                                  Skeleton::CalcRasterSample>();
+        cxx_python_rules_nb::doc("Skeleton::CalcRasterSample::data_ptr"));
+    cxx_python_rules_nb::register_type<Skeleton::CalcRasterSample>();
+    cxx_python_rules_nb::register_alias<PyCalcRasterSample,
+                                        Skeleton::CalcRasterSample>();
   }
   m.def(
       "copy_raster",
@@ -185,5 +186,5 @@ void init_raster_sample(nb::module_& m)
       },
       nb::arg("In"), nb::arg("Out"), nb::arg("Tile_line") = 100,
       nb::arg("Tile_sample") = 100,
-      swig_rules_nb::doc("Skeleton::copy_raster"));
+      cxx_python_rules_nb::doc("Skeleton::copy_raster"));
 }

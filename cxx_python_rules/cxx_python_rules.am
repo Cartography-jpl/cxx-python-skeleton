@@ -1,0 +1,41 @@
+# Rules shared by projects using cxx_python_rules. The python bindings
+# are in cxx_python_rules/nanobind/nanobind.am.
+
+EXTRA_DIST+= @cxxpythonrules@/README.md
+EXTRA_DIST+= CMakeLists.txt
+EXTRA_DIST+= @cxxpythonrules@/lib/generic_object.cc.sample
+EXTRA_DIST+= @cxxpythonrules@/lib/generic_object.h.sample
+EXTRA_DIST+= @cxxpythonrules@/lib/generic_object_map.cc.sample
+EXTRA_DIST+= @cxxpythonrules@/lib/generic_object_map.h.sample
+EXTRA_DIST+= @cxxpythonrules@/lib/printable.h.sample
+EXTRA_DIST+= @cxxpythonrules@/lib/DirectorNotes.md
+EXTRA_DIST+= @cxxpythonrules@/lib/serialize_support.h.sample
+EXTRA_DIST+= @cxxpythonrules@/lib/blitz_array_serialize_support.h.sample
+EXTRA_DIST+= @cxxpythonrules@/lib/blitz_array_serialize_support.cc.sample
+EXTRA_DIST+= @cxxpythonrules@/python/swig_shelve.py.sample
+EXTRA_DIST+= @cxxpythonrules@/python/swig_shelve_test.py.sample
+
+AM_CPPFLAGS+= -I$(srcdir)/@cxxpythonrules@/lib
+
+# Where the python package with the extension module goes.
+pkgpythoncxxdir = $(prefix)/@pythondir@/skeleton_cxx
+pkgpythoncxx_LTLIBRARIES =
+
+# The C++ code from cxx_python_rules/lib, compiled into the library.
+skeletoninc_HEADERS+= @cxxpythonrules@/lib/serialize_function.h
+libskeleton_la_SOURCES+= @cxxpythonrules@/lib/serialize_function.cc
+skeletoninc_HEADERS+= @cxxpythonrules@/lib/serialize_shared_ptr.h
+skeletoninc_HEADERS+= @cxxpythonrules@/lib/director_hook.h
+skeletoninc_HEADERS+= @cxxpythonrules@/lib/weak_ptr_serialize_support.h
+libskeleton_la_SOURCES+= @cxxpythonrules@/lib/weak_ptr_serialize_support.cc
+libskeleton_la_CPPFLAGS+= -DCXX_PYTHON_RULES_NAMESPACE=Skeleton
+if HAVE_BOOST_SERIALIZATION
+libskeleton_la_CPPFLAGS+= -DCXX_PYTHON_RULES_HAVE_BOOST_SERIALIZATION
+endif
+
+# Shortcut for building and installing just the library and python
+install-python-2: install-libLTLIBRARIES install-python-skeleton install-pkgpythoncxxLTLIBRARIES install-pkgpythoncxxPYTHON install-pkgpythoncxxDATA install-nodist_pkgpythoncxxDATA
+	$(noop)
+
+install-python: all
+	$(MAKE) -j 1 install-python-2

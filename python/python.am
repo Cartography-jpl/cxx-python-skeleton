@@ -63,11 +63,11 @@ INSTALLCHECK_HOOK+= python-check
 # otherwise find an installed libskeleton first, as in ST.11.
 if BUILD_PYTHON_BINDINGS
 python-check-build: all
-	rm -rf nb_pkg && $(MKDIR_P) nb_pkg/skeleton_swig
+	rm -rf nb_pkg && $(MKDIR_P) nb_pkg/skeleton_cxx
 	for f in __init__.py all.py _nanobind_support.py py.typed; do \
-	  ln -s $(abs_top_srcdir)/@swigrules@/$$f nb_pkg/skeleton_swig/$$f; done
-	for m in _swig_wrap _skeleton_downstream; do \
-	  ln -s $(abs_builddir)/.libs/$$m.so nb_pkg/skeleton_swig/$$m.so; done
+	  ln -s $(abs_top_srcdir)/@cxxpythonrules@/$$f nb_pkg/skeleton_cxx/$$f; done
+	for m in _bindings _skeleton_downstream; do \
+	  ln -s $(abs_builddir)/.libs/$$m.so nb_pkg/skeleton_cxx/$$m.so; done
 	ln -s $(abs_top_srcdir)/@srcpython@/skeleton nb_pkg/skeleton
 	cd $(srcdir)/@srcpython@ && \
 	  PYTHONPATH=$(abs_builddir)/nb_pkg:$$PYTHONPATH \

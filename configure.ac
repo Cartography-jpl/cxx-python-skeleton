@@ -1,7 +1,7 @@
 dnl Process this file with autoconf to produce a configure script.
 
 AC_PREREQ([2.71])
-AC_INIT([swig-rules-skeleton],[0.10])
+AC_INIT([cxx-python-skeleton],[0.10])
 AC_CONFIG_AUX_DIR([config])
 AC_CONFIG_MACRO_DIRS([config/m4 config/m4_local])
 AC_CONFIG_FILES([script/setup_skeleton.csh script/setup_skeleton.sh])

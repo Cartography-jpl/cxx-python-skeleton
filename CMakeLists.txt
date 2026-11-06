@@ -1,14 +1,14 @@
 # CMake reference build of the C++ library and the nanobind python module
 # (claude_notes/implementation_plan.md S6.4). autotools is the primary build
 # here; this is the small example framework (which uses CMake) can copy. It
-# builds libskeleton, the extension module skeleton_swig/_swig_wrap and the
+# builds libskeleton, the extension module skeleton_cxx/_bindings and the
 # C++ unit tests:
 #
 #   cmake -S <srcdir> -B <builddir> -G Ninja -DCMAKE_PREFIX_PATH=$CONDA_PREFIX
 #   cmake --build <builddir>
 #   ctest --test-dir <builddir>       # C++ and python tests, from the build tree
 cmake_minimum_required(VERSION 3.27)
-project(swig_rules_skeleton LANGUAGES CXX)
+project(cxx_python_rules_skeleton LANGUAGES CXX)
 
 set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -36,16 +36,16 @@ file(WRITE ${CMAKE_BINARY_DIR}/skeleton_config.h.cmake
 configure_file(${CMAKE_BINARY_DIR}/skeleton_config.h.cmake
   ${CMAKE_BINARY_DIR}/config/skeleton_config.h)
 
-# The C++ library: lib/*.cc and swig_rules/lib/*.cc, without the tests,
+# The C++ library: lib/*.cc and cxx_python_rules/lib/*.cc, without the tests,
 # the bindings and the golden archive generator.
-file(GLOB LIB_SRC ${CMAKE_SOURCE_DIR}/lib/*.cc ${CMAKE_SOURCE_DIR}/swig_rules/lib/*.cc)
+file(GLOB LIB_SRC ${CMAKE_SOURCE_DIR}/lib/*.cc ${CMAKE_SOURCE_DIR}/cxx_python_rules/lib/*.cc)
 list(FILTER LIB_SRC EXCLUDE REGEX "(_test|_nb|_nb_module|test_all|global_fixture|golden_archive_generator)\\.cc$")
 add_library(skeleton SHARED ${LIB_SRC})
 target_include_directories(skeleton PUBLIC
-  ${CMAKE_BINARY_DIR}/config ${CMAKE_SOURCE_DIR}/lib ${CMAKE_SOURCE_DIR}/swig_rules/lib
+  ${CMAKE_BINARY_DIR}/config ${CMAKE_SOURCE_DIR}/lib ${CMAKE_SOURCE_DIR}/cxx_python_rules/lib
   ${MDSPAN_INCLUDE_DIR})
-target_compile_definitions(skeleton PUBLIC SWIG_MAPPER_NAMESPACE=Skeleton
-  SWIG_HAVE_BOOST_SERIALIZATION)
+target_compile_definitions(skeleton PUBLIC CXX_PYTHON_RULES_NAMESPACE=Skeleton
+  CXX_PYTHON_RULES_HAVE_BOOST_SERIALIZATION)
 target_link_libraries(skeleton PUBLIC Boost::serialization Boost::iostreams
   PkgConfig::BLITZ ${CMAKE_DL_LIBS})
 
@@ -57,34 +57,34 @@ if(DOXYGEN)
   add_custom_command(OUTPUT ${NB_DOC}
     COMMAND ${CMAKE_COMMAND} -E rm -rf nb_doc
     COMMAND ${CMAKE_COMMAND} -E env OUTDIR=nb_doc "INPUT=${DOX_INPUT}"
-            ${DOXYGEN} ${CMAKE_SOURCE_DIR}/swig_rules/nanobind/doxygen_nanobind.cfg > /dev/null
-    COMMAND ${Python_EXECUTABLE} ${CMAKE_SOURCE_DIR}/swig_rules/nanobind/doxy2nanobind.py nb_doc/xml ${NB_DOC}
+            ${DOXYGEN} ${CMAKE_SOURCE_DIR}/cxx_python_rules/nanobind/doxygen_nanobind.cfg > /dev/null
+    COMMAND ${Python_EXECUTABLE} ${CMAKE_SOURCE_DIR}/cxx_python_rules/nanobind/doxy2nanobind.py nb_doc/xml ${NB_DOC}
     DEPENDS ${LIB_HEADERS} WORKING_DIRECTORY ${CMAKE_BINARY_DIR} VERBATIM)
 else()
   add_custom_command(OUTPUT ${NB_DOC}
-    COMMAND ${Python_EXECUTABLE} ${CMAKE_SOURCE_DIR}/swig_rules/nanobind/doxy2nanobind.py no_doxygen ${NB_DOC}
+    COMMAND ${Python_EXECUTABLE} ${CMAKE_SOURCE_DIR}/cxx_python_rules/nanobind/doxy2nanobind.py no_doxygen ${NB_DOC}
     VERBATIM)
 endif()
 
-# The python package in the build tree: skeleton_swig/ with the module and
-# the python files from swig_rules/.
-set(PKG ${CMAKE_BINARY_DIR}/python/skeleton_swig)
+# The python package in the build tree: skeleton_cxx/ with the module and
+# the python files from cxx_python_rules/.
+set(PKG ${CMAKE_BINARY_DIR}/python/skeleton_cxx)
 file(MAKE_DIRECTORY ${PKG})
 foreach(f __init__.py all.py _nanobind_support.py py.typed)
-  file(COPY ${CMAKE_SOURCE_DIR}/swig_rules/${f} DESTINATION ${PKG})
+  file(COPY ${CMAKE_SOURCE_DIR}/cxx_python_rules/${f} DESTINATION ${PKG})
 endforeach()
 
 file(GLOB NB_SRC ${CMAKE_SOURCE_DIR}/lib/*_nb.cc)
 list(REMOVE_ITEM NB_SRC ${CMAKE_SOURCE_DIR}/lib/downstream_nb.cc)
-nanobind_add_module(_swig_wrap NB_STATIC ${NB_SRC}
+nanobind_add_module(_bindings NB_STATIC ${NB_SRC}
   ${CMAKE_SOURCE_DIR}/lib/skeleton_nb_module.cc
-  ${CMAKE_SOURCE_DIR}/swig_rules/nanobind/swig_rules_nb.cc ${NB_DOC})
+  ${CMAKE_SOURCE_DIR}/cxx_python_rules/nanobind/cxx_python_rules_nb.cc ${NB_DOC})
 nanobind_add_module(_skeleton_downstream NB_STATIC ${CMAKE_SOURCE_DIR}/lib/downstream_nb.cc)
-foreach(m _swig_wrap _skeleton_downstream)
-  target_include_directories(${m} PRIVATE ${CMAKE_SOURCE_DIR}/swig_rules/nanobind)
-  target_compile_definitions(${m} PRIVATE SWIG_RULES_NB_PACKAGE="skeleton_swig")
+foreach(m _bindings _skeleton_downstream)
+  target_include_directories(${m} PRIVATE ${CMAKE_SOURCE_DIR}/cxx_python_rules/nanobind)
+  target_compile_definitions(${m} PRIVATE CXX_PYTHON_RULES_NB_PACKAGE="skeleton_cxx")
   target_link_libraries(${m} PRIVATE skeleton)
-  # Default visibility for the binding code, see swig_rules/nanobind/nanobind.am
+  # Default visibility for the binding code, see cxx_python_rules/nanobind/nanobind.am
   set_target_properties(${m} PROPERTIES CXX_VISIBILITY_PRESET default
     LIBRARY_OUTPUT_DIRECTORY ${PKG} BUILD_RPATH $<TARGET_FILE_DIR:skeleton>)
 endforeach()

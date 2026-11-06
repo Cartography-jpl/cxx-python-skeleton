@@ -21,7 +21,7 @@ from collections.abc import MutableMapping as DictMixin
 from pathlib import Path
 from typing import Any
 
-import skeleton_swig as skelswig
+import skeleton_cxx as skelswig
 
 # Allow jsonpickle to be used, if available.
 try:
@@ -160,10 +160,10 @@ def write_shelve(f: str | os.PathLike[str], val: Any) -> None:
     if ext not in (".gz"):
         f2 = str(f)
     if os.path.splitext(f2)[1] == ".xml":
-        skelswig.serialize_write(f, val)
+        skelswig.serialize_write(str(f), val)
         return
     if os.path.splitext(f2)[1] == ".bin":
-        skelswig.serialize_write_binary(f, val)
+        skelswig.serialize_write_binary(str(f), val)
         return
     if os.path.splitext(str(f))[1] == ".json":
         if have_jsonpickle:

@@ -12,7 +12,7 @@ namespace Skeleton {
   reads it when created or loaded. This is like geocal's AirMspiIgc,
   which uses %pickle_serialization_dir so a pickle can be loaded from
   a different directory than the one it was made in (see
-  swig_rules_sample_test.py).
+  cxx_python_rules_sample_test.py).
 *******************************************************************/
 class FileReferenceSample : public Printable<FileReferenceSample> {
 public:
@@ -45,7 +45,7 @@ private:
 //-----------------------------------------------------------------------
 /// Return each sample object as a shared_ptr<GenericObject>, so python
 /// can check it gets the most derived type back (the downcast done by
-/// swig_rules' type mapper).
+/// cxx_python_rules' type mapper).
 //-----------------------------------------------------------------------
 
 inline std::vector<std::shared_ptr<GenericObject>> generic_object_list()

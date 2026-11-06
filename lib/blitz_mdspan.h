@@ -12,7 +12,7 @@ namespace Skeleton {
   Views between blitz::Array and mdspan, sharing the same memory. This
   is the C++ half of the numpy <-> Blitz bridge used by the python
   bindings (the other half, numpy <-> mdspan, is in
-  swig_rules/nanobind/blitz_array.h); it doesn't depend on python.
+  cxx_python_rules/nanobind/blitz_array.h); it doesn't depend on python.
 
   Strides are in elements, as in both mdspan and blitz. Only
   non-negative strides are supported (a negative stride throws); the

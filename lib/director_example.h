@@ -34,7 +34,7 @@ public:
   bool same_object(const DirectorExample& obj2) const { return this == &obj2; }
 protected:
   // For the python bindings: reading a python subclass from an archive
-  // constructs the trampoline with this (SWIG_RULES_NB_DIRECTOR_SERIALIZATION)
+  // constructs the trampoline with this (CXX_PYTHON_RULES_NB_DIRECTOR_SERIALIZATION)
   DirectorExample() = default;
 private:
   int value_to_add_;

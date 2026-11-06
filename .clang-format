@@ -1,8 +1,8 @@
-# Adopted in swig-rules-skeleton and geocal (maintainer, 2026-11-05). See
-# claude_notes/implementation_plan.md (swig-rules-skeleton), phase S1.6,
+# Adopted in cxx-python-skeleton and geocal (maintainer, 2026-11-05). See
+# claude_notes/implementation_plan.md (cxx-python-skeleton), phase S1.6,
 # section 5b (how this configuration was found) and decision 21.
 #
-# The same file is used in swig-rules-skeleton and geocal. The options were
+# The same file is used in cxx-python-skeleton and geocal. The options were
 # found with clang-format-auto-infer (github.com/ammen99/clang-format-auto-infer),
 # which searches for the configuration that changes the existing code the
 # least, starting from claude_notes/clang_format_trial.clang-format. Standard,

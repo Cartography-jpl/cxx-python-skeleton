@@ -167,7 +167,7 @@ def test_python_director_rewrite(tmp_path):
     # same class and state.
     import re
 
-    from skeleton_swig._nanobind_support import director_loads
+    from skeleton_cxx._nanobind_support import director_loads
 
     pat = re.compile(rb"<python_object>(.*?)</python_object>", re.DOTALL)
     new, old = (

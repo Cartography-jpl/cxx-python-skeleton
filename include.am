@@ -3,8 +3,8 @@
 include skeleton.am
 include script/script.am
 include python/python.am
-include swig_rules/swig_rules.am
+include cxx_python_rules/cxx_python_rules.am
 include lib/lib.am
-include swig_rules/nanobind/nanobind.am
+include cxx_python_rules/nanobind/nanobind.am
 include unit_test_data/unit_test_data.am
 

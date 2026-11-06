@@ -2,7 +2,7 @@
 # (lib/downstream_nb.cc, claude_notes/implementation_plan.md S6.1 item 10).
 import pickle
 
-from skeleton_swig import _skeleton_downstream as ds
+from skeleton_cxx import _skeleton_downstream as ds
 
 from skeleton import GenericObjectA, GenericObjectB, GenericObjectMap
 

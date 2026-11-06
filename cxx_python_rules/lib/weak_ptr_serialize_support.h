@@ -62,7 +62,7 @@
   by boost or create your own way to handle this.
 *******************************************************************/
 
-namespace SWIG_MAPPER_NAMESPACE {
+namespace CXX_PYTHON_RULES_NAMESPACE {
 void clear_ptr_serialized_reference();
 void add_ptr_serialized_reference(const GenericObject* P);
 bool is_ptr_serialized(const GenericObject* P);
@@ -100,10 +100,11 @@ inline void save(Archive& ar, const std::weak_ptr<T>& t,
 )
 {
   std::shared_ptr<T> sp = t.lock();
-  const SWIG_MAPPER_NAMESPACE::GenericObject* ptr = nullptr;
+  const CXX_PYTHON_RULES_NAMESPACE::GenericObject* ptr = nullptr;
   if(sp) {
-    ptr = dynamic_cast<const SWIG_MAPPER_NAMESPACE::GenericObject*>(sp.get());
-    if(ptr && !SWIG_MAPPER_NAMESPACE::is_ptr_serialized(ptr))
+    ptr = dynamic_cast<const CXX_PYTHON_RULES_NAMESPACE::GenericObject*>(
+        sp.get());
+    if(ptr && !CXX_PYTHON_RULES_NAMESPACE::is_ptr_serialized(ptr))
       sp.reset();
   }
   ar << boost::serialization::make_nvp("weak_ptr", sp);

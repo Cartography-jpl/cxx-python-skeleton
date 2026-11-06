@@ -20,8 +20,33 @@ Related documents:
 
 **Status (2026-11-06, later):** **Phase S7 is done** (progress log; §11): C++23 with gcc 14 still the minimum
 (decision 22), a raw pointer plus size → `mdspan` sample (`lib/raster_sample.{h,cc}`), and the old bootstrap warning
-fixed. Staged, not committed (back to the normal commit policy after S4–S6). CMake set aside until framework. Next:
-geocal's own phases using the "Notes for geocal" table; open: the module/repository name (§13).
+fixed. **Then the rename** (maintainer, 2026-11-06; "Naming" below). Both staged, not committed (back to the
+normal commit policy after S4–S6). CMake set aside until framework. Next: geocal's own phases using the "Notes for
+geocal" table.
+
+**Naming (2026-11-06).** The repository no longer tests SWIG rules, so the SWIG-era names were changed (decision 23).
+**This plan's history (everything above the rename row in the progress log, and the other `claude_notes/` files)
+keeps the old names**; read them with this table:
+
+| Old | New |
+|---|---|
+| repository `swig-rules-skeleton` | `cxx-python-skeleton` |
+| `swig_rules/` (upstream repository `swig-rules`, remote `swig-rules-repo`) | `cxx_python_rules/` (`cxx-python-rules`, `cxx-python-rules-repo`) |
+| python package `skeleton_swig`, extension module `_swig_wrap` | `skeleton_cxx`, `skeleton_cxx._bindings` |
+| `swig_rules/nanobind/swig_rules_nb.{h,cc}`, namespace `swig_rules_nb`, macros `SWIG_RULES_NB_*` | `cxx_python_rules_nb.{h,cc}`, `cxx_python_rules_nb`, `CXX_PYTHON_RULES_NB_*` |
+| `swig_rules/swig_rules.am`, autoconf `@swigrules@`, automake `pkgpythonswig*` | `cxx_python_rules.am`, `@cxxpythonrules@`, `pkgpythoncxx*` |
+| `SWIG_MAPPER_NAMESPACE`, `SWIG_HAVE_BOOST_SERIALIZATION`, other `SWIG_RULES_*` macros | `CXX_PYTHON_RULES_NAMESPACE`, `CXX_PYTHON_RULES_HAVE_BOOST_SERIALIZATION`, `CXX_PYTHON_RULES_*` |
+| sample `swig_rules_sample.h`, class `SwigRulesSample` | `cxx_python_rules_sample.h`, `CxxPythonRulesSample` |
+
+Not renamed: `swig_shelve` (`python/skeleton/swig_shelve.py` and its sample; a public module name in geocal) and
+`iostream_swig` (C++ classes); historical references to removed SWIG files (`swig_rules/include/...`); the
+`SwigDirector_` class names inside the golden shelves written by SWIG (data). The GitHub repositories were renamed
+on 2026-11-06 (`Cartography-jpl/swig-rules-skeleton` → `cxx-python-skeleton`, `Cartography-jpl/swig-rules` →
+`cxx-python-rules`; GitHub redirects the old URLs), and `origin` here points at the new URL. Other clones (rifle,
+geocal's `swig-rules-repo` remote if it has one) can be updated with `git remote set-url`. The local checkouts and scratch
+builds keep their old directory names (Locations table). The python package is `skeleton_cxx` rather than the
+`skeleton._skeleton` suggested in chat: with `--enable-python-editable-mode`, `skeleton` is imported from the source
+tree, so an extension installed into `site-packages/skeleton/` wouldn't be found.
 
 *Earlier (2026-11-06):* **Phases S5, S4 and S6 are done** (in that order, progress log), committed on `modernize` at
 the maintainer's request (the earlier phases were staged for the maintainer to commit). The python bindings are
@@ -106,6 +131,8 @@ apply it there (or record why not) in geocal's plan:
 | `Exception::stacktrace()` with addr2line | 2026-11-06, S6 | Boost.Stacktrace's addr2line backend gives wrong file:line for code in shared libraries (it looks every frame up in the main executable) and runs addr2line per frame (11 s per trace from python). `lib/skeleton_exception.cc` now looks up the module of each frame with `dladdr` and runs addr2line once per module; copy it with the S1.5 `Exception` pattern. Also: from python, a library exception carries `cpp_exception` (a copy, so the trace is resolved only if asked for) and `cpp_source`. |
 | Golden shelves with python subclasses | 2026-11-06, S5/S6 | Before geocal's SWIG bindings go, write a few shelves with python subclass objects (as `unit_test_data/golden/director_python*.xml` here) and check the nanobind build reads them. |
 | **C++23 and `mdspan` for `read_ptr` (S7)** | 2026-11-06 | `AX_CXX_COMPILE_STDCXX([23], [noext], [mandatory])`; gcc 14 is fine (only gcc 14 library features: no range formatting, no `std::mdspan` before gcc 16). Kokkos mdspan in C++23 mode indexes with `m[i, j]` only (`m(i, j)` is off; drop any `MDSPAN_USE_PAREN_OPERATOR` define), and `m[i, j]` inside a macro (`BOOST_CHECK_EQUAL`) needs extra parentheses. Don't name a member `range_check`: `geocal_exception.h` has a `range_check` macro. For `RasterImage::read_ptr` and friends, `lib/raster_sample.h` is the worked pattern: a `layout_stride` mdspan virtual (`read_into`), `read_ptr`/`write_ptr` kept as non-virtual wrappers so callers move over gradually, a contiguity check plus temporary for C-library backends (VICAR, GDAL), `read_with_pad` through `submdspan`, `CalcRaster`'s writable `self.data` for python subclasses (a "publicist" to bind the protected `data_ptr`), and python `read_into` of a writable numpy array (`noconvert`). Not wrapped by geocal's SWIG, so it is a C++-only change there. Bootstrap: `AC_REQUIRE([AC_PROG_AWK])` at the top of the common macro silences `AC_PROG_AWK was expanded before it was required` (check whether geocal's `afids_common.m4` has the same warning). |
+| **Rename `swig_rules` → `cxx_python_rules` (2026-11-06)** | §0 "Naming" | When geocal next copies `cxx_python_rules/` (replacing its `swig_rules/`), rename the same names in geocal's own files: `-DSWIG_MAPPER_NAMESPACE=GeoCal` → `-DCXX_PYTHON_RULES_NAMESPACE=GeoCal`, `SWIG_HAVE_BOOST_SERIALIZATION` → `CXX_PYTHON_RULES_HAVE_BOOST_SERIALIZATION` (both in many geocal headers), `@swigrules@` → `@cxxpythonrules@`, `pkgpythonswig*` → `pkgpythoncxx*`; the python package `geocal_swig` → `geocal_cxx`, module `geocal_cxx._bindings` (`geocal/__init__.py`, mypy overrides, any `geocal_swig` imports in scripts). The perl substitutions used here are in the rename progress row (order matters: longest names first). Before installing, remove the old `geocal_swig/` directory from `site-packages`. Pickles written before break (they name the old module); shelves and boost archives don't. |
+| **`write_shelve` with a `pathlib.Path`** | 2026-11-06, rename | `swig_shelve.py`'s `write_shelve` passes `f` unconverted to `serialize_write`/`serialize_write_binary` for `.xml`/`.bin`; the C++ side takes a `std::string`, so a `Path` gives `TypeError`. Use `str(f)` (as the skeleton does now) and add a test with a `Path`. |
 
 **Progress log** (update as phases complete; one line per step):
 | Phase / step | State | Notes |
@@ -157,6 +184,7 @@ apply it there (or record why not) in geocal's plan:
 | S7.2 `mdspan` sample | done | 2026-11-06. `lib/raster_sample.{h,cc}`, `raster_sample_nb.cc` (hand written), tests `raster_sample_test.cc` (6 cases) and `python/tests/unit/raster_sample_test.py` (8). Based on geocal: `RasterImage::read_ptr(..., int* Res)` (about 14 overrides, not in any `.i`) and `CalcRaster` (director, python fills `self.data` in `calc()`). Classes: `RasterSample` (abstract; virtual `read_into(Lstart, Sstart, RasterView)` and `write_from`, `RasterView` = `layout_stride` mdspan of `int`; non-virtual `read_ptr`/`write_ptr` wrappers, `read` → blitz/numpy, `read_with_pad` reading straight into a `submdspan` of the result, `write`), `MemoryRasterSample` (blitz assignment through `to_blitz` of the view), `BufferRasterSample` (a stand-in C API needing contiguous row-major memory: passes the pointer through when it can, else a temporary, counted by `number_copy`), `SubRasterSample` (forwards the view with an offset), `CalcRasterSample` (director; writable numpy `data`; protected `data_ptr` bound through a publicist), `copy_raster` (tiles through one `std::vector` buffer). Python: `read_into(l, s, out)` fills a writable `int32` numpy array in place, any strides; wrong dtype, read-only, a list or negative strides give `TypeError`. Found: a trampoline override of `desc()` needs `desc` bound on the class, else nanobind fails with "trampoline_enter ... lookup failed" (dropped the override). Not covered: serialization of these classes (the director serialization is already tested by `DirectorExample`). |
 | S7.3 bootstrap warning | done | 2026-11-06. `configure.ac:11: AC_PROG_AWK was expanded before it was required`: `AM_INIT_AUTOMAKE` inside `SKELETON_COMMON` expands it, then `LT_INIT` `AC_REQUIRE`s it. Fixed with `AC_REQUIRE([AC_PROG_AWK])` at the top of `SKELETON_COMMON` (hoisted); `./bootstrap` now prints no warnings. |
 | **S7 exit** | **done** | 2026-11-06, frenchpeas. **gcc 15** (`build`): 0 warnings; `make check` C++ 57 test cases, python **176 passed, 1 xfailed**; `make install` + `make installcheck` the same. **gcc 14** (`build-gcc14`): 0 warnings, the same. **`--without-boost-serialization`**: `make check` passes, 41 test cases. **ASan**: C++ no memory errors, only the accepted 224-byte leak (finding B); python 176 passed, 1 xfailed, no ASan errors. `make format-check`, `make lint` (58 files) clean. CMake reference not rebuilt (set aside, decision 22). Staged, not committed. |
+| Rename (decision 23) | done | 2026-11-06. `git mv` of `swig_rules/` and the files named after it (table in §0 "Naming"), then over the tracked files except `claude_notes/`, `unit_test_data/`, the shared SWIG m4 macros and generated files, in this order: `swig_rules_nb`, `SWIG_RULES_NB`, `SWIG_MAPPER_NAMESPACE`, `SWIG_HAVE_BOOST_SERIALIZATION`, `SwigRulesSample`, `swigrules`, `swig_rules`, `swig-rules-skeleton` (not after `/`, so local paths stay), `swig-rules-repo`, `swig-rules`, `skeleton_swig`, `_swig_wrap`, `pkgpythonswig`, then the remaining `SWIG_RULES` macros. By hand: comments that called the new names "historical", references to the removed `swig_rules/include` put back, subtree notes in `CLAUDE.md`/`README.git` (the subtree history is under the old prefix). Removed unused SWIG leftovers: `SWIG_PYI` (`common.am`), `pythonswigsrc`, `swigsrc`, `skeletonswigincdir`, `swigincdir` (`skeleton_source_directory.m4`). No golden archive or shelf contains a renamed name (checked), so the test data is unchanged. Caught on the way: `perl -pi` had replaced the `README` → `README.md` symlink with a regular file (restored; geocal: check `git status` for `T` after a scripted rename); `make format` needed after the rename (the longer names moved some line breaks). **Bug found:** mypy now sees the stubs of `skeleton_cxx` and found that `write_shelve(Path(...), v)` for `.xml`/`.bin` passed the `Path` to the C++ `serialize_write`, which takes a `std::string` (`TypeError`); fixed with `str(f)` in `swig_shelve.py`, new test `test_path_argument` (geocal's `swig_shelve.py` has the same code). **Results:** gcc 15: 0 warnings, `make check` C++ 57 test cases, python **179 passed, 1 xfailed** (3 new); `make install` (old `skeleton_swig/` removed from the env first) + `make installcheck` 176 passed, 1 xfailed (before the new test); gcc 14: 0 warnings, 176 passed, 1 xfailed; no-serialization 41 test cases; ASan: no memory errors, only the accepted 224-byte leak, python 176 passed; `make format-check`, `make lint` (58 files), `ruff`, `mypy --disallow-untyped-defs` clean (ruff `SIM115` in `director_example_test.py` was there before). CMake not rebuilt (set aside). Staged, not committed. GitHub repositories renamed the same day. **Subtree pushed** (maintainer request, 2026-11-06) to `cxx-python-rules` as branch `modernize` (`d23035d`): `git subtree split --prefix swig_rules` of HEAD (`549b6f5`, keeps the subtree history) plus one commit with the staged `cxx_python_rules/` tree (`git write-tree --prefix=cxx_python_rules/`, `git commit-tree`), since the rename isn't committed here yet. Remote `cxx-python-rules-repo` added in this checkout. Upstream `master` (`7309cc6`) is not an ancestor: it has one commit after the merge base `246446e` that never came into this repository ("Add license"; merge it when `master` is updated). |
 
 ---
 
@@ -1295,13 +1323,12 @@ example based on what geocal needs, and the bootstrap warning if simple. CMake i
     replaced by the Kokkos alias until then. Add a raw pointer plus size → `mdspan` sample based on geocal's needs.
     CMake issues are set aside until framework.
 
+23. **Rename away from SWIG** (maintainer, 2026-11-06): repository `cxx-python-skeleton`, `cxx_python_rules/`
+    (upstream `cxx-python-rules`), python package `skeleton_cxx._bindings`; full table in §0 "Naming". Breaking
+    pickles and shelves is fine; only the test data in use has to keep working (it does, unchanged).
+
 **Open:**
-* Final module name (item 2): still `skeleton_swig._swig_wrap` after S6. Raised again 2026-11-06 with the repository
-  name (it no longer tests SWIG rules); suggestion: something not tied to the binding tool, e.g. repository
-  `cxx-python-skeleton`, `swig_rules/` → `cxx_python_rules/`, module `skeleton._skeleton`. Boost archives and
-  shelves don't record the module name (a python subclass object records its own class and `object`), but pickles
-  do (`__reduce__` names the module's reconstruct function), so a module rename makes existing pickles unloadable
-  unless the old name is kept as a `sys.modules` alias.
+* *Answered 2026-11-06 (decision 23):* final module name (item 2) and repository name.
 * *Answered 2026-11-06 (added in S5, `ThreadExample`):* **Threading sample in the skeleton?** (2026-11-05, §2.6). A small `std::thread` callback sample (no `ThreadPool`
   copy) would let S6.1 item 11 test directors and exceptions on worker threads here. Without it, these are tested
   first in geocal's nanobind pilot. Recommendation: add it in S5, since it is small and the deadlock case is easier to

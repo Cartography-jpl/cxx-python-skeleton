@@ -1,11 +1,13 @@
-This is a skeleton showing the use of the [swig-rules repository](https://github.jpl.nasa.gov/Cartography/swig-rules). This includes some sample code and
+This is a skeleton showing the use of the [cxx-python-rules repository](https://github.jpl.nasa.gov/Cartography/cxx-python-rules). This includes some sample code and
 tests of the python bindings.
 
 **Naming.** The python bindings used SWIG until the 2026 modernization (phase S6 of
 `claude_notes/implementation_plan.md`); they now use [nanobind](https://nanobind.readthedocs.io).
-The names `swig-rules-skeleton`, `swig_rules/`, `swig-rules-repo` and the `skeleton_swig` python
-package are historical and kept so paths and remotes keep working; `swig_rules/` now holds the
-nanobind rules.
+So in 2026-11 the repository was renamed from `swig-rules-skeleton` to `cxx-python-skeleton`, the `swig_rules/`
+directory (and its upstream repository `swig-rules`) to `cxx_python_rules/` (`cxx-python-rules`), and the python
+package with the extension module from `skeleton_swig._swig_wrap` to `skeleton_cxx._bindings`. `cxx_python_rules/`
+holds the nanobind rules and the C++ support code they use. Pickles written before the rename don't load (they name
+the old module); boost archives and shelves do.
 
 This is also a good skeleton for a new system, just remove the source code
 we have here but otherwise use the system.

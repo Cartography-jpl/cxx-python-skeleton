@@ -7,8 +7,8 @@ Run from the build directory:
 
 The default targets are the skeleton's library and C++ unit test program
 (libskeleton.la skeleton_test_all); other projects pass their own (geocal:
-libgeocal.la geocal_test_all _swig_wrap.la). The same file is used in
-swig-rules-skeleton and geocal.
+libgeocal.la geocal_test_all _bindings.la). The same file is used in
+cxx-python-skeleton and geocal.
 
 --clangd adds the flags the conda clang needs to parse code built with the
 conda gcc (the same ones script/run_clang_tidy.sh passes): the conda gcc

@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-"""Convert SWIG .i files (written with the swig_rules conventions) to nanobind
+"""Convert SWIG .i files (written with the cxx_python_rules conventions) to nanobind
 binding code.
 
     i_to_nanobind.py --namespace Skeleton --header-dir lib --out-dir OUT a.i b.i ...
@@ -25,16 +25,16 @@ follows them:
 * methods -> .def / .def_static, as lambdas (so overloads, const and
   reference returns need no casts); parameters typed as a reference to a
   class that is a secondary or virtual base somewhere are taken as a
-  shared_ptr (which the swig_rules caster converts through the type
+  shared_ptr (which the cxx_python_rules caster converts through the type
   registry).
 * the %python_attribute variants -> .def_prop_ro / _rw (the _virtual
   variant keeps SWIG's _v_<name> method, which python overrides).
 * %python_attribute_std_array -> property using to_std_array.
 * %pickle_serialization(_dir), %pickle_init, %pickle_vector -> the
-  swig_rules_nb helpers.
+  cxx_python_rules_nb helpers.
 * %feature("director") -> a trampoline class with NB_OVERRIDE for every
   virtual function declared in the .i (for the class and its bases).
-* %skeleton_director_serialization -> SWIG_RULES_NB_DIRECTOR_SERIALIZATION.
+* %skeleton_director_serialization -> CXX_PYTHON_RULES_NB_DIRECTOR_SERIALIZATION.
 * %template(Name) std::vector<...> -> nb::bind_vector; %template of a
   class template -> that class with the template argument filled in.
 * OUTPUT/OUTPUT1/OUTPUT2 arguments -> returned in a tuple; FORCE_COPY ->
@@ -475,15 +475,15 @@ class Converter:
                     )
                 return
             if name == "pickle_serialization":
-                cls.pickle.append("swig_rules_nb::pickle_serialization(c);")
+                cls.pickle.append("cxx_python_rules_nb::pickle_serialization(c);")
                 return
             if name == "pickle_serialization_dir":
-                cls.pickle.append("swig_rules_nb::pickle_serialization_dir(c);")
+                cls.pickle.append("cxx_python_rules_nb::pickle_serialization_dir(c);")
                 return
             if name == "pickle_init":
                 attrs = ", ".join('"' + a.replace("self.", "") + '"' for a in args[1:])
                 cls.pickle.append(
-                    f"swig_rules_nb::pickle_init(c, {args[0]}, {{{attrs}}});"
+                    f"cxx_python_rules_nb::pickle_init(c, {args[0]}, {{{attrs}}});"
                 )
                 return
             if name == "pythoncode":
@@ -709,12 +709,12 @@ class Converter:
                 continue
             if re.match(r"^std::ostream &$", t):
                 lp.append(f"nb::object {p.name}")
-                pre.append(f"swig_rules_nb::py_ostream {p.name}_os({p.name});")
+                pre.append(f"cxx_python_rules_nb::py_ostream {p.name}_os({p.name});")
                 ca.append(f"{p.name}_os")
                 continue
             if re.match(r"^std::istream &$", t):
                 lp.append(f"nb::object {p.name}")
-                pre.append(f"swig_rules_nb::py_istream {p.name}_is({p.name});")
+                pre.append(f"cxx_python_rules_nb::py_istream {p.name}_is({p.name});")
                 ca.append(f"{p.name}_is")
                 continue
             pt = self.ptype(p.type)
@@ -782,7 +782,7 @@ class Converter:
                 return (
                     f'    c.def("{pyname}", []({params}) -> decltype(auto) {{ {" ".join(pre)} '
                     f"if(dynamic_cast<{c}{tramp}*>(&self)) return {qcall}; return {call}; }}"
-                    f'{self.arg_names(f)}, swig_rules_nb::doc("{ci_cpp}::{f.name}"));'
+                    f'{self.arg_names(f)}, cxx_python_rules_nb::doc("{ci_cpp}::{f.name}"));'
                 )
         if outs:
             if f.ret == "void":
@@ -797,7 +797,7 @@ class Converter:
         else:
             lam = f"[]({params}) -> decltype(auto) {{ {' '.join(pre)} return {call}; }}"
         d = "def_static" if f.static else "def"
-        doc = f'swig_rules_nb::doc("{ci_cpp}::{f.name}")'
+        doc = f'cxx_python_rules_nb::doc("{ci_cpp}::{f.name}")'
         return f'    c.{d}("{pyname}", {lam}{self.arg_names(f)}, {doc});'
 
     def attr_def(
@@ -805,13 +805,13 @@ class Converter:
     ) -> list[str]:
         self_t = self_t or ci_cpp
         t = self.qualify(a.type.replace("virtual ", "").strip())
-        doc = f'swig_rules_nb::doc("{ci_cpp}::{a.cppname}")'
+        doc = f'cxx_python_rules_nb::doc("{ci_cpp}::{a.cppname}")'
         get_self = f"{self_t}&" if "nonconst" in a.kind else f"const {self_t}&"
         if a.kind == "python_attribute_std_array":
             n, tt = a.cppname, re.match(r"std::array<(\w+), (\d+)>", t)
             return [
                 f'    c.def_prop_rw("{a.pyname}", [](const {self_t}& self) {{ return self.{n}; }}, '
-                f"[]({self_t}& self, nb::handle v) {{ self.{n} = swig_rules_nb::to_std_array<{tt.group(1)}, {tt.group(2)}>(v); }}, {doc});"
+                f"[]({self_t}& self, nb::handle v) {{ self.{n} = cxx_python_rules_nb::to_std_array<{tt.group(1)}, {tt.group(2)}>(v); }}, {doc});"
             ]
         getter = (
             f"[]({get_self} self) -> decltype(auto) {{ return self.{a.cppname}(); }}"
@@ -921,7 +921,7 @@ class Converter:
             targs.append(tramp)
         body = [
             f"  {{",
-            f'    nb::class_<{", ".join(targs)}> c(m, "{ci.pyname}", swig_rules_nb::doc("{ci.cpp}"));',
+            f'    nb::class_<{", ".join(targs)}> c(m, "{ci.pyname}", cxx_python_rules_nb::doc("{ci.cpp}"));',
         ]
         unused = [b for b in ci.bases if b != ci.nb_base]
         if unused:
@@ -964,16 +964,16 @@ class Converter:
         if has_print or any(
             f.name == "print_to_string" for f in self.all_methods(ci)[0]
         ):
-            body.append("    swig_rules_nb::printable(c);")
+            body.append("    cxx_python_rules_nb::printable(c);")
         for p in ci.pickle:
             body.append("    " + p)
         if ci.pyname in self.extend_pickle_vector:
-            body.append("    swig_rules_nb::pickle_vector(c);")
+            body.append("    cxx_python_rules_nb::pickle_vector(c);")
         for h in ci.hand:
             body.append("    // HAND CONVERT: " + h.replace("\n", "\n    //   "))
-        body.append(f"    swig_rules_nb::register_type<{ci.cpp}>();")
+        body.append(f"    cxx_python_rules_nb::register_type<{ci.cpp}>();")
         if tramp:
-            body.append(f"    swig_rules_nb::register_alias<{tramp}, {ci.cpp}>();")
+            body.append(f"    cxx_python_rules_nb::register_alias<{tramp}, {ci.cpp}>();")
         body.append("  }")
         return out, body
 
@@ -983,7 +983,7 @@ class Converter:
             "// Generated by i_to_nanobind.py: the std::vector types bound with",
             "// nb::bind_vector. Every binding file must include this.",
             "#pragma once",
-            '#include "swig_rules_nb.h"',
+            '#include "cxx_python_rules_nb.h"',
         ]
         for typ, _, mod in self.vectors:
             for inc in mod.includes:
@@ -1007,7 +1007,7 @@ class Converter:
             visit(n)
         lines = ["// Generated by i_to_nanobind.py: module init, in %import order."]
         lines += [f"void init_{n}(nb::module_& m);" for n in order]
-        lines += ["#define SWIG_RULES_NB_INIT_ALL(m) \\"]
+        lines += ["#define CXX_PYTHON_RULES_NB_INIT_ALL(m) \\"]
         lines += [f"  init_{n}(m); \\" for n in order]
         lines.append("")
         (out_dir / f"{self.prefix}_init.inc").write_text("\n".join(lines) + "\n")
@@ -1023,7 +1023,7 @@ class Converter:
                 typ, pyname = it
                 v = f'  {{\n    auto c = nb::bind_vector<{self.qualify(typ)}>(m, "{pyname}");'
                 if pyname in self.extend_pickle_vector:
-                    v += "\n    swig_rules_nb::pickle_vector(c);"
+                    v += "\n    cxx_python_rules_nb::pickle_vector(c);"
                 body.append(v + "\n  }")
             elif kind == "func":
                 f = it
@@ -1039,14 +1039,14 @@ class Converter:
             if kind == "class" and it.director_serialization:
                 t = "Py" + re.sub(r"\W", "", it.pyname)
                 ds.append(
-                    f"SWIG_RULES_NB_DIRECTOR_SERIALIZATION({t}, {it.cpp}, {it.name})"
+                    f"CXX_PYTHON_RULES_NB_DIRECTOR_SERIALIZATION({t}, {it.cpp}, {it.name})"
                 )
         hand = "".join(
             "// HAND CONVERT: " + h.replace("\n", "\n//   ") + "\n" for h in mod.hand
         )
         incs = "".join(f'#include "{i}"\n' for i in mod.includes)
         text = (
-            f"// Generated by swig_rules/nanobind/i_to_nanobind.py from {mod.path.name}.\n"
+            f"// Generated by cxx_python_rules/nanobind/i_to_nanobind.py from {mod.path.name}.\n"
             f'#include "{self.prefix}_opaque.h"\n{incs}'
             f"#include <memory>\n\n"
             f"namespace nb = nanobind;\n\n"

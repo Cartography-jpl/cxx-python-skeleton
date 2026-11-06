@@ -16,19 +16,19 @@
 // (don't include boost/serialization/shared_ptr.hpp; this file replaces it).
 #ifndef BOOST_NO_MEMBER_TEMPLATE_FRIENDS
 #define BOOST_NO_MEMBER_TEMPLATE_FRIENDS
-#define SWIG_RULES_UNDEF_NO_MEMBER_TEMPLATE_FRIENDS
+#define CXX_PYTHON_RULES_UNDEF_NO_MEMBER_TEMPLATE_FRIENDS
 #endif
 #include <boost/serialization/shared_ptr_helper.hpp>
-#ifdef SWIG_RULES_UNDEF_NO_MEMBER_TEMPLATE_FRIENDS
+#ifdef CXX_PYTHON_RULES_UNDEF_NO_MEMBER_TEMPLATE_FRIENDS
 #undef BOOST_NO_MEMBER_TEMPLATE_FRIENDS
-#undef SWIG_RULES_UNDEF_NO_MEMBER_TEMPLATE_FRIENDS
+#undef CXX_PYTHON_RULES_UNDEF_NO_MEMBER_TEMPLATE_FRIENDS
 #endif
-#ifdef SWIG_HAVE_BOOST_SERIALIZATION
+#ifdef CXX_PYTHON_RULES_HAVE_BOOST_SERIALIZATION
 #include <boost/archive/polymorphic_iarchive.hpp>
 #include <boost/archive/polymorphic_oarchive.hpp>
 #endif
 
-#ifdef SWIG_HAVE_BOOST_SERIALIZATION
+#ifdef CXX_PYTHON_RULES_HAVE_BOOST_SERIALIZATION
 //-----------------------------------------------------------------------
 /// This is largely a duplicate of boost/serialization/shared_ptr.hpp
 /// (since phase S4 for std::shared_ptr; the archive format is the same
@@ -99,11 +99,11 @@ public:
     std::shared_ptr<T> t2(
       std::shared_ptr<void>(const_cast<void*>(static_cast<const void*>(r)),
                             null_deleter()), r);
-    std::shared_ptr<SWIG_MAPPER_NAMESPACE::GenericObject> v2 =
-      std::dynamic_pointer_cast<SWIG_MAPPER_NAMESPACE::GenericObject>(t2);
-    std::shared_ptr<SWIG_MAPPER_NAMESPACE::GenericObject> v3;
-    if(v2 && SWIG_MAPPER_NAMESPACE::director_hook())
-      v3 = SWIG_MAPPER_NAMESPACE::director_hook()(v2);
+    std::shared_ptr<CXX_PYTHON_RULES_NAMESPACE::GenericObject> v2 =
+      std::dynamic_pointer_cast<CXX_PYTHON_RULES_NAMESPACE::GenericObject>(t2);
+    std::shared_ptr<CXX_PYTHON_RULES_NAMESPACE::GenericObject> v3;
+    if(v2 && CXX_PYTHON_RULES_NAMESPACE::director_hook())
+      v3 = CXX_PYTHON_RULES_NAMESPACE::director_hook()(v2);
     if(v3) {
       std::shared_ptr<T>::operator=(std::dynamic_pointer_cast<T>(v3));
     } else {

@@ -1,5 +1,4 @@
-// The python extension module skeleton_swig._swig_wrap (the name is
-// historical, see claude_notes/implementation_plan.md "Naming"). Each
+// The python extension module skeleton_cxx._bindings. Each
 // lib/*_nb.cc file has an init function, called here in dependency order
 // (skeleton_nb_init.inc).
 #include "skeleton_nb_opaque.h"
@@ -9,11 +8,11 @@ namespace nb = nanobind;
 
 #include "skeleton_nb_init.inc"
 
-NB_MODULE(_swig_wrap, m)
+NB_MODULE(_bindings, m)
 {
-  swig_rules_nb::register_exceptions<Skeleton::Exception,
-                                     Skeleton::TypeError>();
-  swig_rules_nb::init_module(m);
-  swig_rules_nb::bind_common_types(m);
-  SWIG_RULES_NB_INIT_ALL(m);
+  cxx_python_rules_nb::register_exceptions<Skeleton::Exception,
+                                           Skeleton::TypeError>();
+  cxx_python_rules_nb::init_module(m);
+  cxx_python_rules_nb::bind_common_types(m);
+  CXX_PYTHON_RULES_NB_INIT_ALL(m);
 }

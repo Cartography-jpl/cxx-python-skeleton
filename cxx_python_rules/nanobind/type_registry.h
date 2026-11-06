@@ -1,5 +1,5 @@
-#ifndef SWIG_RULES_NB_TYPE_REGISTRY_H
-#define SWIG_RULES_NB_TYPE_REGISTRY_H
+#ifndef CXX_PYTHON_RULES_NB_TYPE_REGISTRY_H
+#define CXX_PYTHON_RULES_NB_TYPE_REGISTRY_H
 // Registry of the classes bound with nanobind, keyed by the C++ type.
 //
 // nanobind gives each class one bound base, and a virtual base can't be a
@@ -26,7 +26,7 @@
 #include <typeinfo>
 #include <unordered_map>
 
-namespace SWIG_MAPPER_NAMESPACE {
+namespace CXX_PYTHON_RULES_NAMESPACE {
 namespace nbreg {
 namespace nb = nanobind;
 
@@ -47,7 +47,7 @@ inline Map& registry()
 {
   static Map* m = nullptr;
   if(!m) {
-    const char* key = "__swig_rules_nb_type_registry_v1__";
+    const char* key = "__cxx_python_rules_nb_type_registry_v1__";
     nb::dict b = nb::borrow<nb::dict>(PyEval_GetBuiltins());
     if(b.contains(key)) {
       m = static_cast<Map*>(nb::cast<nb::capsule>(b[key]).data());

@@ -5,7 +5,7 @@
 #include <fstream>
 
 // Tests for the file based entry points in
-// swig_rules/lib/serialize_function.cc (XML, binary, .gz on both, the
+// cxx_python_rules/lib/serialize_function.cc (XML, binary, .gz on both, the
 // change to the archive's directory while reading).
 
 using namespace Skeleton;

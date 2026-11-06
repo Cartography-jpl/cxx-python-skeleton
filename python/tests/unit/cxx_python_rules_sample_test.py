@@ -1,5 +1,5 @@
 # Tests for the smaller rules in swig_rules/include, using
-# lib/swig_rules_sample.h: boost::optional, boost::rational, boost::array,
+# lib/cxx_python_rules_sample.h: boost::optional, boost::rational, boost::array,
 # the %python_attribute variants, %pickle_init, %pickle_vector and
 # %shared_ptr_value_traits. Like the other tests, these describe behavior
 # that should survive the move to nanobind; comments mark SWIG-specific
@@ -9,11 +9,11 @@ import pickle
 import numpy as np
 import pytest
 
-from skeleton import NumpySample, SwigRulesSample, ValueSample, Vector_ValueSample
+from skeleton import CxxPythonRulesSample, NumpySample, ValueSample, Vector_ValueSample
 
 
 def test_optional():
-    t = SwigRulesSample()
+    t = CxxPythonRulesSample()
     assert t.optional_int is None
     t.optional_int = 3
     assert t.optional_int == 3
@@ -38,7 +38,7 @@ def test_optional():
 
 
 def test_optional_range():
-    t = SwigRulesSample()
+    t = CxxPythonRulesSample()
     assert t.optional_range_size(None) == -1
     assert t.optional_range_ref() is None
     r = NumpySample().maybe_range(False)  # a blitz::Range from C++
@@ -59,7 +59,7 @@ def test_rational():
     repository (skeleton, geocal, framework) builds swig_rational.i as a
     module, so python can't construct one directly; only values returned
     from C++ are usable. Recorded in claude_notes/implementation_plan.md."""
-    t = SwigRulesSample()
+    t = CxxPythonRulesSample()
     h = t.half()
     assert t.rational_value(h) == 0.5
     with pytest.raises(TypeError):
@@ -67,7 +67,7 @@ def test_rational():
 
 
 def test_boost_array():
-    t = SwigRulesSample()
+    t = CxxPythonRulesSample()
     np.testing.assert_array_equal(t.position_, [1.0, 2.0, 3.0])
     t.position_ = [4, 5, 6]
     np.testing.assert_array_equal(t.position_, [4.0, 5.0, 6.0])
@@ -92,7 +92,7 @@ def test_boost_array():
 
 
 def test_attribute_variants():
-    t = SwigRulesSample(3, "x")
+    t = CxxPythonRulesSample(3, "x")
     assert t.count == 3
     assert t.name == "x"
     # %python_attribute2: python name differs from the C++ function
@@ -114,7 +114,7 @@ def test_attribute_variants():
         t.count_squared = 4
 
 
-class PythonWeight(SwigRulesSample):
+class PythonWeight(CxxPythonRulesSample):
     def __init__(self):
         super().__init__(1, "py")
         self._w = 7.0
@@ -129,7 +129,7 @@ class PythonWeight(SwigRulesSample):
 
 
 def test_attribute_virtual():
-    t = SwigRulesSample()
+    t = CxxPythonRulesSample()
     assert t.weight == 2.0
     t.weight = 3.0
     assert t.weight_set() == 3.0
@@ -143,9 +143,9 @@ def test_attribute_virtual():
 
 
 def test_pickle_init():
-    t = SwigRulesSample(3, "x")
+    t = CxxPythonRulesSample(3, "x")
     t2 = pickle.loads(pickle.dumps(t))
-    assert isinstance(t2, SwigRulesSample)
+    assert isinstance(t2, CxxPythonRulesSample)
     assert t2.count == 3
     assert t2.name == "x"
     v = pickle.loads(pickle.dumps(ValueSample(2.5)))
@@ -155,7 +155,7 @@ def test_pickle_init():
 def test_vector_value_type():
     """std::vector<T> where T is wrapped with %shared_ptr but stored by value
     (%shared_ptr_value_traits)."""
-    t = SwigRulesSample()
+    t = CxxPythonRulesSample()
     vals = t.values()
     assert len(vals) == 2
     # Iteration gives the real objects, not untyped pointers
@@ -179,7 +179,7 @@ def test_vector_pickle():
 
 
 def test_std_vector():
-    t = SwigRulesSample()
+    t = CxxPythonRulesSample()
     assert list(t.int_vector()) == [1, 2, 3]
     assert t.sum_int_vector([1, 2, 3]) == 6
     assert t.sum_int_vector((4, 5)) == 9
@@ -189,5 +189,5 @@ def test_std_vector():
 
 
 def test_str():
-    assert str(SwigRulesSample(3, "x")) == "SwigRulesSample(3, x)"
+    assert str(CxxPythonRulesSample(3, "x")) == "CxxPythonRulesSample(3, x)"
     assert str(ValueSample(2.5)) == "ValueSample(2.5)"

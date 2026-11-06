@@ -2,7 +2,7 @@
 
 # Build these up as we go
 libskeleton_la_SOURCES = 
-# Python binding sources (nanobind), swig_rules/nanobind/nanobind.am
+# Python binding sources (nanobind), cxx_python_rules/nanobind/nanobind.am
 NB_SRC =
 libskeleton_la_LDFLAGS =
 skeletonincdir = @includedir@/skeleton
@@ -57,7 +57,7 @@ coverage:
 	  -p no:cacheprovider --cov=skeleton --cov-report=term \
 	  --cov-report=html:$(abs_builddir)/coverage/python tests
 	$(GCOVR) -r $(realpath $(abs_top_srcdir)) . \
-	  --filter '$(realpath $(abs_top_srcdir))/(lib|swig_rules/lib)/' \
+	  --filter '$(realpath $(abs_top_srcdir))/(lib|cxx_python_rules/lib)/' \
 	  --exclude '.*_test\.cc' --exclude '.*golden_archive_generator.*' \
 	  --exclude '.*(global_fixture|test_all).*' \
 	  --merge-lines --print-summary --html-details coverage/index.html
@@ -85,8 +85,8 @@ CLANG_FORMAT = clang-format
 CLANG_TIDY_FLAGS = --quiet --warnings-as-errors='*' \
   --config-file=$(abs_top_srcdir)/.clang-tidy
 LINT_NJOB = 10
-FORMAT_FILES = 'lib/*.h' 'lib/*.cc' 'swig_rules/lib/*.h' 'swig_rules/lib/*.cc' \
-  'swig_rules/nanobind/*.h' 'swig_rules/nanobind/*.cc'
+FORMAT_FILES = 'lib/*.h' 'lib/*.cc' 'cxx_python_rules/lib/*.h' 'cxx_python_rules/lib/*.cc' \
+  'cxx_python_rules/nanobind/*.h' 'cxx_python_rules/nanobind/*.cc'
 
 format:
 	cd $(srcdir) && git ls-files $(FORMAT_FILES) | xargs -r $(CLANG_FORMAT) -i
@@ -97,7 +97,7 @@ format-check:
 
 lint:
 	$(PYTHON) $(srcdir)/script/make_compile_commands.py --clangd \
-	  libskeleton.la skeleton_test_all golden_archive_generator _swig_wrap.la \
+	  libskeleton.la skeleton_test_all golden_archive_generator _bindings.la \
 	  _skeleton_downstream.la
 	$(PYTHON) -c 'import json, os; src = os.path.realpath("$(abs_top_srcdir)") + "/"; [print(e["file"]) for e in json.load(open("compile_commands.json")) if os.path.realpath(e["file"]).startswith(src) and not e["file"].endswith("nb_combined.cc")]' \
 	  > lint_files.txt

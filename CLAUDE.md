@@ -14,19 +14,22 @@ C++20 (now C++23), Boost → std, `std::shared_ptr`, and replacing SWIG with nan
   `"blah"` printing bug). Check each one against geocal and apply it there or record why not.
 - Work on the **`modernize`** branch. Don't modify `master`.
 - **Stage changes with `git add`; never commit or push.** The maintainer reviews and commits.
-- Don't `git subtree push` to `swig-rules-repo`; this repo's `swig_rules/` is allowed to drift from it.
+- Don't `git subtree push` to `cxx-python-rules-repo`; this repo's `cxx_python_rules/` is allowed to drift from it.
 - Phases S4–S6 are done: the bindings are nanobind now (SWIG was removed in S6.6). S7 (C++23, minimum still gcc 14;
-  an `mdspan` sample for raw pointer plus size interfaces) is done too, see the plan. Use only library
-  features gcc 14 has (no range formatting, no `std::mdspan`: use `Skeleton::md`). The names
-  `swig-rules-skeleton`, `swig_rules/` and `skeleton_swig` are kept for historical reasons.
+  an `mdspan` sample for raw pointer plus size interfaces) is done too, see the plan. Use only library features gcc 14
+  has (no range formatting, no `std::mdspan`: use `Skeleton::md`).
+- Renamed 2026-11-06 from the SWIG-era names (plan §0 "Naming"): repository `swig-rules-skeleton` →
+  `cxx-python-skeleton`, `swig_rules/` → `cxx_python_rules/` (upstream `swig-rules` → `cxx-python-rules`), python
+  package `skeleton_swig._swig_wrap` → `skeleton_cxx._bindings`. Older notes in `claude_notes/` use the old names. The
+  local checkout and scratch build directories still have the old names (paths below).
 - Code work starts only when the maintainer says so.
 
 ## What this repo is
 
 This is a skeleton/example repository demonstrating use of the
-[swig-rules](https://github.jpl.nasa.gov/Cartography/swig-rules) subtree — a shared, reusable set of
-autoconf/automake rules and (since S6) nanobind support code for wrapping C++ in Python. The `swig_rules/` directory
-is *not* standalone code owned by this repo; it's pulled in from the separate `swig-rules` repository via
+[cxx-python-rules](https://github.jpl.nasa.gov/Cartography/cxx-python-rules) subtree — a shared, reusable set of
+autoconf/automake rules and (since S6) nanobind support code for wrapping C++ in Python. The `cxx_python_rules/` directory
+is *not* standalone code owned by this repo; it's pulled in from the separate `cxx-python-rules` repository via
 `git subtree` and is meant to be included in a larger C++/Python project (e.g. the `geocal` repository, a
 "full" example of this pattern). The rest of the repo (`lib/`, `python/`) is sample/test code showing the
 pattern in use, and is expected to be deleted/replaced when this skeleton is used to bootstrap a new project.
@@ -48,7 +51,7 @@ make installcheck             # the python tests against the installed package
 Useful `configure` options:
 - `--without-python-bindings` — build only the C++ library and its tests (also automatic without nanobind).
 - `--without-documentation` — skip doxygen (the python docstrings then come out empty; they are generated from the
-  doxygen XML of the headers by `swig_rules/nanobind/doxy2nanobind.py`).
+  doxygen XML of the headers by `cxx_python_rules/nanobind/doxy2nanobind.py`).
 - `--without-boost-serialization` — disable boost-serialization support code. This builds only the C++ library and
   its tests (the python extension needs serialization for pickling, so it isn't built).
 - `--enable-python-editable-mode` — `make install` installs the pure python code in `python/` as an editable pip
@@ -108,12 +111,12 @@ disposable scratch space, not something to be precious about.
 
 ## Formatting
 
-C++ (`.h`, `.cc` in `lib/`, `swig_rules/lib/` and `swig_rules/nanobind/`) is formatted with clang-format, using `.clang-format` at the
+C++ (`.h`, `.cc` in `lib/`, `cxx_python_rules/lib/` and `cxx_python_rules/nanobind/`) is formatted with clang-format, using `.clang-format` at the
 repository root (clang-format 22 from the pixi env, pinned). Format what you change: `clang-format -i <files>`, or
 `make format` for everything; `make format-check` only checks, and `make lint` runs clang-tidy with the checks in
 `.clang-tidy` (fails on any finding; also writes the clangd `compile_commands.json`).
-`.clang-format-ignore` excludes copies of upstream code (`swig_rules/lib/serialize_shared_ptr.h`,
-`swig_rules/nanobind/gc_shared_ptr.h`), which keep their upstream style. `.sample` files aren't formatted by
+`.clang-format-ignore` excludes copies of upstream code (`cxx_python_rules/lib/serialize_shared_ptr.h`,
+`cxx_python_rules/nanobind/gc_shared_ptr.h`), which keep their upstream style. `.sample` files aren't formatted by
 clang-format; keep them in the same style by hand. Python uses `ruff format`.
 
 ## Tests
@@ -141,7 +144,7 @@ python/test.sh [pytest-args]                  # sets PYTHONPATH, runs py.test -r
 
 The pure-python side of `python/` is laid out like a normal pip package rather than being listed file-by-file
 in `.am` files: source lives in `python/skeleton/` (the importable `skeleton` package — glob-imports its own
-`*.py` siblings plus `from skeleton_swig.all import *`), and tests live in `python/tests/` (`unit/` for the test
+`*.py` siblings plus `from skeleton_cxx.all import *`), and tests live in `python/tests/` (`unit/` for the test
 files, `fixtures/` for pytest fixtures wired in via `tests/conftest.py`'s `pytest_plugins`). `python/setup.py` +
 `python/pyproject.toml` make `skeleton` pip-installable (`INSTALL_EXEC_HOOK` in `python.am` runs
 `pip install --prefix=@prefix@ python` as part of `make install`); `python/Makefile` has dev-convenience
@@ -151,58 +154,60 @@ instead of going through the top-level autotools build.
 ## Architecture: the nanobind bindings
 
 - The bindings are `lib/*_nb.cc`, one `init_<name>(nb::module_&)` per header group, called in dependency order from
-  `lib/skeleton_nb_module.cc` (`skeleton_nb_init.inc`) to make one extension module, `skeleton_swig._swig_wrap`.
+  `lib/skeleton_nb_module.cc` (`skeleton_nb_init.inc`) to make one extension module, `skeleton_cxx._bindings`.
   Every binding file includes `lib/skeleton_nb_opaque.h` (the `nb::bind_vector` types), which includes
-  `swig_rules/nanobind/swig_rules_nb.h` (the rules library). They were generated from the old `.i` files by
-  `swig_rules/nanobind/i_to_nanobind.py` and are maintained by hand now. `lib/downstream_nb.cc` is a second module
+  `cxx_python_rules/nanobind/cxx_python_rules_nb.h` (the rules library). They were generated from the old `.i` files by
+  `cxx_python_rules/nanobind/i_to_nanobind.py` and are maintained by hand now. `lib/downstream_nb.cc` is a second module
   (`_skeleton_downstream`) that tests using the main module's types from another module.
 - All C++ classes exposed to python should derive (usually virtually) from `GenericObject` (`lib/generic_object.h`),
-  which has `std::enable_shared_from_this`. Each bound class calls `swig_rules_nb::register_type<T>()`: the type
-  registry (`swig_rules/nanobind/type_registry.h`) and the forked `shared_ptr` caster (`gc_shared_ptr.h`) use it to
+  which has `std::enable_shared_from_this`. Each bound class calls `cxx_python_rules_nb::register_type<T>()`: the type
+  registry (`cxx_python_rules/nanobind/type_registry.h`) and the forked `shared_ptr` caster (`gc_shared_ptr.h`) use it to
   return the most derived python type and to accept a derived object for a parameter typed as a secondary or virtual
-  base. Never declare a virtual base as a nanobind base (crashes); see `swig_rules/nanobind/README.md`.
+  base. Never declare a virtual base as a nanobind base (crashes); see `cxx_python_rules/nanobind/README.md`.
 - Non-director classes are constructed with `nb::new_` + `std::make_shared`; director classes (python may subclass
   them) have a trampoline and `nb::init`.
 - `Printable` (`lib/printable.h`): `print_to_string` is bound and used for `__str__`.
 - numpy <-> `blitz::Array` goes through an `mdspan` view (`lib/skeleton_mdspan.h`, `lib/blitz_mdspan.h`, C++ tested in
-  `blitz_mdspan_test.cc`; python side `swig_rules/nanobind/blitz_array.h`): zero copy for the right dtype, the blitz
+  `blitz_mdspan_test.cc`; python side `cxx_python_rules/nanobind/blitz_array.h`): zero copy for the right dtype, the blitz
   array keeps the numpy array alive. Index an mdspan with `m[i, j]` (C++23); inside a macro such as
   `BOOST_CHECK_EQUAL` it needs extra parentheses, `(m[i, j])`, since the comma splits the macro arguments.
 - `lib/raster_sample.{h,cc}` is the sample for replacing a raw pointer plus sizes with an `mdspan` (geocal's
   `RasterImage::read_ptr` and `CalcRaster` patterns).
-- Pickling uses boost serialization (`swig_rules_nb::pickle_serialization`, `__reduce__`); see
-  `lib/skeleton_serialize_support.h` and the `*.sample` files under `swig_rules/lib/`.
-- `swig_rules/lib/serialize_function.cc` and `weak_ptr_serialize_support.cc` are compiled into the C++ library with
-  `-DSWIG_MAPPER_NAMESPACE=Skeleton`. The library stays free of python.
+- Pickling uses boost serialization (`cxx_python_rules_nb::pickle_serialization`, `__reduce__`); see
+  `lib/skeleton_serialize_support.h` and the `*.sample` files under `cxx_python_rules/lib/`.
+- `cxx_python_rules/lib/serialize_function.cc` and `weak_ptr_serialize_support.cc` are compiled into the C++ library with
+  `-DCXX_PYTHON_RULES_NAMESPACE=Skeleton`. The library stays free of python.
 
 ## Python subclasses of C++ classes
 
-Read `swig_rules/lib/DirectorNotes.md` before touching anything related to trampolines, `shared_ptr` or `weak_ptr` in
+Read `cxx_python_rules/lib/DirectorNotes.md` before touching anything related to trampolines, `shared_ptr` or `weak_ptr` in
 the bindings. Summary:
 
 - A python object owns its C++ object; passing it to C++ gives a `shared_ptr` that holds a python reference, so C++
   keeps the python object alive.
 - A `weak_ptr` to an object owned only by python expires at once (no C++ owner); decided, see the notes.
-- Python subclass objects can be in boost archives (`SWIG_RULES_NB_DIRECTOR_SERIALIZATION`); archives written by the
+- Python subclass objects can be in boost archives (`CXX_PYTHON_RULES_NB_DIRECTOR_SERIALIZATION`); archives written by the
   SWIG bindings still load.
 - `lib/director_example.{h,cc}`, `lib/director_example_nb.cc` and `python/tests/unit/director_example_test.py` are the
   reference example/tests; `nanobind_test.py` has the `weak_ptr` matrix.
 
-## Pulling in swig_rules upstream changes
+## Pulling in cxx_python_rules upstream changes
 
-(Not done during the modernization: `swig_rules/` here is allowed to drift from `swig-rules-repo`; geocal copies it
-from this repository. Kept for reference.)
+(Not done during the modernization: `cxx_python_rules/` here is allowed to drift from `cxx-python-rules-repo`; geocal copies it
+from this repository. Kept for reference. The subtree was added as `swig_rules/` and moved to `cxx_python_rules/` in
+the 2026-11 rename, so `git subtree pull/push --prefix cxx_python_rules` won't find its earlier history: sync once by
+diff and copy (or a fresh `git subtree add`) before using the commands below.)
 
-`swig_rules/` is a `git subtree`, not a submodule — its contents are actual files in this repo's history. To
-sync with the upstream `swig-rules` repo (added as remote `swig-rules-repo`):
+`cxx_python_rules/` is a `git subtree`, not a submodule — its contents are actual files in this repo's history. To
+sync with the upstream `cxx-python-rules` repo (added as remote `cxx-python-rules-repo`):
 
 ```sh
-git subtree pull --prefix swig_rules swig-rules-repo master     # pull upstream changes in
-git subtree push --prefix swig_rules swig-rules-repo master     # push local changes upstream
-git fetch swig-rules-repo && git diff HEAD:swig_rules swig-rules-repo/master   # diff without merging
+git subtree pull --prefix cxx_python_rules cxx-python-rules-repo master     # pull upstream changes in
+git subtree push --prefix cxx_python_rules cxx-python-rules-repo master     # push local changes upstream
+git fetch cxx-python-rules-repo && git diff HEAD:cxx_python_rules cxx-python-rules-repo/master   # diff without merging
 ```
 If subtree push complains "tip of current branch is behind" even after a pull, this is a known subtree quirk —
-try `git push swig-rules-repo $(git subtree split --prefix swig_rules master):master --force` (see
+try `git push cxx-python-rules-repo $(git subtree split --prefix cxx_python_rules master):master --force` (see
 `README.git` for more detail/links).
 
 ## Claude-generated documentation

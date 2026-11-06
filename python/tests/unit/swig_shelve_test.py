@@ -50,6 +50,14 @@ def test_round_trip(isolated_dir, fname):
     assert m.c.a.v == 4
 
 
+@pytest.mark.parametrize("fname", ["t.xml", "t.xml.gz", "t.bin"])
+def test_path_argument(isolated_dir, fname):
+    """A pathlib.Path works as well as a str (the C++ write takes a
+    std::string; the Path used to be passed through unconverted)."""
+    write_shelve(Path(fname), GenericObjectA(5))
+    assert read_shelve(Path(fname)).v == 5
+
+
 @pytest.mark.parametrize("fname", ["sub/t.xml", "sub/t.bin", "sub/t.db:key"])
 def test_other_directory(isolated_dir, fname):
     """Reading changes to the file's directory and back again."""

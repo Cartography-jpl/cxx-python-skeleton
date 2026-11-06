@@ -23,7 +23,7 @@ doesn't call the override again.
 
 * A python constructed object of a director class (subclass or not) is owned by its python
   object. The C++ object lives inside it.
-* Passing it to C++ as a `std::shared_ptr` (the swig_rules caster, `gc_shared_ptr.h`) gives a
+* Passing it to C++ as a `std::shared_ptr` (the cxx_python_rules caster, `gc_shared_ptr.h`) gives a
   `shared_ptr` whose deleter only drops a python reference. So C++ keeps the python object
   (and with it the C++ object) alive for as long as it holds the pointer, after python drops
   its own reference. This is the same rule as with SWIG.
@@ -49,7 +49,7 @@ observer. `python/tests/unit/nanobind_test.py` has the whole matrix.
 
 ## Serialization of python subclasses
 
-`SWIG_RULES_NB_DIRECTOR_SERIALIZATION(PyBase, Base, Name)` (`swig_rules_nb.h`) makes the
+`CXX_PYTHON_RULES_NB_DIRECTOR_SERIALIZATION(PyBase, Base, Name)` (`cxx_python_rules_nb.h`) makes the
 trampoline serializable, so a python subclass object can be in a boost archive (and pickled
 through one):
 
@@ -58,7 +58,7 @@ through one):
   SWIG wrote, so archives written with SWIG still load
   (`unit_test_data/golden/director_python*.xml`).
 * Reading makes the python object first, constructs the C++ object in place (owned by the
-  python object), then `director_hook` (`swig_rules/lib/director_hook.h`, set by the
+  python object), then `director_hook` (`cxx_python_rules/lib/director_hook.h`, set by the
   extension module) gives the archive's `shared_ptr` a reference to the python object, as for
   any `shared_ptr` from python.
 * Known limitation: C++ objects in a python subclass's `__dict__` are pickled as separate

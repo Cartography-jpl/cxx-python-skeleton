@@ -1,5 +1,5 @@
-#ifndef SWIG_RULES_NB_STD_ARRAY_H
-#define SWIG_RULES_NB_STD_ARRAY_H
+#ifndef CXX_PYTHON_RULES_NB_STD_ARRAY_H
+#define CXX_PYTHON_RULES_NB_STD_ARRAY_H
 // std::array<T, N> of numbers <-> numpy, as the SWIG std::array typemaps
 // did (swig_boost_array.i): in, anything numpy converts to a 1-D array of
 // length N (list, tuple, any dtype or strides; always a copy); out, a new
@@ -12,7 +12,7 @@
 #include <stdexcept>
 #include <string>
 
-namespace SWIG_MAPPER_NAMESPACE {
+namespace CXX_PYTHON_RULES_NAMESPACE {
 namespace nbblitz {
 //-----------------------------------------------------------------------
 /// Python object -> std::array, throwing std::runtime_error (python
@@ -41,7 +41,7 @@ NAMESPACE_BEGIN(detail)
 
 template<class T, std::size_t N> struct type_caster<std::array<T, N>> {
   static_assert(std::is_arithmetic_v<T>,
-                "swig_rules std_array.h handles arrays of numbers only");
+                "cxx_python_rules std_array.h handles arrays of numbers only");
   using StdArray = std::array<T, N>;
   NB_TYPE_CASTER(StdArray,
                  (io_name("numpy.typing.ArrayLike", "numpy.typing.NDArray")))
@@ -49,7 +49,7 @@ template<class T, std::size_t N> struct type_caster<std::array<T, N>> {
   bool from_python(handle src, uint32_t, cleanup_list*) noexcept
   {
     try {
-      value = SWIG_MAPPER_NAMESPACE::nbblitz::to_std_array<T, N>(src);
+      value = CXX_PYTHON_RULES_NAMESPACE::nbblitz::to_std_array<T, N>(src);
       return true;
     } catch(...) {
       PyErr_Clear();

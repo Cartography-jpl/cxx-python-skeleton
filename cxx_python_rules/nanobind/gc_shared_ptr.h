@@ -7,7 +7,7 @@
     LICENSE file of nanobind.
 
     Use this instead of nanobind/stl/shared_ptr.h (never include both).
-    Changes from upstream, all marked "SWIG_RULES FORK", needed for classes
+    Changes from upstream, all marked "CXX_PYTHON_RULES FORK", needed for classes
     with virtual bases (the GenericObject hierarchy, see
     claude_notes/implementation_plan.md §2.1 and type_registry.h):
 
@@ -76,9 +76,9 @@ template <typename T> struct type_caster<std::shared_ptr<T>> {
     static constexpr bool IsClass = true;
     using Caster = make_caster<T>;
     using Td = std::decay_t<T>;
-    // SWIG_RULES FORK
+    // CXX_PYTHON_RULES FORK
     static constexpr bool IsGeneric =
-        std::is_base_of_v<SWIG_MAPPER_NAMESPACE::GenericObject, Td>;
+        std::is_base_of_v<CXX_PYTHON_RULES_NAMESPACE::GenericObject, Td>;
 
     NB_TYPE_CASTER(std::shared_ptr<T>, Caster::Name)
 
@@ -90,7 +90,7 @@ template <typename T> struct type_caster<std::shared_ptr<T>> {
 
     bool from_python(handle src, uint32_t flags,
                      cleanup_list *cleanup) noexcept {
-        // SWIG_RULES FORK: None is an empty pointer.
+        // CXX_PYTHON_RULES FORK: None is an empty pointer.
         if (src.is_none()) {
             value = nullptr;
             return true;
@@ -98,13 +98,13 @@ template <typename T> struct type_caster<std::shared_ptr<T>> {
         Caster caster;
         if (!caster.from_python(src, flags & ~(uint32_t) cast_flags::convert,
                                 cleanup)) {
-            // SWIG_RULES FORK: try the registry (only in the second,
+            // CXX_PYTHON_RULES FORK: try the registry (only in the second,
             // converting pass of overload resolution, so an exact match in
             // another overload wins).
             if constexpr (IsGeneric) {
                 if (flags & (uint32_t) cast_flags::convert) {
                     try {
-                        auto g = SWIG_MAPPER_NAMESPACE::nbreg::to_generic(src);
+                        auto g = CXX_PYTHON_RULES_NAMESPACE::nbreg::to_generic(src);
                         if (g) {
                             value = std::dynamic_pointer_cast<T>(g);
                             return (bool) value;
@@ -124,7 +124,7 @@ template <typename T> struct type_caster<std::shared_ptr<T>> {
                 ft_object_guard guard(src);
                 if (auto sp = ptr->weak_from_this().lock()) {
                     // There is already a C++ shared_ptr for this object. Use it.
-                    // SWIG_RULES FORK: dynamic, the enable_shared_from_this
+                    // CXX_PYTHON_RULES FORK: dynamic, the enable_shared_from_this
                     // base can be behind a virtual base.
                     value = std::dynamic_pointer_cast<T>(std::move(sp));
                     return true;
@@ -159,11 +159,11 @@ template <typename T> struct type_caster<std::shared_ptr<T>> {
         const std::type_info *type_p = nullptr;
         void *put_ptr = (void *) ptr;
         if constexpr (IsGeneric && !has_type_hook) {
-            // SWIG_RULES FORK: most derived registered type.
+            // CXX_PYTHON_RULES FORK: most derived registered type.
             if (ptr) {
-                auto *g = static_cast<SWIG_MAPPER_NAMESPACE::GenericObject *>(
+                auto *g = static_cast<CXX_PYTHON_RULES_NAMESPACE::GenericObject *>(
                     const_cast<std::remove_const_t<Td> *>(ptr));
-                const auto *e = SWIG_MAPPER_NAMESPACE::nbreg::find(typeid(*g));
+                const auto *e = CXX_PYTHON_RULES_NAMESPACE::nbreg::find(typeid(*g));
                 if (e) {
                     if (void *p = e->from_generic(g)) {
                         put_ptr = p;

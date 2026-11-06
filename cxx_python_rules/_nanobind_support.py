@@ -1,4 +1,4 @@
-"""Python side of the nanobind rules (swig_rules/nanobind/swig_rules_nb.h).
+"""Python side of the nanobind rules (cxx_python_rules/nanobind/cxx_python_rules_nb.h).
 
 Installed as <package>._nanobind_support next to the extension module. The
 functions here are what pickles refer to, so keep their names."""
@@ -9,18 +9,18 @@ import os
 import pickle
 from typing import Any
 
-from . import _swig_wrap
+from . import _bindings
 
 
 def _new_from_serialization(data: bytes) -> Any:
-    return _swig_wrap.serialize_read_binary(data)
+    return _bindings.serialize_read_binary(data)
 
 
 def _new_from_serialization_dir(dir: str, data: bytes) -> Any:
     curdir = os.getcwd()
     try:
         os.chdir(dir)
-        return _swig_wrap.serialize_read_binary(data)
+        return _bindings.serialize_read_binary(data)
     finally:
         os.chdir(curdir)
 

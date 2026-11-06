@@ -13,13 +13,13 @@
 #include <cerrno>
 #include <cstring>
 #include <fcntl.h>
-#ifdef SWIG_HAVE_BOOST_SERIALIZATION
+#ifdef CXX_PYTHON_RULES_HAVE_BOOST_SERIALIZATION
 #include <boost/archive/polymorphic_xml_iarchive.hpp>
 #include <boost/archive/polymorphic_xml_oarchive.hpp>
 #include <boost/archive/polymorphic_binary_iarchive.hpp>
 #include <boost/archive/polymorphic_binary_oarchive.hpp>
 #endif
-using namespace SWIG_MAPPER_NAMESPACE;
+using namespace CXX_PYTHON_RULES_NAMESPACE;
 
 /****************************************************************/ /**
    This allows filtering stream to be created on top of an
@@ -180,9 +180,9 @@ private:
 /// otherwise.
 //-----------------------------------------------------------------------
 
-bool SWIG_MAPPER_NAMESPACE::have_serialize_supported()
+bool CXX_PYTHON_RULES_NAMESPACE::have_serialize_supported()
 {
-#ifdef SWIG_HAVE_BOOST_SERIALIZATION
+#ifdef CXX_PYTHON_RULES_HAVE_BOOST_SERIALIZATION
   return true;
 #else
   return false;
@@ -202,7 +202,7 @@ static bool skip_weak_ptr_handling_val = false;
 /// the serialization.
 //-----------------------------------------------------------------------
 
-bool SWIG_MAPPER_NAMESPACE::skip_weak_ptr_handling()
+bool CXX_PYTHON_RULES_NAMESPACE::skip_weak_ptr_handling()
 {
   return skip_weak_ptr_handling_val;
 }
@@ -218,7 +218,7 @@ bool SWIG_MAPPER_NAMESPACE::skip_weak_ptr_handling()
 /// the serialization.
 //-----------------------------------------------------------------------
 
-void SWIG_MAPPER_NAMESPACE::skip_weak_ptr_handling(bool Skip)
+void CXX_PYTHON_RULES_NAMESPACE::skip_weak_ptr_handling(bool Skip)
 {
   skip_weak_ptr_handling_val = Skip;
 }
@@ -231,7 +231,7 @@ void SWIG_MAPPER_NAMESPACE::skip_weak_ptr_handling(bool Skip)
 [[maybe_unused]] static void
 mark_pointer([[maybe_unused]] const std::shared_ptr<GenericObject>& Obj)
 {
-#ifdef SWIG_HAVE_BOOST_SERIALIZATION
+#ifdef CXX_PYTHON_RULES_HAVE_BOOST_SERIALIZATION
   // Clear even when skipping the first pass, otherwise the marks left
   // by the previous write are used (stale pointers, possibly to
   // unrelated objects at a reused address).
@@ -243,8 +243,8 @@ mark_pointer([[maybe_unused]] const std::shared_ptr<GenericObject>& Obj)
   oa << boost::serialization::make_nvp("geocal_object", Obj);
   // Don't actually want output, just side effect of marking pointers
 #else
-  throw std::runtime_error(
-      "SWIG_MAPPER_NAMESPACE was not built with boost::serialization support");
+  throw std::runtime_error("CXX_PYTHON_RULES_NAMESPACE was not built with "
+                           "boost::serialization support");
 #endif
 }
 
@@ -259,35 +259,35 @@ mark_pointer([[maybe_unused]] const std::shared_ptr<GenericObject>& Obj)
 /// objects (e.g., can have a std::map if we end up needing it).
 //-----------------------------------------------------------------------
 
-void SWIG_MAPPER_NAMESPACE::serialize_write(
+void CXX_PYTHON_RULES_NAMESPACE::serialize_write(
     [[maybe_unused]] const std::string& Fname,
     [[maybe_unused]] const std::shared_ptr<GenericObject>& Obj)
 {
-#ifdef SWIG_HAVE_BOOST_SERIALIZATION
+#ifdef CXX_PYTHON_RULES_HAVE_BOOST_SERIALIZATION
   PtrSerializeLock lock;
   mark_pointer(Obj);
   OstreamCompress os(Fname.c_str());
   boost::archive::polymorphic_xml_oarchive oa(os);
   oa << boost::serialization::make_nvp("geocal_object", Obj);
 #else
-  throw std::runtime_error(
-      "SWIG_MAPPER_NAMESPACE was not built with boost::serialization support");
+  throw std::runtime_error("CXX_PYTHON_RULES_NAMESPACE was not built with "
+                           "boost::serialization support");
 #endif
 }
 
-void SWIG_MAPPER_NAMESPACE::serialize_write_binary(
+void CXX_PYTHON_RULES_NAMESPACE::serialize_write_binary(
     [[maybe_unused]] const std::string& Fname,
     [[maybe_unused]] const std::shared_ptr<GenericObject>& Obj)
 {
-#ifdef SWIG_HAVE_BOOST_SERIALIZATION
+#ifdef CXX_PYTHON_RULES_HAVE_BOOST_SERIALIZATION
   PtrSerializeLock lock;
   mark_pointer(Obj);
   OstreamCompress os(Fname.c_str());
   boost::archive::polymorphic_binary_oarchive oa(os);
   oa << boost::serialization::make_nvp("geocal_object", Obj);
 #else
-  throw std::runtime_error(
-      "SWIG_MAPPER_NAMESPACE was not built with boost::serialization support");
+  throw std::runtime_error("CXX_PYTHON_RULES_NAMESPACE was not built with "
+                           "boost::serialization support");
 #endif
 }
 
@@ -295,10 +295,10 @@ void SWIG_MAPPER_NAMESPACE::serialize_write_binary(
 /// Variation of serialize_write that writes to a string instead of a file.
 //-----------------------------------------------------------------------
 
-std::string SWIG_MAPPER_NAMESPACE::serialize_write_string(
+std::string CXX_PYTHON_RULES_NAMESPACE::serialize_write_string(
     [[maybe_unused]] const std::shared_ptr<GenericObject>& Obj)
 {
-#ifdef SWIG_HAVE_BOOST_SERIALIZATION
+#ifdef CXX_PYTHON_RULES_HAVE_BOOST_SERIALIZATION
   PtrSerializeLock lock;
   mark_pointer(Obj);
   std::ostringstream os;
@@ -308,8 +308,8 @@ std::string SWIG_MAPPER_NAMESPACE::serialize_write_string(
   }
   return os.str();
 #else
-  throw std::runtime_error(
-      "SWIG_MAPPER_NAMESPACE was not built with boost::serialization support");
+  throw std::runtime_error("CXX_PYTHON_RULES_NAMESPACE was not built with "
+                           "boost::serialization support");
 #endif
 }
 
@@ -318,10 +318,10 @@ std::string SWIG_MAPPER_NAMESPACE::serialize_write_string(
 /// instead of xml
 //-----------------------------------------------------------------------
 
-std::string SWIG_MAPPER_NAMESPACE::serialize_write_binary(
+std::string CXX_PYTHON_RULES_NAMESPACE::serialize_write_binary(
     [[maybe_unused]] const std::shared_ptr<GenericObject>& Obj)
 {
-#ifdef SWIG_HAVE_BOOST_SERIALIZATION
+#ifdef CXX_PYTHON_RULES_HAVE_BOOST_SERIALIZATION
   PtrSerializeLock lock;
   mark_pointer(Obj);
   std::ostringstream os;
@@ -331,8 +331,8 @@ std::string SWIG_MAPPER_NAMESPACE::serialize_write_binary(
   }
   return os.str();
 #else
-  throw std::runtime_error(
-      "SWIG_MAPPER_NAMESPACE was not built with boost::serialization support");
+  throw std::runtime_error("CXX_PYTHON_RULES_NAMESPACE was not built with "
+                           "boost::serialization support");
 #endif
 }
 
@@ -341,18 +341,19 @@ std::string SWIG_MAPPER_NAMESPACE::serialize_write_binary(
 /// than xml
 //-----------------------------------------------------------------------
 
-std::shared_ptr<GenericObject> SWIG_MAPPER_NAMESPACE::serialize_read_binary(
+std::shared_ptr<GenericObject>
+CXX_PYTHON_RULES_NAMESPACE::serialize_read_binary(
     [[maybe_unused]] const std::string& Data)
 {
-#ifdef SWIG_HAVE_BOOST_SERIALIZATION
+#ifdef CXX_PYTHON_RULES_HAVE_BOOST_SERIALIZATION
   std::istringstream is(Data);
   boost::archive::polymorphic_binary_iarchive ia(is);
   std::shared_ptr<GenericObject> obj;
   ia >> boost::serialization::make_nvp("geocal_object", obj);
   return obj;
 #else
-  throw std::runtime_error(
-      "SWIG_MAPPER_NAMESPACE was not built with boost::serialization support");
+  throw std::runtime_error("CXX_PYTHON_RULES_NAMESPACE was not built with "
+                           "boost::serialization support");
 #endif
 }
 
@@ -374,10 +375,11 @@ std::shared_ptr<GenericObject> SWIG_MAPPER_NAMESPACE::serialize_read_binary(
 /// current directory.
 //-----------------------------------------------------------------------
 
-std::shared_ptr<GenericObject> SWIG_MAPPER_NAMESPACE::serialize_read_generic(
+std::shared_ptr<GenericObject>
+CXX_PYTHON_RULES_NAMESPACE::serialize_read_generic(
     [[maybe_unused]] const std::string& Fname)
 {
-#ifdef SWIG_HAVE_BOOST_SERIALIZATION
+#ifdef CXX_PYTHON_RULES_HAVE_BOOST_SERIALIZATION
   IstreamCompress is(Fname.c_str());
   if(!is)
     throw std::runtime_error("Trouble opening file " + Fname);
@@ -391,16 +393,16 @@ std::shared_ptr<GenericObject> SWIG_MAPPER_NAMESPACE::serialize_read_generic(
   ia >> boost::serialization::make_nvp("geocal_object", obj);
   return obj;
 #else
-  throw std::runtime_error(
-      "SWIG_MAPPER_NAMESPACE was not built with boost::serialization support");
+  throw std::runtime_error("CXX_PYTHON_RULES_NAMESPACE was not built with "
+                           "boost::serialization support");
 #endif
 }
 
 std::shared_ptr<GenericObject>
-SWIG_MAPPER_NAMESPACE::serialize_read_binary_generic(
+CXX_PYTHON_RULES_NAMESPACE::serialize_read_binary_generic(
     [[maybe_unused]] const std::string& Fname)
 {
-#ifdef SWIG_HAVE_BOOST_SERIALIZATION
+#ifdef CXX_PYTHON_RULES_HAVE_BOOST_SERIALIZATION
   IstreamCompress is(Fname.c_str());
   if(!is)
     throw std::runtime_error("Trouble opening file " + Fname);
@@ -414,8 +416,8 @@ SWIG_MAPPER_NAMESPACE::serialize_read_binary_generic(
   ia >> boost::serialization::make_nvp("geocal_object", obj);
   return obj;
 #else
-  throw std::runtime_error(
-      "SWIG_MAPPER_NAMESPACE was not built with boost::serialization support");
+  throw std::runtime_error("CXX_PYTHON_RULES_NAMESPACE was not built with "
+                           "boost::serialization support");
 #endif
 }
 
@@ -425,17 +427,17 @@ SWIG_MAPPER_NAMESPACE::serialize_read_binary_generic(
 //-----------------------------------------------------------------------
 
 std::shared_ptr<GenericObject>
-SWIG_MAPPER_NAMESPACE::serialize_read_generic_string(
+CXX_PYTHON_RULES_NAMESPACE::serialize_read_generic_string(
     [[maybe_unused]] const std::string& Data)
 {
-#ifdef SWIG_HAVE_BOOST_SERIALIZATION
+#ifdef CXX_PYTHON_RULES_HAVE_BOOST_SERIALIZATION
   std::istringstream is(Data);
   boost::archive::polymorphic_xml_iarchive ia(is);
   std::shared_ptr<GenericObject> obj;
   ia >> boost::serialization::make_nvp("geocal_object", obj);
   return obj;
 #else
-  throw std::runtime_error(
-      "SWIG_MAPPER_NAMESPACE was not built with boost::serialization support");
+  throw std::runtime_error("CXX_PYTHON_RULES_NAMESPACE was not built with "
+                           "boost::serialization support");
 #endif
 }

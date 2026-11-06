@@ -1,10 +1,10 @@
 // Compiled once into the python extension module (not into the C++
-// library). See swig_rules_nb.h.
-#include "swig_rules_nb.h"
+// library). See cxx_python_rules_nb.h.
+#include "cxx_python_rules_nb.h"
 #include <blitz/range.h>
 #include <boost/rational.hpp>
 
-namespace swig_rules_nb {
+namespace cxx_python_rules_nb {
 std::map<GenericObject*, nb::object>& pending_director()
 {
   static auto* m = new std::map<GenericObject*, nb::object>;
@@ -51,6 +51,6 @@ void bind_common_types(nb::module_& m)
 
 void init_module(nb::module_&)
 {
-  SWIG_MAPPER_NAMESPACE::director_hook() = director_hook_func;
+  CXX_PYTHON_RULES_NAMESPACE::director_hook() = director_hook_func;
 }
 }

@@ -47,7 +47,7 @@ libskeleton_la_SOURCES+= @srclib@/blitz_array_serialize_support.cc
 skeletoninc_HEADERS+= @srclib@/numpy_sample.h
 skeletoninc_HEADERS+= @srclib@/exception_sample.h
 skeletoninc_HEADERS+= @srclib@/array_typemap_sample.h
-skeletoninc_HEADERS+= @srclib@/swig_rules_sample.h
+skeletoninc_HEADERS+= @srclib@/cxx_python_rules_sample.h
 skeletoninc_HEADERS+= @srclib@/file_reference_sample.h
 libskeleton_la_SOURCES+= @srclib@/file_reference_sample.cc
 skeletoninc_HEADERS+= @srclib@/array_sample.h
@@ -75,7 +75,7 @@ libskeleton_la_SOURCES+= @srclib@/thread_example.cc
 skeletoninc_HEADERS+= @srclib@/raster_sample.h
 libskeleton_la_SOURCES+= @srclib@/raster_sample.cc
 
-# Python bindings (nanobind), see swig_rules/nanobind/nanobind.am
+# Python bindings (nanobind), see cxx_python_rules/nanobind/nanobind.am
 NB_SRC += @srclib@/array_sample_nb.cc
 NB_SRC += @srclib@/array_typemap_sample_nb.cc
 NB_SRC += @srclib@/director_example_nb.cc
@@ -93,7 +93,7 @@ NB_SRC += @srclib@/overload_example_nb.cc
 NB_SRC += @srclib@/raster_sample_nb.cc
 NB_SRC += @srclib@/serialize_function_nb.cc
 NB_SRC += @srclib@/skeleton_exception_nb.cc
-NB_SRC += @srclib@/swig_rules_sample_nb.cc
+NB_SRC += @srclib@/cxx_python_rules_sample_nb.cc
 NB_SRC += @srclib@/thread_example_nb.cc
 NB_SRC += @srclib@/virtual_diamond_example_nb.cc
 NB_SRC += @srclib@/with_parameter_like_nb.cc
@@ -105,11 +105,11 @@ NB_LIBADD = libskeleton.la
 # A second extension module using the main one's types (cross-module test,
 # python/tests/unit/downstream_test.py).
 if BUILD_PYTHON_BINDINGS
-pkgpythonswig_LTLIBRARIES += _skeleton_downstream.la
+pkgpythoncxx_LTLIBRARIES += _skeleton_downstream.la
 _skeleton_downstream_la_SOURCES = @srclib@/downstream_nb.cc
-_skeleton_downstream_la_CPPFLAGS = $(_swig_wrap_la_CPPFLAGS)
-_skeleton_downstream_la_CXXFLAGS = $(_swig_wrap_la_CXXFLAGS)
-_skeleton_downstream_la_LDFLAGS = $(_swig_wrap_la_LDFLAGS)
+_skeleton_downstream_la_CPPFLAGS = $(_bindings_la_CPPFLAGS)
+_skeleton_downstream_la_CXXFLAGS = $(_bindings_la_CXXFLAGS)
+_skeleton_downstream_la_LDFLAGS = $(_bindings_la_LDFLAGS)
 _skeleton_downstream_la_LIBADD = libnanobind_core.la libskeleton.la
 endif
 NB_MAPPER_NAMESPACE = Skeleton
@@ -141,7 +141,7 @@ golden_archive_generator_SOURCES = @srclib@/golden_archive_generator.cc
 golden_archive_generator_LDADD = libskeleton.la
 golden_archive_generator_LDFLAGS = $(UNINSTALLED_PROGRAM_LINK_FLAGS)
 golden_archive_generator_CPPFLAGS = $(AM_CPPFLAGS) $(BOOST_CPPFLAGS) $(BLITZ_CFLAGS)
-golden_archive_generator_CPPFLAGS+= -DSWIG_MAPPER_NAMESPACE=Skeleton
+golden_archive_generator_CPPFLAGS+= -DCXX_PYTHON_RULES_NAMESPACE=Skeleton
 
 golden-archives: golden_archive_generator
 	source script/setup_skeleton.sh && \

@@ -1,9 +1,9 @@
-#ifndef SWIG_RULES_DIRECTOR_HOOK_H
-#define SWIG_RULES_DIRECTOR_HOOK_H
+#ifndef CXX_PYTHON_RULES_DIRECTOR_HOOK_H
+#define CXX_PYTHON_RULES_DIRECTOR_HOOK_H
 #include "generic_object.h"
 #include <memory>
 
-namespace SWIG_MAPPER_NAMESPACE {
+namespace CXX_PYTHON_RULES_NAMESPACE {
 //-----------------------------------------------------------------------
 /// Hook for serialize_shared_ptr.h, so a python subclass of a C++ class
 /// (a nanobind trampoline object) read from an archive is owned by its
