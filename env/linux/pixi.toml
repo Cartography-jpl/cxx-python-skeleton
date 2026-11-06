@@ -41,6 +41,10 @@ ipython = "*"
 # Pinned: clang-format output differs a little between versions, and
 # "make format" should give the same result for everyone.
 clang-tools = "22.*"
+# clang's builtin headers (lib/clang/22/include), which clang-tidy and clangd need;
+# clang-tools doesn't include them. clang-22 rather than the "clang" package,
+# which would also pull in the clang compiler driver and a newer binutils.
+clang-22 = "22.*"
 nanobind = "*"
 # Test coverage (claude_notes/implementation_plan.md section 4a, "make coverage")
 gcovr = "*"
