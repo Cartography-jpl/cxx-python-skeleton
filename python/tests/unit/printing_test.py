@@ -4,10 +4,13 @@
 import pytest
 
 from skeleton import (
+    ArrayTypemapSample,
     DirectorExample,
+    DirectorExampleNested,
     DirectorExampleUser,
     DirectorExampleWeakPtr,
     ExceptionSample,
+    FileReferenceSample,
     GenericObjectA,
     GenericObjectB,
     GenericObjectC,
@@ -34,6 +37,17 @@ def test_str():
         "DirectorExample:\n  name:         e1\n  value_to_add: 1"
         "\n----------------------\n"
     )
+    # Nested prints as its DirectorExample base.
+    assert str(DirectorExampleNested(2, "n", e)) == (
+        "DirectorExample:\n  name:         n\n  value_to_add: 2"
+    )
+    assert str(ArrayTypemapSample()) == "ArrayTypemapSample"
+
+
+def test_str_file_reference(tmp_path):
+    fname = tmp_path / "f.txt"
+    fname.write_text("contents\n")
+    assert str(FileReferenceSample(str(fname))) == f"FileReferenceSample({fname})"
 
 
 class DescOverride(DirectorExample):
