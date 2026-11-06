@@ -14,19 +14,20 @@ C++20 (now C++23), Boost → std, `std::shared_ptr`, and replacing SWIG with nan
   `"blah"` printing bug). Check each one against geocal and apply it there or record why not.
 - Work on the **`modernize`** branch. Don't modify `master`.
 - **Stage changes with `git add`; never commit or push.** The maintainer reviews and commits.
-- Don't `git subtree push` to `swig-rules-repo`; this repo's `swig_rules/` is allowed to drift from it.
+- Don't `git subtree push` to `cxx-python-rules-repo`; this repo's `swig_rules/` is allowed to drift from it.
 - Phases S4–S6 are done: the bindings are nanobind now (SWIG was removed in S6.6). S7 (C++23, minimum still gcc 14;
   an `mdspan` sample for raw pointer plus size interfaces) is done too, see the plan. Use only library
-  features gcc 14 has (no range formatting, no `std::mdspan`: use `Skeleton::md`). The names
-  `swig-rules-skeleton`, `swig_rules/` and `skeleton_swig` are kept for historical reasons.
+  features gcc 14 has (no range formatting, no `std::mdspan`: use `Skeleton::md`). The repository
+  was renamed from `swig-rules-skeleton` to `cxx-python-skeleton` (and `swig-rules` to `cxx-python-rules`); the names
+  `swig_rules/` and `skeleton_swig` are kept for historical reasons.
 - Code work starts only when the maintainer says so.
 
 ## What this repo is
 
 This is a skeleton/example repository demonstrating use of the
-[swig-rules](https://github.jpl.nasa.gov/Cartography/swig-rules) subtree — a shared, reusable set of
+[cxx-python-rules](https://github.jpl.nasa.gov/Cartography/cxx-python-rules) subtree — a shared, reusable set of
 autoconf/automake rules and (since S6) nanobind support code for wrapping C++ in Python. The `swig_rules/` directory
-is *not* standalone code owned by this repo; it's pulled in from the separate `swig-rules` repository via
+is *not* standalone code owned by this repo; it's pulled in from the separate `cxx-python-rules` repository via
 `git subtree` and is meant to be included in a larger C++/Python project (e.g. the `geocal` repository, a
 "full" example of this pattern). The rest of the repo (`lib/`, `python/`) is sample/test code showing the
 pattern in use, and is expected to be deleted/replaced when this skeleton is used to bootstrap a new project.
@@ -91,8 +92,8 @@ Locations table in §0 of `claude_notes/implementation_plan.md`.
 
 | | rifle | frenchpeas |
 |---|---|---|
-| This repo | `/home/smyth/Local/swig-rules-skeleton` | `/data2/smythdata/swig-rules-skeleton` |
-| Scratch build | `/home/smyth/Local/swig-rules-skeleton-build/build-pixi` | `/data2/smythdata/swig-rules-skeleton-build/build` |
+| This repo | `/home/smyth/Local/cxx-python-skeleton` | `/data2/smythdata/cxx-python-skeleton` |
+| Scratch build | `/home/smyth/Local/cxx-python-skeleton-build/build-pixi` | `/data2/smythdata/cxx-python-skeleton-build/build` |
 | geocal | `/ssdata/smyth/geocal-repo` | `/data2/smythdata/geocal-repo` |
 | framework | `/home/smyth/Local/framework` | `/data2/smythdata/framework` |
 
@@ -101,7 +102,7 @@ Locations table in §0 of `claude_notes/implementation_plan.md`.
 The scratch build directory above is a pixi environment (outside this repo) that can be used to actually
 configure/build/run tests against, e.g. (from inside it):
 ```sh
-../../swig-rules-skeleton/configure --prefix=$CONDA_PREFIX --enable-maintainer-mode --enable-debug
+../../cxx-python-skeleton/configure --prefix=$CONDA_PREFIX --enable-maintainer-mode --enable-debug
 ```
 It's fine to modify this environment's `pixi.toml`/add packages to it as needed to get a build working — it's
 disposable scratch space, not something to be precious about.
@@ -190,19 +191,19 @@ the bindings. Summary:
 
 ## Pulling in swig_rules upstream changes
 
-(Not done during the modernization: `swig_rules/` here is allowed to drift from `swig-rules-repo`; geocal copies it
+(Not done during the modernization: `swig_rules/` here is allowed to drift from `cxx-python-rules-repo`; geocal copies it
 from this repository. Kept for reference.)
 
 `swig_rules/` is a `git subtree`, not a submodule — its contents are actual files in this repo's history. To
-sync with the upstream `swig-rules` repo (added as remote `swig-rules-repo`):
+sync with the upstream `cxx-python-rules` repo (added as remote `cxx-python-rules-repo`):
 
 ```sh
-git subtree pull --prefix swig_rules swig-rules-repo master     # pull upstream changes in
-git subtree push --prefix swig_rules swig-rules-repo master     # push local changes upstream
-git fetch swig-rules-repo && git diff HEAD:swig_rules swig-rules-repo/master   # diff without merging
+git subtree pull --prefix swig_rules cxx-python-rules-repo master     # pull upstream changes in
+git subtree push --prefix swig_rules cxx-python-rules-repo master     # push local changes upstream
+git fetch cxx-python-rules-repo && git diff HEAD:swig_rules cxx-python-rules-repo/master   # diff without merging
 ```
 If subtree push complains "tip of current branch is behind" even after a pull, this is a known subtree quirk —
-try `git push swig-rules-repo $(git subtree split --prefix swig_rules master):master --force` (see
+try `git push cxx-python-rules-repo $(git subtree split --prefix swig_rules master):master --force` (see
 `README.git` for more detail/links).
 
 ## Claude-generated documentation
