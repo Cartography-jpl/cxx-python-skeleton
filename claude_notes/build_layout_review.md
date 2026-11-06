@@ -12,7 +12,7 @@ see the earlier restructuring for that.
   `lib/lib.am`, `python/python.am`, `bindings/python/python.am`,
   `swig_rules/swig_rules.am`, `script/script.am`, `unit_test_data/unit_test_data.am`.
 - `swig_rules/` and `config/m4` are `git subtree`s from separate shared repos
-  (`swig-rules-repo`, `autoconf-repo`).
+  (`cxx-python-rules-repo`, `autoconf-repo`).
 - SWIG generates all C++↔python bindings; a locally-patched `my_shared_ptr.i`
   and custom director/weak_ptr/serialization lifetime code
   (`swig_rules/lib/DirectorNotes.md`) is the real engineering asset here.
@@ -135,7 +135,7 @@ see the earlier restructuring for that.
   `config/m4` given the self-documented push friction — options include git
   submodules (different, not obviously fewer, footguns) or packaging
   `swig_rules` as an installable/versioned artifact consumed by both
-  `geocal` and `swig-rules-skeleton`. Worth a real cost-benefit discussion,
+  `geocal` and `cxx-python-skeleton`. Worth a real cost-benefit discussion,
   not an assumed win — subtree's "no separate clone step" property is
   genuinely valuable and submodules would give that up.
 

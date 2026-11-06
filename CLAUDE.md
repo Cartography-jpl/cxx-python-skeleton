@@ -21,7 +21,7 @@ C++20 (now C++23), Boost → std, `std::shared_ptr`, and replacing SWIG with nan
 - Renamed 2026-11-06 from the SWIG-era names (plan §0 "Naming"): repository `swig-rules-skeleton` →
   `cxx-python-skeleton`, `swig_rules/` → `cxx_python_rules/` (upstream `swig-rules` → `cxx-python-rules`), python
   package `skeleton_swig._swig_wrap` → `skeleton_cxx._bindings`. Older notes in `claude_notes/` use the old names. The
-  local checkout and scratch build directories still have the old names (paths below).
+  local checkouts and scratch build directories were renamed to match (paths below).
 - Code work starts only when the maintainer says so.
 
 ## What this repo is
@@ -94,8 +94,8 @@ Locations table in §0 of `claude_notes/implementation_plan.md`.
 
 | | rifle | frenchpeas |
 |---|---|---|
-| This repo | `/home/smyth/Local/swig-rules-skeleton` | `/data2/smythdata/swig-rules-skeleton` |
-| Scratch build | `/home/smyth/Local/swig-rules-skeleton-build/build-pixi` | `/data2/smythdata/swig-rules-skeleton-build/build` |
+| This repo | `/home/smyth/Local/cxx-python-skeleton` | `/data2/smythdata/cxx-python-skeleton` |
+| Scratch build | `/home/smyth/Local/cxx-python-skeleton-build/build-pixi` | `/data2/smythdata/cxx-python-skeleton-build/build` |
 | geocal | `/ssdata/smyth/geocal-repo` | `/data2/smythdata/geocal-repo` |
 | framework | `/home/smyth/Local/framework` | `/data2/smythdata/framework` |
 
@@ -104,7 +104,7 @@ Locations table in §0 of `claude_notes/implementation_plan.md`.
 The scratch build directory above is a pixi environment (outside this repo) that can be used to actually
 configure/build/run tests against, e.g. (from inside it):
 ```sh
-../../swig-rules-skeleton/configure --prefix=$CONDA_PREFIX --enable-maintainer-mode --enable-debug
+../../cxx-python-skeleton/configure --prefix=$CONDA_PREFIX --enable-maintainer-mode --enable-debug
 ```
 It's fine to modify this environment's `pixi.toml`/add packages to it as needed to get a build working — it's
 disposable scratch space, not something to be precious about.
