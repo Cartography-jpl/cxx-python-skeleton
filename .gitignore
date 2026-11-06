@@ -18,3 +18,5 @@ python/test*.xml
 pytest_tmp
 claude_notes/*.html
 coverage/
+# clangd: a link to the build directory's file (script/make_compile_commands.py)
+compile_commands.json

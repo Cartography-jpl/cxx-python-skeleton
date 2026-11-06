@@ -3,9 +3,18 @@
 
 Run from the build directory:
 
-    python <srcdir>/script/make_compile_commands.py [make targets...]
+    python <srcdir>/script/make_compile_commands.py [--clangd] [make targets...]
 
-The default targets are the library and the C++ unit test program. This
+The default targets are the library and the C++ unit test program.
+
+--clangd adds the flags the conda clang needs to parse code built with the
+conda gcc (the same ones script/run_clang_tidy.sh passes): the conda gcc
+install and sysroot, the gcc builtin headers, and a shim for blitz's
+missing llvm config (written to clangd_shim/ in the build directory). Use
+this for clangd (an editor or the Claude Code clangd plugin), and link the
+file into the source tree so clangd finds it:
+
+    ln -sf $PWD/compile_commands.json <srcdir>/compile_commands.json This
 doesn't need bear or intercept-build (bear's conda build needs a newer glibc
 than some of our hosts have), it just reads the compile lines make would run.
 """
@@ -14,9 +23,31 @@ import os
 import re
 import shlex
 import subprocess
+import glob
 import sys
 
-targets = sys.argv[1:] or ["libskeleton.la", "skeleton_test_all"]
+args_in = sys.argv[1:]
+clangd = "--clangd" in args_in
+args_in = [a for a in args_in if a != "--clangd"]
+targets = args_in or ["libskeleton.la", "skeleton_test_all"]
+
+extra = []
+if clangd:
+    prefix = os.environ.get("CONDA_PREFIX")
+    if not prefix:
+        sys.exit("--clangd: run inside the pixi environment")
+    gccdir = sorted(glob.glob(f"{prefix}/lib/gcc/x86_64-conda-linux-gnu/*"))[-1]
+    shim = os.path.abspath("clangd_shim")
+    os.makedirs(f"{shim}/blitz/llvm", exist_ok=True)
+    with open(f"{shim}/blitz/llvm/bzconfig.h", "w") as fh:
+        fh.write("#include <blitz/gnu/bzconfig.h>\n")
+    extra = [
+        f"--gcc-install-dir={gccdir}",
+        f"--sysroot={prefix}/x86_64-conda-linux-gnu/sysroot",
+        f"-isystem{gccdir}/include",
+        f"-isystem{gccdir}/include-fixed",
+        f"-isystem{shim}",
+    ]
 out = subprocess.run(
     ["make", "-n", "-B", *targets], capture_output=True, text=True, check=False
 ).stdout
@@ -54,7 +85,8 @@ for line in out.splitlines():
         else:
             keep.append(a)
     f = os.path.abspath(srcs[-1])
-    entries.append({"directory": cwd, "file": f, "arguments": keep})
+    entries.append({"directory": cwd, "file": f,
+                    "arguments": keep[:1] + extra + keep[1:]})
 with open("compile_commands.json", "w") as fh:
     json.dump(entries, fh, indent=1)
 print(f"wrote {len(entries)} entries to {cwd}/compile_commands.json")
