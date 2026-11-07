@@ -169,7 +169,7 @@ void init_director_example(nb::module_& m)
         [](Skeleton::DirectorExampleUser& self,
            const std::vector<std::shared_ptr<Skeleton::DirectorExample>>& V)
             -> decltype(auto) { return self.set_vec(V); },
-        nb::arg("V").none(),
+        nb::arg("V"),
         cxx_python_rules_nb::doc("Skeleton::DirectorExampleUser::set_vec"));
     c.def(
         "value_vec_vec",
@@ -184,7 +184,7 @@ void init_director_example(nb::module_& m)
            const std::vector<
                std::vector<std::shared_ptr<Skeleton::DirectorExample>>>& V)
             -> decltype(auto) { return self.set_vec_vec(V); },
-        nb::arg("V").none(),
+        nb::arg("V"),
         cxx_python_rules_nb::doc("Skeleton::DirectorExampleUser::set_vec_vec"));
     c.def(
         "value",

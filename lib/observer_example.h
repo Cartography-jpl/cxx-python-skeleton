@@ -2,6 +2,7 @@
 #define OBSERVER_EXAMPLE_H
 #include "observer.h"
 #include "printable.h"
+#include "skeleton_exception.h"
 #include <memory>
 #include <string>
 
@@ -132,6 +133,8 @@ class CacheExample : public CacheInvalidatedObserver,
 public:
   CacheExample(const std::shared_ptr<ObservableExample>& Obj) : observed_(Obj)
   {
+    if(!observed_)
+      throw Exception("CacheExample: Obj is null");
     observed_->add_cache_invalidated_observer(*this);
   }
   ~CacheExample() override = default;

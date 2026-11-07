@@ -41,7 +41,7 @@ void init_multi_base_example(nb::module_& m)
             -> decltype(auto) {
           return self.add_observer_and_keep_reference(Obs);
         },
-        nb::arg("Obs").none(),
+        nb::arg("Obs"),
         cxx_python_rules_nb::doc(
             "Skeleton::Observable<Skeleton::CameraLike>::add_"
             "observer_and_keep_reference"));
@@ -257,7 +257,7 @@ void init_multi_base_example(nb::module_& m)
         [](const std::shared_ptr<Skeleton::CameraLike>& Cam) -> decltype(auto) {
           return Skeleton::MultiBaseExample::number_band(Cam);
         },
-        nb::arg("Cam").none(),
+        nb::arg("Cam"),
         cxx_python_rules_nb::doc("Skeleton::MultiBaseExample::number_band"));
     c.def_static(
         "parameter_sum",
@@ -265,7 +265,7 @@ void init_multi_base_example(nb::module_& m)
             -> decltype(auto) {
           return Skeleton::MultiBaseExample::parameter_sum(P);
         },
-        nb::arg("P").none(),
+        nb::arg("P"),
         cxx_python_rules_nb::doc("Skeleton::MultiBaseExample::parameter_sum"));
     c.def_static(
         "parameter_sum_ref",

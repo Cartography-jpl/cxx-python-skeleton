@@ -61,7 +61,8 @@ inline std::vector<std::shared_ptr<GenericObject>> generic_object_list()
 
 inline std::shared_ptr<GenericObject> generic_object_index(int I)
 {
-  return generic_object_list()[I];
+  // I comes from python, so check it (std::out_of_range).
+  return generic_object_list().at(static_cast<std::size_t>(I));
 }
 }
 

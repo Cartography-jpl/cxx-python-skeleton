@@ -2,6 +2,7 @@
 #define MULTI_BASE_EXAMPLE_H
 #include "observer.h"
 #include "printable.h"
+#include "skeleton_exception.h"
 #include "with_parameter_like.h"
 #include <memory>
 #include <string>
@@ -95,10 +96,14 @@ public:
   }
   static int number_band(const std::shared_ptr<CameraLike>& Cam)
   {
+    if(!Cam)
+      throw Exception("MultiBaseExample::number_band: Cam is null");
     return Cam->number_band();
   }
   static double parameter_sum(const std::shared_ptr<WithParameterLike>& P)
   {
+    if(!P)
+      throw Exception("MultiBaseExample::parameter_sum: P is null");
     return P->parameter_sum();
   }
   static double parameter_sum_ref(const WithParameterLike& P)

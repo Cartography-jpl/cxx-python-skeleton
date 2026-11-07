@@ -1,6 +1,7 @@
 #ifndef VIRTUAL_DIAMOND_EXAMPLE_H
 #define VIRTUAL_DIAMOND_EXAMPLE_H
 #include "printable.h"
+#include "skeleton_exception.h"
 #include "with_parameter_like.h"
 #include <memory>
 #include <string>
@@ -81,14 +82,20 @@ public:
   std::shared_ptr<GenericObject> as_generic() const { return d_; }
   static std::string root_name(const std::shared_ptr<RootLike>& R)
   {
+    if(!R)
+      throw Exception("VirtualDiamondExample::root_name: R is null");
     return R->root_name();
   }
   static std::string nested_name(const std::shared_ptr<NestedLike>& N)
   {
+    if(!N)
+      throw Exception("VirtualDiamondExample::nested_name: N is null");
     return N->nested_name();
   }
   static double parameter_sum(const std::shared_ptr<WithParameterLike>& P)
   {
+    if(!P)
+      throw Exception("VirtualDiamondExample::parameter_sum: P is null");
     return P->parameter_sum();
   }
   virtual void print(std::ostream& Os) const { Os << "VirtualDiamondExample"; }

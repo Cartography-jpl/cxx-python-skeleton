@@ -32,4 +32,12 @@ BOOST_AUTO_TEST_CASE(run)
                         });
 }
 
+BOOST_AUTO_TEST_CASE(bad_arguments)
+{
+  auto d = std::make_shared<DirectorExample>(1, "threads");
+  BOOST_CHECK_THROW(ThreadExample::run(d, 1, 0), Exception);
+  BOOST_CHECK_THROW(ThreadExample::run(d, 1, -3), Exception);
+  BOOST_CHECK_THROW(ThreadExample::run(nullptr, 1, 2), Exception);
+}
+
 BOOST_AUTO_TEST_SUITE_END()

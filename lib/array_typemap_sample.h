@@ -1,6 +1,7 @@
 #ifndef ARRAY_TYPEMAP_SAMPLE_H
 #define ARRAY_TYPEMAP_SAMPLE_H
 #include "printable.h"
+#include "skeleton_exception.h"
 #include <blitz/array.h>
 #include <vector>
 
@@ -109,6 +110,8 @@ public:
 
   double element(const blitz::Array<double, 2>& A, int I, int J) const
   {
+    range_check(I, A.lbound(0), A.ubound(0) + 1);
+    range_check(J, A.lbound(1), A.ubound(1) + 1);
     return A(I, J);
   }
 
@@ -171,7 +174,12 @@ public:
 
   const blitz::Array<double, 2>& stored() const { return stored_; }
   blitz::Array<double, 2>& stored_ref() { return stored_; }
-  double stored_value(int I, int J) const { return stored_(I, J); }
+  double stored_value(int I, int J) const
+  {
+    range_check(I, 0, stored_.rows());
+    range_check(J, 0, stored_.cols());
+    return stored_(I, J);
+  }
 
   //-----------------------------------------------------------------------
   /// Virtual function a python subclass can override, taking and

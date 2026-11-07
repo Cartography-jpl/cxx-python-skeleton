@@ -147,14 +147,14 @@ void init_virtual_diamond_example(nb::module_& m)
         [](const std::shared_ptr<Skeleton::RootLike>& R) -> decltype(auto) {
           return Skeleton::VirtualDiamondExample::root_name(R);
         },
-        nb::arg("R").none(),
+        nb::arg("R"),
         cxx_python_rules_nb::doc("Skeleton::VirtualDiamondExample::root_name"));
     c.def_static(
         "nested_name",
         [](const std::shared_ptr<Skeleton::NestedLike>& N) -> decltype(auto) {
           return Skeleton::VirtualDiamondExample::nested_name(N);
         },
-        nb::arg("N").none(),
+        nb::arg("N"),
         cxx_python_rules_nb::doc(
             "Skeleton::VirtualDiamondExample::nested_name"));
     c.def_static(
@@ -163,7 +163,7 @@ void init_virtual_diamond_example(nb::module_& m)
             -> decltype(auto) {
           return Skeleton::VirtualDiamondExample::parameter_sum(P);
         },
-        nb::arg("P").none(),
+        nb::arg("P"),
         cxx_python_rules_nb::doc(
             "Skeleton::VirtualDiamondExample::parameter_sum"));
     c.def_prop_ro(

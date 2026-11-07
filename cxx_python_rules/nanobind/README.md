@@ -22,7 +22,20 @@ The nanobind replacement for the SWIG rules (phase S6 of
   non-virtual base only; bind the other bases' methods on the class (the converter does).
 * Bind constructors of non-director classes with `nb::new_` returning `std::make_shared`, and
   call `cxx_python_rules_nb::register_type<T>()` for each class (`register_alias` for a trampoline).
-* `shared_ptr` arguments need `nb::arg(...).none()` to accept `None` (SWIG accepted it).
+* A `shared_ptr` argument accepts `None` only with `nb::arg(...).none()`. Add it only where C++
+  handles a null pointer (a setter that clears, an optional link). Elsewhere leave it off, so
+  nanobind rejects `None` with a `TypeError`; with `.none()` on a parameter C++ dereferences,
+  python crashes. (SWIG accepted `None` everywhere, and the converter added `.none()` to every
+  `shared_ptr` parameter.) C++ functions that dereference a pointer argument also check it and
+  throw, since C++ callers can pass null too.
+* Arguments from python are untrusted: check indices (`.at()`, `range_check`), including blitz
+  `A(i, j)`, which only checks bounds in a `BZ_DEBUG` build. A C++ exception becomes a python
+  exception through our translator: `std::out_of_range` becomes `RuntimeError` (not
+  nanobind's `IndexError`, since our catch-all translator is tried first), and
+  `Exception`/`TypeError` from the library become `RuntimeError`/`TypeError`.
+* A trampoline override whose argument is a reference to a bound class uses
+  `CXX_PYTHON_RULES_NB_OVERRIDE_REF`, not `NB_OVERRIDE_NAME`: the latter copies the object
+  for the call into python.
 * Compile the binding files *without* `-fvisibility=hidden` (see `nanobind.am`); nanobind's own
   source keeps it.
 * Run the binding tests under AddressSanitizer at each change: a wrong pointer adjustment can

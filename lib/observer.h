@@ -2,6 +2,7 @@
 #define SKELETON_OBSERVER_H
 #include "null_deleter.h"
 #include "generic_object.h"
+#include "skeleton_exception.h"
 #include <memory>
 #include <algorithm>
 #include <list>
@@ -197,6 +198,8 @@ public:
 
   void add_observer_and_keep_reference(std::shared_ptr<Observer<T>>& Obs)
   {
+    if(!Obs)
+      throw Exception("add_observer_and_keep_reference: Obs is null");
     ref_list.push_back(Obs);
     add_observer(*Obs);
   }

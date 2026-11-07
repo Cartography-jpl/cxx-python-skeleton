@@ -44,7 +44,7 @@ void init_observer_example(nb::module_& m)
                Obs) -> decltype(auto) {
           return self.add_observer_and_keep_reference(Obs);
         },
-        nb::arg("Obs").none(),
+        nb::arg("Obs"),
         cxx_python_rules_nb::doc(
             "Skeleton::Observable<Skeleton::ObservableExample>::"
             "add_observer_and_keep_reference"));
@@ -268,7 +268,7 @@ void init_observer_example(nb::module_& m)
     c.def(nb::new_([](const std::shared_ptr<Skeleton::ObservableExample>& Obj) {
             return std::make_shared<Skeleton::CacheExample>(Obj);
           }),
-          nb::arg("Obj").none());
+          nb::arg("Obj"));
     c.def_prop_ro(
         "value",
         [](const Skeleton::CacheExample& self) -> decltype(auto) {

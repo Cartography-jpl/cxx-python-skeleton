@@ -1,6 +1,7 @@
 #ifndef CXX_PYTHON_RULES_SAMPLE_H
 #define CXX_PYTHON_RULES_SAMPLE_H
 #include "printable.h"
+#include "skeleton_exception.h"
 #include <optional>
 #include <boost/rational.hpp>
 #include <array>
@@ -103,7 +104,12 @@ public:
   void get_scale(const double& V) { scale_ = V; }
   int counter() { return count_; }
   blitz::Array<double, 2>& data_ptr() { return data_; }
-  double data_value(int I, int J) const { return data_(I, J); }
+  double data_value(int I, int J) const
+  {
+    range_check(I, 0, data_.rows());
+    range_check(J, 0, data_.cols());
+    return data_(I, J);
+  }
   virtual double weight() const { return 2.0; }
   virtual void weight(const double& V) { weight_set_ = V; }
   double weight_set() const { return weight_set_; }

@@ -1,6 +1,7 @@
 #ifndef DIRECTOR_EXAMPLE_H
 #define DIRECTOR_EXAMPLE_H
 #include "printable.h"
+#include "skeleton_exception.h"
 #include <memory>
 #include <vector>
 #include <iostream>
@@ -137,13 +138,31 @@ public:
   void set_vec_vec_int(const std::vector<std::vector<int>>& V) { t2_ = V; }
   const std::shared_ptr<DirectorExample>& value() const { return value_; }
   void set_value(const std::shared_ptr<DirectorExample>& V) { value_ = V; }
-  int apply_func(int v) const { return value_->func(v); }
-  int apply_func(int v, int ind) const { return value_vec_[ind]->func(v); }
+  //-----------------------------------------------------------------------
+  /// Call func(v) on value(), value_vec()[ind] or value_vec_vec()[ind][ind2].
+  /// The indices come from python, so they are checked (std::out_of_range),
+  /// and so is a null pointer.
+  //-----------------------------------------------------------------------
+
+  int apply_func(int v) const { return checked(value_)->func(v); }
+  int apply_func(int v, int ind) const
+  {
+    return checked(value_vec_.at(static_cast<std::size_t>(ind)))->func(v);
+  }
   int apply_func(int v, int ind, int ind2) const
   {
-    return value_vec2_[ind][ind2]->func(v);
+    return checked(value_vec2_.at(static_cast<std::size_t>(ind))
+                       .at(static_cast<std::size_t>(ind2)))
+        ->func(v);
   }
 private:
+  static const std::shared_ptr<DirectorExample>&
+  checked(const std::shared_ptr<DirectorExample>& P)
+  {
+    if(!P)
+      throw Exception("DirectorExampleUser: no DirectorExample set");
+    return P;
+  }
   std::vector<std::shared_ptr<DirectorExample>> value_vec_;
   std::vector<std::vector<std::shared_ptr<DirectorExample>>> value_vec2_;
   std::shared_ptr<DirectorExample> value_;

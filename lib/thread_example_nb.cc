@@ -25,7 +25,7 @@ void init_thread_example(nb::module_& m)
            int Number_thread) -> decltype(auto) {
           return Skeleton::ThreadExample::run(Obj, V, Number_thread);
         },
-        nb::arg("Obj").none(), nb::arg("V"), nb::arg("Number_thread"),
+        nb::arg("Obj"), nb::arg("V"), nb::arg("Number_thread"),
         // Hand added: release the GIL while waiting for the worker
         // threads, so a python override called on a worker can take
         // it (the trampoline does). Without this it deadlocks.

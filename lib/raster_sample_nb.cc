@@ -147,7 +147,7 @@ void init_raster_sample(nb::module_& m)
             return std::make_shared<Skeleton::SubRasterSample>(
                 Full, Lstart, Sstart, Number_line, Number_sample);
           }),
-          nb::arg("Full").none(), nb::arg("Lstart"), nb::arg("Sstart"),
+          nb::arg("Full"), nb::arg("Lstart"), nb::arg("Sstart"),
           nb::arg("Number_line"), nb::arg("Number_sample"));
     c.def_prop_ro(
         "full",
