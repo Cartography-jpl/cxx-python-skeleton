@@ -166,7 +166,8 @@ BOOST_AUTO_TEST_CASE(relative_file_in_archive)
 {
   // An object that reads a file when loaded finds it relative to the
   // archive, even with two threads loading from two directories at once.
-  // (With the old chdir both threads changed the one current directory.)
+  // (When reading changed the current directory, both threads changed the
+  // same one.)
   TempDir d;
   std::vector<std::filesystem::path> archives;
   for(std::string dir : {"d1", "d2"}) {

@@ -27,6 +27,8 @@ struct null_deleter {
 
 template<class T> std::shared_ptr<T> const_pointer(const T& t)
 {
+  // shared_ptr<T> (not <const T>) for the callers that need it; the
+  // object itself must not be changed through it.
   T* p = const_cast<T*>(&t);
   return std::shared_ptr<T>(
       std::shared_ptr<void>(static_cast<void*>(p), null_deleter()), p);

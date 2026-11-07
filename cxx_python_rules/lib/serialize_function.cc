@@ -47,20 +47,6 @@ CXX_PYTHON_RULES_NAMESPACE::resolve_archive_path(const std::filesystem::path& P)
   return archive_base_dir / P;
 }
 
-//-----------------------------------------------------------------------
-/// Return true if we were built with serialization support, false
-/// otherwise.
-//-----------------------------------------------------------------------
-
-bool CXX_PYTHON_RULES_NAMESPACE::have_serialize_supported()
-{
-#ifdef CXX_PYTHON_RULES_HAVE_BOOST_SERIALIZATION
-  return true;
-#else
-  return false;
-#endif
-}
-
 namespace {
 std::atomic<bool> skip_weak_ptr_handling_val = false;
 }
@@ -84,6 +70,16 @@ void CXX_PYTHON_RULES_NAMESPACE::skip_weak_ptr_handling(bool Skip)
 }
 
 #ifdef CXX_PYTHON_RULES_HAVE_BOOST_SERIALIZATION
+//-----------------------------------------------------------------------
+/// Return true if we were built with serialization support, false
+/// otherwise.
+//-----------------------------------------------------------------------
+
+bool CXX_PYTHON_RULES_NAMESPACE::have_serialize_supported()
+{
+  return true;
+}
+
 namespace {
 using boost::serialization::make_nvp;
 // The element name of the top object. "geocal_object" for compatibility
@@ -260,6 +256,11 @@ CXX_PYTHON_RULES_NAMESPACE::serialize_read_binary(
 //-----------------------------------------------------------------------
 // Built without boost serialization: every read and write throws.
 //-----------------------------------------------------------------------
+
+bool CXX_PYTHON_RULES_NAMESPACE::have_serialize_supported()
+{
+  return false;
+}
 
 namespace {
 [[noreturn]] void no_serialization()
