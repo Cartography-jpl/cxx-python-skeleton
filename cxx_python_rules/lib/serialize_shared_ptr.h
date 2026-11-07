@@ -1,6 +1,7 @@
-#include <iostream>
+#pragma once
 #include <memory>
 #include "director_hook.h"
+#ifdef CXX_PYTHON_RULES_HAVE_BOOST_SERIALIZATION
 // Workaround for a Boost.Serialization bug (boostorg/serialization issue
 // #319, still in Boost 1.90): shared_ptr_helper.hpp declares, at namespace
 // scope,
@@ -23,12 +24,9 @@
 #undef BOOST_NO_MEMBER_TEMPLATE_FRIENDS
 #undef CXX_PYTHON_RULES_UNDEF_NO_MEMBER_TEMPLATE_FRIENDS
 #endif
-#ifdef CXX_PYTHON_RULES_HAVE_BOOST_SERIALIZATION
 #include <boost/archive/polymorphic_iarchive.hpp>
 #include <boost/archive/polymorphic_oarchive.hpp>
-#endif
 
-#ifdef CXX_PYTHON_RULES_HAVE_BOOST_SERIALIZATION
 //-----------------------------------------------------------------------
 /// This is largely a duplicate of boost/serialization/shared_ptr.hpp
 /// (since phase S4 for std::shared_ptr; the archive format is the same

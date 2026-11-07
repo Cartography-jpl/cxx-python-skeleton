@@ -131,14 +131,12 @@ private:
 
 //-----------------------------------------------------------------------
 // Go through the serialization once, marking all pointers we encounter
-// (see skip_weak_ptr_handling). Clear even when skipping the first pass,
-// otherwise the marks left by the previous write are used (stale
-// pointers, possibly to unrelated objects at a reused address).
+// (see skip_weak_ptr_handling). The scope's marks start empty, so
+// skipping the first pass means no weak_ptr to a GenericObject is kept.
 //-----------------------------------------------------------------------
 
 void mark_pointer(const std::shared_ptr<GenericObject>& Obj)
 {
-  clear_ptr_serialized_reference();
   if(skip_weak_ptr_handling())
     return;
   std::ostringstream os_first_pass;
@@ -150,8 +148,9 @@ void mark_pointer(const std::shared_ptr<GenericObject>& Obj)
 template<class OArchive>
 void write(std::ostream& Os, const std::shared_ptr<GenericObject>& Obj)
 {
-  // The lock covers the mark pass and the write (weak_ptr_serialize_support.h).
-  PtrSerializeLock lock;
+  // Marks of our own for the mark pass and the write, so a write nested
+  // in this one doesn't disturb them (weak_ptr_serialize_support.h).
+  PtrSerializeScope scope;
   mark_pointer(Obj);
   OArchive oa(Os);
   oa << make_nvp(top_name, Obj);

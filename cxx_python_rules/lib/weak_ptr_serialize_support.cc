@@ -1,60 +1,49 @@
 #include "weak_ptr_serialize_support.h"
 #include "director_hook.h"
 #include <set>
-#include <mutex>
-#include <iostream>
+#include <vector>
 
 using namespace CXX_PYTHON_RULES_NAMESPACE;
 
-static std::set<const GenericObject*> ptr_referenced;
-static std::recursive_mutex ptr_referenced_mutex;
-static thread_local int ptr_serialize_depth = 0;
+namespace {
+// The mark sets of this thread, one per PtrSerializeScope, innermost
+// last. The first one is used outside any scope and is never removed.
+std::vector<std::set<const GenericObject*>>& mark_stack()
+{
+  thread_local std::vector<std::set<const GenericObject*>> s(1);
+  return s;
+}
+
+std::set<const GenericObject*>& marks()
+{
+  return mark_stack().back();
+}
+}
 
 void CXX_PYTHON_RULES_NAMESPACE::clear_ptr_serialized_reference()
 {
-  // Only the outermost PtrSerializeLock for this thread should reset
-  // the mark state -- a nested serialize_write* call (e.g. triggered
-  // while pickling a python subclass object that itself holds other
-  // framework objects) must not wipe out the still-in-progress outer
-  // mark pass.
-  //if(ptr_serialize_depth <= 1)
-  //  ptr_referenced.clear();
-  //
-  // Not sure about the logic here. clear_ptr_serialized_reference is *only*
-  // called by mark_pointer, which is in turn *only* called by the various serialize_write
-  // functions. In C++, we don't nest the serialize_write functions. However, when we put
-  // python in the mix we might serialize an C++ object that contains a python object, which
-  // in turn contains another C++ object. Currently the serialization of python calls pickle,
-  // and pickle of a C++ object in turn calls serialization. This seems to mean that the
-  // logic above (ptr_referenced cleared only in the outermost call) is what we want. However,
-  // we get null pointer calls when we use that in framework unit tests. Leave in place what
-  // works, we can come back at some point and reason through this. It seems like we
-  // need some better logic here. I think we somehow need to handle pickling different, passing
-  // in an archive or something like that.
-  ptr_referenced.clear();
+  marks().clear();
 }
 
 void CXX_PYTHON_RULES_NAMESPACE::add_ptr_serialized_reference(
     const GenericObject* P)
 {
-  ptr_referenced.insert(P);
+  marks().insert(P);
 }
 
 bool CXX_PYTHON_RULES_NAMESPACE::is_ptr_serialized(const GenericObject* P)
 {
-  return ptr_referenced.contains(P);
+  return marks().contains(P);
 }
 
-CXX_PYTHON_RULES_NAMESPACE::PtrSerializeLock::PtrSerializeLock()
+CXX_PYTHON_RULES_NAMESPACE::PtrSerializeScope::PtrSerializeScope()
 {
-  ptr_referenced_mutex.lock();
-  ++ptr_serialize_depth;
+  mark_stack().emplace_back();
 }
 
-CXX_PYTHON_RULES_NAMESPACE::PtrSerializeLock::~PtrSerializeLock()
+CXX_PYTHON_RULES_NAMESPACE::PtrSerializeScope::~PtrSerializeScope()
 {
-  --ptr_serialize_depth;
-  ptr_referenced_mutex.unlock();
+  mark_stack().pop_back();
 }
 
 CXX_PYTHON_RULES_NAMESPACE::DirectorHook&

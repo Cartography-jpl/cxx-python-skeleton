@@ -1,8 +1,10 @@
 #pragma once
 #include "generic_object.h"
 #include <memory>
+#ifdef CXX_PYTHON_RULES_HAVE_BOOST_SERIALIZATION
 #include <boost/serialization/nvp.hpp>
 #include <boost/serialization/split_free.hpp>
+#endif
 
 /****************************************************************/ /**
   There is a complication in serializing a std::weak_ptr. Normally
@@ -66,30 +68,28 @@ void clear_ptr_serialized_reference();
 void add_ptr_serialized_reference(const GenericObject* P);
 bool is_ptr_serialized(const GenericObject* P);
 
-/// The pointer-tracking state above is process-global and unguarded.
-/// A serialize_write* call is really a two-pass sequence -- a mark
-/// pass that populates this state, followed by the real archive
-/// write that reads it back -- so it isn't enough to lock each
-/// individual call above; the whole mark+write sequence for one
-/// object needs to be atomic with respect to other threads doing the
-/// same. Construct one of these (and hold it for that whole
-/// sequence) to make concurrent serialize_write* calls from
-/// different threads safe. RAII: locks in the constructor, unlocks
-/// in the destructor. Backed by a recursive_mutex because
-/// serialize_write* can itself recurse on the same thread (e.g. a
-/// python subclass object being pickled can trigger another
-/// serialize_write_binary call on a framework object it holds
-/// before the outer call finishes); only the outermost lock clears
-/// the mark state, see clear_ptr_serialized_reference().
-class PtrSerializeLock {
+//-----------------------------------------------------------------------
+/// The marks are kept per write: each serialize_write* call makes a
+/// PtrSerializeScope, which starts an empty set of marks for its mark
+/// pass and its write, and drops it at the end. Scopes nest, so a write
+/// started in the middle of another one (pickling a python object that
+/// holds a C++ object, during the write of an archive that holds the
+/// python object) has its own marks and leaves the outer write's marks
+/// alone. The marks are per thread, so writes on different threads don't
+/// interfere and need no lock. Outside any scope (code writing an archive
+/// directly) the functions above use one set per thread.
+//-----------------------------------------------------------------------
+
+class PtrSerializeScope {
 public:
-  PtrSerializeLock();
-  ~PtrSerializeLock();
-  PtrSerializeLock(const PtrSerializeLock&) = delete;
-  PtrSerializeLock& operator=(const PtrSerializeLock&) = delete;
+  PtrSerializeScope();
+  ~PtrSerializeScope();
+  PtrSerializeScope(const PtrSerializeScope&) = delete;
+  PtrSerializeScope& operator=(const PtrSerializeScope&) = delete;
 };
 }
 
+#ifdef CXX_PYTHON_RULES_HAVE_BOOST_SERIALIZATION
 namespace boost {
 namespace serialization {
 
@@ -127,3 +127,4 @@ inline void serialize(Archive& ar, std::weak_ptr<T>& t,
 }
 }
 }
+#endif

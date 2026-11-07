@@ -1,4 +1,8 @@
 #include "unit_test_support.h"
+// serialize_shared_ptr.h a second time (skeleton_serialize_support.h
+// includes it too): checks its include guard.
+#include "skeleton_serialize_support.h"
+#include "serialize_shared_ptr.h"
 #include "generic_object_sample.h"
 #include "generic_object_map.h"
 #include "file_reference_sample.h"
@@ -226,6 +230,28 @@ BOOST_AUTO_TEST_CASE(skip_weak_ptr)
   skip_weak_ptr_handling(false);
   BOOST_CHECK(mr->get<GenericObjectC>("c")->a());
   BOOST_CHECK(!mr->get<GenericObjectC>("_c")->a());
+}
+BOOST_AUTO_TEST_CASE(concurrent_writes_keep_weak_ptr)
+{
+  // Each write has its own marks (one per thread, one per write), so two
+  // threads writing at once each keep their weak_ptrs.
+  std::vector<std::shared_ptr<GenericObjectMap>> maps{sample_map(),
+                                                      sample_map()};
+  std::vector<int> bad(2, 0);
+  {
+    std::vector<std::jthread> threads;
+    for(std::size_t i = 0; i < 2; ++i)
+      threads.emplace_back([&, i] {
+        for(int rep = 0; rep < 50; ++rep) {
+          auto mr = serialize_read_binary_string<GenericObjectMap>(
+              serialize_write_binary(maps[i]));
+          if(!mr->get<GenericObjectC>("c")->a())
+            ++bad[i];
+        }
+      });
+  }
+  BOOST_CHECK_EQUAL(bad[0], 0);
+  BOOST_CHECK_EQUAL(bad[1], 0);
 }
 #endif
 

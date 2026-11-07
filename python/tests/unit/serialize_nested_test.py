@@ -64,7 +64,6 @@ def test_weak_ptr_without_nesting(how, tmp_path):
     check_map(round_trip(make_map(False), how, tmp_path), False)
 
 
-@pytest.mark.xfail(strict=True, reason="review 2026-11-07 §4.1, fixed in F1.1")
 @pytest.mark.parametrize("how", ["binary", "binary_file", "xml_file"])
 def test_weak_ptr_after_nested_pickle(how, tmp_path):
     check_map(round_trip(make_map(True), how, tmp_path), True)
