@@ -95,3 +95,50 @@ def test_docstrings():
     assert (
         "Twice the observed value" in __import__("skeleton").CacheExample.value.__doc__
     )
+
+
+# Bound classes that aren't GenericObjects, so aren't in the type registry.
+_NOT_GENERIC_OBJECT = {"Range", "rational_int"}
+
+
+def test_every_class_registered():
+    """Every bound GenericObject class calls register_type (code review fix
+    plan R6.6). Without it, a shared_ptr to it returned from C++ comes back
+    as the wrong python type, and it can't be passed for a parameter typed as
+    a secondary or virtual base. GenericObject is a virtual base, never a
+    nanobind base, so the classes can't be found with issubclass; check all
+    of them except the known non-GenericObject ones."""
+    import inspect
+
+    import skeleton_cxx._bindings as b
+    import skeleton_cxx._skeleton_downstream as d
+
+    missing = []
+    for mod in (b, d):
+        for name, cls in inspect.getmembers(mod, inspect.isclass):
+            if name.startswith("Vector_") or name in _NOT_GENERIC_OBJECT:
+                continue
+            if cls.__module__ != mod.__name__:
+                continue
+            if not b._is_registered(cls):
+                missing.append(f"{mod.__name__}.{name}")
+    assert missing == []
+
+
+def test_keyword_names():
+    """Keyword argument names are the C++ parameter names (code review fix
+    plan R6.3; some used to be generator leftovers like arg0)."""
+    import numpy as np
+
+    from skeleton import ArrayTypemapSample, DirectorExample, DirectorExampleWeakPtr
+
+    d = DirectorExample(value_to_add=2, name="kw")
+    assert d.func(v=1) == 3
+    # (A weak_ptr to an object only python owns expires at once, see
+    # DirectorNotes.md, so only the keywords are checked here.)
+    w = DirectorExampleWeakPtr(V=d)
+    w.a(V=None)
+    assert w.expired()
+    a = np.zeros((2, 2))
+    ArrayTypemapSample().set_value_copy(A=a, V=5.0)
+    assert a[0, 0] == 0
