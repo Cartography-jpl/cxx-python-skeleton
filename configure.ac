@@ -52,7 +52,7 @@ LD_LIBRARY_PATH="${original_ld_library_path}"
 #=================================================================
 # Various thirdparty libraries.
 AC_DOXYGEN(optional)
-AC_BOOST(required, 1.46.0)
+AC_BOOST(required, 1.84.0)
 AC_BLITZ(required)
 
 #=================================================================

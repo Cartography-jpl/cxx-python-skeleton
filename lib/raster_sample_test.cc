@@ -1,4 +1,5 @@
 #include "unit_test_support.h"
+#include <tuple>
 #include "raster_sample.h"
 #include "skeleton_exception.h"
 #include <vector>
@@ -65,6 +66,9 @@ BOOST_AUTO_TEST_CASE(memory)
   // Negative sizes are caught before the mdspan is made.
   BOOST_CHECK_THROW(m.read_ptr(0, 0, -1, 2, buf.data()), Exception);
   BOOST_CHECK_THROW(m.read_ptr(0, 0, 1, -2, buf.data()), Exception);
+  // A negative size is rejected before anything is allocated.
+  BOOST_CHECK_THROW(std::ignore = m.read(0, 0, -1, 2), Exception);
+  BOOST_CHECK_THROW(std::ignore = m.read_with_pad(0, 0, 2, -1), Exception);
   BOOST_CHECK_THROW(m.write(4, 5, v), Exception);
 }
 

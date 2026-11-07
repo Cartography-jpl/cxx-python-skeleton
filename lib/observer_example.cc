@@ -60,6 +60,8 @@ void CacheExample::save(Archive&, const unsigned int) const
 
 template<class Archive> void CacheExample::load(Archive&, const unsigned int)
 {
+  if(!observed_)
+    throw Exception("CacheExample: the archive has no observed object");
   observed_->add_cache_invalidated_observer(*this);
 }
 

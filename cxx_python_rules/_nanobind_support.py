@@ -18,19 +18,21 @@ def _new_from_serialization(data: bytes) -> Any:
     return _bindings.serialize_read_binary(data)
 
 
-def _new_from_serialization_dir(dir: str, data: bytes) -> Any:
-    # Relative file names in the archive are relative to dir (the
+def _new_from_serialization_dir(directory: str, data: bytes) -> Any:
+    # Relative file names in the archive are relative to directory (the
     # directory the object was pickled in), through the archive base
     # directory rather than by changing the current directory.
-    return _bindings.serialize_read_binary(data, dir)
+    return _bindings.serialize_read_binary(data, directory)
 
 
 @contextlib.contextmanager
-def archive_base_directory_scope(dir: str | os.PathLike[str]) -> Iterator[None]:
+def archive_base_directory_scope(
+    directory: str | os.PathLike[str],
+) -> Iterator[None]:
     """Set the archive base directory (serialize_function.h) for this thread
     inside the with block: relative file names in archives loaded there,
-    including pickles, are relative to dir."""
-    prev = _bindings.set_archive_base_directory(os.fspath(dir))
+    including pickles, are relative to directory."""
+    prev = _bindings.set_archive_base_directory(os.fspath(directory))
     try:
         yield
     finally:

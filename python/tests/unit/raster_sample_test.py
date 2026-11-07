@@ -160,3 +160,12 @@ def test_python_calc_errors():
     # A python exception in calc comes back unchanged.
     with pytest.raises(ValueError, match="calc failed"):
         Raises(2, 2).read(0, 0, 1, 1)
+
+
+def test_negative_size():
+    # Rejected with the region error, before anything is allocated.
+    m = MemoryRasterSample(3, 4)
+    with pytest.raises(RuntimeError, match="outside the image"):
+        m.read(0, 0, -1, 2)
+    with pytest.raises(RuntimeError, match="negative"):
+        m.read_with_pad(0, 0, 2, -1)

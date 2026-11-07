@@ -18,5 +18,6 @@ void init_numpy_sample(nb::module_& m)
   c.def("maybe_range", &NumpySample::maybe_range, "Return_empty"_a,
         doc("maybe_range"));
   c.def_prop_ro("data", &NumpySample::data, doc("data"));
+  cxx_python_rules_nb::printable(c);
   cxx_python_rules_nb::register_type<NumpySample>();
 }

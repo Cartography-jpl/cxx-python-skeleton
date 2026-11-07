@@ -25,6 +25,10 @@ public:
       return std::optional<blitz::Range>();
     return std::optional<blitz::Range>(blitz::Range(0, data_.rows() - 1));
   }
+  virtual void print(std::ostream& Os) const
+  {
+    Os << "NumpySample " << data_.rows() << " x " << data_.cols();
+  }
 private:
   blitz::Array<double, 2> data_;
 };

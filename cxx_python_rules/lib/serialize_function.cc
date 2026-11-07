@@ -3,7 +3,7 @@
 #include "weak_ptr_serialize_support.h"
 #include <atomic>
 #include <cerrno>
-#include <cstring>
+#include <system_error>
 #include <fstream>
 #include <sstream>
 #include <stdexcept>
@@ -87,17 +87,37 @@ using boost::serialization::make_nvp;
 constexpr const char* top_name = "geocal_object";
 
 //-----------------------------------------------------------------------
+// ": " and the system's reason for a failed open, if there is one. errno
+// is cleared before opening: std::fstream doesn't promise to set it.
+// std::generic_category().message is thread safe, unlike strerror.
+//-----------------------------------------------------------------------
+
+std::filesystem::path clear_errno(const std::filesystem::path& Fname)
+{
+  errno = 0;
+  return Fname;
+}
+
+std::string errno_text()
+{
+  if(errno == 0)
+    return "";
+  return ": " + std::generic_category().message(errno);
+}
+
+//-----------------------------------------------------------------------
 // A file opened for writing (reading), gzip compressed (decompressed)
 // if its name ends in ".gz". Opening errors throw, naming the file.
 //-----------------------------------------------------------------------
 
 class OutputFile {
 public:
-  explicit OutputFile(const std::filesystem::path& Fname) : f(Fname)
+  explicit OutputFile(const std::filesystem::path& Fname)
+    : f(clear_errno(Fname))
   {
     if(!f)
       throw std::runtime_error("Trouble opening file " + Fname.string() +
-                               " for writing: " + std::strerror(errno));
+                               " for writing" + errno_text());
     if(Fname.extension() == ".gz")
       sb.push(boost::iostreams::gzip_compressor());
     sb.push(f);
@@ -113,11 +133,11 @@ private:
 
 class InputFile {
 public:
-  explicit InputFile(const std::filesystem::path& Fname) : f(Fname)
+  explicit InputFile(const std::filesystem::path& Fname) : f(clear_errno(Fname))
   {
     if(!f)
-      throw std::runtime_error("Trouble opening file " + Fname.string() + ": " +
-                               std::strerror(errno));
+      throw std::runtime_error("Trouble opening file " + Fname.string() +
+                               errno_text());
     if(Fname.extension() == ".gz")
       sb.push(boost::iostreams::gzip_decompressor());
     sb.push(f);

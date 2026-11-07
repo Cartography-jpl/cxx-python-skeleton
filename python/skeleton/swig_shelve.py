@@ -39,7 +39,7 @@ except ImportError:
 def to_db_type(value: Any) -> Any:
     """If value's type is supported natively in SQLite, return value.
     Otherwise, return a pickled representation."""
-    if value is None or isinstance(value, (int, int, float, bytes, str)):
+    if value is None or isinstance(value, (int, float, bytes, str)):
         return value
     else:
         return bytes(pickle.dumps(value))

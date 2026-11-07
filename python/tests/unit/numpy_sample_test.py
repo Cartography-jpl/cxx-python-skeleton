@@ -109,3 +109,7 @@ def test_maybe_range():
     assert r.first() == 0
     assert r.last() == t.data.shape[0] - 1
     assert t.maybe_range(True) is None
+
+
+def test_str():
+    assert str(NumpySample()) == "NumpySample 2 x 2"

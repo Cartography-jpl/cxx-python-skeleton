@@ -19,7 +19,6 @@
 #include "blitz_array.h"
 #include "std_array.h"
 #include "iostream.h"
-#include "generic_object.h"
 #include "serialize_function.h"
 #include "director_hook.h"
 #include <boost/archive/polymorphic_iarchive.hpp>

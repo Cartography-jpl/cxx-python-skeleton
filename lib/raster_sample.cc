@@ -54,8 +54,10 @@ void RasterSample::check_region(std::ptrdiff_t Lstart, std::ptrdiff_t Sstart,
 blitz::Array<int, 2> RasterSample::read(int Lstart, int Sstart, int Number_line,
                                         int Number_sample) const
 {
+  // Check before allocating: a negative size must not reach blitz.
+  check_region(Lstart, Sstart, Number_line, Number_sample);
   blitz::Array<int, 2> res(Number_line, Number_sample);
-  read_into_checked(Lstart, Sstart, to_mdspan(res));
+  read_into(Lstart, Sstart, to_mdspan(res));
   return res;
 }
 
@@ -64,6 +66,9 @@ blitz::Array<int, 2> RasterSample::read_with_pad(int Lstart, int Sstart,
                                                  int Number_sample,
                                                  int Fill_value) const
 {
+  if(Number_line < 0 || Number_sample < 0)
+    throw Exception("read_with_pad: size {} x {} is negative", Number_line,
+                    Number_sample);
   blitz::Array<int, 2> res(Number_line, Number_sample);
   res = Fill_value;
   // The part of the region inside the image, in image coordinates.
