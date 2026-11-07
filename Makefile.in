@@ -149,6 +149,7 @@ check_PROGRAMS = skeleton_test_all$(EXEEXT) \
 # nanobind's own source, with its own flags (none of our warnings).
 @BUILD_PYTHON_BINDINGS_TRUE@am__append_4 = libnanobind_core.la
 @BUILD_PYTHON_BINDINGS_TRUE@am__append_5 = nb_docstrings.cc \
+@BUILD_PYTHON_BINDINGS_TRUE@	nb_docstrings.stamp \
 @BUILD_PYTHON_BINDINGS_TRUE@	nb_pyi/_bindings.pyi
 subdir = .
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
@@ -3423,15 +3424,25 @@ vpath %.h $(srcdir)/@srclib@
 vpath %.i $(srcdir)/@srclib@
 
 # Docstrings from the doxygen documentation of NB_DOXYGEN_INPUT. Without
-# doxygen, the table is empty.
-@BUILD_PYTHON_BINDINGS_TRUE@nb_docstrings.cc: $(NB_DOXYGEN_INPUT) @cxxpythonrules@/nanobind/doxy2nanobind.py @cxxpythonrules@/nanobind/doxygen_nanobind.cfg
+# doxygen, the table is empty. Doxygen runs again when a header changes,
+# but nb_docstrings.cc is only replaced if its contents change (the stamp
+# file records the run), so editing a header without changing its
+# documentation doesn't recompile nb_docstrings.cc or relink the module.
+@BUILD_PYTHON_BINDINGS_TRUE@nb_docstrings.stamp: $(NB_DOXYGEN_INPUT) @cxxpythonrules@/nanobind/doxy2nanobind.py @cxxpythonrules@/nanobind/doxygen_nanobind.cfg
 @BUILD_PYTHON_BINDINGS_TRUE@	rm -rf nb_doc && mkdir -p nb_doc
 @BUILD_PYTHON_BINDINGS_TRUE@	if test -n "$(DOXYGEN)" -a "$(DOXYGEN)" != "no"; then \
 @BUILD_PYTHON_BINDINGS_TRUE@	  OUTDIR=nb_doc INPUT="$(NB_DOXYGEN_INPUT)" $(DOXYGEN) $(srcdir)/@cxxpythonrules@/nanobind/doxygen_nanobind.cfg > /dev/null; \
 @BUILD_PYTHON_BINDINGS_TRUE@	fi
-@BUILD_PYTHON_BINDINGS_TRUE@	$(PYTHON) $(srcdir)/@cxxpythonrules@/nanobind/doxy2nanobind.py nb_doc/xml $@.tmp
-@BUILD_PYTHON_BINDINGS_TRUE@	mv $@.tmp $@
+@BUILD_PYTHON_BINDINGS_TRUE@	$(PYTHON) $(srcdir)/@cxxpythonrules@/nanobind/doxy2nanobind.py nb_doc/xml nb_docstrings.cc.tmp
+@BUILD_PYTHON_BINDINGS_TRUE@	if cmp -s nb_docstrings.cc.tmp nb_docstrings.cc; then \
+@BUILD_PYTHON_BINDINGS_TRUE@	  rm -f nb_docstrings.cc.tmp; \
+@BUILD_PYTHON_BINDINGS_TRUE@	else \
+@BUILD_PYTHON_BINDINGS_TRUE@	  mv nb_docstrings.cc.tmp nb_docstrings.cc; \
+@BUILD_PYTHON_BINDINGS_TRUE@	fi
 @BUILD_PYTHON_BINDINGS_TRUE@	rm -rf nb_doc
+@BUILD_PYTHON_BINDINGS_TRUE@	touch $@
+@BUILD_PYTHON_BINDINGS_TRUE@nb_docstrings.cc: nb_docstrings.stamp
+@BUILD_PYTHON_BINDINGS_TRUE@	@test -f $@ || { rm -f nb_docstrings.stamp; $(MAKE) $(AM_MAKEFLAGS) nb_docstrings.stamp; }
 
 # Python stubs (.pyi) for mypy and editors, from the built module.
 @BUILD_PYTHON_BINDINGS_TRUE@nb_pyi/_bindings.pyi: _bindings.la

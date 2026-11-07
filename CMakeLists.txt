@@ -92,19 +92,29 @@ target_link_libraries(skeleton PUBLIC Boost::serialization Boost::iostreams
 # Docstrings from doxygen (an empty table without doxygen).
 file(GLOB LIB_HEADERS CONFIGURE_DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/lib/*.h)
 set(NB_DOC ${CMAKE_CURRENT_BINARY_DIR}/nb_docstrings.cc)
+set(NB_DOC_STAMP ${CMAKE_CURRENT_BINARY_DIR}/nb_docstrings.stamp)
+set(DOXY2NANOBIND ${CMAKE_CURRENT_SOURCE_DIR}/cxx_python_rules/nanobind/doxy2nanobind.py)
+# nb_docstrings.cc is only replaced if its contents change (a byproduct of
+# the stamp, so Ninja doesn't recompile it otherwise), as in nanobind.am.
 if(DOXYGEN)
   string(REPLACE ";" " " DOX_INPUT "${LIB_HEADERS}")
-  add_custom_command(OUTPUT ${NB_DOC}
-    COMMAND ${CMAKE_COMMAND} -E rm -rf nb_doc
-    COMMAND ${CMAKE_COMMAND} -E env OUTDIR=nb_doc "INPUT=${DOX_INPUT}"
-            ${DOXYGEN} ${CMAKE_CURRENT_SOURCE_DIR}/cxx_python_rules/nanobind/doxygen_nanobind.cfg > /dev/null
-    COMMAND ${Python_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/cxx_python_rules/nanobind/doxy2nanobind.py nb_doc/xml ${NB_DOC}
-    DEPENDS ${LIB_HEADERS} WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR} VERBATIM)
+  set(NB_DOC_XML nb_doc/xml)
+  set(NB_DOC_DOXYGEN COMMAND ${CMAKE_COMMAND} -E env OUTDIR=nb_doc "INPUT=${DOX_INPUT}"
+    ${DOXYGEN} ${CMAKE_CURRENT_SOURCE_DIR}/cxx_python_rules/nanobind/doxygen_nanobind.cfg)
 else()
-  add_custom_command(OUTPUT ${NB_DOC}
-    COMMAND ${Python_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/cxx_python_rules/nanobind/doxy2nanobind.py no_doxygen ${NB_DOC}
-    VERBATIM)
+  set(NB_DOC_XML no_doxygen)
+  set(NB_DOC_DOXYGEN)
 endif()
+add_custom_command(OUTPUT ${NB_DOC_STAMP} BYPRODUCTS ${NB_DOC}
+  COMMAND ${CMAKE_COMMAND} -E rm -rf nb_doc
+  ${NB_DOC_DOXYGEN}
+  COMMAND ${Python_EXECUTABLE} ${DOXY2NANOBIND} ${NB_DOC_XML} ${NB_DOC}.tmp
+  COMMAND ${CMAKE_COMMAND} -E copy_if_different ${NB_DOC}.tmp ${NB_DOC}
+  COMMAND ${CMAKE_COMMAND} -E rm -rf nb_doc ${NB_DOC}.tmp
+  COMMAND ${CMAKE_COMMAND} -E touch ${NB_DOC_STAMP}
+  DEPENDS ${LIB_HEADERS} ${DOXY2NANOBIND}
+  WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR} VERBATIM)
+add_custom_target(nb_docstrings DEPENDS ${NB_DOC_STAMP})
 
 # The python package in the build tree: skeleton_cxx/ with the module and
 # the python files from cxx_python_rules/.
@@ -119,6 +129,7 @@ list(REMOVE_ITEM NB_SRC ${CMAKE_CURRENT_SOURCE_DIR}/lib/downstream_nb.cc)
 nanobind_add_module(_bindings NB_STATIC ${NB_SRC}
   ${CMAKE_CURRENT_SOURCE_DIR}/lib/skeleton_nb_module.cc
   ${CMAKE_CURRENT_SOURCE_DIR}/cxx_python_rules/nanobind/cxx_python_rules_nb.cc ${NB_DOC})
+add_dependencies(_bindings nb_docstrings)
 nanobind_add_module(_skeleton_downstream NB_STATIC ${CMAKE_CURRENT_SOURCE_DIR}/lib/downstream_nb.cc)
 foreach(m _bindings _skeleton_downstream)
   target_include_directories(${m} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/cxx_python_rules/nanobind)

@@ -44,16 +44,26 @@ pkgpythoncxx_PYTHON+= @cxxpythonrules@/_nanobind_support.py
 pkgpythoncxx_DATA = @cxxpythonrules@/py.typed
 
 # Docstrings from the doxygen documentation of NB_DOXYGEN_INPUT. Without
-# doxygen, the table is empty.
-nb_docstrings.cc: $(NB_DOXYGEN_INPUT) @cxxpythonrules@/nanobind/doxy2nanobind.py @cxxpythonrules@/nanobind/doxygen_nanobind.cfg
+# doxygen, the table is empty. Doxygen runs again when a header changes,
+# but nb_docstrings.cc is only replaced if its contents change (the stamp
+# file records the run), so editing a header without changing its
+# documentation doesn't recompile nb_docstrings.cc or relink the module.
+nb_docstrings.stamp: $(NB_DOXYGEN_INPUT) @cxxpythonrules@/nanobind/doxy2nanobind.py @cxxpythonrules@/nanobind/doxygen_nanobind.cfg
 	rm -rf nb_doc && mkdir -p nb_doc
 	if test -n "$(DOXYGEN)" -a "$(DOXYGEN)" != "no"; then \
 	  OUTDIR=nb_doc INPUT="$(NB_DOXYGEN_INPUT)" $(DOXYGEN) $(srcdir)/@cxxpythonrules@/nanobind/doxygen_nanobind.cfg > /dev/null; \
 	fi
-	$(PYTHON) $(srcdir)/@cxxpythonrules@/nanobind/doxy2nanobind.py nb_doc/xml $@.tmp
-	mv $@.tmp $@
+	$(PYTHON) $(srcdir)/@cxxpythonrules@/nanobind/doxy2nanobind.py nb_doc/xml nb_docstrings.cc.tmp
+	if cmp -s nb_docstrings.cc.tmp nb_docstrings.cc; then \
+	  rm -f nb_docstrings.cc.tmp; \
+	else \
+	  mv nb_docstrings.cc.tmp nb_docstrings.cc; \
+	fi
 	rm -rf nb_doc
-MOSTLYCLEANFILES += nb_docstrings.cc
+	touch $@
+nb_docstrings.cc: nb_docstrings.stamp
+	@test -f $@ || { rm -f nb_docstrings.stamp; $(MAKE) $(AM_MAKEFLAGS) nb_docstrings.stamp; }
+MOSTLYCLEANFILES += nb_docstrings.cc nb_docstrings.stamp
 
 # Python stubs (.pyi) for mypy and editors, from the built module.
 nb_pyi/_bindings.pyi: _bindings.la
