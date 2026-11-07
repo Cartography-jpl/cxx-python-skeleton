@@ -1,175 +1,51 @@
-#include <iostream>
 #include "serialize_function.h"
 #include "serialize_shared_ptr.h"
 #include "weak_ptr_serialize_support.h"
-#include <boost/iostreams/filtering_stream.hpp>
-#include <boost/iostreams/filter/gzip.hpp>
-#include <stdexcept>
-#include <fstream>
-#include <sstream>
-#include <filesystem>
-#include <string>
-#include <unistd.h>
+#include <atomic>
 #include <cerrno>
 #include <cstring>
-#include <fcntl.h>
+#include <fstream>
+#include <sstream>
+#include <stdexcept>
+#include <string>
 #ifdef CXX_PYTHON_RULES_HAVE_BOOST_SERIALIZATION
-#include <boost/archive/polymorphic_xml_iarchive.hpp>
-#include <boost/archive/polymorphic_xml_oarchive.hpp>
 #include <boost/archive/polymorphic_binary_iarchive.hpp>
 #include <boost/archive/polymorphic_binary_oarchive.hpp>
+#include <boost/archive/polymorphic_xml_iarchive.hpp>
+#include <boost/archive/polymorphic_xml_oarchive.hpp>
+#include <boost/iostreams/filter/gzip.hpp>
+#include <boost/iostreams/filtering_stream.hpp>
 #endif
 using namespace CXX_PYTHON_RULES_NAMESPACE;
 
-/****************************************************************/ /**
-   This allows filtering stream to be created on top of an
-   underlying ofstream. See boost::iostream documentation for details
-   on how to create these. This class is intended to be used as a base
-   class for other classes that assemble the proper filters.
-*******************************************************************/
-
-class FilteringOstream : public std::ostream {
-public:
-protected:
-  //-----------------------------------------------------------------------
-  /// Constructor. This opens the given file and sets up the stream
-  /// buffer, but nothing is placed in the filter. The derived class should
-  /// set up the streambuf.
-  //-----------------------------------------------------------------------
-
-  explicit FilteringOstream(const std::string& Fname)
-    : std::ostream(&sb), f(Fname.c_str())
-  {
-  }
-
-  //-----------------------------------------------------------------------
-  /// Underlying ofstream.
-  //-----------------------------------------------------------------------
-
-  std::ofstream f;
-
-  //-----------------------------------------------------------------------
-  /// Filtering streambuf.
-  //-----------------------------------------------------------------------
-
-  boost::iostreams::filtering_ostreambuf sb;
-};
-
-/****************************************************************/ /**
-   This allows filtering stream to created on top of an
-   underlying ifstream. See boost::iostream documentation for details
-   on how to create these. This class is intended to be used as a base
-   class for other classes that assemble the proper filters.
-*******************************************************************/
-
-class FilteringIstream : public std::istream {
-public:
-protected:
-  //-----------------------------------------------------------------------
-  /// Constructor. This opens the given file and sets up the stream
-  /// buffer, but nothing is placed in the filter. The derived class should
-  /// set up the streambuf.
-  //-----------------------------------------------------------------------
-
-  explicit FilteringIstream(const std::string& Fname)
-    : std::istream(&sb), f(Fname.c_str())
-  {
-  }
-
-  //-----------------------------------------------------------------------
-  /// Underlying ifstream.
-  //-----------------------------------------------------------------------
-
-  std::ifstream f;
-
-  //-----------------------------------------------------------------------
-  /// Filtering streambuf.
-  //-----------------------------------------------------------------------
-
-  boost::iostreams::filtering_istreambuf sb;
-};
-
-/****************************************************************/ /**
-/// This opens a file for writing, possibly with automatic
-/// compression. We look at the File name, and if ends if ".gz" then
-/// we automatically gzip the file.
-*******************************************************************/
-
-class OstreamCompress : public FilteringOstream {
-public:
-  //-----------------------------------------------------------------------
-  /// This opens a file for writing, possibly with automatic
-  /// compression. We look at the File name, and if ends if ".gz" then
-  /// we automatically gzip the file.
-  //-----------------------------------------------------------------------
-  explicit OstreamCompress(const std::string& Fname) : FilteringOstream(Fname)
-  {
-    if(Fname.ends_with(".gz"))
-      sb.push(boost::iostreams::gzip_compressor());
-    sb.push(f);
-  }
-};
-
-/****************************************************************/ /**
-/// This opens a file for reading, possibly with automatic
-/// decompression. We look at the File name, and if ends if ".gz" then
-/// we automatically gunzip the file.
-///
-/// See all also IfstreamCs which both handles decompression and
-/// stripping out comments.
-*******************************************************************/
-
-class IstreamCompress : public FilteringIstream {
-public:
-  //-----------------------------------------------------------------------
-  /// This opens a file for reading, possibly with automatic
-  /// decompression. We look at the File name, and if ends if ".gz" then
-  /// we automatically gunzip the file.
-  ///
-  /// See all also IfstreamCs which both handles decompression and
-  /// stripping out comments.
-  //-----------------------------------------------------------------------
-  explicit IstreamCompress(const std::string& Fname) : FilteringIstream(Fname)
-  {
-    if(Fname.ends_with(".gz"))
-      sb.push(boost::iostreams::gzip_decompressor());
-    sb.push(f);
-  }
-};
-
 //-----------------------------------------------------------------------
-/// Utility class. This changes to a new directory, and on destruction
-/// changes back.
+// The archive base directory (see serialize_function.h).
 //-----------------------------------------------------------------------
 
-class DirChange {
-public:
-  explicit DirChange(const std::string& newdir)
-  {
-    dirhandle = open(".", O_RDONLY);
-    if(dirhandle == -1)
-      throw std::runtime_error("Open failed");
-    int status = chdir(newdir.c_str());
-    if(status != 0) {
-      close(dirhandle);
-      throw std::runtime_error("Could not change to directory");
-    }
-  }
-  ~DirChange()
-  {
-    int status = fchdir(dirhandle);
-    if(status != 0) {
-      // Don't throw, because this terminates. Note we still need to
-      // close dirhandle below, so just fall through rather than
-      // closing here too -- closing the same fd number twice risks
-      // closing an unrelated fd that another thread has since reused.
-      //      throw std::runtime_error("Call to fchdir failed");
-    }
-    close(dirhandle);
-  }
-private:
-  int dirhandle;
-};
+namespace {
+thread_local std::filesystem::path archive_base_dir;
+}
+
+const std::filesystem::path&
+CXX_PYTHON_RULES_NAMESPACE::archive_base_directory()
+{
+  return archive_base_dir;
+}
+
+std::filesystem::path CXX_PYTHON_RULES_NAMESPACE::set_archive_base_directory(
+    std::filesystem::path Dir)
+{
+  std::swap(Dir, archive_base_dir);
+  return Dir;
+}
+
+std::filesystem::path
+CXX_PYTHON_RULES_NAMESPACE::resolve_archive_path(const std::filesystem::path& P)
+{
+  if(P.is_absolute() || archive_base_dir.empty())
+    return P;
+  return archive_base_dir / P;
+}
 
 //-----------------------------------------------------------------------
 /// Return true if we were built with serialization support, false
@@ -185,17 +61,16 @@ bool CXX_PYTHON_RULES_NAMESPACE::have_serialize_supported()
 #endif
 }
 
-static bool skip_weak_ptr_handling_val = false;
+namespace {
+std::atomic<bool> skip_weak_ptr_handling_val = false;
+}
 
 //-----------------------------------------------------------------------
-/// As described in weak_ptr_serialize_support, we can optionally
-/// handle std::weak_ptr for transversing the serialization twice -
-/// once to mark pointer we encounter and once to serialize all
-/// weak_ptr pointing to objects we encountered.
-///
-/// If you don't actually need this support for std::weak_ptr, you
-/// can turn this off and avoid the cost of navigating twice through
-/// the serialization.
+/// As described in weak_ptr_serialize_support.h, writing an archive goes
+/// through the serialization twice: once to mark the objects we
+/// encounter, and once to write, keeping only the weak_ptrs to marked
+/// objects. If you don't need that for std::weak_ptr, turn it off to
+/// avoid the cost of the first pass.
 //-----------------------------------------------------------------------
 
 bool CXX_PYTHON_RULES_NAMESPACE::skip_weak_ptr_handling()
@@ -203,237 +78,242 @@ bool CXX_PYTHON_RULES_NAMESPACE::skip_weak_ptr_handling()
   return skip_weak_ptr_handling_val;
 }
 
-//-----------------------------------------------------------------------
-/// As described in weak_ptr_serialize_support, we can optionally
-/// handle std::weak_ptr for transversing the serialization twice -
-/// once to mark pointer we encounter and once to serialize all
-/// weak_ptr pointing to objects we encountered.
-///
-/// If you don't actually need this support for std::weak_ptr, you
-/// can turn this off and avoid the cost of navigating twice through
-/// the serialization.
-//-----------------------------------------------------------------------
-
 void CXX_PYTHON_RULES_NAMESPACE::skip_weak_ptr_handling(bool Skip)
 {
   skip_weak_ptr_handling_val = Skip;
 }
 
+#ifdef CXX_PYTHON_RULES_HAVE_BOOST_SERIALIZATION
+namespace {
+using boost::serialization::make_nvp;
+// The element name of the top object. "geocal_object" for compatibility
+// with archives written before this code was shared.
+constexpr const char* top_name = "geocal_object";
+
 //-----------------------------------------------------------------------
-/// Function to go through serialization, marking all pointers we
-/// encounter.
+// A file opened for writing (reading), gzip compressed (decompressed)
+// if its name ends in ".gz". Opening errors throw, naming the file.
 //-----------------------------------------------------------------------
 
-[[maybe_unused]] static void
-mark_pointer([[maybe_unused]] const std::shared_ptr<GenericObject>& Obj)
+class OutputFile {
+public:
+  explicit OutputFile(const std::filesystem::path& Fname) : f(Fname)
+  {
+    if(!f)
+      throw std::runtime_error("Trouble opening file " + Fname.string() +
+                               " for writing: " + std::strerror(errno));
+    if(Fname.extension() == ".gz")
+      sb.push(boost::iostreams::gzip_compressor());
+    sb.push(f);
+  }
+  std::ostream& stream() { return os; }
+private:
+  // Declaration order matters: the filter (sb, which may hold
+  // compressed data still to write) is destroyed before the file (f).
+  std::ofstream f;
+  boost::iostreams::filtering_ostreambuf sb;
+  std::ostream os{&sb};
+};
+
+class InputFile {
+public:
+  explicit InputFile(const std::filesystem::path& Fname) : f(Fname)
+  {
+    if(!f)
+      throw std::runtime_error("Trouble opening file " + Fname.string() + ": " +
+                               std::strerror(errno));
+    if(Fname.extension() == ".gz")
+      sb.push(boost::iostreams::gzip_decompressor());
+    sb.push(f);
+  }
+  std::istream& stream() { return is; }
+private:
+  std::ifstream f;
+  boost::iostreams::filtering_istreambuf sb;
+  std::istream is{&sb};
+};
+
+//-----------------------------------------------------------------------
+// Go through the serialization once, marking all pointers we encounter
+// (see skip_weak_ptr_handling). Clear even when skipping the first pass,
+// otherwise the marks left by the previous write are used (stale
+// pointers, possibly to unrelated objects at a reused address).
+//-----------------------------------------------------------------------
+
+void mark_pointer(const std::shared_ptr<GenericObject>& Obj)
 {
-#ifdef CXX_PYTHON_RULES_HAVE_BOOST_SERIALIZATION
-  // Clear even when skipping the first pass, otherwise the marks left
-  // by the previous write are used (stale pointers, possibly to
-  // unrelated objects at a reused address).
   clear_ptr_serialized_reference();
   if(skip_weak_ptr_handling())
     return;
   std::ostringstream os_first_pass;
   boost::archive::polymorphic_binary_oarchive oa(os_first_pass);
-  oa << boost::serialization::make_nvp("geocal_object", Obj);
+  oa << make_nvp(top_name, Obj);
   // Don't actually want output, just side effect of marking pointers
-#else
-  throw std::runtime_error("CXX_PYTHON_RULES_NAMESPACE was not built with "
-                           "boost::serialization support");
-#endif
+}
+
+template<class OArchive>
+void write(std::ostream& Os, const std::shared_ptr<GenericObject>& Obj)
+{
+  // The lock covers the mark pass and the write (weak_ptr_serialize_support.h).
+  PtrSerializeLock lock;
+  mark_pointer(Obj);
+  OArchive oa(Os);
+  oa << make_nvp(top_name, Obj);
+}
+
+template<class IArchive> std::shared_ptr<GenericObject> read(std::istream& Is)
+{
+  IArchive ia(Is);
+  std::shared_ptr<GenericObject> obj;
+  ia >> make_nvp(top_name, obj);
+  return obj;
 }
 
 //-----------------------------------------------------------------------
-/// Simple function that wraps around writing a boost::serialization
-/// to a xml archive. We abstract this
-/// away to give a slightly cleaner interface, but mostly so we can
-/// later have the option of changing the underlying serialization. This
-/// is a more limited interface, we can only write or read a single
-/// object. But this is what we primarily do anyways, and we can easily
-/// create higher level container objects if we end up needing multiple
-/// objects (e.g., can have a std::map if we end up needing it).
+// Read a file. Relative names inside the archive are relative to the
+// archive's directory (archive_base_directory()); the file name itself,
+// if relative, is resolved against the current base directory too, so a
+// nested read (an object loading another archive) finds its file as it
+// did when this code changed the current directory.
 //-----------------------------------------------------------------------
 
-void CXX_PYTHON_RULES_NAMESPACE::serialize_write(
-    [[maybe_unused]] const std::string& Fname,
-    [[maybe_unused]] const std::shared_ptr<GenericObject>& Obj)
+template<class IArchive>
+std::shared_ptr<GenericObject> read_file(const std::filesystem::path& Fname)
 {
-#ifdef CXX_PYTHON_RULES_HAVE_BOOST_SERIALIZATION
-  PtrSerializeLock lock;
-  mark_pointer(Obj);
-  OstreamCompress os(Fname.c_str());
-  boost::archive::polymorphic_xml_oarchive oa(os);
-  oa << boost::serialization::make_nvp("geocal_object", Obj);
-#else
-  throw std::runtime_error("CXX_PYTHON_RULES_NAMESPACE was not built with "
-                           "boost::serialization support");
-#endif
+  std::filesystem::path f = resolve_archive_path(Fname);
+  InputFile in(f);
+  ArchiveBaseDirectory base(std::filesystem::absolute(f).parent_path());
+  return read<IArchive>(in.stream());
+}
+}
+
+void CXX_PYTHON_RULES_NAMESPACE::serialize_write(
+    const std::filesystem::path& Fname,
+    const std::shared_ptr<GenericObject>& Obj)
+{
+  OutputFile out(Fname);
+  write<boost::archive::polymorphic_xml_oarchive>(out.stream(), Obj);
 }
 
 void CXX_PYTHON_RULES_NAMESPACE::serialize_write_binary(
-    [[maybe_unused]] const std::string& Fname,
-    [[maybe_unused]] const std::shared_ptr<GenericObject>& Obj)
+    const std::filesystem::path& Fname,
+    const std::shared_ptr<GenericObject>& Obj)
 {
-#ifdef CXX_PYTHON_RULES_HAVE_BOOST_SERIALIZATION
-  PtrSerializeLock lock;
-  mark_pointer(Obj);
-  OstreamCompress os(Fname.c_str());
-  boost::archive::polymorphic_binary_oarchive oa(os);
-  oa << boost::serialization::make_nvp("geocal_object", Obj);
-#else
-  throw std::runtime_error("CXX_PYTHON_RULES_NAMESPACE was not built with "
-                           "boost::serialization support");
-#endif
+  OutputFile out(Fname);
+  write<boost::archive::polymorphic_binary_oarchive>(out.stream(), Obj);
 }
-
-//-----------------------------------------------------------------------
-/// Variation of serialize_write that writes to a string instead of a file.
-//-----------------------------------------------------------------------
 
 std::string CXX_PYTHON_RULES_NAMESPACE::serialize_write_string(
-    [[maybe_unused]] const std::shared_ptr<GenericObject>& Obj)
+    const std::shared_ptr<GenericObject>& Obj)
 {
-#ifdef CXX_PYTHON_RULES_HAVE_BOOST_SERIALIZATION
-  PtrSerializeLock lock;
-  mark_pointer(Obj);
   std::ostringstream os;
-  {
-    boost::archive::polymorphic_xml_oarchive oa(os);
-    oa << boost::serialization::make_nvp("geocal_object", Obj);
-  }
+  write<boost::archive::polymorphic_xml_oarchive>(os, Obj);
   return os.str();
-#else
-  throw std::runtime_error("CXX_PYTHON_RULES_NAMESPACE was not built with "
-                           "boost::serialization support");
-#endif
 }
-
-//-----------------------------------------------------------------------
-/// Variation of serialize_write that writes to a binary string
-/// instead of xml
-//-----------------------------------------------------------------------
 
 std::string CXX_PYTHON_RULES_NAMESPACE::serialize_write_binary(
-    [[maybe_unused]] const std::shared_ptr<GenericObject>& Obj)
+    const std::shared_ptr<GenericObject>& Obj)
 {
-#ifdef CXX_PYTHON_RULES_HAVE_BOOST_SERIALIZATION
-  PtrSerializeLock lock;
-  mark_pointer(Obj);
   std::ostringstream os;
-  {
-    boost::archive::polymorphic_binary_oarchive oa(os);
-    oa << boost::serialization::make_nvp("geocal_object", Obj);
-  }
+  write<boost::archive::polymorphic_binary_oarchive>(os, Obj);
   return os.str();
-#else
-  throw std::runtime_error("CXX_PYTHON_RULES_NAMESPACE was not built with "
-                           "boost::serialization support");
-#endif
 }
-
-//-----------------------------------------------------------------------
-/// Variation of serialize_read_generic that takes a binary string rather
-/// than xml
-//-----------------------------------------------------------------------
-
-std::shared_ptr<GenericObject>
-CXX_PYTHON_RULES_NAMESPACE::serialize_read_binary(
-    [[maybe_unused]] const std::string& Data)
-{
-#ifdef CXX_PYTHON_RULES_HAVE_BOOST_SERIALIZATION
-  std::istringstream is(Data);
-  boost::archive::polymorphic_binary_iarchive ia(is);
-  std::shared_ptr<GenericObject> obj;
-  ia >> boost::serialization::make_nvp("geocal_object", obj);
-  return obj;
-#else
-  throw std::runtime_error("CXX_PYTHON_RULES_NAMESPACE was not built with "
-                           "boost::serialization support");
-#endif
-}
-
-//-----------------------------------------------------------------------
-/// Simple function that wraps around reading a boost::serialization
-/// to a xml archive. We abstract this
-/// away to give a slightly cleaner interface, but mostly so we can
-/// later have the option of changing the underlying serialization. This
-/// is a more limited interface, we can only write or read a single
-/// object. But this is what we primarily do anyways, and we can easily
-/// create higher level container objects if we end up needing multiple
-/// objects (e.g., can have a std::map if we end up needing it).
-///
-/// Note that it can often be useful to have relative pathnames in a
-/// xml file (e.g., we have a test xml file that is delivered with the
-/// source, where the absolute path might changes). So before doing
-/// the object creation, we change to the local directory of the xml
-/// file. These means paths are relative to the xml file, *not* our
-/// current directory.
-//-----------------------------------------------------------------------
 
 std::shared_ptr<GenericObject>
 CXX_PYTHON_RULES_NAMESPACE::serialize_read_generic(
-    [[maybe_unused]] const std::string& Fname)
+    const std::filesystem::path& Fname)
 {
-#ifdef CXX_PYTHON_RULES_HAVE_BOOST_SERIALIZATION
-  IstreamCompress is(Fname.c_str());
-  if(!is)
-    throw std::runtime_error("Trouble opening file " + Fname);
-  boost::archive::polymorphic_xml_iarchive ia(is);
-  std::filesystem::path p(Fname);
-  std::string dir = p.parent_path().string();
-  if(dir == "")
-    dir = ".";
-  DirChange d(dir);
-  std::shared_ptr<GenericObject> obj;
-  ia >> boost::serialization::make_nvp("geocal_object", obj);
-  return obj;
-#else
-  throw std::runtime_error("CXX_PYTHON_RULES_NAMESPACE was not built with "
-                           "boost::serialization support");
-#endif
+  return read_file<boost::archive::polymorphic_xml_iarchive>(Fname);
 }
 
 std::shared_ptr<GenericObject>
 CXX_PYTHON_RULES_NAMESPACE::serialize_read_binary_generic(
-    [[maybe_unused]] const std::string& Fname)
+    const std::filesystem::path& Fname)
 {
-#ifdef CXX_PYTHON_RULES_HAVE_BOOST_SERIALIZATION
-  IstreamCompress is(Fname.c_str());
-  if(!is)
-    throw std::runtime_error("Trouble opening file " + Fname);
-  boost::archive::polymorphic_binary_iarchive ia(is);
-  std::filesystem::path p(Fname);
-  std::string dir = p.parent_path().string();
-  if(dir == "")
-    dir = ".";
-  DirChange d(dir);
-  std::shared_ptr<GenericObject> obj;
-  ia >> boost::serialization::make_nvp("geocal_object", obj);
-  return obj;
-#else
-  throw std::runtime_error("CXX_PYTHON_RULES_NAMESPACE was not built with "
-                           "boost::serialization support");
-#endif
+  return read_file<boost::archive::polymorphic_binary_iarchive>(Fname);
 }
-
-//-----------------------------------------------------------------------
-/// Variation of serialize_read_generic that takes a string rather
-/// than reading a file.
-//-----------------------------------------------------------------------
 
 std::shared_ptr<GenericObject>
 CXX_PYTHON_RULES_NAMESPACE::serialize_read_generic_string(
-    [[maybe_unused]] const std::string& Data)
+    const std::string& Data)
 {
-#ifdef CXX_PYTHON_RULES_HAVE_BOOST_SERIALIZATION
   std::istringstream is(Data);
-  boost::archive::polymorphic_xml_iarchive ia(is);
-  std::shared_ptr<GenericObject> obj;
-  ia >> boost::serialization::make_nvp("geocal_object", obj);
-  return obj;
-#else
-  throw std::runtime_error("CXX_PYTHON_RULES_NAMESPACE was not built with "
-                           "boost::serialization support");
-#endif
+  return read<boost::archive::polymorphic_xml_iarchive>(is);
 }
+
+std::shared_ptr<GenericObject>
+CXX_PYTHON_RULES_NAMESPACE::serialize_read_binary(const std::string& Data)
+{
+  std::istringstream is(Data);
+  return read<boost::archive::polymorphic_binary_iarchive>(is);
+}
+
+std::shared_ptr<GenericObject>
+CXX_PYTHON_RULES_NAMESPACE::serialize_read_binary(
+    const std::string& Data, const std::filesystem::path& Base_dir)
+{
+  ArchiveBaseDirectory base(Base_dir);
+  return serialize_read_binary(Data);
+}
+
+#else
+//-----------------------------------------------------------------------
+// Built without boost serialization: every read and write throws.
+//-----------------------------------------------------------------------
+
+namespace {
+[[noreturn]] void no_serialization()
+{
+  throw std::runtime_error(
+      "This library was built without boost::serialization support");
+}
+}
+
+void CXX_PYTHON_RULES_NAMESPACE::serialize_write(
+    const std::filesystem::path&, const std::shared_ptr<GenericObject>&)
+{
+  no_serialization();
+}
+void CXX_PYTHON_RULES_NAMESPACE::serialize_write_binary(
+    const std::filesystem::path&, const std::shared_ptr<GenericObject>&)
+{
+  no_serialization();
+}
+std::string CXX_PYTHON_RULES_NAMESPACE::serialize_write_string(
+    const std::shared_ptr<GenericObject>&)
+{
+  no_serialization();
+}
+std::string CXX_PYTHON_RULES_NAMESPACE::serialize_write_binary(
+    const std::shared_ptr<GenericObject>&)
+{
+  no_serialization();
+}
+std::shared_ptr<GenericObject>
+CXX_PYTHON_RULES_NAMESPACE::serialize_read_generic(const std::filesystem::path&)
+{
+  no_serialization();
+}
+std::shared_ptr<GenericObject>
+CXX_PYTHON_RULES_NAMESPACE::serialize_read_binary_generic(
+    const std::filesystem::path&)
+{
+  no_serialization();
+}
+std::shared_ptr<GenericObject>
+CXX_PYTHON_RULES_NAMESPACE::serialize_read_generic_string(const std::string&)
+{
+  no_serialization();
+}
+std::shared_ptr<GenericObject>
+CXX_PYTHON_RULES_NAMESPACE::serialize_read_binary(const std::string&)
+{
+  no_serialization();
+}
+std::shared_ptr<GenericObject>
+CXX_PYTHON_RULES_NAMESPACE::serialize_read_binary(const std::string&,
+                                                  const std::filesystem::path&)
+{
+  no_serialization();
+}
+#endif

@@ -1,6 +1,7 @@
 #pragma once
 #include "printable.h"
 #include "skeleton_exception.h"
+#include "serialize_function.h"
 #include "generic_object_sample.h"
 #include <memory>
 #include <utility>
@@ -28,9 +29,12 @@ public:
     Os << "FileReferenceSample(" << fname_ << ")";
   }
 private:
+  // A relative name is relative to the archive's directory while an
+  // archive is being read (resolve_archive_path), and to the current
+  // directory otherwise.
   void read()
   {
-    std::ifstream in(fname_);
+    std::ifstream in(resolve_archive_path(fname_));
     if(!in)
       throw Exception("Can't open {}", fname_);
     std::getline(in, contents_);

@@ -3,10 +3,12 @@
 Installed as <package>._nanobind_support next to the extension module. The
 functions here are what pickles refer to, so keep their names."""
 
+import contextlib
 import copyreg
 import io
 import os
 import pickle
+from collections.abc import Iterator
 from typing import Any
 
 from . import _bindings
@@ -17,12 +19,22 @@ def _new_from_serialization(data: bytes) -> Any:
 
 
 def _new_from_serialization_dir(dir: str, data: bytes) -> Any:
-    curdir = os.getcwd()
+    # Relative file names in the archive are relative to dir (the
+    # directory the object was pickled in), through the archive base
+    # directory rather than by changing the current directory.
+    return _bindings.serialize_read_binary(data, dir)
+
+
+@contextlib.contextmanager
+def archive_base_directory_scope(dir: str | os.PathLike[str]) -> Iterator[None]:
+    """Set the archive base directory (serialize_function.h) for this thread
+    inside the with block: relative file names in archives loaded there,
+    including pickles, are relative to dir."""
+    prev = _bindings.set_archive_base_directory(os.fspath(dir))
     try:
-        os.chdir(dir)
-        return _bindings.serialize_read_binary(data)
+        yield
     finally:
-        os.chdir(curdir)
+        _bindings.set_archive_base_directory(prev)
 
 
 def _new_from_init(cls: type, version: int, *args: Any) -> Any:

@@ -77,4 +77,23 @@ void init_serialize_function(nb::module_& m)
       },
       nb::arg("Data"),
       cxx_python_rules_nb::doc("Skeleton::serialize_read_binary"));
+  m.def(
+      "serialize_read_binary",
+      [](nb::bytes Data, const std::string& Base_dir) {
+        return Skeleton::serialize_read_binary(
+            std::string(Data.c_str(), Data.size()), Base_dir);
+      },
+      nb::arg("Data"), nb::arg("Base_dir"),
+      cxx_python_rules_nb::doc("Skeleton::serialize_read_binary"));
+  m.def(
+      "set_archive_base_directory",
+      [](const std::string& Dir) {
+        return Skeleton::set_archive_base_directory(Dir).string();
+      },
+      nb::arg("Dir"),
+      cxx_python_rules_nb::doc("Skeleton::set_archive_base_directory"));
+  m.def(
+      "archive_base_directory",
+      []() { return Skeleton::archive_base_directory().string(); },
+      cxx_python_rules_nb::doc("Skeleton::archive_base_directory"));
 }

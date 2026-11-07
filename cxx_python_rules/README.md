@@ -71,7 +71,17 @@ available as `CXX_PYTHON_RULES_NAMESPACE::md`, and `lib/blitz_mdspan.h` has
 views between `blitz::Array` and mdspan, the C++ half of the numpy bridge
 in `nanobind/blitz_array.h`.
 Serialization (boost) gives pickling; `lib/serialize_support.h.sample` is
-the pattern for the library's own support header. `lib/DirectorNotes.md`
+the pattern for the library's own support header.
+
+Relative file names inside an archive (an object that opens a file in its
+`load()`) are relative to the archive's directory: reading an archive from
+a file sets a per-thread *archive base directory* (`serialize_function.h`),
+and such an object opens `resolve_archive_path(name)`. Python pickles made
+with `pickle_serialization_dir` load with the directory they were made in,
+and `archive_base_directory_scope(dir)` (python) or `ArchiveBaseDirectory`
+(C++) sets it for a block of code, e.g. reading a shelve. This replaced
+changing the process's current directory during a load, which broke
+relative file access on every other thread. `lib/DirectorNotes.md`
 describes python subclasses of C++ classes (ownership, `weak_ptr`,
 serialization, threads).
 

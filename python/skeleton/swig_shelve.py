@@ -77,44 +77,44 @@ def read_shelve(f: str | os.PathLike[str]) -> Any:
     import modules. For xml, bin and json files, we look for the file
     "extra_python_init.py" found in the same directory.
 
-    Because we often use relative names for files, we first chdir to
-    the same directory as the database file (if different than the current
-    one). We change back to the current directory when done.
+    Because we often use relative names for files, relative file names
+    in the objects read are relative to the directory of the database
+    file, through the archive base directory (cxx_python_rules
+    serialize_function.h), not by changing the current directory (which
+    would affect every thread). "extra_python_init.py" and
+    "_extra_python_init" also run with the current directory unchanged.
 
     """
     fname = str(f).split(":")[0]
-    dirn, fb = os.path.split(fname)
-    curdir = os.getcwd()
-    try:
-        if dirn:
-            os.chdir(dirn)
-        f2, ext = os.path.splitext(f)
-        if ext not in (".gz"):
-            f2 = str(f)
-        if os.path.splitext(f2)[1] == ".xml":
-            if os.path.exists("extra_python_init.py"):
-                exec(Path("extra_python_init.py").read_text())  # noqa: S102
-            return skelswig.serialize_read_generic(fb)
-        if os.path.splitext(f2)[1] == ".bin":
-            if os.path.exists("extra_python_init.py"):
-                exec(Path("extra_python_init.py").read_text())  # noqa: S102
-            return skelswig.serialize_read_binary_generic(fb)
-        if os.path.splitext(f)[1] == ".json":
-            if os.path.exists("extra_python_init.py"):
-                exec(Path("extra_python_init.py").read_text())  # noqa: S102
-            if have_jsonpickle:
-                return jsonpickle.decode(Path(fb).read_text(), keys=True)
-            else:
-                raise RuntimeError(
-                    "Use of .json file requires jsonpickle package to be installed"
-                )
-        t = SQLiteShelf(fb, "r")
+    dirn = os.path.dirname(fname)
+    f2, ext = os.path.splitext(f)
+    if ext not in (".gz"):
+        f2 = str(f)
+    extra_init = Path(dirn, "extra_python_init.py")
+    if os.path.splitext(f2)[1] == ".xml":
+        if extra_init.exists():
+            exec(extra_init.read_text())  # noqa: S102
+        return skelswig.serialize_read_generic(fname)
+    if os.path.splitext(f2)[1] == ".bin":
+        if extra_init.exists():
+            exec(extra_init.read_text())  # noqa: S102
+        return skelswig.serialize_read_binary_generic(fname)
+    if os.path.splitext(f)[1] == ".json":
+        if extra_init.exists():
+            exec(extra_init.read_text())  # noqa: S102
+        if have_jsonpickle:
+            with skelswig.archive_base_directory_scope(os.path.abspath(dirn)):
+                return jsonpickle.decode(Path(fname).read_text(), keys=True)
+        else:
+            raise RuntimeError(
+                "Use of .json file requires jsonpickle package to be installed"
+            )
+    with skelswig.archive_base_directory_scope(os.path.abspath(dirn)):
+        t = SQLiteShelf(fname, "r")
         if "_extra_python_init" in list(t.keys()):
             exec(t["_extra_python_init"])  # noqa: S102
         key = str(f).split(":")[1]
         return t[key]
-    finally:
-        os.chdir(curdir)
 
 
 def shelve_time_after(f1: str | os.PathLike[str], f2: str | os.PathLike[str]) -> bool:
