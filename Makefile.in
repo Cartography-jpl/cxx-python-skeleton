@@ -948,8 +948,9 @@ include_HEADERS =
 # Test files
 EXTRA_DIST = README.md bootstrap config/m4_local/README config/m4 \
 	@srcscript@/make_compile_commands.py \
-	@srcscript@/run_clang_tidy.sh @cxxpythonrules@/README.md \
-	CMakeLists.txt @cxxpythonrules@/lib/generic_object.cc.sample \
+	@srcscript@/run_clang_tidy.sh @srcscript@/api_snapshot.py \
+	@cxxpythonrules@/README.md CMakeLists.txt \
+	@cxxpythonrules@/lib/generic_object.cc.sample \
 	@cxxpythonrules@/lib/generic_object.h.sample \
 	@cxxpythonrules@/lib/generic_object_map.cc.sample \
 	@cxxpythonrules@/lib/generic_object_map.h.sample \

@@ -104,4 +104,90 @@ BOOST_AUTO_TEST_CASE(all_types)
 #endif
 }
 
+#ifdef SKELETON_HAVE_BOOST_SERIALIZATION
+// Save A and load it into Res (which may have any storage order or
+// shape beforehand), through an XML or a binary archive.
+template<class T, int D>
+void save_load(const blitz::Array<T, D>& A, blitz::Array<T, D>& Res,
+               bool Binary)
+{
+  std::stringstream ss;
+  if(Binary) {
+    boost::archive::polymorphic_binary_oarchive oa(ss);
+    oa << SKELETON_NVP2("a", A);
+  } else {
+    boost::archive::polymorphic_xml_oarchive oa(ss);
+    oa << SKELETON_NVP2("a", A);
+  }
+  if(Binary) {
+    boost::archive::polymorphic_binary_iarchive ia(ss);
+    ia >> SKELETON_NVP2("a", Res);
+  } else {
+    boost::archive::polymorphic_xml_iarchive ia(ss);
+    ia >> SKELETON_NVP2("a", Res);
+  }
+}
+
+// 2 x 3 array with element (i, j) = 10 * i + j, in the given storage.
+template<class S> blitz::Array<double, 2> test_matrix(const S& Storage)
+{
+  blitz::Array<double, 2> a(2, 3, Storage);
+  for(int i = 0; i < 2; ++i)
+    for(int j = 0; j < 3; ++j)
+      a(i, j) = 10 * i + j;
+  return a;
+}
+#endif
+
+// Code review 2026-11-06 §2.1: a column-major array was written in
+// memory order and came back scrambled.
+BOOST_AUTO_TEST_CASE(column_major, *boost::unit_test::expected_failures(2))
+{
+  if(!have_serialize_supported())
+    return;
+#ifdef SKELETON_HAVE_BOOST_SERIALIZATION
+  blitz::Array<double, 2> a = test_matrix(blitz::ColumnMajorArray<2>());
+  for(bool binary : {false, true}) {
+    blitz::Array<double, 2> r;
+    save_load(a, r, binary);
+    BOOST_CHECK(blitz::all(r == a));
+  }
+#endif
+}
+
+// A reversed array (negative stride) passed the contiguity check, but
+// data() is its last element in memory, so save read past the block.
+BOOST_AUTO_TEST_CASE(reversed, *boost::unit_test::expected_failures(2))
+{
+  if(!have_serialize_supported())
+    return;
+#ifdef SKELETON_HAVE_BOOST_SERIALIZATION
+  blitz::Array<double, 1> a(3);
+  a = 1, 2, 3;
+  blitz::Array<double, 1> rev = a.reverse(0);
+  for(bool binary : {false, true}) {
+    blitz::Array<double, 1> r;
+    save_load(rev, r, binary);
+    BOOST_CHECK(blitz::all(r == rev));
+  }
+#endif
+}
+
+// Loading into a column-major target kept its storage order and
+// scrambled the values.
+BOOST_AUTO_TEST_CASE(load_into_column_major,
+                     *boost::unit_test::expected_failures(2))
+{
+  if(!have_serialize_supported())
+    return;
+#ifdef SKELETON_HAVE_BOOST_SERIALIZATION
+  blitz::Array<double, 2> a = test_matrix(blitz::GeneralArrayStorage<2>());
+  for(bool binary : {false, true}) {
+    blitz::Array<double, 2> r(1, 1, blitz::ColumnMajorArray<2>());
+    save_load(a, r, binary);
+    BOOST_CHECK(blitz::all(r == a));
+  }
+#endif
+}
+
 BOOST_AUTO_TEST_SUITE_END()
