@@ -8,9 +8,10 @@ template<class Archive>
 void GenericObjectMap::serialize(Archive& ar, const unsigned int)
 {
   SKELETON_GENERIC_BASE(GenericObjectMap);
-  using MapGenericObject =
-      std::map<std::string, std::shared_ptr<GenericObject>>;
-  ar& BOOST_SERIALIZATION_BASE_OBJECT_NVP(MapGenericObject);
+  // Written under the element name the class used when it derived from
+  // the map (BOOST_SERIALIZATION_BASE_OBJECT_NVP(MapGenericObject)), so
+  // archives are unchanged.
+  ar& SKELETON_NVP2("MapGenericObject", map_);
 }
 
 SKELETON_IMPLEMENT(GenericObjectMap);

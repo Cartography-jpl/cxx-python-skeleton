@@ -43,7 +43,7 @@ void init_generic_object_map(nb::module_& m)
     // Hand converted from the %pythoncode in generic_object_map.i.
     c.def("__contains__",
           [](const Skeleton::GenericObjectMap& self, const std::string& key) {
-            return self.count(key) != 0;
+            return self.contains(key);
           });
     c.def("__getitem__",
           [](const Skeleton::GenericObjectMap& self, const std::string& key) {

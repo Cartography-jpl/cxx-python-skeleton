@@ -1,8 +1,6 @@
 #pragma once
 #include "printable.h"
 #include <memory>
-#include <algorithm>
-#include <iterator>
 #include <ranges>
 #include <string>
 #include <map>
@@ -28,11 +26,11 @@ namespace Skeleton {
   This serves much the same purpose as "shelve" does for "pickle" in
   python.
 *******************************************************************/
-class GenericObjectMap
-  : public Printable<GenericObjectMap>,
-    public std::map<std::string, std::shared_ptr<GenericObject>> {
+class GenericObjectMap : public Printable<GenericObjectMap> {
 public:
-  GenericObjectMap() = default;
+  using map_type = std::map<std::string, std::shared_ptr<GenericObject>>;
+  using iterator = map_type::iterator;
+  using const_iterator = map_type::const_iterator;
 
   //-----------------------------------------------------------------------
   /// Print description of object.
@@ -46,9 +44,7 @@ public:
 
   std::vector<std::string> keys() const
   {
-    std::vector<std::string> r;
-    std::ranges::copy(std::views::keys(*this), std::back_inserter(r));
-    return r;
+    return std::views::keys(map_) | std::ranges::to<std::vector>();
   }
 
   //-----------------------------------------------------------------------
@@ -58,7 +54,7 @@ public:
   void set_generic(const std::string& Key,
                    const std::shared_ptr<GenericObject>& V)
   {
-    (*this)[Key] = V;
+    map_[Key] = V;
   }
 
   //-----------------------------------------------------------------------
@@ -68,11 +64,8 @@ public:
 
   std::shared_ptr<GenericObject> get_generic(const std::string& Key) const
   {
-    std::map<std::string, std::shared_ptr<GenericObject>>::const_iterator i =
-        find(Key);
-    if(i != end())
-      return i->second;
-    return std::shared_ptr<GenericObject>();
+    auto i = map_.find(Key);
+    return i != map_.end() ? i->second : nullptr;
   }
 
   //-----------------------------------------------------------------------
@@ -80,11 +73,30 @@ public:
   /// value in the map or it doesn't match type
   //-----------------------------------------------------------------------
 
-  template<class T> inline std::shared_ptr<T> get(const std::string& Key) const
+  template<class T> std::shared_ptr<T> get(const std::string& Key) const
   {
     return std::dynamic_pointer_cast<T>(get_generic(Key));
   }
 
+  //-----------------------------------------------------------------------
+  /// The usual map operations.
+  //-----------------------------------------------------------------------
+
+  std::shared_ptr<GenericObject>& operator[](const std::string& Key)
+  {
+    return map_[Key];
+  }
+  bool contains(const std::string& Key) const { return map_.contains(Key); }
+  bool erase(const std::string& Key) { return map_.erase(Key) > 0; }
+  std::size_t size() const { return map_.size(); }
+  bool empty() const { return map_.empty(); }
+  void clear() { map_.clear(); }
+  iterator begin() { return map_.begin(); }
+  iterator end() { return map_.end(); }
+  const_iterator begin() const { return map_.begin(); }
+  const_iterator end() const { return map_.end(); }
+private:
+  map_type map_;
   friend class boost::serialization::access;
   template<class Archive>
   void serialize(Archive& ar, const unsigned int version);
