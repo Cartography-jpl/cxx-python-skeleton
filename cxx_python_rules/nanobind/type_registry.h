@@ -16,12 +16,18 @@
 // version of SwigTypeMapperBase.
 //
 // The registry lives in a capsule in the builtins module, so every
-// extension module that uses these types (e.g. a downstream module)
-// shares it. Bump the version in the key if Entry changes.
+// extension module of the project that uses these types (e.g. a
+// downstream module) shares it. The key has the project's namespace in
+// it: each project (geocal, framework) has its own registry, of its own
+// Map type, even when they are loaded into one python process. Bump the
+// version in the key if Entry or Map changes.
 #include <nanobind/nanobind.h>
 #include "generic_object.h"
+#include <boost/preprocessor/stringize.hpp>
+#include <functional>
 #include <memory>
 #include <string>
+#include <string_view>
 #include <typeinfo>
 #include <unordered_map>
 
@@ -38,32 +44,45 @@ struct Entry {
   std::shared_ptr<GenericObject> (*to_generic)(nb::handle);
 };
 
+// Hash for heterogeneous lookup: find() looks up the type name as a
+// std::string_view, without making a std::string.
+struct NameHash {
+  using is_transparent = void;
+  std::size_t operator()(std::string_view S) const noexcept
+  {
+    return std::hash<std::string_view>{}(S);
+  }
+};
+
 // Keyed by type name, not type_info address: the same type_info can be
 // duplicated across shared libraries.
-using Map = std::unordered_map<std::string, Entry>;
+using Map = std::unordered_map<std::string, Entry, NameHash, std::equal_to<>>;
+
+inline constexpr const char* registry_key =
+    "__cxx_python_rules_nb_type_registry_v2_" BOOST_PP_STRINGIZE(
+        CXX_PYTHON_RULES_NAMESPACE) "__";
 
 inline Map& registry()
 {
-  static Map* m = nullptr;
-  if(!m) {
-    const char* key = "__cxx_python_rules_nb_type_registry_v1__";
+  // A function-local static is initialized exactly once, even with
+  // several threads.
+  static Map* m = [] {
     nb::dict b = nb::borrow<nb::dict>(PyEval_GetBuiltins());
-    if(b.contains(key)) {
-      m = static_cast<Map*>(nb::cast<nb::capsule>(b[key]).data());
-    } else {
-      // Never freed: modules can't be unloaded, and the entries hold
-      // function pointers into them.
-      m = new Map;
-      b[key] = nb::capsule(m);
-    }
-  }
+    if(b.contains(registry_key))
+      return static_cast<Map*>(nb::cast<nb::capsule>(b[registry_key]).data());
+    // Never freed: modules can't be unloaded, and the entries hold
+    // function pointers into them.
+    auto* r = new Map;
+    b[registry_key] = nb::capsule(r);
+    return r;
+  }();
   return *m;
 }
 
 inline const Entry* find(const std::type_info& T)
 {
   auto& r = registry();
-  auto i = r.find(T.name());
+  auto i = r.find(std::string_view(T.name()));
   return i == r.end() ? nullptr : &i->second;
 }
 

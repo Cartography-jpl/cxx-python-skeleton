@@ -17,6 +17,17 @@ nb::bytes to_bytes(const std::string& S)
 {
   return nb::bytes(S.data(), S.size());
 }
+
+// Archive data given as a str: encoded as UTF-8, with surrogateescape so
+// a str decoded from bytes that aren't valid UTF-8 gives the bytes back.
+std::string from_str(const nb::str& Data)
+{
+  nb::object b = nb::steal(
+      PyUnicode_AsEncodedString(Data.ptr(), "utf-8", "surrogateescape"));
+  if(!b.is_valid())
+    throw nb::python_error();
+  return to_string(nb::borrow<nb::bytes>(b));
+}
 }
 
 void init_serialize_function(nb::module_& m)
@@ -29,14 +40,28 @@ void init_serialize_function(nb::module_& m)
       "serialize_write",
       [](const std::string& Fname, const Obj& O) { serialize_write(Fname, O); },
       "Fname"_a, "Obj"_a.none(), doc("Skeleton::serialize_write"));
-  m.def("serialize_write_string", &serialize_write_string, "Obj"_a.none(),
-        doc("Skeleton::serialize_write_string"));
+  // The XML archive is bytes: the pickle of a python subclass object in
+  // it isn't valid UTF-8.
+  m.def(
+      "serialize_write_string",
+      [](const Obj& O) { return to_bytes(serialize_write_string(O)); },
+      "Obj"_a.none(), doc("Skeleton::serialize_write_string"));
   m.def(
       "serialize_read_generic",
       [](const std::string& Fname) { return serialize_read_generic(Fname); },
       "Fname"_a, doc("Skeleton::serialize_read_generic"));
-  m.def("serialize_read_generic_string", &serialize_read_generic_string,
-        "Data"_a, doc("Skeleton::serialize_read_generic_string"));
+  m.def(
+      "serialize_read_generic_string",
+      [](const nb::bytes& Data) {
+        return serialize_read_generic_string(to_string(Data));
+      },
+      "Data"_a, doc("Skeleton::serialize_read_generic_string"));
+  m.def(
+      "serialize_read_generic_string",
+      [](const nb::str& Data) {
+        return serialize_read_generic_string(from_str(Data));
+      },
+      "Data"_a, doc("Skeleton::serialize_read_generic_string"));
   m.def(
       "serialize_write_binary",
       [](const std::string& Fname, const Obj& O) {

@@ -471,7 +471,6 @@ class DirectorWithNote(DirectorExample):
         self.note = "hello"
 
 
-@pytest.mark.xfail(strict=True, reason="review 2026-11-07 §4.3, fixed in F1.3")
 def test_xml_string_python_subclass():
     # The XML archive holds the pickle of the python part as raw bytes, so
     # it isn't valid UTF-8 text.
@@ -482,3 +481,19 @@ def test_xml_string_python_subclass():
     assert isinstance(d2, DirectorWithNote)
     assert d2.note == "hello"
     assert d2.func(1) == 4
+
+
+def test_xml_string_types():
+    # serialize_write_string gives bytes; serialize_read_generic_string
+    # takes bytes or str.
+    from skeleton import serialize_read_generic_string, serialize_write_string
+
+    e = DirectorExample(2, "plain")
+    data = serialize_write_string(e)
+    assert isinstance(data, bytes)
+    text = data.decode("utf-8")
+    assert serialize_read_generic_string(text).func(1) == 3
+    assert serialize_read_generic_string(data).func(1) == 3
+    d = DirectorWithNote(3, "x")
+    text = serialize_write_string(d).decode("utf-8", "surrogateescape")
+    assert serialize_read_generic_string(text).note == "hello"

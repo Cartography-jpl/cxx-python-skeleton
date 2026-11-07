@@ -142,3 +142,15 @@ def test_keyword_names():
     a = np.zeros((2, 2))
     ArrayTypemapSample().set_value_copy(A=a, V=5.0)
     assert a[0, 0] == 0
+
+
+def test_type_registry_key():
+    """The type registry is per project: its key in builtins has the
+    namespace in it, so another project's registry (of another C++ type)
+    is never used."""
+    import builtins
+
+    import skeleton_cxx._bindings  # noqa: F401
+
+    keys = [k for k in vars(builtins) if k.startswith("__cxx_python_rules_nb_type")]
+    assert "__cxx_python_rules_nb_type_registry_v2_Skeleton__" in keys
