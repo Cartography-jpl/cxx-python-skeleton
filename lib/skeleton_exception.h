@@ -70,6 +70,10 @@ template<class... Args> struct ExceptionFormat {
   * The stack trace uses Boost.Stacktrace rather than C++23
     std::stacktrace: gcc 14, the minimum, still needs -lstdc++exp for
     std::stacktrace.
+
+  Thread safety: copies can be used on any thread (they share the data,
+  copy on write). Don't change one Exception (operator<<) from two
+  threads.
 *******************************************************************/
 
 // Copy without move on purpose (see the copy constructor).

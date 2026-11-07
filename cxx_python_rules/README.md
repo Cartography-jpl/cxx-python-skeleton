@@ -64,8 +64,9 @@ a header used without them silently put its code in a namespace literally
 called `CXX_PYTHON_RULES_NAMESPACE`. `cxx_python_rules_mdspan.h` now stops
 with an `#error` instead.)
 
-`lib/serialize_function.cc`, `lib/weak_ptr_serialize_support.cc` and
-`lib/blitz_mdspan.cc` are compiled into the C++ library.
+`lib/serialize_function.cc`, `lib/weak_ptr_serialize_support.cc`,
+`lib/director_hook.cc` and `lib/blitz_mdspan.cc` are compiled into the C++
+library.
 `lib/cxx_python_rules_mdspan.h` makes mdspan (the Kokkos implementation)
 available as `CXX_PYTHON_RULES_NAMESPACE::md`, and `lib/blitz_mdspan.h` has
 views between `blitz::Array` and mdspan, the C++ half of the numpy bridge
@@ -91,6 +92,44 @@ serialization, threads).
 
 The python package files (`__init__.py`, `all.py`, `_nanobind_support.py`,
 `py.typed`) are installed next to the extension module.
+
+Archives are trusted input
+--------------------------
+Archives and shelves can hold pickles (python subclass objects, python
+objects in a shelve), and Boost.Serialization doesn't validate what it
+reads, so loading one can run arbitrary code. Load only files you trust.
+
+Threads
+-------
+What can be used from several threads at once:
+- `serialize_write*` and `serialize_read*`: yes, on different threads. Each
+  write has its own record of the objects in it for the `weak_ptr` rule
+  (`weak_ptr_serialize_support.h`), per thread, and the archive base
+  directory is per thread.
+- The skeleton's `Exception`: copies can be used on any thread (copying
+  can't throw; copies share the data, copy on write).
+- The `Observer`/`Observable` classes (in the skeleton's `lib/`): no.
+  Register, notify and destroy observers on one thread, and don't destroy
+  an observer while it is being notified.
+- The binding code in `nanobind/`: it relies on the GIL.
+
+Free-threaded python (no GIL) is a goal for later, not supported now. What
+is left for it:
+- Build with nanobind's free-threaded support (CMake `FREE_THREADED`, and
+  the matching setting in `nanobind.am`).
+- Lock the type registry (`nanobind/type_registry.h`) while modules
+  register their types at import; its one-time setup is already safe.
+- `Observable::notify_update_do` is const but removes expired entries from
+  its lists. Moving that to add/remove changes the bytes of archives
+  rewritten after loading (they hold empty entries for observers outside
+  the archive), so it was left; a mutex around the lists covers it.
+- A mutex around `Observable`'s lists, and a decision on observers
+  destroyed on another thread while being notified (the `weak_ptr` to an
+  observer doesn't keep it alive).
+- Classes with shared scratch space in the skeleton (`CalcRasterSample`,
+  `BufferRasterSample`'s copy counter).
+- Run the python tests on a free-threaded python (conda-forge
+  `python-freethreading`).
 
 Build
 -----

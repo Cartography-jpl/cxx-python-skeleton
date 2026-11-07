@@ -8,6 +8,10 @@ namespace Skeleton {
   pure virtual functions for getting and setting parameters, plus a
   non-virtual function using them. Used by MultiBaseExample and
   VirtualDiamondExample.
+
+  Thread safety: as for a standard library type: const member functions
+  can be called from several threads at once; anything else needs
+  exclusive access.
 *******************************************************************/
 class WithParameterLike : public virtual GenericObject {
 public:

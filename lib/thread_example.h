@@ -10,6 +10,10 @@ namespace Skeleton {
   on a worker (including a python exception from an override) is saved
   as a std::exception_ptr and the first one is rethrown by the waiting
   thread. See claude_notes/implementation_plan.md S6.1 item 11.
+
+  Thread safety: run calls Obj->func on several threads at once, so
+  Obj's func has to be safe for that (a python override runs with the
+  GIL).
 *******************************************************************/
 class ThreadExample : public Printable<ThreadExample> {
 public:

@@ -7,6 +7,10 @@ namespace Skeleton {
 /****************************************************************/ /**
   Simple class to test how C++ exceptions get passed to python (see
   printing_test.py).
+
+  Thread safety: as for a standard library type: const member functions
+  can be called from several threads at once; anything else needs
+  exclusive access.
 *******************************************************************/
 class ExceptionSample : public Printable<ExceptionSample> {
 public:

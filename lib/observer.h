@@ -4,7 +4,6 @@
 #include "skeleton_exception.h"
 #include <memory>
 #include <algorithm>
-#include <list>
 #include <vector>
 
 namespace Skeleton {
@@ -35,6 +34,10 @@ template<class T> class Observable;
   The relationship between Observer and Observable is m to n, a
   Observer can be attached to any number of Observables, and likewise
   an Observable can have any number of Observers attached.
+
+  Thread safety: not thread safe. Register, notify and destroy
+  observers on one thread, and don't destroy an observer while it is
+  being notified (the Observable's weak_ptr doesn't keep it alive).
 *******************************************************************/
 template<class T> class Observer : public virtual GenericObject {
 public:
@@ -97,6 +100,10 @@ private:
   Special case observer where a cache is invalidated when an
   Observable changes. One of these can observe any number of
   Observables of different types.
+
+  Thread safety: not thread safe. Register, notify and destroy
+  observers on one thread, and don't destroy an observer while it is
+  being notified (the Observable's weak_ptr doesn't keep it alive).
 *******************************************************************/
 class CacheInvalidatedObserver : public virtual GenericObject {
 public:
@@ -154,6 +161,10 @@ protected:
   written with the two pass weak_ptr rule (weak_ptr_serialize_support.h):
   an observer is kept only if it is also written to the archive some
   other way.
+
+  Thread safety: not thread safe. Register, notify and destroy
+  observers on one thread, and don't destroy an observer while it is
+  being notified (the Observable's weak_ptr doesn't keep it alive).
 *******************************************************************/
 template<class T> class Observable : public virtual GenericObject {
 public:
@@ -185,8 +196,7 @@ public:
   }
   void remove_cache_invalidated_observer(CacheInvalidatedObserver& Obs)
   {
-    auto p = points_to(Obs.this_obj().get());
-    colist.remove_if(p);
+    std::erase_if(colist, points_to(Obs.this_obj().get()));
   }
 
   //-----------------------------------------------------------------------
@@ -306,15 +316,13 @@ protected:
 
   void remove_observer_do(Observer<T>& Obs, T& t)
   {
-    auto p = points_to(Obs.this_obj.get());
-    olist.remove_if(p);
+    std::erase_if(olist, points_to(Obs.this_obj.get()));
     Obs.notify_remove(t);
     Obs.notify_remove();
   }
   void remove_observer_do(Observer<T>& Obs)
   {
-    auto p = points_to(Obs.this_obj.get());
-    olist.remove_if(p);
+    std::erase_if(olist, points_to(Obs.this_obj.get()));
     Obs.notify_remove();
   }
 
@@ -324,12 +332,14 @@ protected:
 
   void clean_dead_ptr() const
   {
-    olist.remove_if([](const auto& w) { return w.expired(); });
-    colist.remove_if([](const auto& w) { return w.expired(); });
+    std::erase_if(olist, [](const auto& w) { return w.expired(); });
+    std::erase_if(colist, [](const auto& w) { return w.expired(); });
   }
-  // mutable: notify_update_do (const) drops expired entries.
-  mutable std::list<std::weak_ptr<Observer<T>>> olist;
-  mutable std::list<std::weak_ptr<CacheInvalidatedObserver>> colist;
+  // mutable: notify_update_do (const) drops expired entries. std::vector
+  // rather than the std::list of the original: Boost writes both the same
+  // way, so archives are unchanged.
+  mutable std::vector<std::weak_ptr<Observer<T>>> olist;
+  mutable std::vector<std::weak_ptr<CacheInvalidatedObserver>> colist;
   std::vector<std::shared_ptr<Observer<T>>> ref_list;
 
   //-----------------------------------------------------------------------
@@ -342,8 +352,8 @@ protected:
   //-----------------------------------------------------------------------
 
   template<class U>
-  static void merge_loaded(std::list<std::weak_ptr<U>>& Lst,
-                           std::list<std::weak_ptr<U>>& Loaded)
+  static void merge_loaded(std::vector<std::weak_ptr<U>>& Lst,
+                           std::vector<std::weak_ptr<U>>& Loaded)
   {
     for(auto& w : Lst) {
       auto p = w.lock();
@@ -353,8 +363,8 @@ protected:
     Lst.swap(Loaded);
   }
   void merge_loaded(
-      std::list<std::weak_ptr<Observer<T>>>& Loaded_olist,
-      std::list<std::weak_ptr<CacheInvalidatedObserver>>& Loaded_colist)
+      std::vector<std::weak_ptr<Observer<T>>>& Loaded_olist,
+      std::vector<std::weak_ptr<CacheInvalidatedObserver>>& Loaded_colist)
   {
     merge_loaded(olist, Loaded_olist);
     merge_loaded(colist, Loaded_colist);

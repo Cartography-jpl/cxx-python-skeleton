@@ -12,6 +12,9 @@ namespace Skeleton {
   Like geocal's Camera (8 such classes there, 52 in framework): a class
   with several bases, a Printable, an Observable and a second base
   class with its own interface (WithParameterLike).
+
+  Thread safety: not thread safe (an Observer or Observable, see
+  observer.h).
 *******************************************************************/
 class CameraLike : public Printable<CameraLike>,
                    public Observable<CameraLike>,
@@ -37,6 +40,9 @@ private:
 /****************************************************************/ /**
   A concrete CameraLike. The parameter is the focal length; setting it
   notifies the observers.
+
+  Thread safety: not thread safe (an Observer or Observable, see
+  observer.h).
 *******************************************************************/
 class SimpleCameraLike : public CameraLike {
 public:
@@ -77,6 +83,10 @@ private:
   take each of the bases as an argument. Python should get the most
   derived type back in every case, and be able to pass the derived
   object for any of the base types.
+
+  Thread safety: as for a standard library type: const member functions
+  can be called from several threads at once; anything else needs
+  exclusive access.
 *******************************************************************/
 class MultiBaseExample : public Printable<MultiBaseExample> {
 public:

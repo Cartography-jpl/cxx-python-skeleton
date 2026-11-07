@@ -15,6 +15,10 @@ namespace Skeleton {
   check the values, shape and element type survive the round
   trip. sum_*, shares_memory and set_value let the test check
   whether the C++ side sees the numpy data directly or a copy.
+
+  Thread safety: as for a standard library type: const member functions
+  can be called from several threads at once; anything else needs
+  exclusive access.
 *******************************************************************/
 class ArrayTypemapSample : public Printable<ArrayTypemapSample> {
 public:

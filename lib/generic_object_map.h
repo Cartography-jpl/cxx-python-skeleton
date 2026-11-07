@@ -27,6 +27,10 @@ namespace Skeleton {
 
   This serves much the same purpose as "shelve" does for "pickle" in
   python.
+
+  Thread safety: as for a standard library type: const member functions
+  can be called from several threads at once; anything else needs
+  exclusive access.
 *******************************************************************/
 class GenericObjectMap : public Printable<GenericObjectMap> {
 public:

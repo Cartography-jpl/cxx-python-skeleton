@@ -4,6 +4,9 @@
 namespace Skeleton {
 /****************************************************************/ /**
   This is a global fixture that is available to all unit tests.
+
+  Thread safety: for the unit tests (the constructor sets an
+  environment variable).
 *******************************************************************/
 class GlobalFixture {
 public:

@@ -9,6 +9,10 @@ namespace Skeleton {
 /****************************************************************/ /**
   This is a simple class that we can use to test having a derived
   class in python to override the director functions.
+
+  Thread safety: as for a standard library type: const member functions
+  can be called from several threads at once; anything else needs
+  exclusive access.
 *******************************************************************/
 
 class DirectorExample : public Printable<DirectorExample> {
@@ -41,6 +45,10 @@ private:
 
 /****************************************************************/ /**
   A version used for nesting DirectorExample.
+
+  Thread safety: as for a standard library type: const member functions
+  can be called from several threads at once; anything else needs
+  exclusive access.
 *******************************************************************/
 
 class DirectorExampleNested : public DirectorExample {
@@ -68,6 +76,10 @@ private:
 /****************************************************************/ /**
   A weak pointer to a DirectorExample, used to test proper handling of
   weak pointers and also pointer tracking in the serialization code.
+
+  Thread safety: as for a standard library type: const member functions
+  can be called from several threads at once; anything else needs
+  exclusive access.
 *******************************************************************/
 class DirectorExampleWeakPtr : public Printable<DirectorExampleWeakPtr> {
 public:
@@ -100,6 +112,10 @@ private:
 /****************************************************************/ /**
   Sample class to use DirectorExample, can use to make sure python
   can be passed correctly.
+
+  Thread safety: as for a standard library type: const member functions
+  can be called from several threads at once; anything else needs
+  exclusive access.
 *******************************************************************/
 class DirectorExampleUser : public Printable<DirectorExampleUser> {
 public:

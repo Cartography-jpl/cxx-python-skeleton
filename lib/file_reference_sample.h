@@ -13,6 +13,10 @@ namespace Skeleton {
   which uses pickle_serialization_dir so a pickle can be loaded from
   a different directory than the one it was made in (see
   cxx_python_rules_sample_test.py).
+
+  Thread safety: as for a standard library type: const member functions
+  can be called from several threads at once; anything else needs
+  exclusive access.
 *******************************************************************/
 class FileReferenceSample : public Printable<FileReferenceSample> {
 public:

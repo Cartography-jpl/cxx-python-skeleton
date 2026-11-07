@@ -20,6 +20,9 @@ namespace GeoCal {
   std::format works too: std::format("{}", foo) gives the same text as
   "<<" (see the std::formatter at the end of this file), and the
   std::string formatting options apply, e.g. std::format("{:>20}", foo).
+
+  Thread safety: print_to_string and operator<< are as safe as the
+  class's print (usually const, so concurrent calls are fine).
 *******************************************************************/
 
 template<class T> class Printable : public virtual GenericObject {

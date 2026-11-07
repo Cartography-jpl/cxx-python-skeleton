@@ -10,6 +10,10 @@ namespace Skeleton {
 /****************************************************************/ /**
   A second level virtual base below WithParameterLike, like geocal's
   WithParameterNested.
+
+  Thread safety: as for a standard library type: const member functions
+  can be called from several threads at once; anything else needs
+  exclusive access.
 *******************************************************************/
 class NestedLike : public virtual WithParameterLike {
 public:
@@ -22,6 +26,10 @@ private:
 
 /****************************************************************/ /**
   The other side of the diamond, like geocal's ImageGroundConnection.
+
+  Thread safety: as for a standard library type: const member functions
+  can be called from several threads at once; anything else needs
+  exclusive access.
 *******************************************************************/
 class RootLike : public virtual GenericObject {
 public:
@@ -37,6 +45,10 @@ private:
   framework's classes with virtual public StateVectorObserver.
   GenericObject is reached through RootLike, NestedLike ->
   WithParameterLike and Printable, all virtual.
+
+  Thread safety: as for a standard library type: const member functions
+  can be called from several threads at once; anything else needs
+  exclusive access.
 *******************************************************************/
 class Diamond : public virtual RootLike,
                 public virtual NestedLike,
@@ -68,6 +80,10 @@ private:
 /****************************************************************/ /**
   Return a Diamond as each of its bases, and take each base as an
   argument.
+
+  Thread safety: as for a standard library type: const member functions
+  can be called from several threads at once; anything else needs
+  exclusive access.
 *******************************************************************/
 class VirtualDiamondExample : public Printable<VirtualDiamondExample> {
 public:

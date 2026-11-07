@@ -12,6 +12,10 @@ namespace Skeleton {
   shared_ptr to a RasterImage, or a file name). Each returns the name
   of the overload called, so a test can check which one python picks
   (claude_notes/implementation_plan.md S6.1 item 7).
+
+  Thread safety: as for a standard library type: const member functions
+  can be called from several threads at once; anything else needs
+  exclusive access.
 *******************************************************************/
 class OverloadExample : public Printable<OverloadExample> {
 public:

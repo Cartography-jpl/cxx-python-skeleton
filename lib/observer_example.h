@@ -11,6 +11,9 @@ namespace Skeleton {
   An Observable with one value. Setting the value notifies the
   observers, like a geocal Camera or Orbit notifying an
   ImageGroundConnection, or a framework StateVector.
+
+  Thread safety: not thread safe (an Observer or Observable, see
+  observer.h).
 *******************************************************************/
 class ObservableExample : public Observable<ObservableExample>,
                           public Printable<ObservableExample> {
@@ -59,6 +62,9 @@ namespace Skeleton {
   claude_notes/implementation_plan.md §2.4). Registering twice does
   nothing, so it doesn't matter if the Observable's observer list in
   the archive already had it.
+
+  Thread safety: not thread safe (an Observer or Observable, see
+  observer.h).
 *******************************************************************/
 class ObserverExample : public Observer<ObservableExample>,
                         public Printable<ObserverExample> {
@@ -124,6 +130,9 @@ private:
   A framework style cache: registers with an ObservableExample in the
   constructor (and on load), and recomputes its value only after the
   Observable changed.
+
+  Thread safety: not thread safe (an Observer or Observable, see
+  observer.h).
 *******************************************************************/
 class CacheExample : public CacheInvalidatedObserver,
                      public Printable<CacheExample> {

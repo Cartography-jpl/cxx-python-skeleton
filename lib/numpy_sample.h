@@ -8,6 +8,10 @@ namespace Skeleton {
   Simple class to test handling of numpy lifetime issues when wrapped
   in the python bindings. We define this here, then have a python test
   (numpy_sample_test.py) to test this out.
+
+  Thread safety: as for a standard library type: const member functions
+  can be called from several threads at once; anything else needs
+  exclusive access.
 *******************************************************************/
 class NumpySample : public Printable<NumpySample> {
 public:

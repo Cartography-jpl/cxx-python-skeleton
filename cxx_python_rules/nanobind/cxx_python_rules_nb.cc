@@ -7,7 +7,11 @@
 namespace cxx_python_rules_nb {
 std::map<GenericObject*, nb::object>& pending_director()
 {
-  static auto* m = new std::map<GenericObject*, nb::object>;
+  // Per thread: a python subclass object read from an archive is made
+  // (director_load) and claimed (director_hook_func) on the same thread,
+  // during one read. Never freed, like the module objects: freeing would
+  // release python references after python may be gone.
+  thread_local auto* m = new std::map<GenericObject*, nb::object>;
   return *m;
 }
 

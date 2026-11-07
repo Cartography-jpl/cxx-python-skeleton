@@ -21,6 +21,10 @@ namespace Skeleton {
   Python sees each member as a property: position_ as a numpy array,
   matrix as a 2 x 3 numpy array, and
   count and scale as an int / float or None.
+
+  Thread safety: as for a standard library type: const member functions
+  can be called from several threads at once; anything else needs
+  exclusive access.
 *******************************************************************/
 class ArraySample : public Printable<ArraySample> {
 public:
@@ -98,6 +102,10 @@ private:
   memory (read only, the C++ object is kept alive by the view). The
   static functions describe the array python passed in, so a test can
   check what C++ got (layout, and whether it shares python's memory).
+
+  Thread safety: as for a standard library type: const member functions
+  can be called from several threads at once; anything else needs
+  exclusive access.
 *******************************************************************/
 class ColumnMajorSample : public Printable<ColumnMajorSample> {
 public:

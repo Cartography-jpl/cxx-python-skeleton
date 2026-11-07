@@ -7,6 +7,10 @@
 namespace Skeleton {
 /****************************************************************/ /**
   Simple set of classes for testing serialization support in python
+
+  Thread safety (all four classes): as for a standard library type: const member functions
+  can be called from several threads at once; anything else needs
+  exclusive access.
 *******************************************************************/
 class GenericObjectA : public Printable<GenericObjectA> {
 public:

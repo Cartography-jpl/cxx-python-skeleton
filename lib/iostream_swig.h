@@ -8,6 +8,10 @@ namespace Skeleton {
 /****************************************************************/ /**
   This is a simple class that we can use to test that we use SWIG
   to map between python IO object and C++ stream object.
+
+  Thread safety: as for a standard library type: const member functions
+  can be called from several threads at once; anything else needs
+  exclusive access.
 *******************************************************************/
 
 class IostreamSwig : public Printable<IostreamSwig> {

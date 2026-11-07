@@ -32,6 +32,10 @@ namespace Skeleton {
     others in the derived class.
   * Index type std::ptrdiff_t, the same as blitz_mdspan.h (to_mdspan of
     a blitz array gives a RasterView with no conversion).
+
+  Thread safety: depends on the derived class. read_into is const, but
+  some implementations (BufferRasterSample, CalcRasterSample) aren't
+  safe for concurrent reads.
 *******************************************************************/
 
 using RasterView = strided_mdspan<int, 2>;
@@ -141,6 +145,9 @@ void copy_raster(const RasterSample& In, RasterSample& Out, int Tile_line = 100,
   A RasterSample in memory (geocal's MemoryRasterImage). read_into
   assigns to a blitz view of the mdspan's memory, so the copy is done
   by blitz with any strides on either side.
+
+  Thread safety: concurrent reads are safe; a write needs exclusive
+  access.
 *******************************************************************/
 
 class MemoryRasterSample : public RasterSample {
@@ -189,6 +196,8 @@ int legacy_write_block(LegacyRasterFile* F, int Lstart, int Sstart,
   otherwise (a strided view, e.g. a numpy slice or part of a padded
   read) it reads into a temporary and copies. number_copy() counts the
   second case, for the tests.
+
+  Thread safety: not thread safe (reads count copies in a mutable member).
 *******************************************************************/
 
 class BufferRasterSample : public RasterSample {
@@ -209,6 +218,8 @@ private:
 /****************************************************************/ /**
   A subset of another RasterSample (geocal's SubRasterImage). Passes
   the view on unchanged, with the offset added.
+
+  Thread safety: as safe as the RasterSample it is a part of.
 *******************************************************************/
 
 class SubRasterSample : public RasterSample {
@@ -239,6 +250,8 @@ private:
   read_into then converts it to int into the caller's mdspan.
 
   Not thread safe (data is shared scratch space), as in geocal.
+
+  Thread safety: not thread safe (data is shared scratch space).
 *******************************************************************/
 
 class CalcRasterSample : public RasterSample {

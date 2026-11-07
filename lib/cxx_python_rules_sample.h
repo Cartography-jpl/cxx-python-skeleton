@@ -16,6 +16,10 @@ namespace Skeleton {
   in a std::vector (like GeoCal::Time in std::vector<Time>). Used to
   test a bound std::vector of values and its pickling
   (cxx_python_rules_nb::pickle_vector).
+
+  Thread safety: as for a standard library type: const member functions
+  can be called from several threads at once; anything else needs
+  exclusive access.
 *******************************************************************/
 class ValueSample : public Printable<ValueSample> {
 public:
@@ -34,6 +38,10 @@ private:
   the SWIG swig_rules/include before phase S6; see
   cxx_python_rules_sample_test.py): std::optional, boost::rational,
   std::array, properties and the pickle helpers.
+
+  Thread safety: as for a standard library type: const member functions
+  can be called from several threads at once; anything else needs
+  exclusive access.
 *******************************************************************/
 class CxxPythonRulesSample : public Printable<CxxPythonRulesSample> {
 public:

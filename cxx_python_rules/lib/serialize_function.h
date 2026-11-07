@@ -113,7 +113,8 @@ resolve_archive_path(const std::filesystem::path& P);
 
 //-----------------------------------------------------------------------
 /// Set the archive base directory for a scope, and restore the previous
-/// one at the end (so nested loads work).
+/// one at the end (so nested loads work). Thread safety: it sets the
+/// base directory of the thread that makes it.
 //-----------------------------------------------------------------------
 
 class ArchiveBaseDirectory final {

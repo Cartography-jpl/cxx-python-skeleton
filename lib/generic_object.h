@@ -44,6 +44,10 @@ namespace Skeleton {
 
   Non-owning pointers to a GenericObject must be made with to_ptr /
   const_pointer (null_deleter.h), which leave weak_this alone.
+
+  Thread safety: as for a standard library type: const member functions
+  can be called from several threads at once; anything else needs
+  exclusive access.
 *******************************************************************/
 // Copy without move on purpose (see the protected members).
 // NOLINTNEXTLINE(cppcoreguidelines-special-member-functions)
