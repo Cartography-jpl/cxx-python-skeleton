@@ -10,18 +10,19 @@ from skeleton import (
     GenericObjectA,
     GenericObjectC,
     GenericObjectMap,
-    serialize_read_binary,
+    serialize_read_binary_generic_string,
     serialize_read_binary_generic,
     serialize_read_generic,
     serialize_write,
     serialize_write_binary,
+    serialize_write_binary_string,
 )
 
 
 class DirectorWithCxx(DirectorExample):
     def __init__(self, v, name, extra):
         super().__init__(v, name)
-        # A C++ object, pickled with serialize_write_binary
+        # A C++ object, pickled with serialize_write_binary_string
         self.extra = extra
 
 
@@ -49,7 +50,7 @@ def check_map(m2, with_nested):
 
 def round_trip(m, how, tmp_path):
     if how == "binary":
-        return serialize_read_binary(serialize_write_binary(m))
+        return serialize_read_binary_generic_string(serialize_write_binary_string(m))
     if how == "binary_file":
         f = str(tmp_path / "m.bin")
         serialize_write_binary(f, m)

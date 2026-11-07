@@ -154,3 +154,24 @@ def test_type_registry_key():
 
     keys = [k for k in vars(builtins) if k.startswith("__cxx_python_rules_nb_type")]
     assert "__cxx_python_rules_nb_type_registry_v2_Skeleton__" in keys
+
+
+def test_serialization_names(tmp_path):
+    """The in-memory functions are named ..._string (review 2026-11-07
+    section 4.5); the old names, which also meant "file" for other argument
+    types, are gone. File names can be str or pathlib.Path."""
+    import skeleton_cxx._bindings as b
+
+    assert not hasattr(b, "serialize_read_binary")
+    a = GenericObjectA(4)
+    data = b.serialize_write_binary_string(a)
+    assert isinstance(data, bytes)
+    assert b.serialize_read_binary_generic_string(data).v == 4
+    assert b.serialize_read_binary_generic_string(data, str(tmp_path)).v == 4
+    # serialize_write_binary is only the file version now.
+    with pytest.raises(TypeError):
+        b.serialize_write_binary(a)
+    b.serialize_write_binary(tmp_path / "a.bin", a)
+    assert b.serialize_read_binary_generic(tmp_path / "a.bin").v == 4
+    b.serialize_write(tmp_path / "a.xml", a)
+    assert b.serialize_read_generic(str(tmp_path / "a.xml")).v == 4

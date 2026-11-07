@@ -15,14 +15,14 @@ from . import _bindings
 
 
 def _new_from_serialization(data: bytes) -> Any:
-    return _bindings.serialize_read_binary(data)
+    return _bindings.serialize_read_binary_generic_string(data)
 
 
 def _new_from_serialization_dir(directory: str, data: bytes) -> Any:
     # Relative file names in the archive are relative to directory (the
     # directory the object was pickled in), through the archive base
     # directory rather than by changing the current directory.
-    return _bindings.serialize_read_binary(data, directory)
+    return _bindings.serialize_read_binary_generic_string(data, directory)
 
 
 @contextlib.contextmanager

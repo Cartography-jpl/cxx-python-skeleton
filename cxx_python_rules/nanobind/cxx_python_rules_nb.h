@@ -194,7 +194,7 @@ template<class ExceptionT, class TypeErrorT> void register_exceptions()
 
 //-----------------------------------------------------------------------
 /// Pickling with boost serialization (%pickle_serialization): __reduce__
-/// gives (_new_from_serialization, (serialize_write_binary(self),)).
+/// gives (_new_from_serialization, (serialize_write_binary_string(self),)).
 /// Works for python subclasses of a class with director serialization
 /// too (the python class and __dict__ are in the archive).
 //-----------------------------------------------------------------------
@@ -202,7 +202,8 @@ template<class ExceptionT, class TypeErrorT> void register_exceptions()
 inline nb::bytes serialize_self(nb::handle self)
 {
   auto obj = nb::cast<std::shared_ptr<GenericObject>>(self);
-  std::string d = CXX_PYTHON_RULES_NAMESPACE::serialize_write_binary(obj);
+  std::string d =
+      CXX_PYTHON_RULES_NAMESPACE::serialize_write_binary_string(obj);
   return nb::bytes(d.data(), d.size());
 }
 

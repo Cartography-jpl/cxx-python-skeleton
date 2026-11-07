@@ -5,6 +5,7 @@
 #include <cerrno>
 #include <system_error>
 #include <fstream>
+#include <spanstream>
 #include <sstream>
 #include <stdexcept>
 #include <string>
@@ -226,7 +227,7 @@ std::string CXX_PYTHON_RULES_NAMESPACE::serialize_write_string(
   return os.str();
 }
 
-std::string CXX_PYTHON_RULES_NAMESPACE::serialize_write_binary(
+std::string CXX_PYTHON_RULES_NAMESPACE::serialize_write_binary_string(
     const std::shared_ptr<GenericObject>& Obj)
 {
   std::ostringstream os;
@@ -249,26 +250,27 @@ CXX_PYTHON_RULES_NAMESPACE::serialize_read_binary_generic(
 }
 
 std::shared_ptr<GenericObject>
-CXX_PYTHON_RULES_NAMESPACE::serialize_read_generic_string(
-    const std::string& Data)
+CXX_PYTHON_RULES_NAMESPACE::serialize_read_generic_string(std::string_view Data)
 {
-  std::istringstream is(Data);
+  // A stream over the caller's data, without copying it.
+  std::ispanstream is(Data);
   return read<boost::archive::polymorphic_xml_iarchive>(is);
 }
 
 std::shared_ptr<GenericObject>
-CXX_PYTHON_RULES_NAMESPACE::serialize_read_binary(const std::string& Data)
+CXX_PYTHON_RULES_NAMESPACE::serialize_read_binary_generic_string(
+    std::string_view Data)
 {
-  std::istringstream is(Data);
+  std::ispanstream is(Data);
   return read<boost::archive::polymorphic_binary_iarchive>(is);
 }
 
 std::shared_ptr<GenericObject>
-CXX_PYTHON_RULES_NAMESPACE::serialize_read_binary(
-    const std::string& Data, const std::filesystem::path& Base_dir)
+CXX_PYTHON_RULES_NAMESPACE::serialize_read_binary_generic_string(
+    std::string_view Data, const std::filesystem::path& Base_dir)
 {
   ArchiveBaseDirectory base(Base_dir);
-  return serialize_read_binary(Data);
+  return serialize_read_binary_generic_string(Data);
 }
 
 #else
@@ -304,7 +306,7 @@ std::string CXX_PYTHON_RULES_NAMESPACE::serialize_write_string(
 {
   no_serialization();
 }
-std::string CXX_PYTHON_RULES_NAMESPACE::serialize_write_binary(
+std::string CXX_PYTHON_RULES_NAMESPACE::serialize_write_binary_string(
     const std::shared_ptr<GenericObject>&)
 {
   no_serialization();
@@ -321,18 +323,19 @@ CXX_PYTHON_RULES_NAMESPACE::serialize_read_binary_generic(
   no_serialization();
 }
 std::shared_ptr<GenericObject>
-CXX_PYTHON_RULES_NAMESPACE::serialize_read_generic_string(const std::string&)
+CXX_PYTHON_RULES_NAMESPACE::serialize_read_generic_string(std::string_view)
 {
   no_serialization();
 }
 std::shared_ptr<GenericObject>
-CXX_PYTHON_RULES_NAMESPACE::serialize_read_binary(const std::string&)
+CXX_PYTHON_RULES_NAMESPACE::serialize_read_binary_generic_string(
+    std::string_view)
 {
   no_serialization();
 }
 std::shared_ptr<GenericObject>
-CXX_PYTHON_RULES_NAMESPACE::serialize_read_binary(const std::string&,
-                                                  const std::filesystem::path&)
+CXX_PYTHON_RULES_NAMESPACE::serialize_read_binary_generic_string(
+    std::string_view, const std::filesystem::path&)
 {
   no_serialization();
 }

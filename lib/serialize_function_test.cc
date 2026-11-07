@@ -101,7 +101,7 @@ BOOST_AUTO_TEST_CASE(string_round_trip)
   check_map(serialize_read_string<GenericObjectMap>(
       serialize_write_string(sample_map())));
   check_map(serialize_read_binary_string<GenericObjectMap>(
-      serialize_write_binary(sample_map())));
+      serialize_write_binary_string(sample_map())));
 }
 
 BOOST_AUTO_TEST_CASE(missing_file)
@@ -244,7 +244,7 @@ BOOST_AUTO_TEST_CASE(concurrent_writes_keep_weak_ptr)
       threads.emplace_back([&, i] {
         for(int rep = 0; rep < 50; ++rep) {
           auto mr = serialize_read_binary_string<GenericObjectMap>(
-              serialize_write_binary(maps[i]));
+              serialize_write_binary_string(maps[i]));
           if(!mr->get<GenericObjectC>("c")->a())
             ++bad[i];
         }

@@ -147,8 +147,8 @@ BOOST_AUTO_TEST_CASE(array_sample)
       std::ifstream in(f, std::ios::binary);
       std::string golden((std::istreambuf_iterator<char>(in)),
                          std::istreambuf_iterator<char>());
-      std::string rewritten =
-          binary ? serialize_write_binary(obj) : serialize_write_string(obj);
+      std::string rewritten = binary ? serialize_write_binary_string(obj)
+                                     : serialize_write_string(obj);
       BOOST_CHECK_MESSAGE(rewritten == golden, f << " rewritten differs");
     }
   }
@@ -269,8 +269,8 @@ BOOST_AUTO_TEST_CASE(rewrite_identical)
       std::ifstream in(f, std::ios::binary);
       std::string golden((std::istreambuf_iterator<char>(in)),
                          std::istreambuf_iterator<char>());
-      std::string rewritten =
-          binary ? serialize_write_binary(obj) : serialize_write_string(obj);
+      std::string rewritten = binary ? serialize_write_binary_string(obj)
+                                     : serialize_write_string(obj);
       BOOST_CHECK_MESSAGE(rewritten == golden, f << " rewritten differs");
     }
   }

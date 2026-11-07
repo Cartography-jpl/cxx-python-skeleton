@@ -3,14 +3,21 @@
 #include <filesystem>
 #include <memory>
 #include <string>
+#include <string_view>
 #include <utility>
 
 namespace CXX_PYTHON_RULES_NAMESPACE {
 //-----------------------------------------------------------------------
 /// Write and read one object (and everything it points to) with boost
 /// serialization: XML or binary, to a file (gzip compressed if the name
-/// ends in ".gz") or to a string. Errors throw std::runtime_error (or a
+/// ends in ".gz") or in memory. Errors throw std::runtime_error (or a
 /// boost::archive exception).
+///
+/// Names: "_binary" is the binary format (no "_binary" is XML),
+/// "_generic" returns a GenericObject (the templates return a T), and
+/// "_string" works in memory; without "_string" the first argument is a
+/// file name. The in-memory archive is bytes; an XML archive holding a
+/// python subclass object isn't valid UTF-8.
 //-----------------------------------------------------------------------
 
 bool skip_weak_ptr_handling();
@@ -22,6 +29,8 @@ void serialize_write_binary(const std::filesystem::path& Fname,
                             const std::shared_ptr<GenericObject>& Obj);
 
 std::string serialize_write_string(const std::shared_ptr<GenericObject>& Obj);
+std::string
+serialize_write_binary_string(const std::shared_ptr<GenericObject>& Obj);
 
 std::shared_ptr<GenericObject>
 serialize_read_generic(const std::filesystem::path& Fname);
@@ -29,13 +38,19 @@ std::shared_ptr<GenericObject>
 serialize_read_binary_generic(const std::filesystem::path& Fname);
 
 std::shared_ptr<GenericObject>
-serialize_read_generic_string(const std::string& Data);
-
-std::string serialize_write_binary(const std::shared_ptr<GenericObject>& Obj);
-std::shared_ptr<GenericObject> serialize_read_binary(const std::string& Data);
+serialize_read_generic_string(std::string_view Data);
 std::shared_ptr<GenericObject>
-serialize_read_binary(const std::string& Data,
-                      const std::filesystem::path& Base_dir);
+serialize_read_binary_generic_string(std::string_view Data);
+
+//-----------------------------------------------------------------------
+/// Read a binary archive in memory, with relative file names in it
+/// resolved against Base_dir (see archive_base_directory below). Used by
+/// pickle_serialization_dir.
+//-----------------------------------------------------------------------
+
+std::shared_ptr<GenericObject>
+serialize_read_binary_generic_string(std::string_view Data,
+                                     const std::filesystem::path& Base_dir);
 
 template<class T>
 inline std::shared_ptr<T> serialize_read(const std::filesystem::path& Fname)
@@ -51,15 +66,16 @@ serialize_read_binary(const std::filesystem::path& Fname)
 }
 
 template<class T>
-inline std::shared_ptr<T> serialize_read_string(const std::string& Data)
+inline std::shared_ptr<T> serialize_read_string(std::string_view Data)
 {
   return std::dynamic_pointer_cast<T>(serialize_read_generic_string(Data));
 }
 
 template<class T>
-inline std::shared_ptr<T> serialize_read_binary_string(const std::string& Data)
+inline std::shared_ptr<T> serialize_read_binary_string(std::string_view Data)
 {
-  return std::dynamic_pointer_cast<T>(serialize_read_binary(Data));
+  return std::dynamic_pointer_cast<T>(
+      serialize_read_binary_generic_string(Data));
 }
 
 //-----------------------------------------------------------------------
