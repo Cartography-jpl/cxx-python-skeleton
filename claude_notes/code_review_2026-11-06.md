@@ -15,8 +15,10 @@ gives no warnings except 101 `-Wsign-conversion` and 2 `-Wconversion` (§4.9).
 
 What remains falls into three groups:
 
-1. **Bugs** (§2). Two were confirmed with small test programs: blitz serialization silently scrambles column-major
-   arrays, and copying an `Observer` makes the copy register the original. The rules library also hard-codes the
+1. **Bugs** (§2). Confirmed with small test programs: blitz serialization silently scrambles column-major arrays
+   (and, found later, reads reversed arrays out of bounds and scrambles loads into column-major targets); copying an
+   `Observer` makes the copy register the original; passing `None` for an object argument crashes python; and C++
+   can write into read-only numpy arrays. The rules library also hard-codes the
    `Skeleton::` namespace in one place, which will break when geocal copies it.
 2. **Older idioms** (§3, §4). These are mostly small and local: implicit converting constructors, `typedef`,
    `const_cast` used instead of `mutable`, `std::map` used as a public base class, repeated code in the serialization
@@ -43,8 +45,16 @@ loaded[ 0 10  1 ;  11  2 12 ]      (2 x 3, ColumnMajorArray, XML archive round t
 
 No error is raised. `array_sample.h` mentions the limitation in a comment, but the code accepts the array without any
 check. The base index (a nonzero `lbound`) isn't written either, so it is lost too.
-**Fix:** in `save`, throw unless the storage is row-major with zero base (or copy to a row-major temporary before
-writing, which keeps the archive format). Copy the fix to geocal and framework, which have the same code.
+Two related bugs were found by the independent review and confirmed:
+- **A reversed array** (negative stride, `A.reverse(0)`) passes the contiguity check, but `A.data()` points at its
+  last element in memory, so the save reads past the end of the block: a reversed `[1 2 3]` came back as
+  `[3 0 2.4e-322]`.
+- **The load side.** `load` calls `A.resize(...)`, which keeps the target's storage order, so loading a row-major
+  archive into a column-major target scrambles it: `[0 1 2; 10 11 12]` loads as `[0 2 11; 1 10 12]`.
+
+**Fix:** in `save`, write directly only an array that is row-major, ascending and contiguous; copy anything else to a
+row-major temporary first (same archive format); throw for a nonzero base. In `load`, read into a fresh row-major
+array and `reference` it. Copy the fix to geocal and framework, which have the same code.
 
 ### 2.2 Copying an `Observer` or `CacheInvalidatedObserver` copies its self pointer (confirmed)
 
@@ -100,6 +110,20 @@ names against, and drop the `chdir`. Until then, document that loading isn't thr
 | `skeleton_exception.h:183-273` | `range_check*` builds a default `Exception`, so its `source_location()` points into the header, not at the caller. |
 | `lib/director_example.h:23,27,110,113` | Constructors and destructors write to `std::cerr`. This is test output inside the library. A counter the tests can read would do the same job without the noise. |
 | repo root | `compile_commands.json` is a symlink to the pre-rename build directory (`swig-rules-skeleton-build`) and now points nowhere. It's git-ignored; run `make lint` again to recreate it. |
+| `serialize_function.cc:246` and the others | The "not built with boost::serialization" error says literally `CXX_PYTHON_RULES_NAMESPACE was not built with ...`: a macro isn't expanded inside a string literal. (Found by the independent review.) |
+
+### 2.7 Bad arguments from python that reach C++ unchecked
+
+Found by the independent review; both confirmed.
+- **`None` for a `shared_ptr` argument crashes python.** All 29 `shared_ptr` parameters in the bindings accept
+  `None` (`.none()`), and C++ then dereferences the null pointer. `MultiBaseExample.number_band(None)` ends python
+  with a segmentation fault; so do `CacheExample(None)`, `VirtualDiamondExample.root_name(None)`,
+  `DirectorExampleUser().apply_func(1)` with no value set, and others. Accept `None` only where C++ handles a null
+  pointer, and check pointers in C++ before using them.
+- **C++ writes into read-only numpy arrays.** The blitz caster (`blitz_array.h:79-101`) views any array as
+  `ndarray<const T>` and then gives C++ a writable blitz array of it. With `a.flags.writeable = False`,
+  `ColumnMajorSample.scale_in_place(a, 5)` still changes `a`. A non-const `blitz::Array&` parameter should accept
+  only a writable array.
 
 ## 3. Library modernization still to do
 
@@ -173,8 +197,11 @@ because those functions test aliasing.)
 ### 3.6 Declarations and headers
 
 - `typedef` → `using`: `SKELETON_EXPORT_OBSERVER_KEY`, `generic_object_map.cc`, `blitz_array_serialize_support.h`.
-- **Unused typedefs.** `blitz_array_serialize_support.h` declares 24 typedefs in the global namespace
-  (`blitz_double_array_1d` …). Nothing uses them; they are left over from SWIG. Delete them.
+- **Global typedefs for blitz serialization.** `blitz_array_serialize_support.h` declares 37 typedefs in the global
+  namespace (`blitz_double_array_1d` …). (An earlier version of this review called them unused; that was wrong.)
+  Each is used only as the argument of a `BOOST_SERIALIZATION_SPLIT_FREE(...)` line, because the macro can't take a
+  type containing a comma. One `serialize` template over `blitz::Array<T, N>` calling `split_free` replaces all 37
+  macro lines and the typedefs.
 - **Include guard names are inconsistent.** Some are prefixed (`SKELETON_*`), some aren't (`ARRAY_SAMPLE_H`,
   `GENERIC_OBJECT_MAP_H`, `SERIALIZE_FUNCTION_H`), and one is misspelled (`WEAK_PTR_SERIALIZED_SUPPORT_H`). Unprefixed
   names can collide when geocal and framework headers are included together. Either use `#pragma once` (gcc, clang and
@@ -225,8 +252,10 @@ are maintained by hand:
 
 - **Lambda wrappers everywhere.** 197 `[](const T& self, ...) -> decltype(auto) { return self.f(...); }` wrappers.
   For non-virtual members, `c.def("name", &T::name)` (or `nb::overload_cast<...>(&T::f, nb::const_)` for overloads)
-  does the same thing in one line. **Keep** the `dynamic_cast<const PyX*>` dispatch lambdas for virtual functions of
-  director classes, because they stop a python override that calls `super()` from recursing forever.
+  does the same thing in one line, also for methods of bases nanobind doesn't know about (nanobind converts `self`
+  as the bound class). **Keep** the `dynamic_cast<const PyX*>` dispatch lambdas for virtual functions of director
+  classes: without them a python override that calls `super()` runs twice. (nanobind itself stops the call from
+  recursing forever; an earlier version of this review said the lambdas did.)
 - **Python keyword names that don't always match the C++.** Most match the C++ parameter names, but
   `DirectorExample(int value_to_add, const std::string& name)` is bound as `nb::arg("V"), nb::arg("Name")`, and three
   parameters are called `arg0`. Keyword names are part of the python
@@ -250,11 +279,10 @@ director dispatch and type conversions) would roughly halve the 2,663 lines.
 
 ## 7. Suggested order
 
-1. Fix §2.1 (column-major serialization) and §2.2 (Observer copy). Add both, plus §2.3, to the "Notes for geocal"
+1. Fix §2.1 (blitz serialization), §2.2 (Observer copy) and §2.7 (`None`, read-only arrays). Add both, plus §2.3, to the "Notes for geocal"
    table, since geocal and framework have the same code.
 2. Fix §2.3 (namespace in `blitz_array.h`) before geocal copies `cxx_python_rules/`.
-3. Quick, mechanical fixes: `explicit`, default member initializers, `typedef` → `using`, delete the unused
-   typedefs, `mutable` instead of `const_cast`, `.at()` for python indices, `std::jthread`, consistent include
+3. Quick, mechanical fixes: `explicit`, default member initializers, `typedef` → `using`, `mutable` instead of `const_cast`, `.at()` for python indices, `std::jthread`, consistent include
    guards, `PyErr_GetRaisedException`. Turn on the matching clang-tidy check after each one.
 4. Medium refactors: rank-generic blitz serialization, a deduplicated `serialize_function.cc`, `GenericObjectMap` by
    composition, `range_check` with `source_location`, one exception type in `lib/`.
