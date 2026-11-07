@@ -1,6 +1,7 @@
 #include <blitz/array.h>
 #include "unit_test_support.h"
 #include "skeleton_serialize_support.h"
+#include "skeleton_exception.h"
 #ifdef SKELETON_HAVE_BOOST_SERIALIZATION
 #include <boost/archive/polymorphic_xml_iarchive.hpp>
 #include <boost/archive/polymorphic_xml_oarchive.hpp>
@@ -140,8 +141,9 @@ template<class S> blitz::Array<double, 2> test_matrix(const S& Storage)
 #endif
 
 // Code review 2026-11-06 §2.1: a column-major array was written in
-// memory order and came back scrambled.
-BOOST_AUTO_TEST_CASE(column_major, *boost::unit_test::expected_failures(2))
+// memory order and came back scrambled. Now any storage is written in
+// row-major order, and a loaded array is always row-major.
+BOOST_AUTO_TEST_CASE(column_major)
 {
   if(!have_serialize_supported())
     return;
@@ -151,13 +153,62 @@ BOOST_AUTO_TEST_CASE(column_major, *boost::unit_test::expected_failures(2))
     blitz::Array<double, 2> r;
     save_load(a, r, binary);
     BOOST_CHECK(blitz::all(r == a));
+    BOOST_CHECK_EQUAL(r.ordering(0), 1);
   }
+  // Rank 3
+  blitz::Array<int, 3> a3(2, 3, 4, blitz::ColumnMajorArray<3>());
+  for(int i = 0; i < 2; ++i)
+    for(int j = 0; j < 3; ++j)
+      for(int k = 0; k < 4; ++k)
+        a3(i, j, k) = 100 * i + 10 * j + k;
+  for(bool binary : {false, true}) {
+    blitz::Array<int, 3> r;
+    save_load(a3, r, binary);
+    BOOST_CHECK(blitz::all(r == a3));
+  }
+#endif
+}
+
+// A strided view (every other column) is written as its values.
+BOOST_AUTO_TEST_CASE(strided)
+{
+  if(!have_serialize_supported())
+    return;
+#ifdef SKELETON_HAVE_BOOST_SERIALIZATION
+  blitz::Array<double, 2> a(3, 6);
+  for(int i = 0; i < 3; ++i)
+    for(int j = 0; j < 6; ++j)
+      a(i, j) = 10 * i + j;
+  blitz::Array<double, 2> v =
+      a(blitz::Range::all(), blitz::Range(0, blitz::toEnd, 2));
+  for(bool binary : {false, true}) {
+    blitz::Array<double, 2> r;
+    save_load(v, r, binary);
+    BOOST_CHECK_EQUAL(r.rows(), 3);
+    BOOST_CHECK_EQUAL(r.cols(), 3);
+    BOOST_CHECK(blitz::all(r == v));
+  }
+#endif
+}
+
+// The archive doesn't record the base, so a nonzero base is an error
+// (decision D1 of claude_notes/code_review_fix_plan.md), not silently
+// dropped.
+BOOST_AUTO_TEST_CASE(nonzero_base)
+{
+  if(!have_serialize_supported())
+    return;
+#ifdef SKELETON_HAVE_BOOST_SERIALIZATION
+  blitz::Array<double, 1> a(blitz::Range(1, 3));
+  a = 1, 2, 3;
+  blitz::Array<double, 1> r;
+  BOOST_CHECK_THROW(save_load(a, r, false), Exception);
 #endif
 }
 
 // A reversed array (negative stride) passed the contiguity check, but
 // data() is its last element in memory, so save read past the block.
-BOOST_AUTO_TEST_CASE(reversed, *boost::unit_test::expected_failures(2))
+BOOST_AUTO_TEST_CASE(reversed)
 {
   if(!have_serialize_supported())
     return;
@@ -175,8 +226,7 @@ BOOST_AUTO_TEST_CASE(reversed, *boost::unit_test::expected_failures(2))
 
 // Loading into a column-major target kept its storage order and
 // scrambled the values.
-BOOST_AUTO_TEST_CASE(load_into_column_major,
-                     *boost::unit_test::expected_failures(2))
+BOOST_AUTO_TEST_CASE(load_into_column_major)
 {
   if(!have_serialize_supported())
     return;

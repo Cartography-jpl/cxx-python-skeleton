@@ -89,9 +89,11 @@ private:
   Column-major (Fortran order) Blitz arrays and strided views, as
   framework uses for Fortran interop (ColumnMajorArray, fortranArray).
 
-  This is a separate class from ArraySample, and isn't serialized: the
-  Blitz serialization (blitz_array_serialize_support.cc) doesn't record
-  the storage order, so a column-major array wouldn't round trip.
+  This is a separate class from ArraySample, and isn't serialized only
+  because the sample doesn't need it. The Blitz serialization
+  (blitz_array_serialize_support.cc) writes any storage order as
+  row-major values, and a loaded array is always row-major, so a class
+  like this would copy into column-major order after loading.
 
   Python sees data() and strided_view() as numpy views of the C++
   memory (read only, the C++ object is kept alive by the view). The

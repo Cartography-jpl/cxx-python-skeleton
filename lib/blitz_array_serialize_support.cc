@@ -5,29 +5,73 @@
 #ifdef SKELETON_HAVE_BOOST_SERIALIZATION
 #include <boost/serialization/array.hpp>
 
+namespace {
+//-----------------------------------------------------------------------
+// The archive holds the shape and then the values in row-major order.
+// Return A itself if it is already stored that way (row-major,
+// ascending, contiguous), otherwise a row-major copy. A column-major,
+// reversed or strided array used to be written in memory order (or read
+// out of bounds, for a reversed one). The base isn't in the archive, so
+// an array with a nonzero base is an error rather than silently losing
+// it.
+//-----------------------------------------------------------------------
+
+template<class T, int N>
+blitz::Array<T, N> row_major(const blitz::Array<T, N>& A)
+{
+  for(int i = 0; i < N; ++i)
+    if(A.lbound(i) != 0)
+      throw Skeleton::Exception(
+          "Can't serialize a blitz::Array with a nonzero base (lbound({}) = "
+          "{}): the archive format doesn't record the base",
+          i, A.lbound(i));
+  bool direct = A.isStorageContiguous();
+  for(int i = 0; i < N && direct; ++i)
+    direct = A.isRankStoredAscending(i) && A.ordering(i) == N - 1 - i;
+  if(direct)
+    return A;
+  blitz::Array<T, N> res(A.shape());
+  res = A;
+  return res;
+}
+
+//-----------------------------------------------------------------------
+// Read the values into a new row-major array with base 0 and make A
+// refer to it. Resizing A instead would keep A's storage order and base,
+// so loading into a column-major array scrambled the values.
+//-----------------------------------------------------------------------
+
+template<class Archive, class T, int N>
+void load_data(Archive& ar, blitz::Array<T, N>& A,
+               const blitz::TinyVector<int, N>& Shape)
+{
+  blitz::Array<T, N> res(Shape);
+  if(res.size() > 0)
+    ar >> SKELETON_NVP2(
+              "data", boost::serialization::make_array(res.data(), res.size()));
+  A.reference(res);
+}
+}
+
 template<class Archive, class T>
 void boost::serialization::save(Archive& ar, const blitz::Array<T, 1>& A,
                                 const unsigned /* version */)
 {
   using boost::serialization::make_array;
-  if(A.size() > 0 && !A.isStorageContiguous())
-    throw Skeleton::Exception("We can only save contiguous matrix data");
-  int size = A.rows();
+  const blitz::Array<T, 1> a = row_major(A);
+  int size = a.rows();
   ar << SKELETON_NVP(size);
-  if(A.size() > 0)
-    ar << SKELETON_NVP2("data", make_array(A.data(), A.size()));
+  if(a.size() > 0)
+    ar << SKELETON_NVP2("data", make_array(a.data(), a.size()));
 }
 
 template<typename Archive, class T>
 void boost::serialization::load(Archive& ar, blitz::Array<T, 1>& A,
                                 const unsigned /* version */)
 {
-  using boost::serialization::make_array;
   int size;
   ar >> SKELETON_NVP(size);
-  A.resize(size);
-  if(A.size() > 0)
-    ar >> SKELETON_NVP2("data", make_array(A.data(), A.size()));
+  load_data(ar, A, blitz::TinyVector<int, 1>(size));
 }
 
 template<class Archive, class T>
@@ -35,25 +79,21 @@ void boost::serialization::save(Archive& ar, const blitz::Array<T, 2>& A,
                                 const unsigned /* version */)
 {
   using boost::serialization::make_array;
-  if(A.size() > 0 && !A.isStorageContiguous())
-    throw Skeleton::Exception("We can only save contiguous matrix data");
-  int rows = A.rows();
-  int cols = A.cols();
+  const blitz::Array<T, 2> a = row_major(A);
+  int rows = a.rows();
+  int cols = a.cols();
   ar << SKELETON_NVP(rows) << SKELETON_NVP(cols);
-  if(A.size() > 0)
-    ar << SKELETON_NVP2("data", make_array(A.data(), A.size()));
+  if(a.size() > 0)
+    ar << SKELETON_NVP2("data", make_array(a.data(), a.size()));
 }
 
 template<typename Archive, class T>
 void boost::serialization::load(Archive& ar, blitz::Array<T, 2>& A,
                                 const unsigned /* version */)
 {
-  using boost::serialization::make_array;
   int rows, cols;
   ar >> SKELETON_NVP(rows) >> SKELETON_NVP(cols);
-  A.resize(rows, cols);
-  if(A.size() > 0)
-    ar >> SKELETON_NVP2("data", make_array(A.data(), A.size()));
+  load_data(ar, A, blitz::TinyVector<int, 2>(rows, cols));
 }
 
 template<class Archive, class T>
@@ -61,26 +101,22 @@ void boost::serialization::save(Archive& ar, const blitz::Array<T, 3>& A,
                                 const unsigned /* version */)
 {
   using boost::serialization::make_array;
-  if(A.size() > 0 && !A.isStorageContiguous())
-    throw Skeleton::Exception("We can only save contiguous matrix data");
-  int rows = A.rows();
-  int cols = A.cols();
-  int depth = A.depth();
+  const blitz::Array<T, 3> a = row_major(A);
+  int rows = a.rows();
+  int cols = a.cols();
+  int depth = a.depth();
   ar << SKELETON_NVP(rows) << SKELETON_NVP(cols) << SKELETON_NVP(depth);
-  if(A.size() > 0)
-    ar << SKELETON_NVP2("data", make_array(A.data(), A.size()));
+  if(a.size() > 0)
+    ar << SKELETON_NVP2("data", make_array(a.data(), a.size()));
 }
 
 template<typename Archive, class T>
 void boost::serialization::load(Archive& ar, blitz::Array<T, 3>& A,
                                 const unsigned /* version */)
 {
-  using boost::serialization::make_array;
   int rows, cols, depth;
   ar >> SKELETON_NVP(rows) >> SKELETON_NVP(cols) >> SKELETON_NVP(depth);
-  A.resize(rows, cols, depth);
-  if(A.size() > 0)
-    ar >> SKELETON_NVP2("data", make_array(A.data(), A.size()));
+  load_data(ar, A, blitz::TinyVector<int, 3>(rows, cols, depth));
 }
 
 template<class Archive, class T>
@@ -88,29 +124,25 @@ void boost::serialization::save(Archive& ar, const blitz::Array<T, 4>& A,
                                 const unsigned /* version */)
 {
   using boost::serialization::make_array;
-  if(A.size() > 0 && !A.isStorageContiguous())
-    throw Skeleton::Exception("We can only save contiguous matrix data");
-  int shp0 = A.shape()(0);
-  int shp1 = A.shape()(1);
-  int shp2 = A.shape()(2);
-  int shp3 = A.shape()(3);
+  const blitz::Array<T, 4> a = row_major(A);
+  int shp0 = a.shape()(0);
+  int shp1 = a.shape()(1);
+  int shp2 = a.shape()(2);
+  int shp3 = a.shape()(3);
   ar << SKELETON_NVP(shp0) << SKELETON_NVP(shp1) << SKELETON_NVP(shp2)
      << SKELETON_NVP(shp3);
-  if(A.size() > 0)
-    ar << SKELETON_NVP2("data", make_array(A.data(), A.size()));
+  if(a.size() > 0)
+    ar << SKELETON_NVP2("data", make_array(a.data(), a.size()));
 }
 
 template<typename Archive, class T>
 void boost::serialization::load(Archive& ar, blitz::Array<T, 4>& A,
                                 const unsigned /* version */)
 {
-  using boost::serialization::make_array;
   blitz::TinyVector<int, 4> shp;
   ar >> SKELETON_NVP2("shp0", shp(0)) >> SKELETON_NVP2("shp1", shp(1)) >>
       SKELETON_NVP2("shp2", shp(2)) >> SKELETON_NVP2("shp3", shp(3));
-  A.resize(shp);
-  if(A.size() > 0)
-    ar >> SKELETON_NVP2("data", make_array(A.data(), A.size()));
+  load_data(ar, A, shp);
 }
 
 template<class Archive, class T>
@@ -118,31 +150,27 @@ void boost::serialization::save(Archive& ar, const blitz::Array<T, 5>& A,
                                 const unsigned /* version */)
 {
   using boost::serialization::make_array;
-  if(A.size() > 0 && !A.isStorageContiguous())
-    throw Skeleton::Exception("We can only save contiguous matrix data");
-  int shp0 = A.shape()(0);
-  int shp1 = A.shape()(1);
-  int shp2 = A.shape()(2);
-  int shp3 = A.shape()(3);
-  int shp4 = A.shape()(4);
+  const blitz::Array<T, 5> a = row_major(A);
+  int shp0 = a.shape()(0);
+  int shp1 = a.shape()(1);
+  int shp2 = a.shape()(2);
+  int shp3 = a.shape()(3);
+  int shp4 = a.shape()(4);
   ar << SKELETON_NVP(shp0) << SKELETON_NVP(shp1) << SKELETON_NVP(shp2)
      << SKELETON_NVP(shp3) << SKELETON_NVP(shp4);
-  if(A.size() > 0)
-    ar << SKELETON_NVP2("data", make_array(A.data(), A.size()));
+  if(a.size() > 0)
+    ar << SKELETON_NVP2("data", make_array(a.data(), a.size()));
 }
 
 template<typename Archive, class T>
 void boost::serialization::load(Archive& ar, blitz::Array<T, 5>& A,
                                 const unsigned /* version */)
 {
-  using boost::serialization::make_array;
   blitz::TinyVector<int, 5> shp;
   ar >> SKELETON_NVP2("shp0", shp(0)) >> SKELETON_NVP2("shp1", shp(1)) >>
       SKELETON_NVP2("shp2", shp(2)) >> SKELETON_NVP2("shp3", shp(3)) >>
       SKELETON_NVP2("shp4", shp(4));
-  A.resize(shp);
-  if(A.size() > 0)
-    ar >> SKELETON_NVP2("data", make_array(A.data(), A.size()));
+  load_data(ar, A, shp);
 }
 
 template void boost::serialization::load(polymorphic_iarchive& ar,
