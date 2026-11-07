@@ -180,8 +180,9 @@ template<class ExceptionT, class TypeErrorT> void register_exceptions()
         v.attr("cpp_source") = std::string(l.file_name()) + ":" +
                                std::to_string(l.line()) + " " +
                                l.function_name();
-      } catch(...) {
-        // Keep the RuntimeError without the extra attributes.
+      } catch(...) { // NOLINT(bugprone-empty-catch)
+        // Deliberate: if adding the attributes fails, keep the RuntimeError
+        // without them rather than replace the error being reported.
       }
       PyErr_SetRaisedException(value);
     } catch(const std::exception& e) {
@@ -338,6 +339,8 @@ void director_load(const std::string& Python_object, Tramp* D,
 /// at namespace scope in a .cc file.
 //-----------------------------------------------------------------------
 
+// (TRAMP and BASE are type names, so they can't be in parentheses.)
+// NOLINTBEGIN(bugprone-macro-parentheses)
 #define CXX_PYTHON_RULES_NB_DIRECTOR_SERIALIZATION(TRAMP, BASE, NAME)          \
   namespace boost {                                                            \
   namespace serialization {                                                    \
@@ -375,3 +378,4 @@ void director_load(const std::string& Python_object, Tramp* D,
       const unsigned int);                                                     \
   template void boost::serialization::load_construct_data(                     \
       boost::archive::polymorphic_iarchive&, TRAMP*, const unsigned int);
+// NOLINTEND(bugprone-macro-parentheses)

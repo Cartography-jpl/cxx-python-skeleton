@@ -197,9 +197,8 @@ BOOST_AUTO_TEST_CASE(write_unopenable_file)
   // A write to a file that can't be opened throws, naming the file.
   BOOST_CHECK_EXCEPTION(serialize_write("/nonexistent_dir/x.xml", sample_map()),
                         std::runtime_error, [](const std::runtime_error& e) {
-                          return std::string(e.what()).find(
-                                     "/nonexistent_dir/x.xml") !=
-                                 std::string::npos;
+                          return std::string(e.what()).contains(
+                              "/nonexistent_dir/x.xml");
                         });
 }
 

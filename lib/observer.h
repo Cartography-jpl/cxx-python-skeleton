@@ -155,8 +155,6 @@ protected:
 *******************************************************************/
 template<class T> class Observable : public virtual GenericObject {
 public:
-  Observable() = default;
-
   //-----------------------------------------------------------------------
   /// Not copyable or movable. A copy would notify the observers of the
   /// original, which never registered with it and got no notify_add,
@@ -364,6 +362,11 @@ protected:
   template<class Archive>
   void save(Archive& ar, const unsigned int version) const;
   template<class Archive> void load(Archive& ar, const unsigned int version);
+private:
+  // Only T derives from Observable<T> (T is the observed class, which
+  // passes itself to notify_update_do).
+  Observable() = default;
+  friend T;
 };
 }
 

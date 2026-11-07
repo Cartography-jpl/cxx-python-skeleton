@@ -42,7 +42,7 @@ void CXX_PYTHON_RULES_NAMESPACE::add_ptr_serialized_reference(
 
 bool CXX_PYTHON_RULES_NAMESPACE::is_ptr_serialized(const GenericObject* P)
 {
-  return ptr_referenced.find(P) != ptr_referenced.end();
+  return ptr_referenced.contains(P);
 }
 
 CXX_PYTHON_RULES_NAMESPACE::PtrSerializeLock::PtrSerializeLock()

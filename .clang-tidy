@@ -10,8 +10,24 @@ Checks: >
   modernize-use-equals-default,
   modernize-make-shared,
   modernize-loop-convert,
-  modernize-deprecated-headers
+  modernize-deprecated-headers,
+  google-explicit-constructor,
+  cppcoreguidelines-pro-type-member-init,
+  cppcoreguidelines-prefer-member-initializer,
+  modernize-use-using,
+  modernize-use-default-member-init,
+  modernize-pass-by-value,
+  performance-unnecessary-value-param,
+  readability-container-contains,
+  modernize-use-ranges,
+  bugprone-*,
+  -bugprone-easily-swappable-parameters
+# Added in claude_notes/code_review_fix_plan.md R7.2 (cxx-python-skeleton).
+# Off: bugprone-easily-swappable-parameters flags every function with two
+# adjacent int (line, sample) or string parameters, which is most of the
+# geocal API. modernize-use-std-print is not wanted (it would rewrite
+# stream output that is supposed to stay a stream).
 # Report on our headers too, but not on generated wrappers, vendored code or
 # copies of upstream code.
 HeaderFilterRegex: '.*/(lib|cxx_python_rules/lib|cxx_python_rules/nanobind)/.*'
-ExcludeHeaderFilterRegex: '.*/(bindings|thirdparty|boost_fix)/.*|.*/Support/boost/.*|.*/gc_shared_ptr.h'
+ExcludeHeaderFilterRegex: '.*/(bindings|thirdparty|boost_fix)/.*|.*/Support/boost/.*|.*/gc_shared_ptr.h|.*/serialize_shared_ptr.h'

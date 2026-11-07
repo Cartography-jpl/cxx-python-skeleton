@@ -93,7 +93,8 @@ template<class T> static void write_arrays(const std::string& Type)
   write_array<T, 5>("blitz_" + Type + "_array_5d");
 }
 
-int main(int argc, char** argv)
+namespace {
+int run(int argc, char** argv)
 {
   if(argc != 2) {
     std::cerr << "Usage: " << argv[0] << " <output directory>\n";
@@ -192,5 +193,16 @@ int main(int argc, char** argv)
   write_object("simple_camera_like", cam);
   write_object("diamond", std::make_shared<Diamond>("d", 1, 2));
   return 0;
+}
+}
+
+int main(int argc, char** argv)
+{
+  try {
+    return run(argc, argv);
+  } catch(const std::exception& e) {
+    std::cerr << "golden_archive_generator: " << e.what() << "\n";
+    return 1;
+  }
 }
 #endif

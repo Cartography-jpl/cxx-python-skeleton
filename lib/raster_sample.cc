@@ -151,8 +151,10 @@ int Skeleton::legacy_read_block(const LegacyRasterFile* F, int Lstart,
      Sstart + Number_sample > F->number_sample)
     return -1;
   for(int i = 0; i < Number_line; ++i)
-    std::copy_n(F->buf.data() + (Lstart + i) * F->number_sample + Sstart,
-                Number_sample, Buf + i * Number_sample);
+    std::copy_n(
+        F->buf.data() +
+            static_cast<std::ptrdiff_t>(Lstart + i) * F->number_sample + Sstart,
+        Number_sample, Buf + static_cast<std::ptrdiff_t>(i) * Number_sample);
   return 0;
 }
 
@@ -164,8 +166,11 @@ int Skeleton::legacy_write_block(LegacyRasterFile* F, int Lstart, int Sstart,
      Sstart + Number_sample > F->number_sample)
     return -1;
   for(int i = 0; i < Number_line; ++i)
-    std::copy_n(Buf + i * Number_sample, Number_sample,
-                F->buf.data() + (Lstart + i) * F->number_sample + Sstart);
+    std::copy_n(Buf + static_cast<std::ptrdiff_t>(i) * Number_sample,
+                Number_sample,
+                F->buf.data() +
+                    static_cast<std::ptrdiff_t>(Lstart + i) * F->number_sample +
+                    Sstart);
   return 0;
 }
 

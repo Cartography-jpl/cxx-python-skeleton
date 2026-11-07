@@ -32,7 +32,8 @@ namespace cxx_python_rules_nb __attribute__((visibility("hidden"))) {
     {
       try {
         flush();
-      } catch(...) {
+      } catch(...) { // NOLINT(bugprone-empty-catch)
+        // A destructor can't throw; a failed final write is lost.
       }
     }
   protected:

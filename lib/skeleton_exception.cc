@@ -98,7 +98,7 @@ static std::vector<std::string> symbolize(const std::vector<void*>& Trace)
     }
     std::string m = di.dli_fname;
     // The main program comes back as given on the command line.
-    if(m.find('/') == std::string::npos) {
+    if(!m.contains('/')) {
       std::error_code ec;
       m = std::filesystem::read_symlink("/proc/self/exe", ec).string();
       if(ec)
@@ -117,7 +117,8 @@ static std::vector<std::string> symbolize(const std::vector<void*>& Trace)
     for(std::size_t i : idx)
       cmd += std::format(" {:#x}", offset[i]);
     cmd += " 2>/dev/null";
-    FILE* f = popen(cmd.c_str(), "r");
+    // Every part of cmd is quoted (shell_quote) or a number.
+    FILE* f = popen(cmd.c_str(), "r"); // NOLINT(bugprone-command-processor)
     if(!f)
       continue;
     char buf[4096];

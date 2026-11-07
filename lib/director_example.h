@@ -135,24 +135,24 @@ public:
   /// and so is a null pointer.
   //-----------------------------------------------------------------------
 
-  int apply_func(int v) const { return checked(value_)->func(v); }
+  int apply_func(int v) const { return checked(value_).func(v); }
   int apply_func(int v, int ind) const
   {
-    return checked(value_vec_.at(static_cast<std::size_t>(ind)))->func(v);
+    return checked(value_vec_.at(static_cast<std::size_t>(ind))).func(v);
   }
   int apply_func(int v, int ind, int ind2) const
   {
     return checked(value_vec2_.at(static_cast<std::size_t>(ind))
                        .at(static_cast<std::size_t>(ind2)))
-        ->func(v);
+        .func(v);
   }
 private:
-  static const std::shared_ptr<DirectorExample>&
+  static const DirectorExample&
   checked(const std::shared_ptr<DirectorExample>& P)
   {
     if(!P)
       throw Exception("DirectorExampleUser: no DirectorExample set");
-    return P;
+    return *P;
   }
   std::vector<std::shared_ptr<DirectorExample>> value_vec_;
   std::vector<std::vector<std::shared_ptr<DirectorExample>>> value_vec2_;

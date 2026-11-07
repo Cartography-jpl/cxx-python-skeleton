@@ -61,6 +61,11 @@ public:
     P.print_wrapper(Os);
     return Os;
   }
+private:
+  // Only T can derive from Printable<T> (so class A : Printable<B> is an
+  // error, not a class that prints as a B).
+  Printable() = default;
+  friend T;
 };
 
 //-----------------------------------------------------------------------
@@ -82,7 +87,10 @@ concept PrintableObject = requires(const T& V, std::ostream& Os) {
 /// alignment work (e.g. "{:>20}").
 //-----------------------------------------------------------------------
 
+// A specialization of std::formatter for a program-defined type, which the
+// standard allows.
 template<Skeleton::PrintableObject T>
+// NOLINTNEXTLINE(bugprone-std-namespace-modification)
 struct std::formatter<T, char> : std::formatter<std::string_view, char> {
   auto format(const T& V, std::format_context& Ctx) const
   {

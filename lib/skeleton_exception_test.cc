@@ -70,14 +70,14 @@ BOOST_AUTO_TEST_CASE(range_checks)
     BOOST_FAIL("range_check should have thrown");
   } catch(const Exception& e) {
     BOOST_CHECK_EQUAL(e.source_location().line(), line);
-    BOOST_CHECK(std::string(e.what()).find(std::format("at line {}\n", line)) !=
-                std::string::npos);
+    BOOST_CHECK(
+        std::string(e.what()).contains(std::format("at line {}\n", line)));
     std::string w = e.what();
     BOOST_CHECK(w.find("Out of range error in file") == 0);
-    BOOST_CHECK(w.find("skeleton_exception_test.cc") != std::string::npos);
-    BOOST_CHECK(w.find("Value:           5\n") != std::string::npos);
-    BOOST_CHECK(w.find("Minimum allowed: 0\n") != std::string::npos);
-    BOOST_CHECK(w.find("Maximum allowed: 2") != std::string::npos);
+    BOOST_CHECK(w.contains("skeleton_exception_test.cc"));
+    BOOST_CHECK(w.contains("Value:           5\n"));
+    BOOST_CHECK(w.contains("Minimum allowed: 0\n"));
+    BOOST_CHECK(w.contains("Maximum allowed: 2"));
   }
 }
 

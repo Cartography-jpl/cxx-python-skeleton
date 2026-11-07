@@ -127,10 +127,9 @@ BOOST_AUTO_TEST_CASE(array_sample)
     BOOST_CHECK_EQUAL(m(1, 0), 4);
     BOOST_CHECK_EQUAL(m(1, 1), 5);
     BOOST_CHECK_EQUAL(m(1, 2), -6.5);
-    BOOST_REQUIRE(a->count());
-    BOOST_CHECK_EQUAL(*a->count(), 42);
-    BOOST_REQUIRE(a->scale());
-    BOOST_CHECK_EQUAL(*a->scale(), 2.5);
+    // optional == value is false for an empty optional.
+    BOOST_CHECK(a->count() == 42);
+    BOOST_CHECK(a->scale() == 2.5);
     // Both empty; count is set in a default constructed ArraySample, so
     // this also checks that loading clears it.
     auto e =
