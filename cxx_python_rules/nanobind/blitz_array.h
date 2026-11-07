@@ -1,5 +1,4 @@
-#ifndef CXX_PYTHON_RULES_NB_BLITZ_ARRAY_H
-#define CXX_PYTHON_RULES_NB_BLITZ_ARRAY_H
+#pragma once
 // numpy <-> blitz::Array<T, N> for nanobind, through an mdspan view
 // (blitz_mdspan.h has the mdspan <-> Blitz half, which doesn't depend on
 // python). Replaces swig_rules/include/swig_array.i; the behavior is the
@@ -182,4 +181,3 @@ private:
 
 NAMESPACE_END(detail)
 NAMESPACE_END(NB_NAMESPACE)
-#endif

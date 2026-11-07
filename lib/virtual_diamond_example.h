@@ -1,5 +1,4 @@
-#ifndef VIRTUAL_DIAMOND_EXAMPLE_H
-#define VIRTUAL_DIAMOND_EXAMPLE_H
+#pragma once
 #include "printable.h"
 #include "skeleton_exception.h"
 #include "with_parameter_like.h"
@@ -107,4 +106,3 @@ private:
 SKELETON_EXPORT_KEY(NestedLike);
 SKELETON_EXPORT_KEY(RootLike);
 SKELETON_EXPORT_KEY(Diamond);
-#endif

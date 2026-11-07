@@ -1,5 +1,4 @@
-#ifndef SKELETON_OBSERVER_SERIALIZE_SUPPORT_H
-#define SKELETON_OBSERVER_SERIALIZE_SUPPORT_H
+#pragma once
 #include "observer.h"
 #include "skeleton_serialize_support.h"
 
@@ -65,6 +64,4 @@
   SKELETON_IMPLEMENT(Observable##NAME);
 #else
 #define SKELETON_OBSERVER_SERIALIZE(NAME) /* Noop */
-#endif
-
 #endif

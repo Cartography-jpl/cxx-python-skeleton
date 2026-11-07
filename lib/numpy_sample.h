@@ -1,5 +1,4 @@
-#ifndef NUMPY_SAMPLE_H
-#define NUMPY_SAMPLE_H
+#pragma once
 #include "printable.h"
 #include <blitz/array.h>
 #include <optional>
@@ -30,4 +29,3 @@ private:
   blitz::Array<double, 2> data_;
 };
 }
-#endif

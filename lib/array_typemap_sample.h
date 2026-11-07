@@ -1,5 +1,4 @@
-#ifndef ARRAY_TYPEMAP_SAMPLE_H
-#define ARRAY_TYPEMAP_SAMPLE_H
+#pragma once
 #include "printable.h"
 #include "skeleton_exception.h"
 #include <blitz/array.h>
@@ -209,4 +208,3 @@ private:
   blitz::Array<double, 2> stored_;
 };
 }
-#endif

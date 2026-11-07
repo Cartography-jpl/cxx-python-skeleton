@@ -1,5 +1,4 @@
-#ifndef SKELETON_NULL_DELETER_H
-#define SKELETON_NULL_DELETER_H
+#pragma once
 #include <memory>
 
 namespace Skeleton {
@@ -44,4 +43,3 @@ template<class T> std::shared_ptr<T> to_ptr(T& t)
       std::shared_ptr<void>(static_cast<void*>(&t), null_deleter()), &t);
 }
 }
-#endif

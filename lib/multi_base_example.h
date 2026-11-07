@@ -1,5 +1,4 @@
-#ifndef MULTI_BASE_EXAMPLE_H
-#define MULTI_BASE_EXAMPLE_H
+#pragma once
 #include "observer.h"
 #include "printable.h"
 #include "skeleton_exception.h"
@@ -121,4 +120,3 @@ private:
 SKELETON_EXPORT_OBSERVER_KEY(CameraLike);
 SKELETON_EXPORT_KEY(CameraLike);
 SKELETON_EXPORT_KEY(SimpleCameraLike);
-#endif

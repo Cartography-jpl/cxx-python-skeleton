@@ -1,5 +1,4 @@
-#ifndef SKELETON_OBSERVER_H
-#define SKELETON_OBSERVER_H
+#pragma once
 #include "null_deleter.h"
 #include "generic_object.h"
 #include "skeleton_exception.h"
@@ -179,13 +178,13 @@ public:
 
   void add_cache_invalidated_observer(CacheInvalidatedObserver& Obs)
   {
-    CPointerEqual p(Obs.this_obj().get());
+    auto p = points_to(Obs.this_obj().get());
     if(std::ranges::find_if(colist, p) == colist.end())
       colist.push_back(std::weak_ptr<CacheInvalidatedObserver>(Obs.this_obj()));
   }
   void remove_cache_invalidated_observer(CacheInvalidatedObserver& Obs)
   {
-    CPointerEqual p(Obs.this_obj().get());
+    auto p = points_to(Obs.this_obj().get());
     colist.remove_if(p);
   }
 
@@ -266,28 +265,17 @@ protected:
   }
 
   //-----------------------------------------------------------------------
-  // Helper classes for comparing against the weak_ptrs used to keep
-  // track of observers.
+  // Predicate: a weak_ptr in olist or colist that points to P (an
+  // expired one never does).
   //-----------------------------------------------------------------------
 
-  class PointerEqual {
-  public:
-    explicit PointerEqual(Observer<T>* t) : t_(t) {}
-    bool operator()(const std::weak_ptr<Observer<T>>& w) const
-    {
-      return w.lock().get() == t_;
-    }
-    Observer<T>* t_;
-  };
-  class CPointerEqual {
-  public:
-    explicit CPointerEqual(CacheInvalidatedObserver* t) : t_(t) {}
-    bool operator()(const std::weak_ptr<CacheInvalidatedObserver>& w) const
-    {
-      return w.lock().get() == t_;
-    }
-    CacheInvalidatedObserver* t_;
-  };
+  template<class U> static auto points_to(const U* P)
+  {
+    return [P](const std::weak_ptr<U>& W) {
+      auto sp = W.lock();
+      return sp && sp.get() == P;
+    };
+  }
 
   //-----------------------------------------------------------------------
   /// Add an observer. Adding one that is already there does nothing.
@@ -295,7 +283,7 @@ protected:
 
   void add_observer_do(Observer<T>& Obs, T& t)
   {
-    PointerEqual p(Obs.this_obj.get());
+    auto p = points_to(Obs.this_obj.get());
     if(std::ranges::find_if(olist, p) == olist.end()) {
       olist.push_back(std::weak_ptr<Observer<T>>(Obs.this_obj));
       Obs.notify_add(t);
@@ -304,7 +292,7 @@ protected:
   }
   void add_observer_do(Observer<T>& Obs)
   {
-    PointerEqual p(Obs.this_obj.get());
+    auto p = points_to(Obs.this_obj.get());
     if(std::ranges::find_if(olist, p) == olist.end()) {
       olist.push_back(std::weak_ptr<Observer<T>>(Obs.this_obj));
       Obs.notify_add();
@@ -317,14 +305,14 @@ protected:
 
   void remove_observer_do(Observer<T>& Obs, T& t)
   {
-    PointerEqual p(Obs.this_obj.get());
+    auto p = points_to(Obs.this_obj.get());
     olist.remove_if(p);
     Obs.notify_remove(t);
     Obs.notify_remove();
   }
   void remove_observer_do(Observer<T>& Obs)
   {
-    PointerEqual p(Obs.this_obj.get());
+    auto p = points_to(Obs.this_obj.get());
     olist.remove_if(p);
     Obs.notify_remove();
   }
@@ -352,12 +340,13 @@ protected:
   /// aren't already there.
   //-----------------------------------------------------------------------
 
-  template<class W, class Eq>
-  static void merge_loaded(std::list<W>& Lst, std::list<W>& Loaded, Eq Make_eq)
+  template<class U>
+  static void merge_loaded(std::list<std::weak_ptr<U>>& Lst,
+                           std::list<std::weak_ptr<U>>& Loaded)
   {
     for(auto& w : Lst) {
       auto p = w.lock();
-      if(!p || std::ranges::find_if(Loaded, Make_eq(p.get())) == Loaded.end())
+      if(!p || std::ranges::find_if(Loaded, points_to(p.get())) == Loaded.end())
         Loaded.push_back(w);
     }
     Lst.swap(Loaded);
@@ -366,10 +355,8 @@ protected:
       std::list<std::weak_ptr<Observer<T>>>& Loaded_olist,
       std::list<std::weak_ptr<CacheInvalidatedObserver>>& Loaded_colist)
   {
-    merge_loaded(olist, Loaded_olist,
-                 [](Observer<T>* p) { return PointerEqual(p); });
-    merge_loaded(colist, Loaded_colist,
-                 [](CacheInvalidatedObserver* p) { return CPointerEqual(p); });
+    merge_loaded(olist, Loaded_olist);
+    merge_loaded(colist, Loaded_colist);
   }
   friend class boost::serialization::access;
   template<class Archive>
@@ -389,11 +376,10 @@ protected:
 
 #define SKELETON_EXPORT_OBSERVER_KEY(NAME)                                     \
   namespace Skeleton {                                                         \
-  typedef Observer<NAME> Observer##NAME;                                       \
-  typedef Observable<NAME> Observable##NAME;                                   \
+  using Observer##NAME = Observer<NAME>;                                       \
+  using Observable##NAME = Observable<NAME>;                                   \
   }                                                                            \
   SKELETON_EXPORT_KEY(Observer##NAME);                                         \
   SKELETON_EXPORT_KEY(Observable##NAME);
 
 SKELETON_EXPORT_KEY(CacheInvalidatedObserver);
-#endif

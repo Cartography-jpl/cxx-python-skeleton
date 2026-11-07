@@ -1,5 +1,4 @@
-#ifndef CXX_PYTHON_RULES_DIRECTOR_HOOK_H
-#define CXX_PYTHON_RULES_DIRECTOR_HOOK_H
+#pragma once
 #include "generic_object.h"
 #include <memory>
 
@@ -18,4 +17,3 @@ using DirectorHook =
     std::shared_ptr<GenericObject> (*)(const std::shared_ptr<GenericObject>&);
 DirectorHook& director_hook();
 }
-#endif

@@ -1,5 +1,4 @@
-#ifndef SERIALIZE_FUNCTION_H
-#define SERIALIZE_FUNCTION_H
+#pragma once
 #include "generic_object.h"
 #include <string>
 #include <memory>
@@ -49,4 +48,3 @@ inline std::shared_ptr<T> serialize_read_binary_string(const std::string& Data)
   return std::dynamic_pointer_cast<T>(serialize_read_binary(Data));
 }
 }
-#endif

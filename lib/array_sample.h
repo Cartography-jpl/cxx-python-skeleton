@@ -1,5 +1,4 @@
-#ifndef ARRAY_SAMPLE_H
-#define ARRAY_SAMPLE_H
+#pragma once
 #include "printable.h"
 #include "skeleton_exception.h"
 #include <blitz/array.h>
@@ -7,6 +6,7 @@
 #include <cstddef>
 #include <optional>
 #include <string>
+#include <cstdint>
 
 namespace Skeleton {
 /****************************************************************/ /**
@@ -156,9 +156,9 @@ public:
   /// Address of the first element, to check for zero copy.
   //-----------------------------------------------------------------------
 
-  static std::size_t data_address(const blitz::Array<double, 2>& A)
+  static std::uintptr_t data_address(const blitz::Array<double, 2>& A)
   {
-    return reinterpret_cast<std::size_t>(A.data());
+    return reinterpret_cast<std::uintptr_t>(A.data());
   }
 
   //-----------------------------------------------------------------------
@@ -180,4 +180,3 @@ private:
 }
 
 SKELETON_EXPORT_KEY(ArraySample);
-#endif

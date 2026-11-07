@@ -1,5 +1,4 @@
-#ifndef RASTER_SAMPLE_H
-#define RASTER_SAMPLE_H
+#pragma once
 #include "blitz_mdspan.h"
 #include "printable.h"
 #include <blitz/array.h>
@@ -265,4 +264,3 @@ private:
   int nline, nsamp;
 };
 }
-#endif

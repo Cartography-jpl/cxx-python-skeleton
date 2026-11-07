@@ -1,5 +1,4 @@
-#ifndef OVERLOAD_EXAMPLE_H
-#define OVERLOAD_EXAMPLE_H
+#pragma once
 #include "numpy_sample.h"
 #include "printable.h"
 #include <blitz/array.h>
@@ -26,4 +25,3 @@ public:
   virtual void print(std::ostream& Os) const { Os << "OverloadExample"; }
 };
 }
-#endif

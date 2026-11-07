@@ -17,7 +17,7 @@ void IostreamSwig::write(std::ostream& Os) const
 
 std::string IostreamSwig::read(std::istream& In)
 {
-  std::string res = "";
+  std::string res;
   for(int i = 0; i < word_to_read; ++i) {
     std::string t;
     In >> t;

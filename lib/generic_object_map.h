@@ -1,5 +1,4 @@
-#ifndef GENERIC_OBJECT_MAP_H
-#define GENERIC_OBJECT_MAP_H
+#pragma once
 #include "printable.h"
 #include <memory>
 #include <algorithm>
@@ -93,4 +92,3 @@ public:
 }
 
 SKELETON_EXPORT_KEY(GenericObjectMap);
-#endif

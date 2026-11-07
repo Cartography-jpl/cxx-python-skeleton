@@ -1,5 +1,4 @@
-#ifndef OBSERVER_EXAMPLE_H
-#define OBSERVER_EXAMPLE_H
+#pragma once
 #include "observer.h"
 #include "printable.h"
 #include "skeleton_exception.h"
@@ -173,4 +172,3 @@ private:
 SKELETON_EXPORT_KEY(ObservableExample);
 SKELETON_EXPORT_KEY(ObserverExample);
 SKELETON_EXPORT_KEY(CacheExample);
-#endif

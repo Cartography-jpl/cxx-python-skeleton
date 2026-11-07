@@ -1,5 +1,4 @@
-#ifndef CXX_PYTHON_RULES_NB_IOSTREAM_H
-#define CXX_PYTHON_RULES_NB_IOSTREAM_H
+#pragma once
 // A python file object (anything with read(n) / write(bytes)) as a
 // std::istream or std::ostream, for C++ functions that take a stream
 // (nanobind has nothing for this; replaces swig_iostream.i). Use in a
@@ -96,4 +95,3 @@ namespace cxx_python_rules_nb __attribute__((visibility("hidden"))) {
     py_streambuf buf;
   };
 }
-#endif

@@ -1,5 +1,4 @@
-#ifndef EXCEPTION_SAMPLE_H
-#define EXCEPTION_SAMPLE_H
+#pragma once
 #include "skeleton_exception.h"
 #include <stdexcept>
 #include <exception>
@@ -88,4 +87,3 @@ public:
   virtual void print(std::ostream& Os) const { Os << "ExceptionSample"; }
 };
 }
-#endif

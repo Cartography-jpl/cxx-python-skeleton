@@ -1,5 +1,4 @@
-#ifndef CXX_PYTHON_RULES_NB_STD_ARRAY_H
-#define CXX_PYTHON_RULES_NB_STD_ARRAY_H
+#pragma once
 // std::array<T, N> of numbers <-> numpy, as the SWIG std::array typemaps
 // did (swig_boost_array.i): in, anything numpy converts to a 1-D array of
 // length N (list, tuple, any dtype or strides; always a copy); out, a new
@@ -74,4 +73,3 @@ template<class T, std::size_t N> struct type_caster<std::array<T, N>> {
 
 NAMESPACE_END(detail)
 NAMESPACE_END(NB_NAMESPACE)
-#endif

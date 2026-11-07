@@ -1,5 +1,4 @@
-#ifndef WEAK_PTR_SERIALIZED_SUPPORT_H
-#define WEAK_PTR_SERIALIZED_SUPPORT_H
+#pragma once
 #include "generic_object.h"
 #include <memory>
 #include <boost/serialization/nvp.hpp>
@@ -128,5 +127,3 @@ inline void serialize(Archive& ar, std::weak_ptr<T>& t,
 }
 }
 }
-
-#endif

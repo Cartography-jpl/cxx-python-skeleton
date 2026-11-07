@@ -1,5 +1,4 @@
-#ifndef THREAD_EXAMPLE_H
-#define THREAD_EXAMPLE_H
+#pragma once
 #include "director_example.h"
 #include "printable.h"
 #include <memory>
@@ -26,4 +25,3 @@ public:
   virtual void print(std::ostream& Os) const { Os << "ThreadExample"; }
 };
 }
-#endif

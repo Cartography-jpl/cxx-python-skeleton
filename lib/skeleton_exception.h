@@ -1,5 +1,4 @@
-#ifndef SKELETON_EXCEPTION_H
-#define SKELETON_EXCEPTION_H
+#pragma once
 
 #include "printable.h"
 #include <concepts>
@@ -277,4 +276,3 @@ range_max_check(const T& Val, const std::type_identity_t<T>& Max,
 }
 }
 /*@}*/
-#endif

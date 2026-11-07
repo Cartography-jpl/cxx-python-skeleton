@@ -1,5 +1,4 @@
-#ifndef SKELETON_GENERIC_OBJECT_H
-#define SKELETON_GENERIC_OBJECT_H
+#pragma once
 // These get defined in skeleton_config.h. Undef them to stop warnings
 // if we change these.
 #undef PACKAGE
@@ -67,5 +66,3 @@ private:
 }
 
 SKELETON_EXPORT_KEY(GenericObject);
-
-#endif

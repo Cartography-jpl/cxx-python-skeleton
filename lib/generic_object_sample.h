@@ -1,5 +1,4 @@
-#ifndef GENERIC_OBJECT_SAMPLE_H
-#define GENERIC_OBJECT_SAMPLE_H
+#pragma once
 #include "printable.h"
 #include <memory>
 #include <utility>
@@ -71,4 +70,3 @@ SKELETON_EXPORT_KEY(GenericObjectA);
 SKELETON_EXPORT_KEY(GenericObjectB);
 SKELETON_EXPORT_KEY(GenericObjectB2);
 SKELETON_EXPORT_KEY(GenericObjectC);
-#endif

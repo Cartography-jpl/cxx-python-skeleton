@@ -1,5 +1,4 @@
-#ifndef CXX_PYTHON_RULES_SAMPLE_H
-#define CXX_PYTHON_RULES_SAMPLE_H
+#pragma once
 #include "printable.h"
 #include "skeleton_exception.h"
 #include <optional>
@@ -8,6 +7,8 @@
 #include <blitz/array.h>
 #include <vector>
 #include <utility>
+#include <algorithm>
+#include <functional>
 
 namespace Skeleton {
 /****************************************************************/ /**
@@ -123,18 +124,13 @@ public:
   }
   double sum_values(const std::vector<ValueSample>& V) const
   {
-    double res = 0;
-    for(const auto& v : V)
-      res += v.v();
-    return res;
+    return std::ranges::fold_left(
+        V, 0.0, [](double S, const ValueSample& X) { return S + X.v(); });
   }
   std::vector<int> int_vector() const { return std::vector<int>{1, 2, 3}; }
   int sum_int_vector(const std::vector<int>& V) const
   {
-    int res = 0;
-    for(int i : V)
-      res += i;
-    return res;
+    return std::ranges::fold_left(V, 0, std::plus<>());
   }
 
   virtual void print(std::ostream& Os) const
@@ -152,4 +148,3 @@ private:
   blitz::Array<double, 2> data_;
 };
 }
-#endif

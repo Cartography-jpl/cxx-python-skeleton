@@ -1,5 +1,4 @@
-#ifndef SKELETON_PRINTABLE_H
-#define SKELETON_PRINTABLE_H
+#pragma once
 #include "generic_object.h"
 #include <concepts>
 #include <format>
@@ -91,4 +90,3 @@ struct std::formatter<T, char> : std::formatter<std::string_view, char> {
                                                           Ctx);
   }
 };
-#endif

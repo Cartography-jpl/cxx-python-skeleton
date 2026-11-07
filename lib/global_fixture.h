@@ -1,5 +1,4 @@
-#ifndef GLOBAL_FIXTURE_H
-#define GLOBAL_FIXTURE_H
+#pragma once
 #include <string>
 
 namespace Skeleton {
@@ -15,4 +14,3 @@ private:
   void set_default_value();
 };
 }
-#endif

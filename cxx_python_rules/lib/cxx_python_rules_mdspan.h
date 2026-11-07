@@ -1,5 +1,4 @@
-#ifndef CXX_PYTHON_RULES_MDSPAN_H
-#define CXX_PYTHON_RULES_MDSPAN_H
+#pragma once
 // mdspan, from the conda-forge "mdspan" package (the Kokkos reference
 // implementation, pinned to the 0.6.1.dev20260223 snapshot; 0.6.0 only
 // has std::experimental). It is in namespace Kokkos; use it as
@@ -24,4 +23,3 @@
 namespace CXX_PYTHON_RULES_NAMESPACE {
 namespace md = Kokkos;
 }
-#endif

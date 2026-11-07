@@ -1,5 +1,4 @@
-#ifndef CXX_PYTHON_RULES_NB_H
-#define CXX_PYTHON_RULES_NB_H
+#pragma once
 // The nanobind rules library: include this (first) in every binding file.
 // It replaced the SWIG rules (swig_rules/include, removed in phase S6).
 //
@@ -350,4 +349,3 @@ void director_load(const std::string& Python_object, Tramp* D,
       const unsigned int);                                                     \
   template void boost::serialization::load_construct_data(                     \
       boost::archive::polymorphic_iarchive&, TRAMP*, const unsigned int);
-#endif

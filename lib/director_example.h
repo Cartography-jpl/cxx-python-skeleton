@@ -1,5 +1,4 @@
-#ifndef DIRECTOR_EXAMPLE_H
-#define DIRECTOR_EXAMPLE_H
+#pragma once
 #include "printable.h"
 #include "skeleton_exception.h"
 #include <memory>
@@ -170,4 +169,3 @@ SKELETON_EXPORT_KEY(DirectorExample);
 SKELETON_EXPORT_KEY(DirectorExampleNested);
 SKELETON_EXPORT_KEY(DirectorExampleWeakPtr);
 SKELETON_EXPORT_KEY(DirectorExampleUser);
-#endif

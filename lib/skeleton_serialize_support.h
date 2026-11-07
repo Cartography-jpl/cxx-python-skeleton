@@ -1,5 +1,4 @@
-#ifndef SKELETON_SERIALIZE_SUPPORT_H
-#define SKELETON_SERIALIZE_SUPPORT_H
+#pragma once
 // This contains various support routines for *implementing* the boost
 // serialization (as opposed to *using*  the serialization
 #include "skeleton_config.h"
@@ -51,4 +50,3 @@ using boost::archive::polymorphic_oarchive;
 #endif
 
 #include "blitz_array_serialize_support.h"
-#endif

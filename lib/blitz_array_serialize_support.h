@@ -1,5 +1,4 @@
-#ifndef BLITZ_ARRAY_SERIALIZE_SUPPORT_H
-#define BLITZ_ARRAY_SERIALIZE_SUPPORT_H
+#pragma once
 #include <blitz/array.h>
 
 // This contains various support routines for *implementing* the boost
@@ -108,7 +107,5 @@ BOOST_SERIALIZATION_SPLIT_FREE(blitz_short_array_2d);
 BOOST_SERIALIZATION_SPLIT_FREE(blitz_short_array_3d);
 BOOST_SERIALIZATION_SPLIT_FREE(blitz_short_array_4d);
 BOOST_SERIALIZATION_SPLIT_FREE(blitz_short_array_5d);
-
-#endif
 
 #endif

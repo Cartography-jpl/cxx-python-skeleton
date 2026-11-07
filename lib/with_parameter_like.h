@@ -1,5 +1,4 @@
-#ifndef WITH_PARAMETER_LIKE_H
-#define WITH_PARAMETER_LIKE_H
+#pragma once
 #include "generic_object.h"
 #include <blitz/array.h>
 
@@ -28,4 +27,3 @@ private:
 }
 
 SKELETON_EXPORT_KEY(WithParameterLike);
-#endif

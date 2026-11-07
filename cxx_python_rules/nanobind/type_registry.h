@@ -1,5 +1,4 @@
-#ifndef CXX_PYTHON_RULES_NB_TYPE_REGISTRY_H
-#define CXX_PYTHON_RULES_NB_TYPE_REGISTRY_H
+#pragma once
 // Registry of the classes bound with nanobind, keyed by the C++ type.
 //
 // nanobind gives each class one bound base, and a virtual base can't be a
@@ -108,4 +107,3 @@ inline std::shared_ptr<GenericObject> to_generic(nb::handle h)
 }
 }
 }
-#endif

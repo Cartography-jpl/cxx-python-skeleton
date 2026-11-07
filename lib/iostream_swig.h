@@ -1,5 +1,4 @@
-#ifndef IOSTREAM_SWIG_H
-#define IOSTREAM_SWIG_H
+#pragma once
 #include "printable.h"
 #include <iostream>
 #include <utility>
@@ -28,4 +27,3 @@ private:
   int word_to_read = 0;
 };
 }
-#endif

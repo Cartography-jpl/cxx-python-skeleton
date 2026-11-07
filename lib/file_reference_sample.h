@@ -1,5 +1,4 @@
-#ifndef FILE_REFERENCE_SAMPLE_H
-#define FILE_REFERENCE_SAMPLE_H
+#pragma once
 #include "printable.h"
 #include "skeleton_exception.h"
 #include "generic_object_sample.h"
@@ -71,4 +70,3 @@ inline std::shared_ptr<GenericObject> generic_object_index(int I)
 }
 
 SKELETON_EXPORT_KEY(FileReferenceSample);
-#endif

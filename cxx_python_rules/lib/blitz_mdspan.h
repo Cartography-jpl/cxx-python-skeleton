@@ -1,5 +1,4 @@
-#ifndef CXX_PYTHON_RULES_BLITZ_MDSPAN_H
-#define CXX_PYTHON_RULES_BLITZ_MDSPAN_H
+#pragma once
 #include "cxx_python_rules_mdspan.h"
 #include <blitz/array.h>
 #include <array>
@@ -111,4 +110,3 @@ to_blitz(const Mdspan& M, std::shared_ptr<void> Owner = nullptr)
   return res;
 }
 }
-#endif
