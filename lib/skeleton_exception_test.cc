@@ -62,16 +62,38 @@ BOOST_AUTO_TEST_CASE(range_checks)
   BOOST_CHECK_THROW(range_min_check(-1, 0), Exception);
   BOOST_CHECK_NO_THROW(range_max_check(1, 2));
   BOOST_CHECK_THROW(range_max_check(2, 2), Exception);
+  // The error reports the caller's line, both in the message and in
+  // source_location().
+  unsigned int line = std::source_location::current().line() + 2;
   try {
     range_check(5, 0, 2);
     BOOST_FAIL("range_check should have thrown");
   } catch(const Exception& e) {
+    BOOST_CHECK_EQUAL(e.source_location().line(), line);
+    BOOST_CHECK(std::string(e.what()).find(std::format("at line {}\n", line)) !=
+                std::string::npos);
     std::string w = e.what();
     BOOST_CHECK(w.find("Out of range error in file") == 0);
     BOOST_CHECK(w.find("skeleton_exception_test.cc") != std::string::npos);
     BOOST_CHECK(w.find("Value:           5\n") != std::string::npos);
     BOOST_CHECK(w.find("Minimum allowed: 0\n") != std::string::npos);
     BOOST_CHECK(w.find("Maximum allowed: 2") != std::string::npos);
+  }
+}
+
+BOOST_AUTO_TEST_CASE(range_check_types)
+{
+  // T comes from the value; the limits convert to it.
+  std::size_t n = 3;
+  BOOST_CHECK_NO_THROW(range_check(n, 0, 10));
+  BOOST_CHECK_THROW(range_check(n, 0, 3), Exception);
+  // The one-sided checks keep their trailing newline.
+  try {
+    range_min_check(-1, 0);
+    BOOST_FAIL("range_min_check should have thrown");
+  } catch(const Exception& e) {
+    std::string w = e.what();
+    BOOST_CHECK(w.ends_with("Minimum allowed: 0\n"));
   }
 }
 

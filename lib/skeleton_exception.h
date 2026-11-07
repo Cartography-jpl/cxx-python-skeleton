@@ -177,101 +177,91 @@ public:
 /** \defgroup Error Error checking routines */
 /*@{*/
 //-----------------------------------------------------------------------
-/// Range check
+/// Range checks. Each throws an Exception if Val is out of range. The
+/// message (and Exception::source_location()) give the caller's file
+/// and line, from the defaulted source location argument; these used to
+/// be macros only to get __FILE__ and __LINE__.
+///
+/// T is deduced from Val alone, so the limits convert to it
+/// (range_check(n, 0, 10) works for a std::size_t n), but Val and the
+/// limits are always compared as the same type: no mixed signed and
+/// unsigned comparisons. The message is written with operator<<, so T
+/// needs that and nothing more (no std::formatter).
 //-----------------------------------------------------------------------
 
+namespace detail {
 template<class T>
-inline void range_check_template(const T& Val, // Value to be checked.
-                                 const T& Min, // Minimum allowed value.
-                                 const T& Max, // Maximum allowed value.
-                                 const char* File, int Line)
+[[noreturn]] void range_error(const T& Val, const T* Min, const T* Max,
+                              const std::source_location& Loc)
 {
-  if(Val < Min || !(Val < Max)) {
-    Exception e;
-    e << "Out of range error in file " << File << " at line " << Line << "\n"
-      << "Value:           " << Val << "\n"
-      << "Minimum allowed: " << Min << "\n"
-      << "Maximum allowed: " << Max;
-    throw e;
-  }
+  Exception e("", Loc);
+  e << "Out of range error in file " << Loc.file_name() << " at line "
+    << Loc.line() << "\n"
+    << "Value:           " << Val;
+  if(Min)
+    e << "\nMinimum allowed: " << *Min;
+  if(Max)
+    e << "\nMaximum allowed: " << *Max;
+  // The one-sided checks have always ended with a newline.
+  if(!Min || !Max)
+    e << "\n";
+  throw e;
 }
+}
+
+//-----------------------------------------------------------------------
+/// Check Min <= Val < Max.
+//-----------------------------------------------------------------------
 
 template<class T>
 inline void
-range_check_inclusive_template(const T& Val, // Value to be checked.
-                               const T& Min, // Minimum allowed value.
-                               const T& Max, // Maximum allowed value.
-                               const char* File, int Line)
+range_check(const T& Val, const std::type_identity_t<T>& Min,
+            const std::type_identity_t<T>& Max,
+            std::source_location Loc = std::source_location::current())
 {
-  if(Val < Min || Val > Max) {
-    Exception e;
-    e << "Out of range error in file " << File << " at line " << Line << "\n"
-      << "Value:           " << Val << "\n"
-      << "Minimum allowed: " << Min << "\n"
-      << "Maximum allowed: " << Max;
-    throw e;
-  }
+  if(Val < Min || !(Val < Max))
+    detail::range_error(Val, &Min, &Max, Loc);
 }
 
 //-----------------------------------------------------------------------
-/// Range check
-//-----------------------------------------------------------------------
-
-#define range_check(V, Min, Max)                                               \
-  Skeleton::range_check_template(V, Min, Max, __FILE__, __LINE__)
-#define range_check_inclusive(V, Min, Max)                                     \
-  Skeleton::range_check_inclusive_template(V, Min, Max, __FILE__, __LINE__)
-
-//-----------------------------------------------------------------------
-/// Range check
+/// Check Min <= Val <= Max.
 //-----------------------------------------------------------------------
 
 template<class T>
-inline void range_min_check_template(const T& Val, // Value to be checked.
-                                     const T& Min, // Minimum allowed value.
-                                     const char* File, int Line)
+inline void range_check_inclusive(
+    const T& Val, const std::type_identity_t<T>& Min,
+    const std::type_identity_t<T>& Max,
+    std::source_location Loc = std::source_location::current())
 {
-  if(Val < Min) {
-    Exception e;
-    e << "Out of range error in file " << File << " at line " << Line << "\n"
-      << "Value:           " << Val << "\n"
-      << "Minimum allowed: " << Min << "\n";
-    throw e;
-  }
+  if(Val < Min || Max < Val)
+    detail::range_error(Val, &Min, &Max, Loc);
 }
 
 //-----------------------------------------------------------------------
-/// Range check
-//-----------------------------------------------------------------------
-
-#define range_min_check(V, Min)                                                \
-  Skeleton::range_min_check_template(V, Min, __FILE__, __LINE__)
-
-//-----------------------------------------------------------------------
-/// Range check
+/// Check Min <= Val.
 //-----------------------------------------------------------------------
 
 template<class T>
-inline void range_max_check_template(const T& Val, // Value to be checked.
-                                     const T& Max, // Maximum allowed value.
-                                     const char* File, int Line)
+inline void
+range_min_check(const T& Val, const std::type_identity_t<T>& Min,
+                std::source_location Loc = std::source_location::current())
 {
-  if(!(Val < Max)) {
-    Exception e;
-    e << "Out of range error in file " << File << " at line " << Line << "\n"
-      << "Value:           " << Val << "\n"
-      << "Maximum allowed: " << Max << "\n";
-    throw e;
-  }
+  if(Val < Min)
+    detail::range_error(Val, &Min, static_cast<const T*>(nullptr), Loc);
 }
 
 //-----------------------------------------------------------------------
-/// Range check
+/// Check Val < Max.
 //-----------------------------------------------------------------------
 
-#define range_max_check(V, Max)                                                \
-  Skeleton::range_max_check_template(V, Max, __FILE__, __LINE__)
-
+template<class T>
+inline void
+range_max_check(const T& Val, const std::type_identity_t<T>& Max,
+                std::source_location Loc = std::source_location::current())
+{
+  if(!(Val < Max))
+    detail::range_error(Val, static_cast<const T*>(nullptr), &Max, Loc);
+}
 }
 /*@}*/
 #endif
