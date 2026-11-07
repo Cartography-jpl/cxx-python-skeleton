@@ -39,8 +39,7 @@ template<class T> class Observable;
 *******************************************************************/
 template<class T> class Observer : public virtual GenericObject {
 public:
-  Observer() { this_obj = to_ptr(*this); }
-  ~Observer() override = default;
+  Observer() : this_obj(to_ptr(*this)) {}
 
   //-----------------------------------------------------------------------
   /// Not copyable or movable. this_obj points at this object, and the
@@ -101,8 +100,7 @@ private:
 *******************************************************************/
 class CacheInvalidatedObserver : public virtual GenericObject {
 public:
-  CacheInvalidatedObserver() { this_obj_ = to_ptr(*this); }
-  ~CacheInvalidatedObserver() override = default;
+  CacheInvalidatedObserver() : this_obj_(to_ptr(*this)) {}
 
   //-----------------------------------------------------------------------
   /// Not copyable or movable, for the same reason as Observer.
@@ -123,7 +121,8 @@ public:
   virtual bool cache_valid_flag() const { return cache_valid; }
   virtual void cache_valid_flag(bool V) { cache_valid = V; }
 protected:
-  bool cache_valid = false;
+  // mutable: a const accessor that fills the cache marks it valid.
+  mutable bool cache_valid = false;
   // Shared ptr that we can use to get weak_ptr to. This object has
   // exactly the same lifetime as the containing object.
   std::shared_ptr<CacheInvalidatedObserver> this_obj_;
@@ -158,7 +157,6 @@ protected:
 template<class T> class Observable : public virtual GenericObject {
 public:
   Observable() = default;
-  ~Observable() override = default;
 
   //-----------------------------------------------------------------------
   /// Not copyable or movable. A copy would notify the observers of the
@@ -255,7 +253,7 @@ protected:
 
   void notify_update_do(const T& Self) const
   {
-    const_cast<Observable<T>*>(this)->clean_dead_ptr();
+    clean_dead_ptr();
     // Copy, an observer may add or remove observers when notified.
     auto ol = olist;
     for(auto& w : ol)
@@ -335,13 +333,14 @@ protected:
   /// Remove any dead pointers.
   //-----------------------------------------------------------------------
 
-  void clean_dead_ptr()
+  void clean_dead_ptr() const
   {
     olist.remove_if([](const auto& w) { return w.expired(); });
     colist.remove_if([](const auto& w) { return w.expired(); });
   }
-  std::list<std::weak_ptr<Observer<T>>> olist;
-  std::list<std::weak_ptr<CacheInvalidatedObserver>> colist;
+  // mutable: notify_update_do (const) drops expired entries.
+  mutable std::list<std::weak_ptr<Observer<T>>> olist;
+  mutable std::list<std::weak_ptr<CacheInvalidatedObserver>> colist;
   std::vector<std::shared_ptr<Observer<T>>> ref_list;
 
   //-----------------------------------------------------------------------

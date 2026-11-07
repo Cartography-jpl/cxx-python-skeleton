@@ -12,7 +12,6 @@ namespace Skeleton {
 *******************************************************************/
 class WithParameterLike : public virtual GenericObject {
 public:
-  ~WithParameterLike() override = default;
   virtual blitz::Array<double, 1> parameter() const = 0;
   virtual void parameter(const blitz::Array<double, 1>& Parm) = 0;
 

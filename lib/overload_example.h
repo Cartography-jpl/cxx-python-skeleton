@@ -17,7 +17,6 @@ namespace Skeleton {
 class OverloadExample : public Printable<OverloadExample> {
 public:
   OverloadExample() = default;
-  ~OverloadExample() override = default;
   static std::string which(const blitz::Array<double, 2>&) { return "array"; }
   static std::string which(const std::shared_ptr<NumpySample>&)
   {

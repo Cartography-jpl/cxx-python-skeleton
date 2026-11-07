@@ -70,7 +70,7 @@ namespace cxx_python_rules_nb __attribute__((visibility("hidden"))) {
     }
     nb::object fh;
     char ibuf = 0;
-    char obuf[4096];
+    char obuf[4096] = {};
   };
 
   class py_ostream : public std::ostream {

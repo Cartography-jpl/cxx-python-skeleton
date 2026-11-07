@@ -12,7 +12,7 @@ class GenericObjectA : public Printable<GenericObjectA> {
 public:
   explicit GenericObjectA(int V) : v_(V) {}
   GenericObjectA() = default;
-  void print(std::ostream& Os) const { Os << "A"; }
+  virtual void print(std::ostream& Os) const { Os << "A"; }
   int v() const { return v_; }
   void v(int V) { v_ = V; }
 private:
@@ -27,7 +27,7 @@ public:
   explicit GenericObjectB(std::shared_ptr<GenericObjectA> V) : a_(std::move(V))
   {
   }
-  void print(std::ostream& Os) const { Os << "B"; }
+  virtual void print(std::ostream& Os) const { Os << "B"; }
   const std::shared_ptr<GenericObjectA>& a() const { return a_; }
   void a(const std::shared_ptr<GenericObjectA>& V) { a_ = V; }
 private:
@@ -41,7 +41,7 @@ private:
 class GenericObjectB2 : public Printable<GenericObjectB2> {
 public:
   explicit GenericObjectB2(GenericObjectA V) : a_(std::move(V)) {}
-  void print(std::ostream& Os) const { Os << "B2"; }
+  virtual void print(std::ostream& Os) const { Os << "B2"; }
   const GenericObjectA& a() const { return a_; }
   void a(const GenericObjectA& V) { a_ = V; }
 private:
@@ -55,7 +55,7 @@ private:
 class GenericObjectC : public Printable<GenericObjectC> {
 public:
   explicit GenericObjectC(const std::shared_ptr<GenericObjectA>& V) : a_(V) {}
-  void print(std::ostream& Os) const { Os << "C"; }
+  virtual void print(std::ostream& Os) const { Os << "C"; }
   std::shared_ptr<GenericObjectA> a() const { return a_.lock(); }
   void a(const std::shared_ptr<GenericObjectA>& V) { a_ = V; }
 private:

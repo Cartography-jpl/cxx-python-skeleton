@@ -14,7 +14,6 @@ namespace Skeleton {
 *******************************************************************/
 class NestedLike : public virtual WithParameterLike {
 public:
-  ~NestedLike() override = default;
   virtual std::string nested_name() const { return "NestedLike"; }
 private:
   friend class boost::serialization::access;
@@ -27,7 +26,6 @@ private:
 *******************************************************************/
 class RootLike : public virtual GenericObject {
 public:
-  ~RootLike() override = default;
   virtual std::string root_name() const = 0;
 private:
   friend class boost::serialization::access;
@@ -50,7 +48,6 @@ public:
   {
     p_ = P0, P1;
   }
-  ~Diamond() override = default;
   std::string root_name() const override { return "Diamond " + name_; }
   std::string nested_name() const override { return "Diamond nested " + name_; }
   blitz::Array<double, 1> parameter() const override { return p_.copy(); }
@@ -78,7 +75,6 @@ public:
   explicit VirtualDiamondExample(std::shared_ptr<Diamond> D) : d_(std::move(D))
   {
   }
-  ~VirtualDiamondExample() override = default;
   const std::shared_ptr<Diamond>& diamond() const { return d_; }
   std::shared_ptr<RootLike> as_root() const { return d_; }
   std::shared_ptr<NestedLike> as_nested() const { return d_; }

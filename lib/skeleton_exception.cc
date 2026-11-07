@@ -43,6 +43,7 @@ void Exception::capture()
     boost::stacktrace::stacktrace st(1, static_cast<std::size_t>(-1));
     trace_.reserve(st.size());
     for(const auto& f : st)
+      // Stored as void* for frame(void*) in stacktrace(); never written.
       trace_.push_back(const_cast<void*>(f.address()));
   } catch(...) {
     // A failure to get the stack trace shouldn't replace the error being

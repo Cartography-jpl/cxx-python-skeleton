@@ -28,7 +28,7 @@ template<class T, std::size_t N> std::array<T, N> to_std_array(nb::handle src)
   if(!c.from_python(a, 0, nullptr) || c.value.shape(0) != N)
     throw std::runtime_error("Expected an array of length " +
                              std::to_string(N));
-  std::array<T, N> res;
+  std::array<T, N> res{};
   for(std::size_t i = 0; i < N; ++i)
     res[i] = c.value.data()[i * c.value.stride(0)];
   return res;

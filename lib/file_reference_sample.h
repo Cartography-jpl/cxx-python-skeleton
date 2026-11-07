@@ -1,6 +1,7 @@
 #ifndef FILE_REFERENCE_SAMPLE_H
 #define FILE_REFERENCE_SAMPLE_H
 #include "printable.h"
+#include "skeleton_exception.h"
 #include "generic_object_sample.h"
 #include <memory>
 #include <utility>
@@ -21,7 +22,6 @@ public:
   {
     read();
   }
-  ~FileReferenceSample() override = default;
   const std::string& file_name() const { return fname_; }
   const std::string& contents() const { return contents_; }
   virtual void print(std::ostream& Os) const
@@ -33,7 +33,7 @@ private:
   {
     std::ifstream in(fname_);
     if(!in)
-      throw std::runtime_error("Can't open " + fname_);
+      throw Exception("Can't open {}", fname_);
     std::getline(in, contents_);
   }
   std::string fname_;

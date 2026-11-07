@@ -34,7 +34,6 @@ class GenericObjectMap
     public std::map<std::string, std::shared_ptr<GenericObject>> {
 public:
   GenericObjectMap() = default;
-  ~GenericObjectMap() override = default;
 
   //-----------------------------------------------------------------------
   /// Print description of object.

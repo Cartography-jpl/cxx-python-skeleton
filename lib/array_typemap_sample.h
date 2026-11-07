@@ -20,7 +20,6 @@ namespace Skeleton {
 class ArrayTypemapSample : public Printable<ArrayTypemapSample> {
 public:
   ArrayTypemapSample() : stored_(2, 3) { stored_ = 1, 2, 3, 4, 5, 6; }
-  ~ArrayTypemapSample() override = default;
 
   //-----------------------------------------------------------------------
   /// Echo back an array, one function for each element type and a few
@@ -122,6 +121,8 @@ public:
   /// directly (no copy) or a copy (FORCE_COPY).
   //-----------------------------------------------------------------------
 
+  // The const_cast is the point of these: a const reference parameter
+  // that C++ writes through anyway shows whether it got python's memory.
   void set_value(const blitz::Array<double, 2>& A, double V) const
   {
     const_cast<blitz::Array<double, 2>&>(A)(0, 0) = V;

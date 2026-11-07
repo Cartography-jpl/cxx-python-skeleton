@@ -15,8 +15,9 @@ namespace CXX_PYTHON_RULES_NAMESPACE {
   cxx_python_rules/nanobind/blitz_array.h); it doesn't depend on python.
 
   Strides are in elements, as in both mdspan and blitz. Only
-  non-negative strides are supported (a negative stride throws); the
-  python side copies such arrays first.
+  non-negative strides are supported (a negative stride throws
+  std::runtime_error: this generic code doesn't know the project's
+  exception class); the python side copies such arrays first.
 *******************************************************************/
 
 template<class T, int N>
@@ -30,7 +31,7 @@ using strided_mdspan =
 template<class T, int N>
 strided_mdspan<T, N> to_mdspan(const blitz::Array<T, N>& A)
 {
-  std::array<std::ptrdiff_t, N> ext, str;
+  std::array<std::ptrdiff_t, N> ext{}, str{};
   for(int i = 0; i < N; ++i) {
     ext[i] = A.extent(i);
     str[i] = A.stride(i);
@@ -38,6 +39,9 @@ strided_mdspan<T, N> to_mdspan(const blitz::Array<T, N>& A)
       throw std::runtime_error("to_mdspan: negative strides not supported");
   }
   using map = typename strided_mdspan<T, N>::mapping_type;
+  // A const blitz::Array still shares writable data (copies of it see
+  // writes), and the view is as writable as A's data; use T = const U
+  // for a read-only view.
   return strided_mdspan<T, N>(const_cast<T*>(A.data()),
                               map(md::dextents<std::ptrdiff_t, N>(ext), str));
 }

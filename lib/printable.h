@@ -11,17 +11,12 @@ namespace Skeleton {
 /****************************************************************/ /**
   This is a Mixin for classes that can be printed.
 
-  There are two different functions we want to use for printing. For
-  normal C++ use, we want the usual "<<" notation, e.g., cout << foo.
-  For use with languages such as Ruby that don't have a native stream
-  type, we want to "print_to_string()", which returns a string that
-  Ruby can directly work with.
-
-  We implement both of these functions in terms of a third function,
-  "print(ostream& Os)".
-
-  Classes T that want to be printable in both C++ and other languages
-  should derive from Printable<T>, and then define print(ostream& Os).
+  C++ code prints with the usual "<<" (cout << foo), and the python
+  bindings use print_to_string() for __str__. Both are implemented with
+  print(std::ostream& Os), which a class T deriving from Printable<T>
+  defines: "virtual void print(std::ostream& Os) const" in the first
+  class that has it, "void print(std::ostream& Os) const override" in
+  classes derived from that one.
 
   std::format works too: std::format("{}", foo) gives the same text as
   "<<" (see the std::formatter at the end of this file), and the
@@ -41,15 +36,18 @@ public:
     return os.str();
   }
 
-  // Alternative to print, this works better with python. If this
-  // is an empty string we fall back to print - so C++ classes work
-  // without change but python can intercept this by overriding desc.
+  //-----------------------------------------------------------------------
+  /// Alternative to print for python: a python subclass overrides desc
+  /// to give its own description. The default, an empty string, means
+  /// "use print", so C++ classes need nothing.
+  //-----------------------------------------------------------------------
+
   virtual std::string desc() const { return ""; }
 
   void print_wrapper(std::ostream& Os) const
   {
     std::string d = desc();
-    if(d != "")
+    if(!d.empty())
       Os << d;
     else
       static_cast<const T*>(this)->print(Os);
@@ -68,12 +66,15 @@ public:
 
 //-----------------------------------------------------------------------
 /// Anything that can be printed with "<<" through Printable: a class
-/// derived from Printable<T>, or from a class that is.
+/// derived from Printable<T>, or from a class that is, which has
+/// print(std::ostream&).
 //-----------------------------------------------------------------------
 
 template<class T>
-concept PrintableObject =
-    requires(const T& V, std::ostream& Os) { V.print_wrapper(Os); };
+concept PrintableObject = requires(const T& V, std::ostream& Os) {
+  V.print_wrapper(Os);
+  V.print(Os);
+};
 }
 
 //-----------------------------------------------------------------------

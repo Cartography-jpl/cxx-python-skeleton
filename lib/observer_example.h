@@ -17,7 +17,6 @@ class ObservableExample : public Observable<ObservableExample>,
                           public Printable<ObservableExample> {
 public:
   explicit ObservableExample(double V = 0) : value_(V) {}
-  ~ObservableExample() override = default;
   void add_observer(Observer<ObservableExample>& Obs) override
   {
     add_observer_do(Obs, *this);
@@ -72,7 +71,6 @@ public:
     if(observed_)
       observed_->add_observer(*this);
   }
-  ~ObserverExample() override = default;
   void notify_update(const ObservableExample& Obj) override
   {
     ++notify_count_;
@@ -138,7 +136,6 @@ public:
       throw Exception("CacheExample: Obj is null");
     observed_->add_cache_invalidated_observer(*this);
   }
-  ~CacheExample() override = default;
 
   //-----------------------------------------------------------------------
   /// Twice the observed value, recomputed only when the cache is invalid.
@@ -149,7 +146,7 @@ public:
     if(!cache_valid) {
       cached_ = 2 * observed_->value();
       ++recompute_count_;
-      const_cast<CacheExample*>(this)->cache_valid = true;
+      cache_valid = true;
     }
     return cached_;
   }

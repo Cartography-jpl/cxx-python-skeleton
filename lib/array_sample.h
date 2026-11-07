@@ -1,11 +1,11 @@
 #ifndef ARRAY_SAMPLE_H
 #define ARRAY_SAMPLE_H
 #include "printable.h"
+#include "skeleton_exception.h"
 #include <blitz/array.h>
 #include <array>
 #include <cstddef>
 #include <optional>
-#include <stdexcept>
 #include <string>
 
 namespace Skeleton {
@@ -28,7 +28,6 @@ public:
     : position_{{1, 2, 3}}, matrix_{{{{1, 2, 3}}, {{4, 5, 6}}}}, count_(7)
   {
   }
-  ~ArraySample() override = default;
 
   //-----------------------------------------------------------------------
   /// A 3-vector. Public, because the python property (position_)
@@ -60,7 +59,7 @@ public:
   void matrix(const blitz::Array<double, 2>& M)
   {
     if(M.rows() != 2 || M.cols() != 3)
-      throw std::runtime_error("matrix must be 2 x 3");
+      throw Exception("matrix must be 2 x 3, got {} x {}", M.rows(), M.cols());
     for(int i = 0; i < 2; ++i)
       for(int j = 0; j < 3; ++j)
         matrix_[i][j] = M(i, j);
@@ -113,7 +112,6 @@ public:
       for(int j = 0; j < Cols; ++j)
         data_(i, j) = 10 * i + j;
   }
-  ~ColumnMajorSample() override = default;
 
   //-----------------------------------------------------------------------
   /// The column-major array.

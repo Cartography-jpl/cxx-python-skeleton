@@ -50,6 +50,20 @@ template<class... Args> struct ExceptionFormat {
 
   The exception records where it was created (source_location()), and
   a stack trace (stacktrace(), see capture_stacktrace).
+
+  Use this (or a class derived from it) for errors in the library, not
+  std::runtime_error: python sees both as RuntimeError, but only this
+  carries the stack trace and source location.
+
+  Two choices kept on purpose (code review 2026-11-06):
+  * It derives from Printable, and so from GenericObject and
+    enable_shared_from_this, which makes it a little heavier than a
+    plain exception class. It is bound to python (as cpp_exception on
+    the python exception), and every bound class has to be a
+    GenericObject for the type registry (register_type).
+  * The stack trace uses Boost.Stacktrace rather than C++23
+    std::stacktrace: gcc 14, the minimum, still needs -lstdc++exp for
+    std::stacktrace.
 *******************************************************************/
 
 class Exception : public std::exception, public Printable<Exception> {
@@ -85,10 +99,6 @@ public:
     capture();
   }
   /// \endcond
-
-  Exception(const Exception& E) = default;
-  Exception& operator=(const Exception& E) = default;
-  ~Exception() noexcept override = default;
 
   //-----------------------------------------------------------------------
   /// Write to exception what() string. Stream manipulators carry over
@@ -175,7 +185,6 @@ private:
 class TypeError : public Exception {
 public:
   using Exception::Exception;
-  ~TypeError() noexcept override = default;
 };
 
 /** \defgroup Error Error checking routines */

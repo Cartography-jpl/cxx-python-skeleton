@@ -40,7 +40,6 @@ using ConstRasterView = strided_mdspan<const int, 2>;
 
 class RasterSample : public Printable<RasterSample> {
 public:
-  ~RasterSample() override = default;
   virtual int number_line() const = 0;
   virtual int number_sample() const = 0;
 
@@ -156,7 +155,6 @@ public:
     : data_(Data.copy())
   {
   }
-  ~MemoryRasterSample() override = default;
   int number_line() const override { return data_.rows(); }
   int number_sample() const override { return data_.cols(); }
   void read_into(int Lstart, int Sstart, const RasterView& Res) const override;
@@ -197,7 +195,6 @@ class BufferRasterSample : public RasterSample {
 public:
   // A file of Number_line x Number_sample, value 1000 * line + sample.
   BufferRasterSample(int Number_line, int Number_sample);
-  ~BufferRasterSample() override = default;
   int number_line() const override { return f.number_line; }
   int number_sample() const override { return f.number_sample; }
   void read_into(int Lstart, int Sstart, const RasterView& Res) const override;
@@ -218,7 +215,6 @@ class SubRasterSample : public RasterSample {
 public:
   SubRasterSample(const std::shared_ptr<RasterSample>& Full, int Lstart,
                   int Sstart, int Number_line, int Number_sample);
-  ~SubRasterSample() override = default;
   int number_line() const override { return nline; }
   int number_sample() const override { return nsamp; }
   void read_into(int Lstart, int Sstart, const RasterView& Res) const override
@@ -247,7 +243,6 @@ private:
 
 class CalcRasterSample : public RasterSample {
 public:
-  ~CalcRasterSample() override = default;
   int number_line() const final { return nline; }
   int number_sample() const final { return nsamp; }
   void read_into(int Lstart, int Sstart, const RasterView& Res) const final;

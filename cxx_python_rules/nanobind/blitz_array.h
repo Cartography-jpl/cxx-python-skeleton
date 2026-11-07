@@ -86,7 +86,7 @@ template<class T, int N> bool view_of(nb::handle src, blitz::Array<T, N>& res)
   if(!c.from_python(src, 0, nullptr))
     return false;
   in_array<T, N>& a = c.value;
-  std::array<std::ptrdiff_t, N> ext, str;
+  std::array<std::ptrdiff_t, N> ext{}, str{};
   for(int i = 0; i < N; ++i) {
     ext[i] = static_cast<std::ptrdiff_t>(a.shape(i));
     str[i] = static_cast<std::ptrdiff_t>(a.stride(i));

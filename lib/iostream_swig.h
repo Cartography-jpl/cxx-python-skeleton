@@ -20,7 +20,6 @@ public:
     : to_write(std::move(To_write)), word_to_read(Word_to_read)
   {
   }
-  ~IostreamSwig() override = default;
   void write(std::ostream& Os) const;
   std::string read(std::istream& In);
   virtual void print(std::ostream& Os) const;

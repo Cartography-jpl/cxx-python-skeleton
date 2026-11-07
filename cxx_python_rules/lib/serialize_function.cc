@@ -30,7 +30,6 @@ using namespace CXX_PYTHON_RULES_NAMESPACE;
 
 class FilteringOstream : public std::ostream {
 public:
-  ~FilteringOstream() override = default;
 protected:
   //-----------------------------------------------------------------------
   /// Constructor. This opens the given file and sets up the stream
@@ -65,7 +64,6 @@ protected:
 
 class FilteringIstream : public std::istream {
 public:
-  ~FilteringIstream() override = default;
 protected:
   //-----------------------------------------------------------------------
   /// Constructor. This opens the given file and sets up the stream
@@ -110,7 +108,6 @@ public:
       sb.push(boost::iostreams::gzip_compressor());
     sb.push(f);
   }
-  ~OstreamCompress() override = default;
 };
 
 /****************************************************************/ /**
@@ -138,7 +135,6 @@ public:
       sb.push(boost::iostreams::gzip_decompressor());
     sb.push(f);
   }
-  ~IstreamCompress() override = default;
 };
 
 //-----------------------------------------------------------------------

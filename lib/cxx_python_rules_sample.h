@@ -19,7 +19,6 @@ namespace Skeleton {
 class ValueSample : public Printable<ValueSample> {
 public:
   explicit ValueSample(double V = 0) : v_(V) {}
-  ~ValueSample() override = default;
   double v() const { return v_; }
   virtual void print(std::ostream& Os) const
   {
@@ -40,11 +39,9 @@ public:
   explicit CxxPythonRulesSample(int Count = 0, std::string Name = "")
     : count_(Count), name_(std::move(Name))
   {
-    position_ = {{1.0, 2.0, 3.0}};
     data_.resize(2, 2);
     data_ = 0;
   }
-  ~CxxPythonRulesSample() override = default;
 
   //-----------------------------------------------------------------------
   /// Constructor arguments, used by cxx_python_rules_nb::pickle_init.
@@ -87,7 +84,7 @@ public:
   /// argument.
   //-----------------------------------------------------------------------
 
-  std::array<double, 3> position_;
+  std::array<double, 3> position_{1.0, 2.0, 3.0};
   double sum_array(const std::array<double, 3>& A) const
   {
     return A[0] + A[1] + A[2];

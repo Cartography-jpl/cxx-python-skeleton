@@ -18,7 +18,6 @@ class CameraLike : public Printable<CameraLike>,
                    public Observable<CameraLike>,
                    public WithParameterLike {
 public:
-  ~CameraLike() override = default;
   void add_observer(Observer<CameraLike>& Obs) override
   {
     add_observer_do(Obs, *this);
@@ -46,7 +45,6 @@ public:
     : focal_length_(Focal_length), number_band_(Number_band)
   {
   }
-  ~SimpleCameraLike() override = default;
   int number_band() const override { return number_band_; }
   double focal_length() const override { return focal_length_; }
   blitz::Array<double, 1> parameter() const override
@@ -58,7 +56,7 @@ public:
   void parameter(const blitz::Array<double, 1>& Parm) override
   {
     if(Parm.rows() != 1)
-      throw std::runtime_error("parameter must have size 1");
+      throw Exception("parameter must have size 1, got {}", Parm.rows());
     focal_length_ = Parm(0);
     notify_update_do(*this);
   }
@@ -87,7 +85,6 @@ public:
     : cam_(std::move(Cam))
   {
   }
-  ~MultiBaseExample() override = default;
   const std::shared_ptr<CameraLike>& camera() const { return cam_; }
   std::shared_ptr<WithParameterLike> camera_as_with_parameter() const
   {

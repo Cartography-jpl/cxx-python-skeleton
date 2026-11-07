@@ -15,7 +15,6 @@ namespace Skeleton {
 class ThreadExample : public Printable<ThreadExample> {
 public:
   ThreadExample() = default;
-  ~ThreadExample() override = default;
 
   //-----------------------------------------------------------------------
   /// Call Obj->func(V + i) for i = 0 ... Number_thread - 1, each on its

@@ -22,7 +22,6 @@ public:
     : value_to_add_(value_to_add), name_(std::move(name))
   {
   }
-  ~DirectorExample() override = default;
   virtual int func(int v) const { return v + value_to_add_; }
   virtual void print(std::ostream& Os) const;
   int value_to_add() const { return value_to_add_; }
@@ -56,7 +55,6 @@ public:
     : DirectorExample(value_to_add, name), obj_(std::move(Obj))
   {
   }
-  ~DirectorExampleNested() override = default;
 
   const std::shared_ptr<DirectorExample>& obj() const { return obj_; }
 protected:
@@ -78,8 +76,7 @@ public:
     : a_(V)
   {
   }
-  ~DirectorExampleWeakPtr() override = default;
-  void print(std::ostream& Os) const
+  virtual void print(std::ostream& Os) const
   {
     Os << "----------------------\n";
     Os << "DirectorExampleWeakPtr\n";
@@ -108,7 +105,6 @@ private:
 class DirectorExampleUser : public Printable<DirectorExampleUser> {
 public:
   DirectorExampleUser() = default;
-  ~DirectorExampleUser() override = default;
   virtual void print(std::ostream& Os) const { Os << "DirectorExampleUser"; }
   const std::vector<std::shared_ptr<DirectorExample>>& value_vec() const
   {
