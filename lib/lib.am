@@ -23,6 +23,7 @@ skeleton_test_all_SOURCES += @srclib@/test_all.cc
 skeleton_test_all_LDADD = libskeleton.la 
 skeleton_test_all_LDFLAGS = $(UNINSTALLED_PROGRAM_LINK_FLAGS)
 skeleton_test_all_CPPFLAGS = $(AM_CPPFLAGS)
+skeleton_test_all_CXXFLAGS = $(AM_CXXFLAGS) $(SKELETON_TEST_CXXFLAGS)
 TESTS+= @srclib@/test_all.sh
 EXTRA_DIST+= @srclib@/test_all.sh
 

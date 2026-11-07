@@ -26,6 +26,7 @@ skeletoninc_HEADERS+= @cxxpythonrules@/lib/serialize_function.h
 libskeleton_la_SOURCES+= @cxxpythonrules@/lib/serialize_function.cc
 skeletoninc_HEADERS+= @cxxpythonrules@/lib/serialize_shared_ptr.h
 skeletoninc_HEADERS+= @cxxpythonrules@/lib/director_hook.h
+libskeleton_la_SOURCES+= @cxxpythonrules@/lib/director_hook.cc
 skeletoninc_HEADERS+= @cxxpythonrules@/lib/weak_ptr_serialize_support.h
 libskeleton_la_SOURCES+= @cxxpythonrules@/lib/weak_ptr_serialize_support.cc
 skeletoninc_HEADERS+= @cxxpythonrules@/lib/cxx_python_rules_mdspan.h

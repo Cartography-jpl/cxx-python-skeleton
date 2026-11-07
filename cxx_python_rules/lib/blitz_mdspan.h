@@ -42,7 +42,7 @@ strided_mdspan<T, N> to_mdspan(const blitz::Array<T, N>& A)
     if(str[i] < 0)
       throw std::runtime_error("to_mdspan: negative strides not supported");
   }
-  using map = typename strided_mdspan<T, N>::mapping_type;
+  using map = strided_mdspan<T, N>::mapping_type;
   // A const blitz::Array still shares writable data (copies of it see
   // writes), and the view is as writable as A's data; use T = const U
   // for a read-only view.
@@ -65,6 +65,8 @@ public:
     : blitz::MemoryBlock<T>(Length, Data), owner(std::move(Owner))
   {
   }
+  OwnerMemoryBlock(const OwnerMemoryBlock&) = delete;
+  OwnerMemoryBlock& operator=(const OwnerMemoryBlock&) = delete;
   ~OwnerMemoryBlock() override
   {
     // The memory belongs to owner, don't let blitz free it.
@@ -113,7 +115,7 @@ template<class Mdspan>
 blitz::Array<typename Mdspan::element_type, Mdspan::rank()>
 to_blitz(const Mdspan& M, std::shared_ptr<void> Owner = nullptr)
 {
-  using T = typename Mdspan::element_type;
+  using T = Mdspan::element_type;
   static_assert(detail::blitz_owner_supported<T>,
                 "to_blitz: unsupported element type; add it to "
                 "CXX_PYTHON_RULES_BLITZ_OWNER_TYPES in blitz_mdspan.h");

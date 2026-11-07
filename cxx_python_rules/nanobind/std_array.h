@@ -12,8 +12,7 @@
 #include <stdexcept>
 #include <string>
 
-namespace CXX_PYTHON_RULES_NAMESPACE {
-namespace nbblitz {
+namespace CXX_PYTHON_RULES_NAMESPACE::nbblitz {
 //-----------------------------------------------------------------------
 /// Python object -> std::array, throwing std::runtime_error (python
 /// RuntimeError) if it isn't N numbers. For property setters, where
@@ -32,7 +31,6 @@ template<class T, std::size_t N> std::array<T, N> to_std_array(nb::handle src)
   for(std::size_t i = 0; i < N; ++i)
     res[i] = c.value.data()[static_cast<std::ptrdiff_t>(i) * c.value.stride(0)];
   return res;
-}
 }
 }
 
@@ -60,14 +58,13 @@ template<class T, std::size_t N> struct type_caster<std::array<T, N>> {
   static handle from_cpp(const Value& v, rv_policy, cleanup_list*) noexcept
   {
     try {
-      // Owned by the unique_ptr until the capsule has it.
-      auto d = std::make_unique<T[]>(N);
-      std::copy(v.begin(), v.end(), d.get());
+      // A copy of v, owned by the unique_ptr until the capsule has it.
+      auto d = std::make_unique<StdArray>(v);
       capsule owner(d.get(),
-                    [](void* p) noexcept { delete[] static_cast<T*>(p); });
-      T* data = d.release();
-      size_t shape[1] = {N};
-      return ndarray<numpy, T>(data, 1, shape, owner).cast().release();
+                    [](void* p) noexcept { delete static_cast<StdArray*>(p); });
+      T* data = d.release()->data();
+      const std::array<size_t, 1> shape{N};
+      return ndarray<numpy, T>(data, 1, shape.data(), owner).cast().release();
     } catch(python_error& e) {
       e.restore();
     } catch(const std::exception& e) {

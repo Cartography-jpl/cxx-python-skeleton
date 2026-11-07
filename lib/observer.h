@@ -53,6 +53,7 @@ public:
 
   Observer(const Observer&) = delete;
   Observer& operator=(const Observer&) = delete;
+  ~Observer() override = default;
 
   //-----------------------------------------------------------------------
   /// Called when the Observed object is updated.
@@ -107,6 +108,7 @@ public:
 
   CacheInvalidatedObserver(const CacheInvalidatedObserver&) = delete;
   CacheInvalidatedObserver& operator=(const CacheInvalidatedObserver&) = delete;
+  ~CacheInvalidatedObserver() override = default;
 
   //-----------------------------------------------------------------------
   /// Called when the cache is invalidated.
@@ -163,6 +165,7 @@ public:
 
   Observable(const Observable&) = delete;
   Observable& operator=(const Observable&) = delete;
+  ~Observable() override = default;
 
   //-----------------------------------------------------------------------
   /// Add an observer

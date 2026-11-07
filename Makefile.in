@@ -323,6 +323,7 @@ libnanobind_core_la_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CXX \
 libskeleton_la_LIBADD =
 am_libskeleton_la_OBJECTS =  \
 	@cxxpythonrules@/lib/libskeleton_la-serialize_function.lo \
+	@cxxpythonrules@/lib/libskeleton_la-director_hook.lo \
 	@cxxpythonrules@/lib/libskeleton_la-weak_ptr_serialize_support.lo \
 	@cxxpythonrules@/lib/libskeleton_la-blitz_mdspan.lo \
 	@srclib@/libskeleton_la-generic_object.lo \
@@ -374,8 +375,8 @@ skeleton_test_all_OBJECTS = $(am_skeleton_test_all_OBJECTS)
 skeleton_test_all_DEPENDENCIES = libskeleton.la
 skeleton_test_all_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CXX \
 	$(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=link $(CXXLD) \
-	$(AM_CXXFLAGS) $(CXXFLAGS) $(skeleton_test_all_LDFLAGS) \
-	$(LDFLAGS) -o $@
+	$(skeleton_test_all_CXXFLAGS) $(CXXFLAGS) \
+	$(skeleton_test_all_LDFLAGS) $(LDFLAGS) -o $@
 SCRIPTS = $(dist_bin_SCRIPTS) $(dist_installskeleton_SCRIPTS)
 AM_V_P = $(am__v_P_@AM_V@)
 am__v_P_ = $(am__v_P_@AM_DEFAULT_V@)
@@ -394,6 +395,7 @@ depcomp = $(SHELL) $(top_srcdir)/config/depcomp
 am__maybe_remake_depfiles = depfiles
 am__depfiles_remade = ./$(DEPDIR)/_bindings_la-nb_docstrings.Plo \
 	@cxxpythonrules@/lib/$(DEPDIR)/libskeleton_la-blitz_mdspan.Plo \
+	@cxxpythonrules@/lib/$(DEPDIR)/libskeleton_la-director_hook.Plo \
 	@cxxpythonrules@/lib/$(DEPDIR)/libskeleton_la-serialize_function.Plo \
 	@cxxpythonrules@/lib/$(DEPDIR)/libskeleton_la-weak_ptr_serialize_support.Plo \
 	@cxxpythonrules@/nanobind/$(DEPDIR)/_bindings_la-cxx_python_rules_nb.Plo \
@@ -851,6 +853,7 @@ SHELL = @SHELL@
 SKELETON_DEBUG_CPPFLAGS = @SKELETON_DEBUG_CPPFLAGS@
 SKELETON_RELEASE_CPPFLAGS = @SKELETON_RELEASE_CPPFLAGS@
 SKELETON_SANITIZER_PRELOAD = @SKELETON_SANITIZER_PRELOAD@
+SKELETON_TEST_CXXFLAGS = @SKELETON_TEST_CXXFLAGS@
 SKELETON_WARN_CXXFLAGS = @SKELETON_WARN_CXXFLAGS@
 SPHINXBUILD = @SPHINXBUILD@
 STRIP = @STRIP@
@@ -1028,6 +1031,7 @@ check_DATA =
 
 # Build these up as we go
 libskeleton_la_SOURCES = @cxxpythonrules@/lib/serialize_function.cc \
+	@cxxpythonrules@/lib/director_hook.cc \
 	@cxxpythonrules@/lib/weak_ptr_serialize_support.cc \
 	@cxxpythonrules@/lib/blitz_mdspan.cc \
 	@srclib@/generic_object.cc @srclib@/generic_object_sample.cc \
@@ -1194,6 +1198,7 @@ UNINSTALLED_PROGRAM_LINK_FLAGS = -no-install -Wl,-rpath,$(abs_top_builddir)/.lib
 skeleton_test_all_LDADD = libskeleton.la 
 skeleton_test_all_LDFLAGS = $(UNINSTALLED_PROGRAM_LINK_FLAGS)
 skeleton_test_all_CPPFLAGS = $(AM_CPPFLAGS)
+skeleton_test_all_CXXFLAGS = $(AM_CXXFLAGS) $(SKELETON_TEST_CXXFLAGS)
 NB_LIBADD = libskeleton.la
 @BUILD_PYTHON_BINDINGS_TRUE@_skeleton_downstream_la_SOURCES = @srclib@/downstream_nb.cc
 @BUILD_PYTHON_BINDINGS_TRUE@_skeleton_downstream_la_CPPFLAGS = $(_bindings_la_CPPFLAGS)
@@ -1502,6 +1507,9 @@ libnanobind_core.la: $(libnanobind_core_la_OBJECTS) $(libnanobind_core_la_DEPEND
 @cxxpythonrules@/lib/libskeleton_la-serialize_function.lo:  \
 	@cxxpythonrules@/lib/$(am__dirstamp) \
 	@cxxpythonrules@/lib/$(DEPDIR)/$(am__dirstamp)
+@cxxpythonrules@/lib/libskeleton_la-director_hook.lo:  \
+	@cxxpythonrules@/lib/$(am__dirstamp) \
+	@cxxpythonrules@/lib/$(DEPDIR)/$(am__dirstamp)
 @cxxpythonrules@/lib/libskeleton_la-weak_ptr_serialize_support.lo:  \
 	@cxxpythonrules@/lib/$(am__dirstamp) \
 	@cxxpythonrules@/lib/$(DEPDIR)/$(am__dirstamp)
@@ -1668,6 +1676,7 @@ distclean-compile:
 
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/_bindings_la-nb_docstrings.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@@cxxpythonrules@/lib/$(DEPDIR)/libskeleton_la-blitz_mdspan.Plo@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@@cxxpythonrules@/lib/$(DEPDIR)/libskeleton_la-director_hook.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@@cxxpythonrules@/lib/$(DEPDIR)/libskeleton_la-serialize_function.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@@cxxpythonrules@/lib/$(DEPDIR)/libskeleton_la-weak_ptr_serialize_support.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@@cxxpythonrules@/nanobind/$(DEPDIR)/_bindings_la-cxx_python_rules_nb.Plo@am__quote@ # am--include-marker
@@ -1947,6 +1956,13 @@ _bindings_la-nb_docstrings.lo: nb_docstrings.cc
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libskeleton_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o @cxxpythonrules@/lib/libskeleton_la-serialize_function.lo `test -f '@cxxpythonrules@/lib/serialize_function.cc' || echo '$(srcdir)/'`@cxxpythonrules@/lib/serialize_function.cc
 
+@cxxpythonrules@/lib/libskeleton_la-director_hook.lo: @cxxpythonrules@/lib/director_hook.cc
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libskeleton_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT @cxxpythonrules@/lib/libskeleton_la-director_hook.lo -MD -MP -MF @cxxpythonrules@/lib/$(DEPDIR)/libskeleton_la-director_hook.Tpo -c -o @cxxpythonrules@/lib/libskeleton_la-director_hook.lo `test -f '@cxxpythonrules@/lib/director_hook.cc' || echo '$(srcdir)/'`@cxxpythonrules@/lib/director_hook.cc
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) @cxxpythonrules@/lib/$(DEPDIR)/libskeleton_la-director_hook.Tpo @cxxpythonrules@/lib/$(DEPDIR)/libskeleton_la-director_hook.Plo
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='@cxxpythonrules@/lib/director_hook.cc' object='@cxxpythonrules@/lib/libskeleton_la-director_hook.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libskeleton_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o @cxxpythonrules@/lib/libskeleton_la-director_hook.lo `test -f '@cxxpythonrules@/lib/director_hook.cc' || echo '$(srcdir)/'`@cxxpythonrules@/lib/director_hook.cc
+
 @cxxpythonrules@/lib/libskeleton_la-weak_ptr_serialize_support.lo: @cxxpythonrules@/lib/weak_ptr_serialize_support.cc
 @am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libskeleton_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT @cxxpythonrules@/lib/libskeleton_la-weak_ptr_serialize_support.lo -MD -MP -MF @cxxpythonrules@/lib/$(DEPDIR)/libskeleton_la-weak_ptr_serialize_support.Tpo -c -o @cxxpythonrules@/lib/libskeleton_la-weak_ptr_serialize_support.lo `test -f '@cxxpythonrules@/lib/weak_ptr_serialize_support.cc' || echo '$(srcdir)/'`@cxxpythonrules@/lib/weak_ptr_serialize_support.cc
 @am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) @cxxpythonrules@/lib/$(DEPDIR)/libskeleton_la-weak_ptr_serialize_support.Tpo @cxxpythonrules@/lib/$(DEPDIR)/libskeleton_la-weak_ptr_serialize_support.Plo
@@ -2088,214 +2104,214 @@ _bindings_la-nb_docstrings.lo: nb_docstrings.cc
 @am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(golden_archive_generator_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o @srclib@/golden_archive_generator-golden_archive_generator.obj `if test -f '@srclib@/golden_archive_generator.cc'; then $(CYGPATH_W) '@srclib@/golden_archive_generator.cc'; else $(CYGPATH_W) '$(srcdir)/@srclib@/golden_archive_generator.cc'; fi`
 
 @srclib@/skeleton_test_all-test_all.o: @srclib@/test_all.cc
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(skeleton_test_all_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT @srclib@/skeleton_test_all-test_all.o -MD -MP -MF @srclib@/$(DEPDIR)/skeleton_test_all-test_all.Tpo -c -o @srclib@/skeleton_test_all-test_all.o `test -f '@srclib@/test_all.cc' || echo '$(srcdir)/'`@srclib@/test_all.cc
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(skeleton_test_all_CPPFLAGS) $(CPPFLAGS) $(skeleton_test_all_CXXFLAGS) $(CXXFLAGS) -MT @srclib@/skeleton_test_all-test_all.o -MD -MP -MF @srclib@/$(DEPDIR)/skeleton_test_all-test_all.Tpo -c -o @srclib@/skeleton_test_all-test_all.o `test -f '@srclib@/test_all.cc' || echo '$(srcdir)/'`@srclib@/test_all.cc
 @am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) @srclib@/$(DEPDIR)/skeleton_test_all-test_all.Tpo @srclib@/$(DEPDIR)/skeleton_test_all-test_all.Po
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='@srclib@/test_all.cc' object='@srclib@/skeleton_test_all-test_all.o' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(skeleton_test_all_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o @srclib@/skeleton_test_all-test_all.o `test -f '@srclib@/test_all.cc' || echo '$(srcdir)/'`@srclib@/test_all.cc
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(skeleton_test_all_CPPFLAGS) $(CPPFLAGS) $(skeleton_test_all_CXXFLAGS) $(CXXFLAGS) -c -o @srclib@/skeleton_test_all-test_all.o `test -f '@srclib@/test_all.cc' || echo '$(srcdir)/'`@srclib@/test_all.cc
 
 @srclib@/skeleton_test_all-test_all.obj: @srclib@/test_all.cc
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(skeleton_test_all_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT @srclib@/skeleton_test_all-test_all.obj -MD -MP -MF @srclib@/$(DEPDIR)/skeleton_test_all-test_all.Tpo -c -o @srclib@/skeleton_test_all-test_all.obj `if test -f '@srclib@/test_all.cc'; then $(CYGPATH_W) '@srclib@/test_all.cc'; else $(CYGPATH_W) '$(srcdir)/@srclib@/test_all.cc'; fi`
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(skeleton_test_all_CPPFLAGS) $(CPPFLAGS) $(skeleton_test_all_CXXFLAGS) $(CXXFLAGS) -MT @srclib@/skeleton_test_all-test_all.obj -MD -MP -MF @srclib@/$(DEPDIR)/skeleton_test_all-test_all.Tpo -c -o @srclib@/skeleton_test_all-test_all.obj `if test -f '@srclib@/test_all.cc'; then $(CYGPATH_W) '@srclib@/test_all.cc'; else $(CYGPATH_W) '$(srcdir)/@srclib@/test_all.cc'; fi`
 @am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) @srclib@/$(DEPDIR)/skeleton_test_all-test_all.Tpo @srclib@/$(DEPDIR)/skeleton_test_all-test_all.Po
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='@srclib@/test_all.cc' object='@srclib@/skeleton_test_all-test_all.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(skeleton_test_all_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o @srclib@/skeleton_test_all-test_all.obj `if test -f '@srclib@/test_all.cc'; then $(CYGPATH_W) '@srclib@/test_all.cc'; else $(CYGPATH_W) '$(srcdir)/@srclib@/test_all.cc'; fi`
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(skeleton_test_all_CPPFLAGS) $(CPPFLAGS) $(skeleton_test_all_CXXFLAGS) $(CXXFLAGS) -c -o @srclib@/skeleton_test_all-test_all.obj `if test -f '@srclib@/test_all.cc'; then $(CYGPATH_W) '@srclib@/test_all.cc'; else $(CYGPATH_W) '$(srcdir)/@srclib@/test_all.cc'; fi`
 
 @srclib@/skeleton_test_all-global_fixture.o: @srclib@/global_fixture.cc
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(skeleton_test_all_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT @srclib@/skeleton_test_all-global_fixture.o -MD -MP -MF @srclib@/$(DEPDIR)/skeleton_test_all-global_fixture.Tpo -c -o @srclib@/skeleton_test_all-global_fixture.o `test -f '@srclib@/global_fixture.cc' || echo '$(srcdir)/'`@srclib@/global_fixture.cc
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(skeleton_test_all_CPPFLAGS) $(CPPFLAGS) $(skeleton_test_all_CXXFLAGS) $(CXXFLAGS) -MT @srclib@/skeleton_test_all-global_fixture.o -MD -MP -MF @srclib@/$(DEPDIR)/skeleton_test_all-global_fixture.Tpo -c -o @srclib@/skeleton_test_all-global_fixture.o `test -f '@srclib@/global_fixture.cc' || echo '$(srcdir)/'`@srclib@/global_fixture.cc
 @am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) @srclib@/$(DEPDIR)/skeleton_test_all-global_fixture.Tpo @srclib@/$(DEPDIR)/skeleton_test_all-global_fixture.Po
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='@srclib@/global_fixture.cc' object='@srclib@/skeleton_test_all-global_fixture.o' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(skeleton_test_all_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o @srclib@/skeleton_test_all-global_fixture.o `test -f '@srclib@/global_fixture.cc' || echo '$(srcdir)/'`@srclib@/global_fixture.cc
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(skeleton_test_all_CPPFLAGS) $(CPPFLAGS) $(skeleton_test_all_CXXFLAGS) $(CXXFLAGS) -c -o @srclib@/skeleton_test_all-global_fixture.o `test -f '@srclib@/global_fixture.cc' || echo '$(srcdir)/'`@srclib@/global_fixture.cc
 
 @srclib@/skeleton_test_all-global_fixture.obj: @srclib@/global_fixture.cc
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(skeleton_test_all_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT @srclib@/skeleton_test_all-global_fixture.obj -MD -MP -MF @srclib@/$(DEPDIR)/skeleton_test_all-global_fixture.Tpo -c -o @srclib@/skeleton_test_all-global_fixture.obj `if test -f '@srclib@/global_fixture.cc'; then $(CYGPATH_W) '@srclib@/global_fixture.cc'; else $(CYGPATH_W) '$(srcdir)/@srclib@/global_fixture.cc'; fi`
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(skeleton_test_all_CPPFLAGS) $(CPPFLAGS) $(skeleton_test_all_CXXFLAGS) $(CXXFLAGS) -MT @srclib@/skeleton_test_all-global_fixture.obj -MD -MP -MF @srclib@/$(DEPDIR)/skeleton_test_all-global_fixture.Tpo -c -o @srclib@/skeleton_test_all-global_fixture.obj `if test -f '@srclib@/global_fixture.cc'; then $(CYGPATH_W) '@srclib@/global_fixture.cc'; else $(CYGPATH_W) '$(srcdir)/@srclib@/global_fixture.cc'; fi`
 @am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) @srclib@/$(DEPDIR)/skeleton_test_all-global_fixture.Tpo @srclib@/$(DEPDIR)/skeleton_test_all-global_fixture.Po
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='@srclib@/global_fixture.cc' object='@srclib@/skeleton_test_all-global_fixture.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(skeleton_test_all_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o @srclib@/skeleton_test_all-global_fixture.obj `if test -f '@srclib@/global_fixture.cc'; then $(CYGPATH_W) '@srclib@/global_fixture.cc'; else $(CYGPATH_W) '$(srcdir)/@srclib@/global_fixture.cc'; fi`
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(skeleton_test_all_CPPFLAGS) $(CPPFLAGS) $(skeleton_test_all_CXXFLAGS) $(CXXFLAGS) -c -o @srclib@/skeleton_test_all-global_fixture.obj `if test -f '@srclib@/global_fixture.cc'; then $(CYGPATH_W) '@srclib@/global_fixture.cc'; else $(CYGPATH_W) '$(srcdir)/@srclib@/global_fixture.cc'; fi`
 
 @srclib@/skeleton_test_all-global_fixture_default.o: @srclib@/global_fixture_default.cc
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(skeleton_test_all_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT @srclib@/skeleton_test_all-global_fixture_default.o -MD -MP -MF @srclib@/$(DEPDIR)/skeleton_test_all-global_fixture_default.Tpo -c -o @srclib@/skeleton_test_all-global_fixture_default.o `test -f '@srclib@/global_fixture_default.cc' || echo '$(srcdir)/'`@srclib@/global_fixture_default.cc
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(skeleton_test_all_CPPFLAGS) $(CPPFLAGS) $(skeleton_test_all_CXXFLAGS) $(CXXFLAGS) -MT @srclib@/skeleton_test_all-global_fixture_default.o -MD -MP -MF @srclib@/$(DEPDIR)/skeleton_test_all-global_fixture_default.Tpo -c -o @srclib@/skeleton_test_all-global_fixture_default.o `test -f '@srclib@/global_fixture_default.cc' || echo '$(srcdir)/'`@srclib@/global_fixture_default.cc
 @am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) @srclib@/$(DEPDIR)/skeleton_test_all-global_fixture_default.Tpo @srclib@/$(DEPDIR)/skeleton_test_all-global_fixture_default.Po
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='@srclib@/global_fixture_default.cc' object='@srclib@/skeleton_test_all-global_fixture_default.o' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(skeleton_test_all_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o @srclib@/skeleton_test_all-global_fixture_default.o `test -f '@srclib@/global_fixture_default.cc' || echo '$(srcdir)/'`@srclib@/global_fixture_default.cc
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(skeleton_test_all_CPPFLAGS) $(CPPFLAGS) $(skeleton_test_all_CXXFLAGS) $(CXXFLAGS) -c -o @srclib@/skeleton_test_all-global_fixture_default.o `test -f '@srclib@/global_fixture_default.cc' || echo '$(srcdir)/'`@srclib@/global_fixture_default.cc
 
 @srclib@/skeleton_test_all-global_fixture_default.obj: @srclib@/global_fixture_default.cc
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(skeleton_test_all_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT @srclib@/skeleton_test_all-global_fixture_default.obj -MD -MP -MF @srclib@/$(DEPDIR)/skeleton_test_all-global_fixture_default.Tpo -c -o @srclib@/skeleton_test_all-global_fixture_default.obj `if test -f '@srclib@/global_fixture_default.cc'; then $(CYGPATH_W) '@srclib@/global_fixture_default.cc'; else $(CYGPATH_W) '$(srcdir)/@srclib@/global_fixture_default.cc'; fi`
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(skeleton_test_all_CPPFLAGS) $(CPPFLAGS) $(skeleton_test_all_CXXFLAGS) $(CXXFLAGS) -MT @srclib@/skeleton_test_all-global_fixture_default.obj -MD -MP -MF @srclib@/$(DEPDIR)/skeleton_test_all-global_fixture_default.Tpo -c -o @srclib@/skeleton_test_all-global_fixture_default.obj `if test -f '@srclib@/global_fixture_default.cc'; then $(CYGPATH_W) '@srclib@/global_fixture_default.cc'; else $(CYGPATH_W) '$(srcdir)/@srclib@/global_fixture_default.cc'; fi`
 @am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) @srclib@/$(DEPDIR)/skeleton_test_all-global_fixture_default.Tpo @srclib@/$(DEPDIR)/skeleton_test_all-global_fixture_default.Po
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='@srclib@/global_fixture_default.cc' object='@srclib@/skeleton_test_all-global_fixture_default.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(skeleton_test_all_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o @srclib@/skeleton_test_all-global_fixture_default.obj `if test -f '@srclib@/global_fixture_default.cc'; then $(CYGPATH_W) '@srclib@/global_fixture_default.cc'; else $(CYGPATH_W) '$(srcdir)/@srclib@/global_fixture_default.cc'; fi`
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(skeleton_test_all_CPPFLAGS) $(CPPFLAGS) $(skeleton_test_all_CXXFLAGS) $(CXXFLAGS) -c -o @srclib@/skeleton_test_all-global_fixture_default.obj `if test -f '@srclib@/global_fixture_default.cc'; then $(CYGPATH_W) '@srclib@/global_fixture_default.cc'; else $(CYGPATH_W) '$(srcdir)/@srclib@/global_fixture_default.cc'; fi`
 
 @srclib@/skeleton_test_all-generic_object_map_test.o: @srclib@/generic_object_map_test.cc
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(skeleton_test_all_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT @srclib@/skeleton_test_all-generic_object_map_test.o -MD -MP -MF @srclib@/$(DEPDIR)/skeleton_test_all-generic_object_map_test.Tpo -c -o @srclib@/skeleton_test_all-generic_object_map_test.o `test -f '@srclib@/generic_object_map_test.cc' || echo '$(srcdir)/'`@srclib@/generic_object_map_test.cc
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(skeleton_test_all_CPPFLAGS) $(CPPFLAGS) $(skeleton_test_all_CXXFLAGS) $(CXXFLAGS) -MT @srclib@/skeleton_test_all-generic_object_map_test.o -MD -MP -MF @srclib@/$(DEPDIR)/skeleton_test_all-generic_object_map_test.Tpo -c -o @srclib@/skeleton_test_all-generic_object_map_test.o `test -f '@srclib@/generic_object_map_test.cc' || echo '$(srcdir)/'`@srclib@/generic_object_map_test.cc
 @am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) @srclib@/$(DEPDIR)/skeleton_test_all-generic_object_map_test.Tpo @srclib@/$(DEPDIR)/skeleton_test_all-generic_object_map_test.Po
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='@srclib@/generic_object_map_test.cc' object='@srclib@/skeleton_test_all-generic_object_map_test.o' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(skeleton_test_all_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o @srclib@/skeleton_test_all-generic_object_map_test.o `test -f '@srclib@/generic_object_map_test.cc' || echo '$(srcdir)/'`@srclib@/generic_object_map_test.cc
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(skeleton_test_all_CPPFLAGS) $(CPPFLAGS) $(skeleton_test_all_CXXFLAGS) $(CXXFLAGS) -c -o @srclib@/skeleton_test_all-generic_object_map_test.o `test -f '@srclib@/generic_object_map_test.cc' || echo '$(srcdir)/'`@srclib@/generic_object_map_test.cc
 
 @srclib@/skeleton_test_all-generic_object_map_test.obj: @srclib@/generic_object_map_test.cc
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(skeleton_test_all_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT @srclib@/skeleton_test_all-generic_object_map_test.obj -MD -MP -MF @srclib@/$(DEPDIR)/skeleton_test_all-generic_object_map_test.Tpo -c -o @srclib@/skeleton_test_all-generic_object_map_test.obj `if test -f '@srclib@/generic_object_map_test.cc'; then $(CYGPATH_W) '@srclib@/generic_object_map_test.cc'; else $(CYGPATH_W) '$(srcdir)/@srclib@/generic_object_map_test.cc'; fi`
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(skeleton_test_all_CPPFLAGS) $(CPPFLAGS) $(skeleton_test_all_CXXFLAGS) $(CXXFLAGS) -MT @srclib@/skeleton_test_all-generic_object_map_test.obj -MD -MP -MF @srclib@/$(DEPDIR)/skeleton_test_all-generic_object_map_test.Tpo -c -o @srclib@/skeleton_test_all-generic_object_map_test.obj `if test -f '@srclib@/generic_object_map_test.cc'; then $(CYGPATH_W) '@srclib@/generic_object_map_test.cc'; else $(CYGPATH_W) '$(srcdir)/@srclib@/generic_object_map_test.cc'; fi`
 @am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) @srclib@/$(DEPDIR)/skeleton_test_all-generic_object_map_test.Tpo @srclib@/$(DEPDIR)/skeleton_test_all-generic_object_map_test.Po
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='@srclib@/generic_object_map_test.cc' object='@srclib@/skeleton_test_all-generic_object_map_test.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(skeleton_test_all_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o @srclib@/skeleton_test_all-generic_object_map_test.obj `if test -f '@srclib@/generic_object_map_test.cc'; then $(CYGPATH_W) '@srclib@/generic_object_map_test.cc'; else $(CYGPATH_W) '$(srcdir)/@srclib@/generic_object_map_test.cc'; fi`
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(skeleton_test_all_CPPFLAGS) $(CPPFLAGS) $(skeleton_test_all_CXXFLAGS) $(CXXFLAGS) -c -o @srclib@/skeleton_test_all-generic_object_map_test.obj `if test -f '@srclib@/generic_object_map_test.cc'; then $(CYGPATH_W) '@srclib@/generic_object_map_test.cc'; else $(CYGPATH_W) '$(srcdir)/@srclib@/generic_object_map_test.cc'; fi`
 
 @srclib@/skeleton_test_all-printable_test.o: @srclib@/printable_test.cc
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(skeleton_test_all_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT @srclib@/skeleton_test_all-printable_test.o -MD -MP -MF @srclib@/$(DEPDIR)/skeleton_test_all-printable_test.Tpo -c -o @srclib@/skeleton_test_all-printable_test.o `test -f '@srclib@/printable_test.cc' || echo '$(srcdir)/'`@srclib@/printable_test.cc
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(skeleton_test_all_CPPFLAGS) $(CPPFLAGS) $(skeleton_test_all_CXXFLAGS) $(CXXFLAGS) -MT @srclib@/skeleton_test_all-printable_test.o -MD -MP -MF @srclib@/$(DEPDIR)/skeleton_test_all-printable_test.Tpo -c -o @srclib@/skeleton_test_all-printable_test.o `test -f '@srclib@/printable_test.cc' || echo '$(srcdir)/'`@srclib@/printable_test.cc
 @am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) @srclib@/$(DEPDIR)/skeleton_test_all-printable_test.Tpo @srclib@/$(DEPDIR)/skeleton_test_all-printable_test.Po
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='@srclib@/printable_test.cc' object='@srclib@/skeleton_test_all-printable_test.o' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(skeleton_test_all_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o @srclib@/skeleton_test_all-printable_test.o `test -f '@srclib@/printable_test.cc' || echo '$(srcdir)/'`@srclib@/printable_test.cc
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(skeleton_test_all_CPPFLAGS) $(CPPFLAGS) $(skeleton_test_all_CXXFLAGS) $(CXXFLAGS) -c -o @srclib@/skeleton_test_all-printable_test.o `test -f '@srclib@/printable_test.cc' || echo '$(srcdir)/'`@srclib@/printable_test.cc
 
 @srclib@/skeleton_test_all-printable_test.obj: @srclib@/printable_test.cc
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(skeleton_test_all_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT @srclib@/skeleton_test_all-printable_test.obj -MD -MP -MF @srclib@/$(DEPDIR)/skeleton_test_all-printable_test.Tpo -c -o @srclib@/skeleton_test_all-printable_test.obj `if test -f '@srclib@/printable_test.cc'; then $(CYGPATH_W) '@srclib@/printable_test.cc'; else $(CYGPATH_W) '$(srcdir)/@srclib@/printable_test.cc'; fi`
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(skeleton_test_all_CPPFLAGS) $(CPPFLAGS) $(skeleton_test_all_CXXFLAGS) $(CXXFLAGS) -MT @srclib@/skeleton_test_all-printable_test.obj -MD -MP -MF @srclib@/$(DEPDIR)/skeleton_test_all-printable_test.Tpo -c -o @srclib@/skeleton_test_all-printable_test.obj `if test -f '@srclib@/printable_test.cc'; then $(CYGPATH_W) '@srclib@/printable_test.cc'; else $(CYGPATH_W) '$(srcdir)/@srclib@/printable_test.cc'; fi`
 @am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) @srclib@/$(DEPDIR)/skeleton_test_all-printable_test.Tpo @srclib@/$(DEPDIR)/skeleton_test_all-printable_test.Po
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='@srclib@/printable_test.cc' object='@srclib@/skeleton_test_all-printable_test.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(skeleton_test_all_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o @srclib@/skeleton_test_all-printable_test.obj `if test -f '@srclib@/printable_test.cc'; then $(CYGPATH_W) '@srclib@/printable_test.cc'; else $(CYGPATH_W) '$(srcdir)/@srclib@/printable_test.cc'; fi`
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(skeleton_test_all_CPPFLAGS) $(CPPFLAGS) $(skeleton_test_all_CXXFLAGS) $(CXXFLAGS) -c -o @srclib@/skeleton_test_all-printable_test.obj `if test -f '@srclib@/printable_test.cc'; then $(CYGPATH_W) '@srclib@/printable_test.cc'; else $(CYGPATH_W) '$(srcdir)/@srclib@/printable_test.cc'; fi`
 
 @srclib@/skeleton_test_all-skeleton_exception_test.o: @srclib@/skeleton_exception_test.cc
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(skeleton_test_all_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT @srclib@/skeleton_test_all-skeleton_exception_test.o -MD -MP -MF @srclib@/$(DEPDIR)/skeleton_test_all-skeleton_exception_test.Tpo -c -o @srclib@/skeleton_test_all-skeleton_exception_test.o `test -f '@srclib@/skeleton_exception_test.cc' || echo '$(srcdir)/'`@srclib@/skeleton_exception_test.cc
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(skeleton_test_all_CPPFLAGS) $(CPPFLAGS) $(skeleton_test_all_CXXFLAGS) $(CXXFLAGS) -MT @srclib@/skeleton_test_all-skeleton_exception_test.o -MD -MP -MF @srclib@/$(DEPDIR)/skeleton_test_all-skeleton_exception_test.Tpo -c -o @srclib@/skeleton_test_all-skeleton_exception_test.o `test -f '@srclib@/skeleton_exception_test.cc' || echo '$(srcdir)/'`@srclib@/skeleton_exception_test.cc
 @am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) @srclib@/$(DEPDIR)/skeleton_test_all-skeleton_exception_test.Tpo @srclib@/$(DEPDIR)/skeleton_test_all-skeleton_exception_test.Po
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='@srclib@/skeleton_exception_test.cc' object='@srclib@/skeleton_test_all-skeleton_exception_test.o' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(skeleton_test_all_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o @srclib@/skeleton_test_all-skeleton_exception_test.o `test -f '@srclib@/skeleton_exception_test.cc' || echo '$(srcdir)/'`@srclib@/skeleton_exception_test.cc
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(skeleton_test_all_CPPFLAGS) $(CPPFLAGS) $(skeleton_test_all_CXXFLAGS) $(CXXFLAGS) -c -o @srclib@/skeleton_test_all-skeleton_exception_test.o `test -f '@srclib@/skeleton_exception_test.cc' || echo '$(srcdir)/'`@srclib@/skeleton_exception_test.cc
 
 @srclib@/skeleton_test_all-skeleton_exception_test.obj: @srclib@/skeleton_exception_test.cc
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(skeleton_test_all_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT @srclib@/skeleton_test_all-skeleton_exception_test.obj -MD -MP -MF @srclib@/$(DEPDIR)/skeleton_test_all-skeleton_exception_test.Tpo -c -o @srclib@/skeleton_test_all-skeleton_exception_test.obj `if test -f '@srclib@/skeleton_exception_test.cc'; then $(CYGPATH_W) '@srclib@/skeleton_exception_test.cc'; else $(CYGPATH_W) '$(srcdir)/@srclib@/skeleton_exception_test.cc'; fi`
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(skeleton_test_all_CPPFLAGS) $(CPPFLAGS) $(skeleton_test_all_CXXFLAGS) $(CXXFLAGS) -MT @srclib@/skeleton_test_all-skeleton_exception_test.obj -MD -MP -MF @srclib@/$(DEPDIR)/skeleton_test_all-skeleton_exception_test.Tpo -c -o @srclib@/skeleton_test_all-skeleton_exception_test.obj `if test -f '@srclib@/skeleton_exception_test.cc'; then $(CYGPATH_W) '@srclib@/skeleton_exception_test.cc'; else $(CYGPATH_W) '$(srcdir)/@srclib@/skeleton_exception_test.cc'; fi`
 @am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) @srclib@/$(DEPDIR)/skeleton_test_all-skeleton_exception_test.Tpo @srclib@/$(DEPDIR)/skeleton_test_all-skeleton_exception_test.Po
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='@srclib@/skeleton_exception_test.cc' object='@srclib@/skeleton_test_all-skeleton_exception_test.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(skeleton_test_all_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o @srclib@/skeleton_test_all-skeleton_exception_test.obj `if test -f '@srclib@/skeleton_exception_test.cc'; then $(CYGPATH_W) '@srclib@/skeleton_exception_test.cc'; else $(CYGPATH_W) '$(srcdir)/@srclib@/skeleton_exception_test.cc'; fi`
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(skeleton_test_all_CPPFLAGS) $(CPPFLAGS) $(skeleton_test_all_CXXFLAGS) $(CXXFLAGS) -c -o @srclib@/skeleton_test_all-skeleton_exception_test.obj `if test -f '@srclib@/skeleton_exception_test.cc'; then $(CYGPATH_W) '@srclib@/skeleton_exception_test.cc'; else $(CYGPATH_W) '$(srcdir)/@srclib@/skeleton_exception_test.cc'; fi`
 
 @srclib@/skeleton_test_all-blitz_array_serialize_support_test.o: @srclib@/blitz_array_serialize_support_test.cc
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(skeleton_test_all_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT @srclib@/skeleton_test_all-blitz_array_serialize_support_test.o -MD -MP -MF @srclib@/$(DEPDIR)/skeleton_test_all-blitz_array_serialize_support_test.Tpo -c -o @srclib@/skeleton_test_all-blitz_array_serialize_support_test.o `test -f '@srclib@/blitz_array_serialize_support_test.cc' || echo '$(srcdir)/'`@srclib@/blitz_array_serialize_support_test.cc
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(skeleton_test_all_CPPFLAGS) $(CPPFLAGS) $(skeleton_test_all_CXXFLAGS) $(CXXFLAGS) -MT @srclib@/skeleton_test_all-blitz_array_serialize_support_test.o -MD -MP -MF @srclib@/$(DEPDIR)/skeleton_test_all-blitz_array_serialize_support_test.Tpo -c -o @srclib@/skeleton_test_all-blitz_array_serialize_support_test.o `test -f '@srclib@/blitz_array_serialize_support_test.cc' || echo '$(srcdir)/'`@srclib@/blitz_array_serialize_support_test.cc
 @am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) @srclib@/$(DEPDIR)/skeleton_test_all-blitz_array_serialize_support_test.Tpo @srclib@/$(DEPDIR)/skeleton_test_all-blitz_array_serialize_support_test.Po
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='@srclib@/blitz_array_serialize_support_test.cc' object='@srclib@/skeleton_test_all-blitz_array_serialize_support_test.o' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(skeleton_test_all_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o @srclib@/skeleton_test_all-blitz_array_serialize_support_test.o `test -f '@srclib@/blitz_array_serialize_support_test.cc' || echo '$(srcdir)/'`@srclib@/blitz_array_serialize_support_test.cc
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(skeleton_test_all_CPPFLAGS) $(CPPFLAGS) $(skeleton_test_all_CXXFLAGS) $(CXXFLAGS) -c -o @srclib@/skeleton_test_all-blitz_array_serialize_support_test.o `test -f '@srclib@/blitz_array_serialize_support_test.cc' || echo '$(srcdir)/'`@srclib@/blitz_array_serialize_support_test.cc
 
 @srclib@/skeleton_test_all-blitz_array_serialize_support_test.obj: @srclib@/blitz_array_serialize_support_test.cc
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(skeleton_test_all_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT @srclib@/skeleton_test_all-blitz_array_serialize_support_test.obj -MD -MP -MF @srclib@/$(DEPDIR)/skeleton_test_all-blitz_array_serialize_support_test.Tpo -c -o @srclib@/skeleton_test_all-blitz_array_serialize_support_test.obj `if test -f '@srclib@/blitz_array_serialize_support_test.cc'; then $(CYGPATH_W) '@srclib@/blitz_array_serialize_support_test.cc'; else $(CYGPATH_W) '$(srcdir)/@srclib@/blitz_array_serialize_support_test.cc'; fi`
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(skeleton_test_all_CPPFLAGS) $(CPPFLAGS) $(skeleton_test_all_CXXFLAGS) $(CXXFLAGS) -MT @srclib@/skeleton_test_all-blitz_array_serialize_support_test.obj -MD -MP -MF @srclib@/$(DEPDIR)/skeleton_test_all-blitz_array_serialize_support_test.Tpo -c -o @srclib@/skeleton_test_all-blitz_array_serialize_support_test.obj `if test -f '@srclib@/blitz_array_serialize_support_test.cc'; then $(CYGPATH_W) '@srclib@/blitz_array_serialize_support_test.cc'; else $(CYGPATH_W) '$(srcdir)/@srclib@/blitz_array_serialize_support_test.cc'; fi`
 @am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) @srclib@/$(DEPDIR)/skeleton_test_all-blitz_array_serialize_support_test.Tpo @srclib@/$(DEPDIR)/skeleton_test_all-blitz_array_serialize_support_test.Po
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='@srclib@/blitz_array_serialize_support_test.cc' object='@srclib@/skeleton_test_all-blitz_array_serialize_support_test.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(skeleton_test_all_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o @srclib@/skeleton_test_all-blitz_array_serialize_support_test.obj `if test -f '@srclib@/blitz_array_serialize_support_test.cc'; then $(CYGPATH_W) '@srclib@/blitz_array_serialize_support_test.cc'; else $(CYGPATH_W) '$(srcdir)/@srclib@/blitz_array_serialize_support_test.cc'; fi`
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(skeleton_test_all_CPPFLAGS) $(CPPFLAGS) $(skeleton_test_all_CXXFLAGS) $(CXXFLAGS) -c -o @srclib@/skeleton_test_all-blitz_array_serialize_support_test.obj `if test -f '@srclib@/blitz_array_serialize_support_test.cc'; then $(CYGPATH_W) '@srclib@/blitz_array_serialize_support_test.cc'; else $(CYGPATH_W) '$(srcdir)/@srclib@/blitz_array_serialize_support_test.cc'; fi`
 
 @srclib@/skeleton_test_all-golden_archive_test.o: @srclib@/golden_archive_test.cc
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(skeleton_test_all_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT @srclib@/skeleton_test_all-golden_archive_test.o -MD -MP -MF @srclib@/$(DEPDIR)/skeleton_test_all-golden_archive_test.Tpo -c -o @srclib@/skeleton_test_all-golden_archive_test.o `test -f '@srclib@/golden_archive_test.cc' || echo '$(srcdir)/'`@srclib@/golden_archive_test.cc
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(skeleton_test_all_CPPFLAGS) $(CPPFLAGS) $(skeleton_test_all_CXXFLAGS) $(CXXFLAGS) -MT @srclib@/skeleton_test_all-golden_archive_test.o -MD -MP -MF @srclib@/$(DEPDIR)/skeleton_test_all-golden_archive_test.Tpo -c -o @srclib@/skeleton_test_all-golden_archive_test.o `test -f '@srclib@/golden_archive_test.cc' || echo '$(srcdir)/'`@srclib@/golden_archive_test.cc
 @am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) @srclib@/$(DEPDIR)/skeleton_test_all-golden_archive_test.Tpo @srclib@/$(DEPDIR)/skeleton_test_all-golden_archive_test.Po
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='@srclib@/golden_archive_test.cc' object='@srclib@/skeleton_test_all-golden_archive_test.o' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(skeleton_test_all_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o @srclib@/skeleton_test_all-golden_archive_test.o `test -f '@srclib@/golden_archive_test.cc' || echo '$(srcdir)/'`@srclib@/golden_archive_test.cc
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(skeleton_test_all_CPPFLAGS) $(CPPFLAGS) $(skeleton_test_all_CXXFLAGS) $(CXXFLAGS) -c -o @srclib@/skeleton_test_all-golden_archive_test.o `test -f '@srclib@/golden_archive_test.cc' || echo '$(srcdir)/'`@srclib@/golden_archive_test.cc
 
 @srclib@/skeleton_test_all-golden_archive_test.obj: @srclib@/golden_archive_test.cc
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(skeleton_test_all_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT @srclib@/skeleton_test_all-golden_archive_test.obj -MD -MP -MF @srclib@/$(DEPDIR)/skeleton_test_all-golden_archive_test.Tpo -c -o @srclib@/skeleton_test_all-golden_archive_test.obj `if test -f '@srclib@/golden_archive_test.cc'; then $(CYGPATH_W) '@srclib@/golden_archive_test.cc'; else $(CYGPATH_W) '$(srcdir)/@srclib@/golden_archive_test.cc'; fi`
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(skeleton_test_all_CPPFLAGS) $(CPPFLAGS) $(skeleton_test_all_CXXFLAGS) $(CXXFLAGS) -MT @srclib@/skeleton_test_all-golden_archive_test.obj -MD -MP -MF @srclib@/$(DEPDIR)/skeleton_test_all-golden_archive_test.Tpo -c -o @srclib@/skeleton_test_all-golden_archive_test.obj `if test -f '@srclib@/golden_archive_test.cc'; then $(CYGPATH_W) '@srclib@/golden_archive_test.cc'; else $(CYGPATH_W) '$(srcdir)/@srclib@/golden_archive_test.cc'; fi`
 @am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) @srclib@/$(DEPDIR)/skeleton_test_all-golden_archive_test.Tpo @srclib@/$(DEPDIR)/skeleton_test_all-golden_archive_test.Po
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='@srclib@/golden_archive_test.cc' object='@srclib@/skeleton_test_all-golden_archive_test.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(skeleton_test_all_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o @srclib@/skeleton_test_all-golden_archive_test.obj `if test -f '@srclib@/golden_archive_test.cc'; then $(CYGPATH_W) '@srclib@/golden_archive_test.cc'; else $(CYGPATH_W) '$(srcdir)/@srclib@/golden_archive_test.cc'; fi`
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(skeleton_test_all_CPPFLAGS) $(CPPFLAGS) $(skeleton_test_all_CXXFLAGS) $(CXXFLAGS) -c -o @srclib@/skeleton_test_all-golden_archive_test.obj `if test -f '@srclib@/golden_archive_test.cc'; then $(CYGPATH_W) '@srclib@/golden_archive_test.cc'; else $(CYGPATH_W) '$(srcdir)/@srclib@/golden_archive_test.cc'; fi`
 
 @srclib@/skeleton_test_all-serialize_function_test.o: @srclib@/serialize_function_test.cc
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(skeleton_test_all_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT @srclib@/skeleton_test_all-serialize_function_test.o -MD -MP -MF @srclib@/$(DEPDIR)/skeleton_test_all-serialize_function_test.Tpo -c -o @srclib@/skeleton_test_all-serialize_function_test.o `test -f '@srclib@/serialize_function_test.cc' || echo '$(srcdir)/'`@srclib@/serialize_function_test.cc
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(skeleton_test_all_CPPFLAGS) $(CPPFLAGS) $(skeleton_test_all_CXXFLAGS) $(CXXFLAGS) -MT @srclib@/skeleton_test_all-serialize_function_test.o -MD -MP -MF @srclib@/$(DEPDIR)/skeleton_test_all-serialize_function_test.Tpo -c -o @srclib@/skeleton_test_all-serialize_function_test.o `test -f '@srclib@/serialize_function_test.cc' || echo '$(srcdir)/'`@srclib@/serialize_function_test.cc
 @am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) @srclib@/$(DEPDIR)/skeleton_test_all-serialize_function_test.Tpo @srclib@/$(DEPDIR)/skeleton_test_all-serialize_function_test.Po
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='@srclib@/serialize_function_test.cc' object='@srclib@/skeleton_test_all-serialize_function_test.o' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(skeleton_test_all_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o @srclib@/skeleton_test_all-serialize_function_test.o `test -f '@srclib@/serialize_function_test.cc' || echo '$(srcdir)/'`@srclib@/serialize_function_test.cc
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(skeleton_test_all_CPPFLAGS) $(CPPFLAGS) $(skeleton_test_all_CXXFLAGS) $(CXXFLAGS) -c -o @srclib@/skeleton_test_all-serialize_function_test.o `test -f '@srclib@/serialize_function_test.cc' || echo '$(srcdir)/'`@srclib@/serialize_function_test.cc
 
 @srclib@/skeleton_test_all-serialize_function_test.obj: @srclib@/serialize_function_test.cc
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(skeleton_test_all_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT @srclib@/skeleton_test_all-serialize_function_test.obj -MD -MP -MF @srclib@/$(DEPDIR)/skeleton_test_all-serialize_function_test.Tpo -c -o @srclib@/skeleton_test_all-serialize_function_test.obj `if test -f '@srclib@/serialize_function_test.cc'; then $(CYGPATH_W) '@srclib@/serialize_function_test.cc'; else $(CYGPATH_W) '$(srcdir)/@srclib@/serialize_function_test.cc'; fi`
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(skeleton_test_all_CPPFLAGS) $(CPPFLAGS) $(skeleton_test_all_CXXFLAGS) $(CXXFLAGS) -MT @srclib@/skeleton_test_all-serialize_function_test.obj -MD -MP -MF @srclib@/$(DEPDIR)/skeleton_test_all-serialize_function_test.Tpo -c -o @srclib@/skeleton_test_all-serialize_function_test.obj `if test -f '@srclib@/serialize_function_test.cc'; then $(CYGPATH_W) '@srclib@/serialize_function_test.cc'; else $(CYGPATH_W) '$(srcdir)/@srclib@/serialize_function_test.cc'; fi`
 @am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) @srclib@/$(DEPDIR)/skeleton_test_all-serialize_function_test.Tpo @srclib@/$(DEPDIR)/skeleton_test_all-serialize_function_test.Po
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='@srclib@/serialize_function_test.cc' object='@srclib@/skeleton_test_all-serialize_function_test.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(skeleton_test_all_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o @srclib@/skeleton_test_all-serialize_function_test.obj `if test -f '@srclib@/serialize_function_test.cc'; then $(CYGPATH_W) '@srclib@/serialize_function_test.cc'; else $(CYGPATH_W) '$(srcdir)/@srclib@/serialize_function_test.cc'; fi`
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(skeleton_test_all_CPPFLAGS) $(CPPFLAGS) $(skeleton_test_all_CXXFLAGS) $(CXXFLAGS) -c -o @srclib@/skeleton_test_all-serialize_function_test.obj `if test -f '@srclib@/serialize_function_test.cc'; then $(CYGPATH_W) '@srclib@/serialize_function_test.cc'; else $(CYGPATH_W) '$(srcdir)/@srclib@/serialize_function_test.cc'; fi`
 
 @srclib@/skeleton_test_all-observer_test.o: @srclib@/observer_test.cc
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(skeleton_test_all_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT @srclib@/skeleton_test_all-observer_test.o -MD -MP -MF @srclib@/$(DEPDIR)/skeleton_test_all-observer_test.Tpo -c -o @srclib@/skeleton_test_all-observer_test.o `test -f '@srclib@/observer_test.cc' || echo '$(srcdir)/'`@srclib@/observer_test.cc
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(skeleton_test_all_CPPFLAGS) $(CPPFLAGS) $(skeleton_test_all_CXXFLAGS) $(CXXFLAGS) -MT @srclib@/skeleton_test_all-observer_test.o -MD -MP -MF @srclib@/$(DEPDIR)/skeleton_test_all-observer_test.Tpo -c -o @srclib@/skeleton_test_all-observer_test.o `test -f '@srclib@/observer_test.cc' || echo '$(srcdir)/'`@srclib@/observer_test.cc
 @am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) @srclib@/$(DEPDIR)/skeleton_test_all-observer_test.Tpo @srclib@/$(DEPDIR)/skeleton_test_all-observer_test.Po
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='@srclib@/observer_test.cc' object='@srclib@/skeleton_test_all-observer_test.o' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(skeleton_test_all_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o @srclib@/skeleton_test_all-observer_test.o `test -f '@srclib@/observer_test.cc' || echo '$(srcdir)/'`@srclib@/observer_test.cc
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(skeleton_test_all_CPPFLAGS) $(CPPFLAGS) $(skeleton_test_all_CXXFLAGS) $(CXXFLAGS) -c -o @srclib@/skeleton_test_all-observer_test.o `test -f '@srclib@/observer_test.cc' || echo '$(srcdir)/'`@srclib@/observer_test.cc
 
 @srclib@/skeleton_test_all-observer_test.obj: @srclib@/observer_test.cc
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(skeleton_test_all_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT @srclib@/skeleton_test_all-observer_test.obj -MD -MP -MF @srclib@/$(DEPDIR)/skeleton_test_all-observer_test.Tpo -c -o @srclib@/skeleton_test_all-observer_test.obj `if test -f '@srclib@/observer_test.cc'; then $(CYGPATH_W) '@srclib@/observer_test.cc'; else $(CYGPATH_W) '$(srcdir)/@srclib@/observer_test.cc'; fi`
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(skeleton_test_all_CPPFLAGS) $(CPPFLAGS) $(skeleton_test_all_CXXFLAGS) $(CXXFLAGS) -MT @srclib@/skeleton_test_all-observer_test.obj -MD -MP -MF @srclib@/$(DEPDIR)/skeleton_test_all-observer_test.Tpo -c -o @srclib@/skeleton_test_all-observer_test.obj `if test -f '@srclib@/observer_test.cc'; then $(CYGPATH_W) '@srclib@/observer_test.cc'; else $(CYGPATH_W) '$(srcdir)/@srclib@/observer_test.cc'; fi`
 @am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) @srclib@/$(DEPDIR)/skeleton_test_all-observer_test.Tpo @srclib@/$(DEPDIR)/skeleton_test_all-observer_test.Po
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='@srclib@/observer_test.cc' object='@srclib@/skeleton_test_all-observer_test.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(skeleton_test_all_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o @srclib@/skeleton_test_all-observer_test.obj `if test -f '@srclib@/observer_test.cc'; then $(CYGPATH_W) '@srclib@/observer_test.cc'; else $(CYGPATH_W) '$(srcdir)/@srclib@/observer_test.cc'; fi`
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(skeleton_test_all_CPPFLAGS) $(CPPFLAGS) $(skeleton_test_all_CXXFLAGS) $(CXXFLAGS) -c -o @srclib@/skeleton_test_all-observer_test.obj `if test -f '@srclib@/observer_test.cc'; then $(CYGPATH_W) '@srclib@/observer_test.cc'; else $(CYGPATH_W) '$(srcdir)/@srclib@/observer_test.cc'; fi`
 
 @srclib@/skeleton_test_all-multi_base_example_test.o: @srclib@/multi_base_example_test.cc
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(skeleton_test_all_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT @srclib@/skeleton_test_all-multi_base_example_test.o -MD -MP -MF @srclib@/$(DEPDIR)/skeleton_test_all-multi_base_example_test.Tpo -c -o @srclib@/skeleton_test_all-multi_base_example_test.o `test -f '@srclib@/multi_base_example_test.cc' || echo '$(srcdir)/'`@srclib@/multi_base_example_test.cc
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(skeleton_test_all_CPPFLAGS) $(CPPFLAGS) $(skeleton_test_all_CXXFLAGS) $(CXXFLAGS) -MT @srclib@/skeleton_test_all-multi_base_example_test.o -MD -MP -MF @srclib@/$(DEPDIR)/skeleton_test_all-multi_base_example_test.Tpo -c -o @srclib@/skeleton_test_all-multi_base_example_test.o `test -f '@srclib@/multi_base_example_test.cc' || echo '$(srcdir)/'`@srclib@/multi_base_example_test.cc
 @am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) @srclib@/$(DEPDIR)/skeleton_test_all-multi_base_example_test.Tpo @srclib@/$(DEPDIR)/skeleton_test_all-multi_base_example_test.Po
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='@srclib@/multi_base_example_test.cc' object='@srclib@/skeleton_test_all-multi_base_example_test.o' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(skeleton_test_all_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o @srclib@/skeleton_test_all-multi_base_example_test.o `test -f '@srclib@/multi_base_example_test.cc' || echo '$(srcdir)/'`@srclib@/multi_base_example_test.cc
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(skeleton_test_all_CPPFLAGS) $(CPPFLAGS) $(skeleton_test_all_CXXFLAGS) $(CXXFLAGS) -c -o @srclib@/skeleton_test_all-multi_base_example_test.o `test -f '@srclib@/multi_base_example_test.cc' || echo '$(srcdir)/'`@srclib@/multi_base_example_test.cc
 
 @srclib@/skeleton_test_all-multi_base_example_test.obj: @srclib@/multi_base_example_test.cc
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(skeleton_test_all_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT @srclib@/skeleton_test_all-multi_base_example_test.obj -MD -MP -MF @srclib@/$(DEPDIR)/skeleton_test_all-multi_base_example_test.Tpo -c -o @srclib@/skeleton_test_all-multi_base_example_test.obj `if test -f '@srclib@/multi_base_example_test.cc'; then $(CYGPATH_W) '@srclib@/multi_base_example_test.cc'; else $(CYGPATH_W) '$(srcdir)/@srclib@/multi_base_example_test.cc'; fi`
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(skeleton_test_all_CPPFLAGS) $(CPPFLAGS) $(skeleton_test_all_CXXFLAGS) $(CXXFLAGS) -MT @srclib@/skeleton_test_all-multi_base_example_test.obj -MD -MP -MF @srclib@/$(DEPDIR)/skeleton_test_all-multi_base_example_test.Tpo -c -o @srclib@/skeleton_test_all-multi_base_example_test.obj `if test -f '@srclib@/multi_base_example_test.cc'; then $(CYGPATH_W) '@srclib@/multi_base_example_test.cc'; else $(CYGPATH_W) '$(srcdir)/@srclib@/multi_base_example_test.cc'; fi`
 @am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) @srclib@/$(DEPDIR)/skeleton_test_all-multi_base_example_test.Tpo @srclib@/$(DEPDIR)/skeleton_test_all-multi_base_example_test.Po
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='@srclib@/multi_base_example_test.cc' object='@srclib@/skeleton_test_all-multi_base_example_test.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(skeleton_test_all_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o @srclib@/skeleton_test_all-multi_base_example_test.obj `if test -f '@srclib@/multi_base_example_test.cc'; then $(CYGPATH_W) '@srclib@/multi_base_example_test.cc'; else $(CYGPATH_W) '$(srcdir)/@srclib@/multi_base_example_test.cc'; fi`
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(skeleton_test_all_CPPFLAGS) $(CPPFLAGS) $(skeleton_test_all_CXXFLAGS) $(CXXFLAGS) -c -o @srclib@/skeleton_test_all-multi_base_example_test.obj `if test -f '@srclib@/multi_base_example_test.cc'; then $(CYGPATH_W) '@srclib@/multi_base_example_test.cc'; else $(CYGPATH_W) '$(srcdir)/@srclib@/multi_base_example_test.cc'; fi`
 
 @srclib@/skeleton_test_all-array_sample_test.o: @srclib@/array_sample_test.cc
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(skeleton_test_all_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT @srclib@/skeleton_test_all-array_sample_test.o -MD -MP -MF @srclib@/$(DEPDIR)/skeleton_test_all-array_sample_test.Tpo -c -o @srclib@/skeleton_test_all-array_sample_test.o `test -f '@srclib@/array_sample_test.cc' || echo '$(srcdir)/'`@srclib@/array_sample_test.cc
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(skeleton_test_all_CPPFLAGS) $(CPPFLAGS) $(skeleton_test_all_CXXFLAGS) $(CXXFLAGS) -MT @srclib@/skeleton_test_all-array_sample_test.o -MD -MP -MF @srclib@/$(DEPDIR)/skeleton_test_all-array_sample_test.Tpo -c -o @srclib@/skeleton_test_all-array_sample_test.o `test -f '@srclib@/array_sample_test.cc' || echo '$(srcdir)/'`@srclib@/array_sample_test.cc
 @am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) @srclib@/$(DEPDIR)/skeleton_test_all-array_sample_test.Tpo @srclib@/$(DEPDIR)/skeleton_test_all-array_sample_test.Po
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='@srclib@/array_sample_test.cc' object='@srclib@/skeleton_test_all-array_sample_test.o' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(skeleton_test_all_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o @srclib@/skeleton_test_all-array_sample_test.o `test -f '@srclib@/array_sample_test.cc' || echo '$(srcdir)/'`@srclib@/array_sample_test.cc
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(skeleton_test_all_CPPFLAGS) $(CPPFLAGS) $(skeleton_test_all_CXXFLAGS) $(CXXFLAGS) -c -o @srclib@/skeleton_test_all-array_sample_test.o `test -f '@srclib@/array_sample_test.cc' || echo '$(srcdir)/'`@srclib@/array_sample_test.cc
 
 @srclib@/skeleton_test_all-array_sample_test.obj: @srclib@/array_sample_test.cc
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(skeleton_test_all_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT @srclib@/skeleton_test_all-array_sample_test.obj -MD -MP -MF @srclib@/$(DEPDIR)/skeleton_test_all-array_sample_test.Tpo -c -o @srclib@/skeleton_test_all-array_sample_test.obj `if test -f '@srclib@/array_sample_test.cc'; then $(CYGPATH_W) '@srclib@/array_sample_test.cc'; else $(CYGPATH_W) '$(srcdir)/@srclib@/array_sample_test.cc'; fi`
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(skeleton_test_all_CPPFLAGS) $(CPPFLAGS) $(skeleton_test_all_CXXFLAGS) $(CXXFLAGS) -MT @srclib@/skeleton_test_all-array_sample_test.obj -MD -MP -MF @srclib@/$(DEPDIR)/skeleton_test_all-array_sample_test.Tpo -c -o @srclib@/skeleton_test_all-array_sample_test.obj `if test -f '@srclib@/array_sample_test.cc'; then $(CYGPATH_W) '@srclib@/array_sample_test.cc'; else $(CYGPATH_W) '$(srcdir)/@srclib@/array_sample_test.cc'; fi`
 @am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) @srclib@/$(DEPDIR)/skeleton_test_all-array_sample_test.Tpo @srclib@/$(DEPDIR)/skeleton_test_all-array_sample_test.Po
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='@srclib@/array_sample_test.cc' object='@srclib@/skeleton_test_all-array_sample_test.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(skeleton_test_all_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o @srclib@/skeleton_test_all-array_sample_test.obj `if test -f '@srclib@/array_sample_test.cc'; then $(CYGPATH_W) '@srclib@/array_sample_test.cc'; else $(CYGPATH_W) '$(srcdir)/@srclib@/array_sample_test.cc'; fi`
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(skeleton_test_all_CPPFLAGS) $(CPPFLAGS) $(skeleton_test_all_CXXFLAGS) $(CXXFLAGS) -c -o @srclib@/skeleton_test_all-array_sample_test.obj `if test -f '@srclib@/array_sample_test.cc'; then $(CYGPATH_W) '@srclib@/array_sample_test.cc'; else $(CYGPATH_W) '$(srcdir)/@srclib@/array_sample_test.cc'; fi`
 
 @srclib@/skeleton_test_all-thread_example_test.o: @srclib@/thread_example_test.cc
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(skeleton_test_all_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT @srclib@/skeleton_test_all-thread_example_test.o -MD -MP -MF @srclib@/$(DEPDIR)/skeleton_test_all-thread_example_test.Tpo -c -o @srclib@/skeleton_test_all-thread_example_test.o `test -f '@srclib@/thread_example_test.cc' || echo '$(srcdir)/'`@srclib@/thread_example_test.cc
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(skeleton_test_all_CPPFLAGS) $(CPPFLAGS) $(skeleton_test_all_CXXFLAGS) $(CXXFLAGS) -MT @srclib@/skeleton_test_all-thread_example_test.o -MD -MP -MF @srclib@/$(DEPDIR)/skeleton_test_all-thread_example_test.Tpo -c -o @srclib@/skeleton_test_all-thread_example_test.o `test -f '@srclib@/thread_example_test.cc' || echo '$(srcdir)/'`@srclib@/thread_example_test.cc
 @am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) @srclib@/$(DEPDIR)/skeleton_test_all-thread_example_test.Tpo @srclib@/$(DEPDIR)/skeleton_test_all-thread_example_test.Po
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='@srclib@/thread_example_test.cc' object='@srclib@/skeleton_test_all-thread_example_test.o' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(skeleton_test_all_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o @srclib@/skeleton_test_all-thread_example_test.o `test -f '@srclib@/thread_example_test.cc' || echo '$(srcdir)/'`@srclib@/thread_example_test.cc
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(skeleton_test_all_CPPFLAGS) $(CPPFLAGS) $(skeleton_test_all_CXXFLAGS) $(CXXFLAGS) -c -o @srclib@/skeleton_test_all-thread_example_test.o `test -f '@srclib@/thread_example_test.cc' || echo '$(srcdir)/'`@srclib@/thread_example_test.cc
 
 @srclib@/skeleton_test_all-thread_example_test.obj: @srclib@/thread_example_test.cc
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(skeleton_test_all_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT @srclib@/skeleton_test_all-thread_example_test.obj -MD -MP -MF @srclib@/$(DEPDIR)/skeleton_test_all-thread_example_test.Tpo -c -o @srclib@/skeleton_test_all-thread_example_test.obj `if test -f '@srclib@/thread_example_test.cc'; then $(CYGPATH_W) '@srclib@/thread_example_test.cc'; else $(CYGPATH_W) '$(srcdir)/@srclib@/thread_example_test.cc'; fi`
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(skeleton_test_all_CPPFLAGS) $(CPPFLAGS) $(skeleton_test_all_CXXFLAGS) $(CXXFLAGS) -MT @srclib@/skeleton_test_all-thread_example_test.obj -MD -MP -MF @srclib@/$(DEPDIR)/skeleton_test_all-thread_example_test.Tpo -c -o @srclib@/skeleton_test_all-thread_example_test.obj `if test -f '@srclib@/thread_example_test.cc'; then $(CYGPATH_W) '@srclib@/thread_example_test.cc'; else $(CYGPATH_W) '$(srcdir)/@srclib@/thread_example_test.cc'; fi`
 @am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) @srclib@/$(DEPDIR)/skeleton_test_all-thread_example_test.Tpo @srclib@/$(DEPDIR)/skeleton_test_all-thread_example_test.Po
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='@srclib@/thread_example_test.cc' object='@srclib@/skeleton_test_all-thread_example_test.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(skeleton_test_all_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o @srclib@/skeleton_test_all-thread_example_test.obj `if test -f '@srclib@/thread_example_test.cc'; then $(CYGPATH_W) '@srclib@/thread_example_test.cc'; else $(CYGPATH_W) '$(srcdir)/@srclib@/thread_example_test.cc'; fi`
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(skeleton_test_all_CPPFLAGS) $(CPPFLAGS) $(skeleton_test_all_CXXFLAGS) $(CXXFLAGS) -c -o @srclib@/skeleton_test_all-thread_example_test.obj `if test -f '@srclib@/thread_example_test.cc'; then $(CYGPATH_W) '@srclib@/thread_example_test.cc'; else $(CYGPATH_W) '$(srcdir)/@srclib@/thread_example_test.cc'; fi`
 
 @srclib@/skeleton_test_all-blitz_mdspan_test.o: @srclib@/blitz_mdspan_test.cc
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(skeleton_test_all_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT @srclib@/skeleton_test_all-blitz_mdspan_test.o -MD -MP -MF @srclib@/$(DEPDIR)/skeleton_test_all-blitz_mdspan_test.Tpo -c -o @srclib@/skeleton_test_all-blitz_mdspan_test.o `test -f '@srclib@/blitz_mdspan_test.cc' || echo '$(srcdir)/'`@srclib@/blitz_mdspan_test.cc
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(skeleton_test_all_CPPFLAGS) $(CPPFLAGS) $(skeleton_test_all_CXXFLAGS) $(CXXFLAGS) -MT @srclib@/skeleton_test_all-blitz_mdspan_test.o -MD -MP -MF @srclib@/$(DEPDIR)/skeleton_test_all-blitz_mdspan_test.Tpo -c -o @srclib@/skeleton_test_all-blitz_mdspan_test.o `test -f '@srclib@/blitz_mdspan_test.cc' || echo '$(srcdir)/'`@srclib@/blitz_mdspan_test.cc
 @am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) @srclib@/$(DEPDIR)/skeleton_test_all-blitz_mdspan_test.Tpo @srclib@/$(DEPDIR)/skeleton_test_all-blitz_mdspan_test.Po
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='@srclib@/blitz_mdspan_test.cc' object='@srclib@/skeleton_test_all-blitz_mdspan_test.o' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(skeleton_test_all_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o @srclib@/skeleton_test_all-blitz_mdspan_test.o `test -f '@srclib@/blitz_mdspan_test.cc' || echo '$(srcdir)/'`@srclib@/blitz_mdspan_test.cc
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(skeleton_test_all_CPPFLAGS) $(CPPFLAGS) $(skeleton_test_all_CXXFLAGS) $(CXXFLAGS) -c -o @srclib@/skeleton_test_all-blitz_mdspan_test.o `test -f '@srclib@/blitz_mdspan_test.cc' || echo '$(srcdir)/'`@srclib@/blitz_mdspan_test.cc
 
 @srclib@/skeleton_test_all-blitz_mdspan_test.obj: @srclib@/blitz_mdspan_test.cc
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(skeleton_test_all_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT @srclib@/skeleton_test_all-blitz_mdspan_test.obj -MD -MP -MF @srclib@/$(DEPDIR)/skeleton_test_all-blitz_mdspan_test.Tpo -c -o @srclib@/skeleton_test_all-blitz_mdspan_test.obj `if test -f '@srclib@/blitz_mdspan_test.cc'; then $(CYGPATH_W) '@srclib@/blitz_mdspan_test.cc'; else $(CYGPATH_W) '$(srcdir)/@srclib@/blitz_mdspan_test.cc'; fi`
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(skeleton_test_all_CPPFLAGS) $(CPPFLAGS) $(skeleton_test_all_CXXFLAGS) $(CXXFLAGS) -MT @srclib@/skeleton_test_all-blitz_mdspan_test.obj -MD -MP -MF @srclib@/$(DEPDIR)/skeleton_test_all-blitz_mdspan_test.Tpo -c -o @srclib@/skeleton_test_all-blitz_mdspan_test.obj `if test -f '@srclib@/blitz_mdspan_test.cc'; then $(CYGPATH_W) '@srclib@/blitz_mdspan_test.cc'; else $(CYGPATH_W) '$(srcdir)/@srclib@/blitz_mdspan_test.cc'; fi`
 @am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) @srclib@/$(DEPDIR)/skeleton_test_all-blitz_mdspan_test.Tpo @srclib@/$(DEPDIR)/skeleton_test_all-blitz_mdspan_test.Po
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='@srclib@/blitz_mdspan_test.cc' object='@srclib@/skeleton_test_all-blitz_mdspan_test.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(skeleton_test_all_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o @srclib@/skeleton_test_all-blitz_mdspan_test.obj `if test -f '@srclib@/blitz_mdspan_test.cc'; then $(CYGPATH_W) '@srclib@/blitz_mdspan_test.cc'; else $(CYGPATH_W) '$(srcdir)/@srclib@/blitz_mdspan_test.cc'; fi`
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(skeleton_test_all_CPPFLAGS) $(CPPFLAGS) $(skeleton_test_all_CXXFLAGS) $(CXXFLAGS) -c -o @srclib@/skeleton_test_all-blitz_mdspan_test.obj `if test -f '@srclib@/blitz_mdspan_test.cc'; then $(CYGPATH_W) '@srclib@/blitz_mdspan_test.cc'; else $(CYGPATH_W) '$(srcdir)/@srclib@/blitz_mdspan_test.cc'; fi`
 
 @srclib@/skeleton_test_all-raster_sample_test.o: @srclib@/raster_sample_test.cc
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(skeleton_test_all_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT @srclib@/skeleton_test_all-raster_sample_test.o -MD -MP -MF @srclib@/$(DEPDIR)/skeleton_test_all-raster_sample_test.Tpo -c -o @srclib@/skeleton_test_all-raster_sample_test.o `test -f '@srclib@/raster_sample_test.cc' || echo '$(srcdir)/'`@srclib@/raster_sample_test.cc
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(skeleton_test_all_CPPFLAGS) $(CPPFLAGS) $(skeleton_test_all_CXXFLAGS) $(CXXFLAGS) -MT @srclib@/skeleton_test_all-raster_sample_test.o -MD -MP -MF @srclib@/$(DEPDIR)/skeleton_test_all-raster_sample_test.Tpo -c -o @srclib@/skeleton_test_all-raster_sample_test.o `test -f '@srclib@/raster_sample_test.cc' || echo '$(srcdir)/'`@srclib@/raster_sample_test.cc
 @am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) @srclib@/$(DEPDIR)/skeleton_test_all-raster_sample_test.Tpo @srclib@/$(DEPDIR)/skeleton_test_all-raster_sample_test.Po
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='@srclib@/raster_sample_test.cc' object='@srclib@/skeleton_test_all-raster_sample_test.o' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(skeleton_test_all_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o @srclib@/skeleton_test_all-raster_sample_test.o `test -f '@srclib@/raster_sample_test.cc' || echo '$(srcdir)/'`@srclib@/raster_sample_test.cc
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(skeleton_test_all_CPPFLAGS) $(CPPFLAGS) $(skeleton_test_all_CXXFLAGS) $(CXXFLAGS) -c -o @srclib@/skeleton_test_all-raster_sample_test.o `test -f '@srclib@/raster_sample_test.cc' || echo '$(srcdir)/'`@srclib@/raster_sample_test.cc
 
 @srclib@/skeleton_test_all-raster_sample_test.obj: @srclib@/raster_sample_test.cc
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(skeleton_test_all_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT @srclib@/skeleton_test_all-raster_sample_test.obj -MD -MP -MF @srclib@/$(DEPDIR)/skeleton_test_all-raster_sample_test.Tpo -c -o @srclib@/skeleton_test_all-raster_sample_test.obj `if test -f '@srclib@/raster_sample_test.cc'; then $(CYGPATH_W) '@srclib@/raster_sample_test.cc'; else $(CYGPATH_W) '$(srcdir)/@srclib@/raster_sample_test.cc'; fi`
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(skeleton_test_all_CPPFLAGS) $(CPPFLAGS) $(skeleton_test_all_CXXFLAGS) $(CXXFLAGS) -MT @srclib@/skeleton_test_all-raster_sample_test.obj -MD -MP -MF @srclib@/$(DEPDIR)/skeleton_test_all-raster_sample_test.Tpo -c -o @srclib@/skeleton_test_all-raster_sample_test.obj `if test -f '@srclib@/raster_sample_test.cc'; then $(CYGPATH_W) '@srclib@/raster_sample_test.cc'; else $(CYGPATH_W) '$(srcdir)/@srclib@/raster_sample_test.cc'; fi`
 @am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) @srclib@/$(DEPDIR)/skeleton_test_all-raster_sample_test.Tpo @srclib@/$(DEPDIR)/skeleton_test_all-raster_sample_test.Po
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='@srclib@/raster_sample_test.cc' object='@srclib@/skeleton_test_all-raster_sample_test.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(skeleton_test_all_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o @srclib@/skeleton_test_all-raster_sample_test.obj `if test -f '@srclib@/raster_sample_test.cc'; then $(CYGPATH_W) '@srclib@/raster_sample_test.cc'; else $(CYGPATH_W) '$(srcdir)/@srclib@/raster_sample_test.cc'; fi`
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(skeleton_test_all_CPPFLAGS) $(CPPFLAGS) $(skeleton_test_all_CXXFLAGS) $(CXXFLAGS) -c -o @srclib@/skeleton_test_all-raster_sample_test.obj `if test -f '@srclib@/raster_sample_test.cc'; then $(CYGPATH_W) '@srclib@/raster_sample_test.cc'; else $(CYGPATH_W) '$(srcdir)/@srclib@/raster_sample_test.cc'; fi`
 
 mostlyclean-libtool:
 	-rm -f *.lo
@@ -2986,6 +3002,7 @@ distclean: distclean-am
 	-rm -f $(am__CONFIG_DISTCLEAN_FILES)
 	-rm -f ./$(DEPDIR)/_bindings_la-nb_docstrings.Plo
 	-rm -f @cxxpythonrules@/lib/$(DEPDIR)/libskeleton_la-blitz_mdspan.Plo
+	-rm -f @cxxpythonrules@/lib/$(DEPDIR)/libskeleton_la-director_hook.Plo
 	-rm -f @cxxpythonrules@/lib/$(DEPDIR)/libskeleton_la-serialize_function.Plo
 	-rm -f @cxxpythonrules@/lib/$(DEPDIR)/libskeleton_la-weak_ptr_serialize_support.Plo
 	-rm -f @cxxpythonrules@/nanobind/$(DEPDIR)/_bindings_la-cxx_python_rules_nb.Plo
@@ -3102,6 +3119,7 @@ maintainer-clean: maintainer-clean-am
 	-rm -rf $(top_srcdir)/autom4te.cache
 	-rm -f ./$(DEPDIR)/_bindings_la-nb_docstrings.Plo
 	-rm -f @cxxpythonrules@/lib/$(DEPDIR)/libskeleton_la-blitz_mdspan.Plo
+	-rm -f @cxxpythonrules@/lib/$(DEPDIR)/libskeleton_la-director_hook.Plo
 	-rm -f @cxxpythonrules@/lib/$(DEPDIR)/libskeleton_la-serialize_function.Plo
 	-rm -f @cxxpythonrules@/lib/$(DEPDIR)/libskeleton_la-weak_ptr_serialize_support.Plo
 	-rm -f @cxxpythonrules@/nanobind/$(DEPDIR)/_bindings_la-cxx_python_rules_nb.Plo

@@ -162,6 +162,7 @@ public:
   echo_vector(const std::vector<blitz::Array<double, 1>>& V) const
   {
     std::vector<blitz::Array<double, 1>> res;
+    res.reserve(V.size());
     for(const auto& a : V)
       res.push_back(a.copy());
     return res;

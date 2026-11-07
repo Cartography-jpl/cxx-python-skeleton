@@ -118,11 +118,24 @@ AM_CONDITIONAL([HAVE_GCC], [test "$GCC" = yes])
 
 AC_LANG_PUSH([C++])
 SKELETON_WARN_CXXFLAGS=""
+# The second line was added by the 2026-11-07 fix plan (F6.9); the first
+# three of it are gcc only (dropped for clang by the check below).
+# -Wextra-semi is left out: the X(...); style of using the Boost
+# serialization macros (SKELETON_EXPORT_KEY(Foo);) gives a warning per use.
 for skeleton_flag in -Wall -Wextra -Wpedantic -Wshadow -Wold-style-cast \
-    -Wsuggest-override -Wnon-virtual-dtor -Wconversion -Wsign-conversion; do
+    -Wsuggest-override -Wnon-virtual-dtor -Wconversion -Wsign-conversion \
+    -Wduplicated-cond -Wduplicated-branches -Wlogical-op -Wnull-dereference \
+    -Wcast-qual -Wformat=2 -Wdeprecated-copy-dtor; do
   AX_CHECK_COMPILE_FLAG([$skeleton_flag],
     [SKELETON_WARN_CXXFLAGS="$SKELETON_WARN_CXXFLAGS $skeleton_flag"], [], [-Werror])
 done
+# For the test programs only: Boost.Test's macros use __COUNTER__, which
+# clang (>= 22) reports under -Wpedantic as a C2y extension, once per test
+# case. Only for compilers that have the warning.
+SKELETON_TEST_CXXFLAGS=""
+AX_CHECK_COMPILE_FLAG([-Wc2y-extensions],
+  [SKELETON_TEST_CXXFLAGS="-Wno-c2y-extensions"], [], [-Werror])
+AC_SUBST([SKELETON_TEST_CXXFLAGS])
 AC_LANG_POP([C++])
 AC_ARG_ENABLE([werror],
   [AS_HELP_STRING([--enable-werror], [treat compiler warnings as errors])],

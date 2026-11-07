@@ -34,16 +34,17 @@ int main()
 
 using namespace Skeleton;
 
-static std::string outdir;
+namespace {
+std::string outdir;
 
-static void write_object(const std::string& Name,
-                         const std::shared_ptr<GenericObject>& Obj)
+void write_object(const std::string& Name,
+                  const std::shared_ptr<GenericObject>& Obj)
 {
   serialize_write(outdir + "/" + Name + ".xml", Obj);
   serialize_write_binary(outdir + "/" + Name + ".bin", Obj);
 }
 
-template<class T, int D> static void write_array(const std::string& Name)
+template<class T, int D> void write_array(const std::string& Name)
 {
   blitz::TinyVector<int, D> shp;
   shp = 2;
@@ -64,7 +65,7 @@ template<class T, int D> static void write_array(const std::string& Name)
   }
 }
 
-template<int D> static void write_array_string(const std::string& Name)
+template<int D> void write_array_string(const std::string& Name)
 {
   blitz::TinyVector<int, D> shp;
   shp = 2;
@@ -84,7 +85,7 @@ template<int D> static void write_array_string(const std::string& Name)
   }
 }
 
-template<class T> static void write_arrays(const std::string& Type)
+template<class T> void write_arrays(const std::string& Type)
 {
   write_array<T, 1>("blitz_" + Type + "_array_1d");
   write_array<T, 2>("blitz_" + Type + "_array_2d");
@@ -93,7 +94,6 @@ template<class T> static void write_arrays(const std::string& Type)
   write_array<T, 5>("blitz_" + Type + "_array_5d");
 }
 
-namespace {
 int run(int argc, char** argv)
 {
   if(argc != 2) {

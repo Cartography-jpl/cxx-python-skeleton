@@ -184,9 +184,10 @@ int Skeleton::legacy_write_block(LegacyRasterFile* F, int Lstart, int Sstart,
 //-----------------------------------------------------------------------
 
 BufferRasterSample::BufferRasterSample(int Number_line, int Number_sample)
-  : f{Number_line, Number_sample,
-      std::vector<int>(static_cast<std::size_t>(Number_line) *
-                       static_cast<std::size_t>(Number_sample))}
+  : f{.number_line = Number_line,
+      .number_sample = Number_sample,
+      .buf = std::vector<int>(static_cast<std::size_t>(Number_line) *
+                              static_cast<std::size_t>(Number_sample))}
 {
   md::mdspan<int, md::dextents<std::ptrdiff_t, 2>> v(f.buf.data(), Number_line,
                                                      Number_sample);

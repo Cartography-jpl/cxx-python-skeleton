@@ -6,6 +6,7 @@
 #include "generic_object_sample.h"
 #include "generic_object_map.h"
 #include "file_reference_sample.h"
+#include <array>
 #include <filesystem>
 #include <fstream>
 #include <thread>
@@ -31,6 +32,8 @@ public:
     std::filesystem::remove_all(p);
     std::filesystem::create_directories(p / "sub");
   }
+  TempDir(const TempDir&) = delete;
+  TempDir& operator=(const TempDir&) = delete;
   ~TempDir() { std::filesystem::remove_all(p); }
   std::string file(const std::string& F) const { return (p / F).string(); }
   std::filesystem::path p;
@@ -62,9 +65,11 @@ bool is_gz_name(const std::string& F)
 bool is_gzip(const std::string& F)
 {
   std::ifstream is(F, std::ios::binary);
-  unsigned char b[2] = {0, 0};
-  is.read(reinterpret_cast<char*>(b), 2);
-  return b[0] == 0x1f && b[1] == 0x8b;
+  std::array<char, 2> b{};
+  is.read(b.data(), static_cast<std::streamsize>(b.size()));
+  // (char may be signed, so compare as unsigned char.)
+  auto u = [&](std::size_t I) { return static_cast<unsigned char>(b[I]); };
+  return u(0) == 0x1f && u(1) == 0x8b;
 }
 }
 #endif
@@ -185,12 +190,13 @@ BOOST_AUTO_TEST_CASE(relative_file_in_archive)
     std::filesystem::current_path(d.file(dir));
     auto t = std::make_shared<FileReferenceSample>("f.txt");
     std::filesystem::current_path(cwd);
-    archives.push_back(d.file(dir + "/t.xml"));
+    archives.emplace_back(d.file(dir + "/t.xml"));
     serialize_write(archives.back(), t);
   }
   for(int rep = 0; rep < 20; ++rep) {
     std::vector<std::string> got(2);
     std::vector<std::jthread> threads;
+    threads.reserve(2);
     for(std::size_t i = 0; i < 2; ++i)
       threads.emplace_back([&, i] {
         got[i] = serialize_read<FileReferenceSample>(archives[i])->contents();
@@ -244,6 +250,7 @@ BOOST_AUTO_TEST_CASE(concurrent_writes_keep_weak_ptr)
   std::vector<int> bad(2, 0);
   {
     std::vector<std::jthread> threads;
+    threads.reserve(2);
     for(std::size_t i = 0; i < 2; ++i)
       threads.emplace_back([&, i] {
         for(int rep = 0; rep < 50; ++rep) {

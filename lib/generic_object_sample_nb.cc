@@ -63,4 +63,10 @@ void init_generic_object_sample(nb::module_& m)
     cxx_python_rules_nb::pickle_serialization(c);
     cxx_python_rules_nb::register_type<GenericObjectC>();
   }
+  m.def("generic_object_list", &generic_object_list,
+        cxx_python_rules_nb::doc("Skeleton::generic_object_list"));
+  m.def("generic_object_index", &generic_object_index, "I"_a,
+        cxx_python_rules_nb::doc("Skeleton::generic_object_index"));
+  nb::bind_vector<std::vector<std::shared_ptr<GenericObject>>>(
+      m, "Vector_GenericObject");
 }

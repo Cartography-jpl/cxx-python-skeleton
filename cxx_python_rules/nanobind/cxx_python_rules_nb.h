@@ -272,7 +272,7 @@ template<class C> void pickle_vector(C& cls)
 
 template<class C> void printable(C& cls)
 {
-  using T = typename C::Type;
+  using T = C::Type;
   cls.def("print_to_string", [](const T& s) { return s.print_to_string(); });
   cls.def("__str__", [](const T& s) { return s.print_to_string(); });
 }

@@ -1,4 +1,5 @@
 #include "unit_test_support.h"
+#include <array>
 #include <memory>
 #include <type_traits>
 #include "blitz_mdspan.h"
@@ -75,10 +76,10 @@ BOOST_AUTO_TEST_CASE(owner)
   std::weak_ptr<std::vector<double>> w = data;
   blitz::Array<double, 2> copy;
   {
-    strided_mdspan<double, 2> m(
-        data->data(), typename strided_mdspan<double, 2>::mapping_type(
-                          md::dextents<std::ptrdiff_t, 2>(2, 3),
-                          std::array<std::ptrdiff_t, 2>{3, 1}));
+    strided_mdspan<double, 2> m(data->data(),
+                                strided_mdspan<double, 2>::mapping_type(
+                                    md::dextents<std::ptrdiff_t, 2>(2, 3),
+                                    std::array<std::ptrdiff_t, 2>{3, 1}));
     blitz::Array<double, 2> b = to_blitz(m, data);
     data.reset();
     BOOST_CHECK(!w.expired());
@@ -105,10 +106,10 @@ BOOST_AUTO_TEST_CASE(every_owner_type)
   // instantiations in blitz_mdspan.cc fails to link this test.
   auto check = []<class T>(const T& Value) {
     // (Not std::vector, which has no data() for bool.)
-    std::shared_ptr<T[]> owner = std::make_shared<T[]>(6, Value);
-    md::mdspan<T, md::dextents<std::ptrdiff_t, 2>> m(owner.get(), 2, 3);
-    blitz::Array<T, 2> a =
-        to_blitz(m, std::shared_ptr<void>(owner, owner.get()));
+    auto owner = std::make_shared<std::array<T, 6>>();
+    owner->fill(Value);
+    md::mdspan<T, md::dextents<std::ptrdiff_t, 2>> m(owner->data(), 2, 3);
+    blitz::Array<T, 2> a = to_blitz(m, owner);
     owner.reset();
     BOOST_CHECK_EQUAL(a.rows(), 2);
     BOOST_CHECK(a(1, 2) == Value);

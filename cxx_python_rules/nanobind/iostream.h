@@ -13,6 +13,7 @@
 // python file position is just past what C++ consumed, as with SWIG.
 // Output is buffered and flushed when the stream is destroyed.
 #include <nanobind/nanobind.h>
+#include <array>
 #include <istream>
 #include <ostream>
 #include <streambuf>
@@ -26,8 +27,10 @@ namespace cxx_python_rules_nb __attribute__((visibility("hidden"))) {
   public:
     explicit py_streambuf(nb::object Fh) : fh(std::move(Fh))
     {
-      setp(obuf, obuf + sizeof(obuf));
+      setp(obuf.data(), obuf.data() + obuf.size());
     }
+    py_streambuf(const py_streambuf&) = delete;
+    py_streambuf& operator=(const py_streambuf&) = delete;
     ~py_streambuf() override
     {
       try {
@@ -66,11 +69,11 @@ namespace cxx_python_rules_nb __attribute__((visibility("hidden"))) {
       std::ptrdiff_t n = pptr() - pbase();
       if(n > 0)
         fh.attr("write")(nb::bytes(pbase(), static_cast<size_t>(n)));
-      setp(obuf, obuf + sizeof(obuf));
+      setp(obuf.data(), obuf.data() + obuf.size());
     }
     nb::object fh;
     char ibuf = 0;
-    char obuf[4096] = {};
+    std::array<char, 4096> obuf{};
   };
 
   class py_ostream final : public std::ostream {
@@ -80,6 +83,8 @@ namespace cxx_python_rules_nb __attribute__((visibility("hidden"))) {
     {
       rdbuf(&buf);
     }
+    py_ostream(const py_ostream&) = delete;
+    py_ostream& operator=(const py_ostream&) = delete;
     ~py_ostream() override { flush(); }
   private:
     py_streambuf buf;

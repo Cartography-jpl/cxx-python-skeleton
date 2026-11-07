@@ -1,5 +1,4 @@
-// Python bindings for FileReferenceSample and the generic_object_list
-// functions (file_reference_sample.h).
+// Python bindings for FileReferenceSample (file_reference_sample.h).
 #include "skeleton_nb_opaque.h"
 #include "file_reference_sample.h"
 
@@ -25,10 +24,4 @@ void init_file_reference_sample(nb::module_& m)
     cxx_python_rules_nb::pickle_serialization_dir(c);
     cxx_python_rules_nb::register_type<FileReferenceSample>();
   }
-  m.def("generic_object_list", &generic_object_list,
-        cxx_python_rules_nb::doc("Skeleton::generic_object_list"));
-  m.def("generic_object_index", &generic_object_index, "I"_a,
-        cxx_python_rules_nb::doc("Skeleton::generic_object_index"));
-  nb::bind_vector<std::vector<std::shared_ptr<GenericObject>>>(
-      m, "Vector_GenericObject");
 }

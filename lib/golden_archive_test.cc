@@ -140,7 +140,7 @@ BOOST_AUTO_TEST_CASE(array_sample)
     BOOST_CHECK_EQUAL(e->matrix()(1, 2), 6);
     // Writing what we read gives the golden file byte for byte, so the
     // archive layout is unchanged too, not just readable.
-    for(auto [name, obj] :
+    for(const auto& [name, obj] :
         {std::pair{"array_sample", a}, std::pair{"array_sample_empty", e}}) {
       std::string f =
           test_data_dir() + "golden/" + name + (binary ? ".bin" : ".xml");

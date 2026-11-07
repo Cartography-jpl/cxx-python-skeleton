@@ -72,6 +72,8 @@ template<class... Args> struct ExceptionFormat {
     std::stacktrace.
 *******************************************************************/
 
+// Copy without move on purpose (see the copy constructor).
+// NOLINTNEXTLINE(cppcoreguidelines-special-member-functions)
 class Exception : public std::exception, public Printable<Exception> {
 public:
   //-----------------------------------------------------------------------

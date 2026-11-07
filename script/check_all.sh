@@ -5,7 +5,8 @@
 #
 # For each DIR: build, "make check" (both failing on any compiler warning),
 # "make golden-check". Then, once, in the first DIR: "make format-check" and
-# "make lint". Prints a summary table, and exits non-zero if anything
+# "make lint" (make lint reads the compile commands of a gcc build, so put
+# a gcc build first). Prints a summary table, and exits non-zero if anything
 # failed. Logs are in each DIR, check_all_<step>.log. The warning check
 # only sees what is compiled in this run: for a full check, start from a
 # clean build ("make clean" first).

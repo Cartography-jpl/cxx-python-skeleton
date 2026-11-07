@@ -90,8 +90,8 @@ public:
 }
 
 #ifdef CXX_PYTHON_RULES_HAVE_BOOST_SERIALIZATION
-namespace boost {
-namespace serialization {
+
+namespace boost::serialization {
 
 template<class Archive, class T>
 inline void save(Archive& ar, const std::weak_ptr<T>& t,
@@ -126,5 +126,5 @@ inline void serialize(Archive& ar, std::weak_ptr<T>& t,
   boost::serialization::split_free(ar, t, file_version);
 }
 }
-}
+
 #endif

@@ -11,6 +11,7 @@
 #ifdef SKELETON_ADDR2LINE
 #include <boost/preprocessor/stringize.hpp>
 #include <dlfcn.h>
+#include <array>
 #include <cstdint>
 #include <cstdio>
 #include <filesystem>
@@ -20,7 +21,9 @@
 
 using namespace Skeleton;
 
-static std::atomic<bool> capture_stacktrace_flag{true};
+namespace {
+std::atomic<bool> capture_stacktrace_flag{true};
+}
 
 void Exception::capture_stacktrace(bool V)
 {
@@ -61,8 +64,8 @@ namespace {
 bool is_et_dyn(const std::string& File)
 {
   std::ifstream is(File, std::ios::binary);
-  char h[18] = {};
-  is.read(h, sizeof(h));
+  std::array<char, 18> h{};
+  is.read(h.data(), static_cast<std::streamsize>(h.size()));
   return is && h[16] == 3 && h[17] == 0;
 }
 
@@ -82,7 +85,8 @@ std::string shell_quote(const std::string& S)
 /// answers for code in shared libraries, e.g. a python extension.
 //-----------------------------------------------------------------------
 
-static std::vector<std::string> symbolize(const std::vector<void*>& Trace)
+namespace {
+std::vector<std::string> symbolize(const std::vector<void*>& Trace)
 {
   std::vector<std::string> res(Trace.size());
   std::map<std::string, std::vector<std::size_t>> by_module;
@@ -91,7 +95,7 @@ static std::vector<std::string> symbolize(const std::vector<void*>& Trace)
     // A return address is just past the call, look up the call itself.
     auto a = reinterpret_cast<std::uintptr_t>(Trace[i]);
     Dl_info di;
-    if(a == 0 || !dladdr(reinterpret_cast<void*>(a - 1), &di) ||
+    if(a == 0 || !dladdr(static_cast<char*>(Trace[i]) - 1, &di) ||
        !di.dli_fname || !*di.dli_fname) {
       res[i] = std::format("{}", Trace[i]);
       continue;
@@ -121,24 +125,27 @@ static std::vector<std::string> symbolize(const std::vector<void*>& Trace)
     FILE* f = popen(cmd.c_str(), "r"); // NOLINT(bugprone-command-processor)
     if(!f)
       continue;
-    char buf[4096];
+    std::array<char, 4096> buf{};
     for(std::size_t i : idx) {
       std::string func, loc;
-      if(fgets(buf, sizeof(buf), f))
-        func = buf;
-      if(fgets(buf, sizeof(buf), f))
-        loc = buf;
+      if(fgets(buf.data(), static_cast<int>(buf.size()), f))
+        func = buf.data();
+      if(fgets(buf.data(), static_cast<int>(buf.size()), f))
+        loc = buf.data();
       while(!func.empty() && func.back() == '\n')
         func.pop_back();
       while(!loc.empty() && loc.back() == '\n')
         loc.pop_back();
       if(func.empty() || func == "??")
         continue;
-      res[i] = func + (loc.starts_with("??") ? " in " + m : " at " + loc);
+      res[i] = std::move(func);
+      res[i].append(loc.starts_with("??") ? " in " : " at ");
+      res[i].append(loc.starts_with("??") ? m : loc);
     }
     pclose(f);
   }
   return res;
+}
 }
 #endif
 

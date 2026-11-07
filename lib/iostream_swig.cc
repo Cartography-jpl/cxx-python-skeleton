@@ -1,4 +1,6 @@
 #include "iostream_swig.h"
+#include <istream>
+#include <ostream>
 
 using namespace Skeleton;
 

@@ -1,6 +1,7 @@
 #pragma once
 #include "printable.h"
-#include <iostream>
+#include <iosfwd>
+#include <string>
 #include <utility>
 
 namespace Skeleton {

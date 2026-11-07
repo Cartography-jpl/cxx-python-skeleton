@@ -21,8 +21,26 @@ Checks: >
   readability-container-contains,
   modernize-use-ranges,
   bugprone-*,
-  -bugprone-easily-swappable-parameters
+  -bugprone-easily-swappable-parameters,
+  modernize-concat-nested-namespaces,
+  modernize-avoid-c-arrays,
+  modernize-use-designated-initializers,
+  readability-redundant-typename,
+  readability-redundant-inline-specifier,
+  performance-*,
+  misc-use-anonymous-namespace,
+  cppcoreguidelines-special-member-functions
+CheckOptions:
+  cppcoreguidelines-special-member-functions.AllowSoleDefaultDtor: true
+  cppcoreguidelines-special-member-functions.AllowMissingMoveFunctionsWhenCopyIsDeleted: true
 # Added in claude_notes/code_review_fix_plan.md R7.2 (cxx-python-skeleton).
+# The checks after bugprone-* were added by the 2026-11-07 fix plan (F6.8)
+# in cxx-python-skeleton. geocal uses the same file, but its "make lint"
+# fails on a check until geocal's code is cleaned up for it, so geocal
+# keeps its own list until then and adds them one at a time.
+# cppcoreguidelines-special-member-functions: a class that declares any of
+# the five special members declares them all, except that a lone defaulted
+# destructor, and missing moves when copying is deleted, are fine.
 # Off: bugprone-easily-swappable-parameters flags every function with two
 # adjacent int (line, sample) or string parameters, which is most of the
 # geocal API. modernize-use-std-print is not wanted (it would rewrite

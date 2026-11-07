@@ -48,7 +48,12 @@ add_library(skeleton SHARED ${LIB_SRC})
 # project's own code (not nanobind's).
 if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
   set(SKELETON_WARNINGS -Wall -Wextra -Wpedantic -Wshadow -Wold-style-cast
-    -Wsuggest-override -Wnon-virtual-dtor -Wconversion -Wsign-conversion)
+    -Wsuggest-override -Wnon-virtual-dtor -Wconversion -Wsign-conversion
+    -Wnull-dereference -Wcast-qual -Wformat=2 -Wdeprecated-copy-dtor)
+endif()
+if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+  list(APPEND SKELETON_WARNINGS -Wduplicated-cond -Wduplicated-branches
+    -Wlogical-op)
 endif()
 target_compile_options(skeleton PRIVATE ${SKELETON_WARNINGS})
 target_include_directories(skeleton PUBLIC

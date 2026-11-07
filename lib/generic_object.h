@@ -6,10 +6,8 @@
 #include <memory>
 #include <string>
 
-namespace boost {
-namespace serialization {
+namespace boost::serialization {
 class access;
-}
 }
 
 #ifdef SKELETON_HAVE_BOOST_SERIALIZATION
@@ -47,6 +45,8 @@ namespace Skeleton {
   Non-owning pointers to a GenericObject must be made with to_ptr /
   const_pointer (null_deleter.h), which leave weak_this alone.
 *******************************************************************/
+// Copy without move on purpose (see the protected members).
+// NOLINTNEXTLINE(cppcoreguidelines-special-member-functions)
 class GenericObject : public std::enable_shared_from_this<GenericObject> {
 public:
   GenericObject() = default;

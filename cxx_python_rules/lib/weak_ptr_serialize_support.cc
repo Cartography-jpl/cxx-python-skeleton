@@ -1,5 +1,4 @@
 #include "weak_ptr_serialize_support.h"
-#include "director_hook.h"
 #include <set>
 #include <vector>
 
@@ -44,11 +43,4 @@ CXX_PYTHON_RULES_NAMESPACE::PtrSerializeScope::PtrSerializeScope()
 CXX_PYTHON_RULES_NAMESPACE::PtrSerializeScope::~PtrSerializeScope()
 {
   mark_stack().pop_back();
-}
-
-CXX_PYTHON_RULES_NAMESPACE::DirectorHook&
-CXX_PYTHON_RULES_NAMESPACE::director_hook()
-{
-  static DirectorHook h = nullptr;
-  return h;
 }

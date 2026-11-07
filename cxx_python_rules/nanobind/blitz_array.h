@@ -30,12 +30,12 @@
 #include <nanobind/ndarray.h>
 #include "blitz_mdspan.h"
 #include <blitz/array.h>
+#include <array>
 #include <memory>
 #include <type_traits>
 #include <utility>
 
-namespace CXX_PYTHON_RULES_NAMESPACE {
-namespace nbblitz {
+namespace CXX_PYTHON_RULES_NAMESPACE::nbblitz {
 namespace nb = nanobind;
 
 template<class T> constexpr const char* numpy_dtype_name()
@@ -133,21 +133,22 @@ nb::handle to_numpy(const blitz::Array<T, N>& A, bool Writable)
   });
   blitz::Array<T, N>* kept = keep.release();
   constexpr auto rank = static_cast<std::size_t>(N);
-  size_t shape[rank];
-  int64_t stride[rank];
+  std::array<size_t, rank> shape{};
+  std::array<int64_t, rank> stride{};
   for(std::size_t i = 0; i < rank; ++i) {
     shape[i] = static_cast<size_t>(A.extent(static_cast<int>(i)));
     stride[i] = static_cast<int64_t>(A.stride(static_cast<int>(i)));
   }
   T* data = const_cast<T*>(kept->data());
   if(Writable)
-    return nb::ndarray<nb::numpy, T>(data, rank, shape, owner, stride)
+    return nb::ndarray<nb::numpy, T>(data, rank, shape.data(), owner,
+                                     stride.data())
         .cast()
         .release();
-  return nb::ndarray<nb::numpy, const T>(data, rank, shape, owner, stride)
+  return nb::ndarray<nb::numpy, const T>(data, rank, shape.data(), owner,
+                                         stride.data())
       .cast()
       .release();
-}
 }
 }
 

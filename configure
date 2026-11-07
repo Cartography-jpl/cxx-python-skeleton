@@ -726,6 +726,7 @@ SKELETON_SANITIZERS_FALSE
 SKELETON_SANITIZERS_TRUE
 SKELETON_SANITIZER_PRELOAD
 SKELETON_WARN_CXXFLAGS
+SKELETON_TEST_CXXFLAGS
 HAVE_GCC_FALSE
 HAVE_GCC_TRUE
 PTHREAD_CFLAGS
@@ -22215,8 +22216,14 @@ ac_link='$CXX -o conftest$ac_exeext $CXXFLAGS $CPPFLAGS $LDFLAGS conftest.$ac_ex
 ac_compiler_gnu=$ac_cv_cxx_compiler_gnu
 
 SKELETON_WARN_CXXFLAGS=""
+# The second line was added by the 2026-11-07 fix plan (F6.9); the first
+# three of it are gcc only (dropped for clang by the check below).
+# -Wextra-semi is left out: the X(...); style of using the Boost
+# serialization macros (SKELETON_EXPORT_KEY(Foo);) gives a warning per use.
 for skeleton_flag in -Wall -Wextra -Wpedantic -Wshadow -Wold-style-cast \
-    -Wsuggest-override -Wnon-virtual-dtor -Wconversion -Wsign-conversion; do
+    -Wsuggest-override -Wnon-virtual-dtor -Wconversion -Wsign-conversion \
+    -Wduplicated-cond -Wduplicated-branches -Wlogical-op -Wnull-dereference \
+    -Wcast-qual -Wformat=2 -Wdeprecated-copy-dtor; do
   as_CACHEVAR=`printf "%s\n" "ax_cv_check_cxxflags_-Werror_$skeleton_flag" | sed "$as_sed_sh"`
 { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking whether the C++ compiler accepts $skeleton_flag" >&5
 printf %s "checking whether the C++ compiler accepts $skeleton_flag... " >&6; }
@@ -22264,6 +22271,55 @@ esac
 fi
 
 done
+# For the test programs only: Boost.Test's macros use __COUNTER__, which
+# clang (>= 22) reports under -Wpedantic as a C2y extension, once per test
+# case. Only for compilers that have the warning.
+SKELETON_TEST_CXXFLAGS=""
+{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking whether the C++ compiler accepts -Wc2y-extensions" >&5
+printf %s "checking whether the C++ compiler accepts -Wc2y-extensions... " >&6; }
+if test ${ax_cv_check_cxxflags__Werror__Wc2y_extensions+y}
+then :
+  printf %s "(cached) " >&6
+else case e in #(
+  e)
+  ax_check_save_flags=$CXXFLAGS
+  if test x"$GXX" = xyes ; then
+    add_gnu_werror="-Werror"
+  fi
+  CXXFLAGS="$CXXFLAGS -Werror -Wc2y-extensions $add_gnu_werror"
+  cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+int
+main (void)
+{
+
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_cxx_try_compile "$LINENO"
+then :
+  ax_cv_check_cxxflags__Werror__Wc2y_extensions=yes
+else case e in #(
+  e) ax_cv_check_cxxflags__Werror__Wc2y_extensions=no ;;
+esac
+fi
+rm -f core conftest.err conftest.$ac_objext conftest.beam conftest.$ac_ext
+  CXXFLAGS=$ax_check_save_flags ;;
+esac
+fi
+{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $ax_cv_check_cxxflags__Werror__Wc2y_extensions" >&5
+printf "%s\n" "$ax_cv_check_cxxflags__Werror__Wc2y_extensions" >&6; }
+if test "x$ax_cv_check_cxxflags__Werror__Wc2y_extensions" = xyes
+then :
+  SKELETON_TEST_CXXFLAGS="-Wno-c2y-extensions"
+else case e in #(
+  e) : ;;
+esac
+fi
+
+
 ac_ext=c
 ac_cpp='$CPP $CPPFLAGS'
 ac_compile='$CC -c $CFLAGS $CPPFLAGS conftest.$ac_ext >&5'

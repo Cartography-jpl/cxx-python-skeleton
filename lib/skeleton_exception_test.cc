@@ -154,7 +154,7 @@ BOOST_AUTO_TEST_CASE(source_location)
   Exception e3;
   BOOST_CHECK_EQUAL(e3.source_location().line(), line);
   // A copy keeps the original location.
-  Exception e4(e2);
+  Exception e4(e2); // NOLINT(performance-unnecessary-copy-initialization)
   BOOST_CHECK_EQUAL(e4.source_location().line(), e2.source_location().line());
 }
 
@@ -166,7 +166,7 @@ BOOST_AUTO_TEST_CASE(stacktrace)
   BOOST_CHECK(!st.empty());
   BOOST_CHECK(st.find(" 0# ") == 0);
   // A copy has the same stack trace.
-  Exception e2(e);
+  Exception e2(e); // NOLINT(performance-unnecessary-copy-initialization)
   BOOST_CHECK_EQUAL(e2.stacktrace(), st);
   // Turned off, nothing is captured. Restore the default afterwards.
   Exception::capture_stacktrace(false);
@@ -189,7 +189,7 @@ BOOST_AUTO_TEST_CASE(copy_shares_message)
   BOOST_CHECK_EQUAL(std::string(e.what()), "first");
   BOOST_CHECK_EQUAL(std::string(e2.what()), "first second");
   // A move copies, so the moved-from exception still works.
-  Exception e3 = std::move(e2);
+  Exception e3 = std::move(e2); // NOLINT(performance-move-const-arg)
   BOOST_CHECK_EQUAL(std::string(e3.what()), "first second");
   BOOST_CHECK_EQUAL(std::string(e2.what()), "first second"); // NOLINT
 }
