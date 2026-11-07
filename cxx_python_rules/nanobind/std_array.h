@@ -30,7 +30,7 @@ template<class T, std::size_t N> std::array<T, N> to_std_array(nb::handle src)
                              std::to_string(N));
   std::array<T, N> res{};
   for(std::size_t i = 0; i < N; ++i)
-    res[i] = c.value.data()[i * c.value.stride(0)];
+    res[i] = c.value.data()[static_cast<std::ptrdiff_t>(i) * c.value.stride(0)];
   return res;
 }
 }

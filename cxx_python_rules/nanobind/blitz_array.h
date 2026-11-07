@@ -84,9 +84,11 @@ inline std::shared_ptr<void> python_owner(nb::handle h)
 }
 
 template<class T, int N>
-using in_array = nb::ndarray<const T, nb::ndim<N>, nb::device::cpu>;
+using in_array = nb::ndarray<const T, nb::ndim<static_cast<std::size_t>(N)>,
+                             nb::device::cpu>;
 template<class T, int N>
-using writable_array = nb::ndarray<T, nb::ndim<N>, nb::device::cpu>;
+using writable_array =
+    nb::ndarray<T, nb::ndim<static_cast<std::size_t>(N)>, nb::device::cpu>;
 
 // src as a blitz array sharing its memory, if src is already an array of
 // the right type and rank with non-negative strides (and, if Writable,
@@ -99,8 +101,9 @@ bool view_of(nb::handle src, blitz::Array<T, N>& res)
   if(!c.from_python(src, 0, nullptr))
     return false;
   A& a = c.value;
-  std::array<std::ptrdiff_t, N> ext{}, str{};
-  for(int i = 0; i < N; ++i) {
+  constexpr auto rank = static_cast<std::size_t>(N);
+  std::array<std::ptrdiff_t, rank> ext{}, str{};
+  for(std::size_t i = 0; i < rank; ++i) {
     ext[i] = static_cast<std::ptrdiff_t>(a.shape(i));
     str[i] = static_cast<std::ptrdiff_t>(a.stride(i));
     if(str[i] < 0)
@@ -109,7 +112,7 @@ bool view_of(nb::handle src, blitz::Array<T, N>& res)
   using M = CXX_PYTHON_RULES_NAMESPACE::strided_mdspan<T, N>;
   M m(const_cast<T*>(a.data()),
       typename M::mapping_type(
-          CXX_PYTHON_RULES_NAMESPACE::md::dextents<std::ptrdiff_t, N>(ext),
+          CXX_PYTHON_RULES_NAMESPACE::md::dextents<std::ptrdiff_t, rank>(ext),
           str));
   res.reference(CXX_PYTHON_RULES_NAMESPACE::to_blitz(m, python_owner(src)));
   return true;
@@ -127,18 +130,19 @@ nb::handle to_numpy(const blitz::Array<T, N>& A, bool Writable)
     delete static_cast<blitz::Array<T, N>*>(p);
   });
   blitz::Array<T, N>* kept = keep.release();
-  size_t shape[N];
-  int64_t stride[N];
-  for(int i = 0; i < N; ++i) {
-    shape[i] = static_cast<size_t>(A.extent(i));
-    stride[i] = static_cast<int64_t>(A.stride(i));
+  constexpr auto rank = static_cast<std::size_t>(N);
+  size_t shape[rank];
+  int64_t stride[rank];
+  for(std::size_t i = 0; i < rank; ++i) {
+    shape[i] = static_cast<size_t>(A.extent(static_cast<int>(i)));
+    stride[i] = static_cast<int64_t>(A.stride(static_cast<int>(i)));
   }
   T* data = const_cast<T*>(kept->data());
   if(Writable)
-    return nb::ndarray<nb::numpy, T>(data, N, shape, owner, stride)
+    return nb::ndarray<nb::numpy, T>(data, rank, shape, owner, stride)
         .cast()
         .release();
-  return nb::ndarray<nb::numpy, const T>(data, N, shape, owner, stride)
+  return nb::ndarray<nb::numpy, const T>(data, rank, shape, owner, stride)
       .cast()
       .release();
 }

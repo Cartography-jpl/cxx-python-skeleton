@@ -43,6 +43,13 @@ configure_file(${CMAKE_BINARY_DIR}/skeleton_build_config.h.cmake
 file(GLOB LIB_SRC ${CMAKE_SOURCE_DIR}/lib/*.cc ${CMAKE_SOURCE_DIR}/cxx_python_rules/lib/*.cc)
 list(FILTER LIB_SRC EXCLUDE REGEX "(_test|_nb|_nb_module|test_all|global_fixture|golden_archive_generator)\\.cc$")
 add_library(skeleton SHARED ${LIB_SRC})
+# The warnings configure uses (config/m4_local/skeleton_common.m4), for the
+# project's own code (not nanobind's).
+if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
+  set(SKELETON_WARNINGS -Wall -Wextra -Wpedantic -Wshadow -Wold-style-cast
+    -Wsuggest-override -Wnon-virtual-dtor -Wconversion -Wsign-conversion)
+endif()
+target_compile_options(skeleton PRIVATE ${SKELETON_WARNINGS})
 target_include_directories(skeleton PUBLIC
   ${CMAKE_BINARY_DIR}/config ${CMAKE_SOURCE_DIR}/lib ${CMAKE_SOURCE_DIR}/cxx_python_rules/lib
   ${MDSPAN_INCLUDE_DIR})
@@ -84,6 +91,7 @@ foreach(m _bindings _skeleton_downstream)
   target_include_directories(${m} PRIVATE ${CMAKE_SOURCE_DIR}/cxx_python_rules/nanobind)
   target_compile_definitions(${m} PRIVATE CXX_PYTHON_RULES_NB_PACKAGE="skeleton_cxx")
   target_link_libraries(${m} PRIVATE skeleton)
+  target_compile_options(${m} PRIVATE ${SKELETON_WARNINGS})
   # Default visibility for the binding code, see cxx_python_rules/nanobind/nanobind.am
   set_target_properties(${m} PROPERTIES CXX_VISIBILITY_PRESET default
     LIBRARY_OUTPUT_DIRECTORY ${PKG} BUILD_RPATH $<TARGET_FILE_DIR:skeleton>)
@@ -100,6 +108,7 @@ add_executable(skeleton_test_all ${CMAKE_SOURCE_DIR}/lib/test_all.cc
   ${CMAKE_SOURCE_DIR}/lib/global_fixture.cc ${CMAKE_BINARY_DIR}/global_fixture_default.cc
   ${TEST_SRC})
 target_link_libraries(skeleton_test_all PRIVATE skeleton)
+target_compile_options(skeleton_test_all PRIVATE ${SKELETON_WARNINGS})
 add_test(NAME cpp COMMAND skeleton_test_all)
 set_tests_properties(cpp PROPERTIES ENVIRONMENT "abs_top_srcdir=${CMAKE_SOURCE_DIR}")
 add_test(NAME python COMMAND ${Python_EXECUTABLE} -m pytest -q -p no:cacheprovider tests

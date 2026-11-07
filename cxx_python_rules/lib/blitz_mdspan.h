@@ -19,9 +19,12 @@ namespace CXX_PYTHON_RULES_NAMESPACE {
   exception class); the python side copies such arrays first.
 *******************************************************************/
 
+// blitz uses int for ranks and extents, mdspan and std::array std::size_t;
+// the casts below are where the two meet.
 template<class T, int N>
 using strided_mdspan =
-    md::mdspan<T, md::dextents<std::ptrdiff_t, N>, md::layout_stride>;
+    md::mdspan<T, md::dextents<std::ptrdiff_t, static_cast<std::size_t>(N)>,
+               md::layout_stride>;
 
 //-----------------------------------------------------------------------
 /// mdspan view of a blitz::Array (any storage order or strides).
@@ -30,10 +33,11 @@ using strided_mdspan =
 template<class T, int N>
 strided_mdspan<T, N> to_mdspan(const blitz::Array<T, N>& A)
 {
-  std::array<std::ptrdiff_t, N> ext{}, str{};
-  for(int i = 0; i < N; ++i) {
-    ext[i] = A.extent(i);
-    str[i] = A.stride(i);
+  constexpr auto rank = static_cast<std::size_t>(N);
+  std::array<std::ptrdiff_t, rank> ext{}, str{};
+  for(std::size_t i = 0; i < rank; ++i) {
+    ext[i] = A.extent(static_cast<int>(i));
+    str[i] = A.stride(static_cast<int>(i));
     if(str[i] < 0)
       throw std::runtime_error("to_mdspan: negative strides not supported");
   }
@@ -41,8 +45,9 @@ strided_mdspan<T, N> to_mdspan(const blitz::Array<T, N>& A)
   // A const blitz::Array still shares writable data (copies of it see
   // writes), and the view is as writable as A's data; use T = const U
   // for a read-only view.
-  return strided_mdspan<T, N>(const_cast<T*>(A.data()),
-                              map(md::dextents<std::ptrdiff_t, N>(ext), str));
+  return strided_mdspan<T, N>(
+      const_cast<T*>(A.data()),
+      map(md::dextents<std::ptrdiff_t, rank>(ext), str));
 }
 
 //-----------------------------------------------------------------------
@@ -84,20 +89,21 @@ blitz::Array<typename Mdspan::element_type, Mdspan::rank()>
 to_blitz(const Mdspan& M, std::shared_ptr<void> Owner = nullptr)
 {
   using T = typename Mdspan::element_type;
-  constexpr int N = Mdspan::rank();
+  constexpr int N = static_cast<int>(Mdspan::rank());
   blitz::TinyVector<int, N> shape;
   blitz::TinyVector<blitz::diffType, N> stride;
   std::size_t span = 1;
-  for(int i = 0; i < N; ++i) {
-    shape(i) = static_cast<int>(M.extent(i));
-    stride(i) = static_cast<blitz::diffType>(M.stride(i));
-    if(stride(i) < 0)
+  for(std::size_t i = 0; i < Mdspan::rank(); ++i) {
+    const auto b = static_cast<unsigned>(i);
+    shape(b) = static_cast<int>(M.extent(i));
+    stride(b) = static_cast<blitz::diffType>(M.stride(i));
+    if(stride(b) < 0)
       throw std::runtime_error("to_blitz: negative strides not supported");
     if(M.extent(i) == 0)
       span = 0;
   }
   if(span != 0)
-    span = M.mapping().required_span_size();
+    span = static_cast<std::size_t>(M.mapping().required_span_size());
   blitz::Array<T, N> res(M.data_handle(), shape, stride,
                          blitz::neverDeleteData);
   if(Owner) {

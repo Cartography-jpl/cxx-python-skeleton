@@ -721,6 +721,7 @@ pkgconfigdir
 PKG_CONFIG_LIBDIR
 PKG_CONFIG_PATH
 PKG_CONFIG
+SKELETON_WARN_CXXFLAGS
 HAVE_GCC_FALSE
 HAVE_GCC_TRUE
 PTHREAD_CFLAGS
@@ -881,6 +882,7 @@ with_gnu_ld
 with_sysroot
 enable_libtool_lock
 enable_debug
+enable_werror
 with_python
 with_doxygen
 with_boost
@@ -1567,6 +1569,7 @@ Optional Features:
                           provide on AIX, [default=aix].
   --disable-libtool-lock  avoid locking (might break parallel builds)
   --enable-debug          Enable compiler debugging flags
+  --enable-werror         treat compiler warnings as errors
   --enable-python-editable-mode
                           install the python code in editable mode (pip
                           install -e) in make install
@@ -22184,6 +22187,92 @@ CXXFLAGS="$CXXFLAGS $PTHREAD_CFLAGS"
 else
   HAVE_GCC_TRUE='#'
   HAVE_GCC_FALSE=
+fi
+
+
+#=================================================================
+# Warnings for the project's own code (AM_CXXFLAGS in common.am: the
+# library, its tests and the python bindings; nanobind's own source has
+# its own flags in nanobind.am, and third-party headers are -isystem).
+# Each flag is only used if the compiler takes it. The code is clean with
+# all of them (claude_notes/code_review_fix_plan.md R7.1).
+# --enable-werror makes warnings errors; it is off by default, so a new
+# compiler's new warnings don't break builds for users.
+#=================================================================
+
+ac_ext=cpp
+ac_cpp='$CXXCPP $CPPFLAGS'
+ac_compile='$CXX -c $CXXFLAGS $CPPFLAGS conftest.$ac_ext >&5'
+ac_link='$CXX -o conftest$ac_exeext $CXXFLAGS $CPPFLAGS $LDFLAGS conftest.$ac_ext $LIBS >&5'
+ac_compiler_gnu=$ac_cv_cxx_compiler_gnu
+
+SKELETON_WARN_CXXFLAGS=""
+for skeleton_flag in -Wall -Wextra -Wpedantic -Wshadow -Wold-style-cast \
+    -Wsuggest-override -Wnon-virtual-dtor -Wconversion -Wsign-conversion; do
+  as_CACHEVAR=`printf "%s\n" "ax_cv_check_cxxflags_-Werror_$skeleton_flag" | sed "$as_sed_sh"`
+{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking whether the C++ compiler accepts $skeleton_flag" >&5
+printf %s "checking whether the C++ compiler accepts $skeleton_flag... " >&6; }
+if eval test \${$as_CACHEVAR+y}
+then :
+  printf %s "(cached) " >&6
+else case e in #(
+  e)
+  ax_check_save_flags=$CXXFLAGS
+  if test x"$GXX" = xyes ; then
+    add_gnu_werror="-Werror"
+  fi
+  CXXFLAGS="$CXXFLAGS -Werror $skeleton_flag $add_gnu_werror"
+  cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+int
+main (void)
+{
+
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_cxx_try_compile "$LINENO"
+then :
+  eval "$as_CACHEVAR=yes"
+else case e in #(
+  e) eval "$as_CACHEVAR=no" ;;
+esac
+fi
+rm -f core conftest.err conftest.$ac_objext conftest.beam conftest.$ac_ext
+  CXXFLAGS=$ax_check_save_flags ;;
+esac
+fi
+eval ac_res=\$$as_CACHEVAR
+	       { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $ac_res" >&5
+printf "%s\n" "$ac_res" >&6; }
+if eval test \"x\$"$as_CACHEVAR"\" = x"yes"
+then :
+  SKELETON_WARN_CXXFLAGS="$SKELETON_WARN_CXXFLAGS $skeleton_flag"
+else case e in #(
+  e) : ;;
+esac
+fi
+
+done
+ac_ext=c
+ac_cpp='$CPP $CPPFLAGS'
+ac_compile='$CC -c $CFLAGS $CPPFLAGS conftest.$ac_ext >&5'
+ac_link='$CC -o conftest$ac_exeext $CFLAGS $CPPFLAGS $LDFLAGS conftest.$ac_ext $LIBS >&5'
+ac_compiler_gnu=$ac_cv_c_compiler_gnu
+
+# Check whether --enable-werror was given.
+if test ${enable_werror+y}
+then :
+  enableval=$enable_werror;
+else case e in #(
+  e) enable_werror=no ;;
+esac
+fi
+
+if test "x$enable_werror" = "xyes"; then
+  SKELETON_WARN_CXXFLAGS="$SKELETON_WARN_CXXFLAGS -Werror"
 fi
 
 

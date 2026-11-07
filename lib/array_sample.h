@@ -51,18 +51,18 @@ public:
   blitz::Array<double, 2> matrix() const
   {
     blitz::Array<double, 2> res(2, 3);
-    for(int i = 0; i < 2; ++i)
-      for(int j = 0; j < 3; ++j)
-        res(i, j) = matrix_[i][j];
+    for(std::size_t i = 0; i < 2; ++i)
+      for(std::size_t j = 0; j < 3; ++j)
+        res(static_cast<int>(i), static_cast<int>(j)) = matrix_[i][j];
     return res;
   }
   void matrix(const blitz::Array<double, 2>& M)
   {
     if(M.rows() != 2 || M.cols() != 3)
       throw Exception("matrix must be 2 x 3, got {} x {}", M.rows(), M.cols());
-    for(int i = 0; i < 2; ++i)
-      for(int j = 0; j < 3; ++j)
-        matrix_[i][j] = M(i, j);
+    for(std::size_t i = 0; i < 2; ++i)
+      for(std::size_t j = 0; j < 3; ++j)
+        matrix_[i][j] = M(static_cast<int>(i), static_cast<int>(j));
   }
 
   //-----------------------------------------------------------------------

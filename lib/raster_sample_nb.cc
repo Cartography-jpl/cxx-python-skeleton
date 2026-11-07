@@ -39,7 +39,7 @@ using out_array = nb::ndarray<int, nb::ndim<2>, nb::device::cpu>;
 RasterView to_view(const out_array& A)
 {
   std::array<std::ptrdiff_t, 2> ext{}, str{};
-  for(int i = 0; i < 2; ++i) {
+  for(std::size_t i = 0; i < 2; ++i) {
     ext[i] = static_cast<std::ptrdiff_t>(A.shape(i));
     str[i] = static_cast<std::ptrdiff_t>(A.stride(i));
     if(str[i] < 0)

@@ -42,8 +42,8 @@ BOOST_AUTO_TEST_CASE(serialization)
 template<class T, int D> void round_trip()
 {
   blitz::TinyVector<int, D> shp;
-  for(int i = 0; i < D; ++i)
-    shp(i) = (i == 0 ? 3 : 2);
+  shp = 2;
+  shp(0) = 3;
   blitz::Array<T, D> a(shp);
   for(std::size_t i = 0; i < a.size(); ++i)
     a.data()[i] = static_cast<T>(i % 3);

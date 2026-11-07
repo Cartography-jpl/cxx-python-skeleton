@@ -97,7 +97,8 @@ void Skeleton::copy_raster(const RasterSample& In, RasterSample& Out,
                     Out.number_sample());
   if(Tile_line <= 0 || Tile_sample <= 0)
     throw Exception("copy_raster: tile size must be positive");
-  std::vector<int> buf(static_cast<std::size_t>(Tile_line) * Tile_sample);
+  std::vector<int> buf(static_cast<std::size_t>(Tile_line) *
+                       static_cast<std::size_t>(Tile_sample));
   for(int l = 0; l < In.number_line(); l += Tile_line)
     for(int s = 0; s < In.number_sample(); s += Tile_sample) {
       int nl = std::min(Tile_line, In.number_line() - l);
@@ -128,8 +129,9 @@ void MemoryRasterSample::write_from(int Lstart, int Sstart,
 {
   // to_blitz has no const element type; it only reads through it here.
   RasterView v(const_cast<int*>(V.data_handle()), V.mapping());
-  data_(blitz::Range(Lstart, Lstart + v.extent(0) - 1),
-        blitz::Range(Sstart, Sstart + v.extent(1) - 1)) = to_blitz(v);
+  data_(blitz::Range(Lstart, Lstart + static_cast<int>(v.extent(0)) - 1),
+        blitz::Range(Sstart, Sstart + static_cast<int>(v.extent(1)) - 1)) =
+      to_blitz(v);
 }
 
 void MemoryRasterSample::print(std::ostream& Os) const
@@ -173,7 +175,8 @@ int Skeleton::legacy_write_block(LegacyRasterFile* F, int Lstart, int Sstart,
 
 BufferRasterSample::BufferRasterSample(int Number_line, int Number_sample)
   : f{Number_line, Number_sample,
-      std::vector<int>(static_cast<std::size_t>(Number_line) * Number_sample)}
+      std::vector<int>(static_cast<std::size_t>(Number_line) *
+                       static_cast<std::size_t>(Number_sample))}
 {
   md::mdspan<int, md::dextents<std::ptrdiff_t, 2>> v(f.buf.data(), Number_line,
                                                      Number_sample);
@@ -192,7 +195,8 @@ void BufferRasterSample::read_into(int Lstart, int Sstart,
     status = legacy_read_block(&f, Lstart, Sstart, nl, ns, Res.data_handle());
   else {
     ++number_copy_;
-    std::vector<int> tmp(static_cast<std::size_t>(nl) * ns);
+    std::vector<int> tmp(static_cast<std::size_t>(nl) *
+                         static_cast<std::size_t>(ns));
     status = legacy_read_block(&f, Lstart, Sstart, nl, ns, tmp.data());
     if(status == 0)
       copy_view(md::mdspan<const int, md::dextents<std::ptrdiff_t, 2>>(
@@ -213,7 +217,8 @@ void BufferRasterSample::write_from(int Lstart, int Sstart,
     status = legacy_write_block(&f, Lstart, Sstart, nl, ns, V.data_handle());
   else {
     ++number_copy_;
-    std::vector<int> tmp(static_cast<std::size_t>(nl) * ns);
+    std::vector<int> tmp(static_cast<std::size_t>(nl) *
+                         static_cast<std::size_t>(ns));
     copy_view(V, md::mdspan<int, md::dextents<std::ptrdiff_t, 2>>(tmp.data(),
                                                                   nl, ns));
     status = legacy_write_block(&f, Lstart, Sstart, nl, ns, tmp.data());

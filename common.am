@@ -41,6 +41,7 @@ pkgconfig_DATA =
 MOSTLYCLEANFILES =
 
 AM_CPPFLAGS= $(SKELETON_RELEASE_CPPFLAGS)
+AM_CXXFLAGS= $(SKELETON_WARN_CXXFLAGS)
 
 #=================================================================
 # Some flags needed for GCC compilers.

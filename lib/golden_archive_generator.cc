@@ -46,11 +46,9 @@ static void write_object(const std::string& Name,
 template<class T, int D> static void write_array(const std::string& Name)
 {
   blitz::TinyVector<int, D> shp;
-  int sz = 1;
-  for(int i = 0; i < D; ++i) {
-    shp(i) = (i == 0 ? 3 : 2);
-    sz *= shp(i);
-  }
+  shp = 2;
+  shp(0) = 3;
+  auto sz = static_cast<int>(blitz::product(shp));
   blitz::Array<T, D> a(shp);
   for(int i = 0; i < sz; ++i)
     a.data()[i] = static_cast<T>(i % 2 == 0 ? i : -i);
@@ -69,8 +67,8 @@ template<class T, int D> static void write_array(const std::string& Name)
 template<int D> static void write_array_string(const std::string& Name)
 {
   blitz::TinyVector<int, D> shp;
-  for(int i = 0; i < D; ++i)
-    shp(i) = (i == 0 ? 3 : 2);
+  shp = 2;
+  shp(0) = 3;
   blitz::Array<std::string, D> a(shp);
   for(std::size_t i = 0; i < a.size(); ++i)
     a.data()[i] = "s" + std::to_string(i);

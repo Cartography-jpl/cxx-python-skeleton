@@ -28,6 +28,9 @@
 */
 
 #pragma once
+// CXX_PYTHON_RULES FORK: treat as a system header, so the project's warning
+// flags (e.g. -Wold-style-cast) don't apply to this copy of upstream code.
+#pragma GCC system_header
 
 #include <nanobind/nanobind.h>
 #include <memory>

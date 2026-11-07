@@ -13,7 +13,8 @@ namespace {
 // format of the one function per rank this replaced).
 //-----------------------------------------------------------------------
 
-template<int N> constexpr std::array<const char*, N> shape_names()
+template<int N>
+constexpr std::array<const char*, static_cast<std::size_t>(N)> shape_names()
 {
   if constexpr(N == 1)
     return {"size"};
@@ -87,7 +88,8 @@ void boost::serialization::load(Archive& ar, blitz::Array<T, N>& A,
   constexpr auto names = shape_names<N>();
   blitz::TinyVector<int, N> shape;
   for(int i = 0; i < N; ++i)
-    ar >> SKELETON_NVP2(names[static_cast<std::size_t>(i)], shape(i));
+    ar >> SKELETON_NVP2(names[static_cast<std::size_t>(i)],
+                        shape(static_cast<unsigned>(i)));
   blitz::Array<T, N> res(shape);
   if(res.size() > 0)
     ar >> SKELETON_NVP2(

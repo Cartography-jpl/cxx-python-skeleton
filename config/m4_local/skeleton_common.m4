@@ -107,6 +107,32 @@ CXXFLAGS="$CXXFLAGS $PTHREAD_CFLAGS"
 AM_CONDITIONAL([HAVE_GCC], [test "$GCC" = yes])
 
 #=================================================================
+# Warnings for the project's own code (AM_CXXFLAGS in common.am: the
+# library, its tests and the python bindings; nanobind's own source has
+# its own flags in nanobind.am, and third-party headers are -isystem).
+# Each flag is only used if the compiler takes it. The code is clean with
+# all of them (claude_notes/code_review_fix_plan.md R7.1).
+# --enable-werror makes warnings errors; it is off by default, so a new
+# compiler's new warnings don't break builds for users.
+#=================================================================
+
+AC_LANG_PUSH([C++])
+SKELETON_WARN_CXXFLAGS=""
+for skeleton_flag in -Wall -Wextra -Wpedantic -Wshadow -Wold-style-cast \
+    -Wsuggest-override -Wnon-virtual-dtor -Wconversion -Wsign-conversion; do
+  AX_CHECK_COMPILE_FLAG([$skeleton_flag],
+    [SKELETON_WARN_CXXFLAGS="$SKELETON_WARN_CXXFLAGS $skeleton_flag"], [], [-Werror])
+done
+AC_LANG_POP([C++])
+AC_ARG_ENABLE([werror],
+  [AS_HELP_STRING([--enable-werror], [treat compiler warnings as errors])],
+  [], [enable_werror=no])
+if test "x$enable_werror" = "xyes"; then
+  SKELETON_WARN_CXXFLAGS="$SKELETON_WARN_CXXFLAGS -Werror"
+fi
+AC_SUBST([SKELETON_WARN_CXXFLAGS])
+
+#=================================================================
 # Add prefix, THIRDPARTY, and /opt/afids_support for pkgconfig file
 
 PKG_PROG_PKG_CONFIG
