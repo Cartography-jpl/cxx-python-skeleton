@@ -142,9 +142,10 @@ template<class ExceptionT, class TypeErrorT> void register_exceptions()
       set_error(PyExc_TypeError, e.what());
     } catch(const ExceptionT& e) {
       set_error(PyExc_RuntimeError, e.what());
-      PyObject *type, *value, *tb;
-      PyErr_Fetch(&type, &value, &tb);
-      PyErr_NormalizeException(&type, &value, &tb);
+      // Take the exception just set (a new reference, already
+      // normalized), add the attributes, and set it again (which steals
+      // the reference). Python >= 3.12.
+      PyObject* value = PyErr_GetRaisedException();
       try {
         // A copy of the C++ exception (it only holds the stack trace as
         // addresses, symbol lookup happens if python calls stacktrace()),
@@ -156,8 +157,9 @@ template<class ExceptionT, class TypeErrorT> void register_exceptions()
                                std::to_string(l.line()) + " " +
                                l.function_name();
       } catch(...) {
+        // Keep the RuntimeError without the extra attributes.
       }
-      PyErr_Restore(type, value, tb);
+      PyErr_SetRaisedException(value);
     } catch(const std::exception& e) {
       set_error(PyExc_RuntimeError, e.what());
     } catch(...) {

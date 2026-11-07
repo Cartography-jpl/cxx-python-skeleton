@@ -23999,6 +23999,18 @@ fi
 done_python="yes"
 fi
 
+
+{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking whether $PYTHON is at least python 3.12" >&5
+printf %s "checking whether $PYTHON is at least python 3.12... " >&6; }
+if $PYTHON -c "import sys; sys.exit(0 if sys.version_info >= (3, 12) else 1)" 2>/dev/null; then
+   { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: yes" >&5
+printf "%s\n" "yes" >&6; }
+else
+   { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no" >&5
+printf "%s\n" "no" >&6; }
+   as_fn_error $? "python 3.12 or later is required, $PYTHON is $($PYTHON --version 2>&1)" "$LINENO" 5
+fi
+
 LD_LIBRARY_PATH="${original_ld_library_path}"
 
 #=================================================================

@@ -129,3 +129,20 @@ export PKG_CONFIG_PATH
 AC_SUBST([pkgconfigdir], [${libdir}/pkgconfig])
 
 ])
+
+#=================================================================
+# The python bindings need python >= 3.12 (PyErr_GetRaisedException in
+# cxx_python_rules/nanobind/cxx_python_rules_nb.h). The shared
+# config/m4/afids_python.m4 only asks for 3.4, so check here; call after
+# AFIDS_PYTHON.
+#=================================================================
+
+AC_DEFUN([SKELETON_PYTHON_MINIMUM],[
+AC_MSG_CHECKING([whether $PYTHON is at least python 3.12])
+if $PYTHON -c "import sys; sys.exit(0 if sys.version_info >= (3, 12) else 1)" 2>/dev/null; then
+   AC_MSG_RESULT([yes])
+else
+   AC_MSG_RESULT([no])
+   AC_MSG_ERROR([python 3.12 or later is required, $PYTHON is $($PYTHON --version 2>&1)])
+fi
+])

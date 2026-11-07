@@ -38,6 +38,7 @@ AC_SUBST([SKELETON_RELEASE_CPPFLAGS])
 original_ld_library_path="${LD_LIBRARY_PATH}"
 export LD_LIBRARY_PATH="${afidsdir}/lib64:${afidsdir}/lib:${LD_LIBRARY_PATH}"
 AFIDS_PYTHON(required)
+SKELETON_PYTHON_MINIMUM
 LD_LIBRARY_PATH="${original_ld_library_path}"
 
 #=================================================================

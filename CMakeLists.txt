@@ -14,7 +14,7 @@ set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
-find_package(Python 3.11 COMPONENTS Interpreter Development.Module REQUIRED)
+find_package(Python 3.12 COMPONENTS Interpreter Development.Module REQUIRED)
 # nanobind's CMake package comes with the python package
 execute_process(COMMAND "${Python_EXECUTABLE}" -m nanobind --cmake_dir
   OUTPUT_STRIP_TRAILING_WHITESPACE OUTPUT_VARIABLE nanobind_ROOT)

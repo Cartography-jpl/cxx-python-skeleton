@@ -15,6 +15,13 @@
 //    (converting) pass of overload resolution.
 //  * the wrong rank, or something numpy can't convert, doesn't match
 //    (TypeError if no overload does).
+// A non-const reference parameter (blitz::Array<T, N>&), which C++ may
+// write to, only takes a view of a writable array of the right type: a
+// read-only array, or one that had to be copied (a list, another dtype,
+// negative strides), raises TypeError instead, because the caller would
+// not see what C++ writes. (Code review 2026-11-06 §2.7: C++ used to
+// write into read-only numpy arrays.)
+//
 // To python (return value):
 //  * a numpy view of the C++ memory, which keeps the blitz data alive.
 //    Read only, except for a non-const reference return (T&), which is
@@ -24,6 +31,8 @@
 #include "blitz_mdspan.h"
 #include <blitz/array.h>
 #include <memory>
+#include <type_traits>
+#include <utility>
 
 namespace CXX_PYTHON_RULES_NAMESPACE {
 namespace nbblitz {
@@ -76,15 +85,20 @@ inline std::shared_ptr<void> python_owner(nb::handle h)
 
 template<class T, int N>
 using in_array = nb::ndarray<const T, nb::ndim<N>, nb::device::cpu>;
+template<class T, int N>
+using writable_array = nb::ndarray<T, nb::ndim<N>, nb::device::cpu>;
 
 // src as a blitz array sharing its memory, if src is already an array of
-// the right type and rank with non-negative strides.
-template<class T, int N> bool view_of(nb::handle src, blitz::Array<T, N>& res)
+// the right type and rank with non-negative strides (and, if Writable,
+// not read-only).
+template<class T, int N, bool Writable>
+bool view_of(nb::handle src, blitz::Array<T, N>& res)
 {
-  nb::detail::make_caster<in_array<T, N>> c;
+  using A = std::conditional_t<Writable, writable_array<T, N>, in_array<T, N>>;
+  nb::detail::make_caster<A> c;
   if(!c.from_python(src, 0, nullptr))
     return false;
-  in_array<T, N>& a = c.value;
+  A& a = c.value;
   std::array<std::ptrdiff_t, N> ext{}, str{};
   for(int i = 0; i < N; ++i) {
     ext[i] = static_cast<std::ptrdiff_t>(a.shape(i));
@@ -106,17 +120,20 @@ nb::handle to_numpy(const blitz::Array<T, N>& A, bool Writable)
 {
   // The capsule holds a blitz array sharing A's memory (blitz reference
   // counts it), so the numpy array keeps the data alive.
-  auto* keep = new blitz::Array<T, N>(A);
-  nb::capsule owner(keep, [](void* p) noexcept {
+  // Owned by the unique_ptr until the capsule has it, so nothing leaks
+  // if making the capsule throws.
+  auto keep = std::make_unique<blitz::Array<T, N>>(A);
+  nb::capsule owner(keep.get(), [](void* p) noexcept {
     delete static_cast<blitz::Array<T, N>*>(p);
   });
+  blitz::Array<T, N>* kept = keep.release();
   size_t shape[N];
   int64_t stride[N];
   for(int i = 0; i < N; ++i) {
     shape[i] = static_cast<size_t>(A.extent(i));
     stride[i] = static_cast<int64_t>(A.stride(i));
   }
-  T* data = const_cast<T*>(keep->data());
+  T* data = const_cast<T*>(kept->data());
   if(Writable)
     return nb::ndarray<nb::numpy, T>(data, N, shape, owner, stride)
         .cast()
@@ -132,21 +149,51 @@ NAMESPACE_BEGIN(NB_NAMESPACE)
 NAMESPACE_BEGIN(detail)
 
 template<class T, int N> struct type_caster<blitz::Array<T, N>> {
-  using BlitzArray = blitz::Array<T, N>;
-  NB_TYPE_CASTER(BlitzArray,
-                 (io_name("numpy.typing.ArrayLike", "numpy.typing.NDArray")))
+  using Value = blitz::Array<T, N>;
+  static constexpr auto Name =
+      io_name("numpy.typing.ArrayLike", "numpy.typing.NDArray");
+  // What NB_TYPE_CASTER has, except that a non-const lvalue reference
+  // parameter gets Value& (checked, see writable_reference) and a const
+  // one const Value&; nanobind passes the declared parameter type here.
+  template<typename T_>
+  using Cast = std::conditional_t<
+      is_pointer_v<T_>, Value*,
+      std::conditional_t<
+          std::is_lvalue_reference_v<T_>,
+          std::conditional_t<std::is_const_v<std::remove_reference_t<T_>>,
+                             const Value&, Value&>,
+          Value&&>>;
+  template<typename T_> static constexpr bool can_cast() { return true; }
+  template<typename T_,
+           enable_if_t<std::is_same_v<std::remove_cv_t<T_>, Value>> = 0>
+  static handle from_cpp(T_* p, rv_policy policy, cleanup_list* list) noexcept
+  {
+    if(!p)
+      return none().release();
+    return from_cpp(*p, policy, list);
+  }
+  explicit operator Value*() { return &value; }
+  explicit operator const Value&() { return value; }
+  explicit operator Value&() { return writable_reference(); }
+  explicit operator Value&&() { return std::move(value); }
+  Value value;
 
   bool from_python(handle src, uint32_t flags, cleanup_list*) noexcept
   {
     namespace b = CXX_PYTHON_RULES_NAMESPACE::nbblitz;
     try {
-      if(b::view_of<T, N>(src, value))
+      shares_writable = false;
+      if(b::view_of<T, N, true>(src, value)) {
+        shares_writable = true;
         return true;
-      if(!(flags & (uint32_t)cast_flags::convert))
+      }
+      if(b::view_of<T, N, false>(src, value))
+        return true;
+      if(!(flags & static_cast<uint32_t>(cast_flags::convert)))
         return false;
       object a = b::numpy().attr("array")(
           src, arg("dtype") = b::numpy_dtype_name<T>(), arg("copy") = true);
-      return b::view_of<T, N>(a, value);
+      return b::view_of<T, N, false>(a, value);
     } catch(...) {
       PyErr_Clear();
       return false;
@@ -166,6 +213,18 @@ template<class T, int N> struct type_caster<blitz::Array<T, N>> {
     return convert(v, false);
   }
 private:
+  // True if value is a view of the python array itself, which is
+  // writable.
+  bool shares_writable = false;
+  Value& writable_reference()
+  {
+    if(!shares_writable)
+      throw type_error("this argument is written to by C++, so it must be a "
+                       "writable numpy array of the right dtype and rank, "
+                       "not read-only or converted (a copy would not show "
+                       "the changes)");
+    return value;
+  }
   static handle convert(const Value& v, bool Writable) noexcept
   {
     try {

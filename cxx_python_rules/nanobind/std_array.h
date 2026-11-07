@@ -6,6 +6,7 @@
 // gives a python list (never include both).
 #include <nanobind/nanobind.h>
 #include <nanobind/ndarray.h>
+#include <memory>
 #include "blitz_array.h"
 #include <array>
 #include <stdexcept>
@@ -59,13 +60,19 @@ template<class T, std::size_t N> struct type_caster<std::array<T, N>> {
   static handle from_cpp(const Value& v, rv_policy, cleanup_list*) noexcept
   {
     try {
-      T* d = new T[N];
-      std::copy(v.begin(), v.end(), d);
-      capsule owner(d, [](void* p) noexcept { delete[] static_cast<T*>(p); });
+      // Owned by the unique_ptr until the capsule has it.
+      auto d = std::make_unique<T[]>(N);
+      std::copy(v.begin(), v.end(), d.get());
+      capsule owner(d.get(),
+                    [](void* p) noexcept { delete[] static_cast<T*>(p); });
+      T* data = d.release();
       size_t shape[1] = {N};
-      return ndarray<numpy, T>(d, 1, shape, owner).cast().release();
+      return ndarray<numpy, T>(data, 1, shape, owner).cast().release();
     } catch(python_error& e) {
       e.restore();
+    } catch(const std::exception& e) {
+      // e.g. std::bad_alloc; this function is noexcept.
+      PyErr_SetString(PyExc_RuntimeError, e.what());
     }
     return handle();
   }

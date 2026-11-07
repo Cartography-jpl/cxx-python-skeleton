@@ -64,6 +64,36 @@ def test_scale_in_place(make):
     np.testing.assert_array_equal(a, 2 * b)
 
 
+@pytest.mark.parametrize(
+    "make",
+    [
+        # read-only
+        lambda: np.frombuffer(np.arange(12.0).tobytes()).reshape(3, 4),
+        # converted copies: another dtype, a list, negative strides
+        lambda: np.arange(12, dtype=np.int32).reshape(3, 4),
+        lambda: np.arange(12.0).reshape(3, 4).tolist(),
+        lambda: np.arange(12.0).reshape(3, 4)[::-1],
+    ],
+)
+def test_scale_in_place_rejects_copy_or_read_only(make):
+    """A non-const blitz::Array& argument C++ writes to doesn't take a
+    read-only array or a converted copy (code review 2026-11-06 §2.7: C++
+    wrote into read-only arrays, and writes into a copy were lost)."""
+    a = make()
+    b = np.array(a, copy=True)
+    with pytest.raises(TypeError):
+        ColumnMajorSample.scale_in_place(a, 2)
+    np.testing.assert_array_equal(np.asarray(a), b)
+
+
+def test_const_reference_takes_read_only():
+    """A const reference still takes a read-only array (no copy)."""
+    a = np.frombuffer(np.arange(6.0).tobytes()).reshape(2, 3)
+    assert not a.flags.writeable
+    assert ColumnMajorSample.sum(a) == 15.0
+    assert ColumnMajorSample.data_address(a) == a.__array_interface__["data"][0]
+
+
 def test_set_data():
     s = ColumnMajorSample()
     s.data = np.asfortranarray(np.arange(6.0).reshape(2, 3))
