@@ -1,8 +1,22 @@
 #include "unit_test_support.h"
 #include "observer_example.h"
 #include "generic_object_map.h"
+#include <type_traits>
 
 using namespace Skeleton;
+
+// Code review 2026-11-06 §2.2: copying an observer copied its this_obj,
+// so registering the copy registered the original. Copying (and moving)
+// is now a compile error (decision D2 of claude_notes/code_review_fix_plan.md).
+static_assert(!std::is_copy_constructible_v<ObserverExample> &&
+              !std::is_move_constructible_v<ObserverExample> &&
+              !std::is_copy_assignable_v<ObserverExample>);
+static_assert(!std::is_copy_constructible_v<CacheExample> &&
+              !std::is_move_constructible_v<CacheExample> &&
+              !std::is_copy_assignable_v<CacheExample>);
+static_assert(!std::is_copy_constructible_v<ObservableExample> &&
+              !std::is_move_constructible_v<ObservableExample> &&
+              !std::is_copy_assignable_v<ObservableExample>);
 
 BOOST_FIXTURE_TEST_SUITE(observer, GlobalFixture)
 

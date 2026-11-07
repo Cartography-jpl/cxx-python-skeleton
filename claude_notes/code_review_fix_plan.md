@@ -137,6 +137,35 @@ default constructor and decides explicitly whether the copy registers.
 Python is unaffected (nanobind holds these classes by `shared_ptr` and doesn't copy them); run
 `observer_example_test.py` anyway.
 
+**R1.2 results (2026-11-06).**
+- *Skeleton.* With `Observable() = default;` everything compiled, but three python tests aborted: a python subclass
+  of `Observer<T>` overriding `notify_update(const T&)`. Cause: `NB_OVERRIDE_NAME` passes a C++ reference to python
+  with nanobind's default policy for calls into python, which **copies** the object. So python observers had always
+  received a copy of the Observable (with a copy of its observer list), not the Observable itself, which the tests
+  didn't notice. With copying deleted, nanobind can't copy and aborts. Fix: a new
+  `CXX_PYTHON_RULES_NB_OVERRIDE_REF` in `cxx_python_rules_nb.h` passes such an argument with
+  `rv_policy::reference` (the existing python object, as SWIG did); used for the six `notify_*` overrides. New test
+  `test_python_override_gets_the_observable` checks the override gets the same object. R6.5: the generator has to
+  emit this macro for trampoline arguments that are references to bound classes.
+- *framework* (scratch copy of the source, every file of the `build_conda_debug` compile database run with
+  `-fsyntax-only`; 782 files): 14 fail. 11 are tests written `auto x = T(...)`/`T x = T(...)`, which need a move
+  constructor only because framework compiles as `-std=gnu++14`; as C++17 (guaranteed copy elision) they compile.
+  Three are real:
+  - `lib/RadiativeTransfer/chapman_boa_rt.cc`: `std::vector<ChapmanBoaRTCache> cache; cache.resize(n)` (resizing a
+    vector needs copies or moves), and `BOOST_FOREACH(auto i, cache) atm->add_cache_invalidated_observer(i);`. The
+    `auto i` registers a *copy* of each cache; that only worked because the old copy bug made the copy register the
+    original. Fix in framework: `std::vector<std::unique_ptr<ChapmanBoaRTCache>>` (or a `std::list`), and `auto&`.
+  - The SWIG wrappers of `PressureImpBase` and `TemperatureImpBase` generate a setter for the protected `cache` member
+    of the director class (`darg->cache = *arg2`). Fix: `%immutable` or `%ignore` that member in the `.i` files; it
+    goes away anyway when framework moves to nanobind.
+- *geocal* (the same with its compile database, 624 files, `-std=gnu++17`): one fails.
+  `quaternion_camera.i` has `%copyctor QuaternionCamera;`, so python gets `QuaternionCamera(other)`, which copied the
+  camera's observer list too. No python code in the repository calls it (a search for `QuaternionCamera(x)` finds
+  nothing). Fix in geocal: drop `%copyctor`, or give `QuaternionCamera` an explicit copy constructor that copies its
+  parameters and starts with no observers.
+- **Decision:** the breakage is small (three places in framework, one in geocal, plus C++14-only test code), and two
+  of the four were themselves wrong, so B stays. The fixes go in the "Notes for geocal" table.
+
 **R1.3 `Skeleton::` in the rules library (§2.3).** Per D4: move `lib/blitz_mdspan.{h,cc}` to
 `cxx_python_rules/lib/`, and `lib/skeleton_mdspan.h` to `cxx_python_rules/lib/cxx_python_rules_mdspan.h`, with
 `namespace CXX_PYTHON_RULES_NAMESPACE { namespace md = Kokkos; }`. Put everything in `blitz_mdspan.h` in

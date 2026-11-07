@@ -31,6 +31,34 @@ class PyObserver(ObserverObservableExample):
         self.deleted.append(self.name)
 
 
+class PyIdentityObserver(ObserverObservableExample):
+    """Records the object notify_update and notify_add are called with."""
+
+    def __init__(self):
+        super().__init__()
+        self.updated = []
+        self.added = []
+
+    def notify_update(self, obj):
+        self.updated.append(obj)
+
+    def notify_add(self, obj):
+        self.added.append(obj)
+
+
+def test_python_override_gets_the_observable():
+    # The override gets the Observable itself, not a copy (nanobind's
+    # default for a C++ reference passed to python is to copy it; the
+    # trampoline uses CXX_PYTHON_RULES_NB_OVERRIDE_REF instead).
+    o = ObservableExample(1)
+    p = PyIdentityObserver()
+    o.add_observer(p)
+    o.value = 2
+    assert p.added[0] is o
+    assert p.updated[0] is o
+    assert p.updated[0].number_observer == 1
+
+
 def test_python_constructed_observer():
     o = ObservableExample(1)
     obs = ObserverExample("a")

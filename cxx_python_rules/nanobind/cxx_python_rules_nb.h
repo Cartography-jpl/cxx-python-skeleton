@@ -278,6 +278,30 @@ void director_load(const std::string& Python_object, Tramp* D,
 }
 
 //-----------------------------------------------------------------------
+/// NB_OVERRIDE_NAME for a virtual function whose one argument is a
+/// reference to a bound class (e.g. Observer<T>::notify_update(const T&)).
+/// NB_OVERRIDE_NAME passes a C++ reference to python with nanobind's
+/// default policy for calls into python, which *copies* the object: the
+/// python override got a copy (for an Observable, with a copy of its
+/// observer list), not the object, and a class that can't be copied
+/// aborts. This passes the object itself (rv_policy::reference, the
+/// existing python object if it has one), as SWIG did. As with any
+/// reference, python must not keep it after the call returns unless the
+/// object is owned elsewhere.
+//-----------------------------------------------------------------------
+
+#define CXX_PYTHON_RULES_NB_OVERRIDE_REF(name, func, arg)                      \
+  using nb_ret_type = decltype(NBBase::func(arg));                             \
+  constexpr uint64_t nb_hash = nanobind::detail::str_hash(name);               \
+  nanobind::detail::ticket nb_ticket(nb_trampoline, name, nb_hash, false);     \
+  if(nb_ticket.key.is_valid()) {                                               \
+    return nanobind::cast<nb_ret_type>(                                        \
+        nb_trampoline.base().attr(nb_ticket.key)(                              \
+            nanobind::cast(&(arg), nanobind::rv_policy::reference)));          \
+  } else                                                                       \
+    return NBBase::func(arg)
+
+//-----------------------------------------------------------------------
 /// Boost serialization of the trampoline TRAMP for BASE (NAME is BASE
 /// without the namespace). Written as SWIG did: class name
 /// "SwigDirector_" NAME, the base part as element NAME, so archives

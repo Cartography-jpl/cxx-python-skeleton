@@ -12,15 +12,17 @@ public:
   NB_TRAMPOLINE(Skeleton::Observer<Skeleton::CameraLike>);
   void notify_update(const Skeleton::CameraLike& Observed_object) override
   {
-    NB_OVERRIDE_NAME("notify_update", notify_update, Observed_object);
+    CXX_PYTHON_RULES_NB_OVERRIDE_REF("notify_update", notify_update,
+                                     Observed_object);
   }
   void notify_add(Skeleton::CameraLike& Observed_object) override
   {
-    NB_OVERRIDE_NAME("notify_add", notify_add, Observed_object);
+    CXX_PYTHON_RULES_NB_OVERRIDE_REF("notify_add", notify_add, Observed_object);
   }
   void notify_remove(Skeleton::CameraLike& Observed_object) override
   {
-    NB_OVERRIDE_NAME("notify_remove", notify_remove, Observed_object);
+    CXX_PYTHON_RULES_NB_OVERRIDE_REF("notify_remove", notify_remove,
+                                     Observed_object);
   }
 };
 }

@@ -42,6 +42,20 @@ public:
   ~Observer() override = default;
 
   //-----------------------------------------------------------------------
+  /// Not copyable or movable. this_obj points at this object, and the
+  /// Observables we are registered with hold weak_ptrs made from it. A
+  /// copy of this_obj would point at the original, so registering the
+  /// copy would register the original (and the copy would never be
+  /// notified). A derived class that needs copies writes its own copy
+  /// constructor, calling our default constructor, and decides there
+  /// whether the copy registers. (Deleting the copy also removes the
+  /// implicit move, which would have the same problem.)
+  //-----------------------------------------------------------------------
+
+  Observer(const Observer&) = delete;
+  Observer& operator=(const Observer&) = delete;
+
+  //-----------------------------------------------------------------------
   /// Called when the Observed object is updated.
   //-----------------------------------------------------------------------
 
@@ -90,6 +104,13 @@ public:
   ~CacheInvalidatedObserver() override = default;
 
   //-----------------------------------------------------------------------
+  /// Not copyable or movable, for the same reason as Observer.
+  //-----------------------------------------------------------------------
+
+  CacheInvalidatedObserver(const CacheInvalidatedObserver&) = delete;
+  CacheInvalidatedObserver& operator=(const CacheInvalidatedObserver&) = delete;
+
+  //-----------------------------------------------------------------------
   /// Called when the cache is invalidated.
   //-----------------------------------------------------------------------
 
@@ -135,7 +156,17 @@ protected:
 *******************************************************************/
 template<class T> class Observable : public virtual GenericObject {
 public:
+  Observable() = default;
   ~Observable() override = default;
+
+  //-----------------------------------------------------------------------
+  /// Not copyable or movable. A copy would notify the observers of the
+  /// original, which never registered with it and got no notify_add,
+  /// and would keep the original's ref_list observers alive too.
+  //-----------------------------------------------------------------------
+
+  Observable(const Observable&) = delete;
+  Observable& operator=(const Observable&) = delete;
 
   //-----------------------------------------------------------------------
   /// Add an observer
