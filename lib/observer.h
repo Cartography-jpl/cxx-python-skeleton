@@ -193,7 +193,7 @@ public:
   /// the class description for details.
   //-----------------------------------------------------------------------
 
-  void add_observer_and_keep_reference(std::shared_ptr<Observer<T>>& Obs)
+  void add_observer_and_keep_reference(const std::shared_ptr<Observer<T>>& Obs)
   {
     if(!Obs)
       throw Exception("add_observer_and_keep_reference: Obs is null");

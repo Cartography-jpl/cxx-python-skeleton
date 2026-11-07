@@ -965,7 +965,7 @@ EXTRA_DIST = README.md bootstrap config/m4_local/README config/m4 \
 	@cxxpythonrules@/python/swig_shelve.py.sample \
 	@cxxpythonrules@/python/swig_shelve_test.py.sample \
 	@srclib@/test_all.sh @srclib@/skeleton_nb_opaque.h \
-	@srclib@/skeleton_nb_init.inc @srclib@/unit_test_support.h \
+	@srclib@/observer_nb.h @srclib@/unit_test_support.h \
 	@srclib@/global_fixture.h \
 	@cxxpythonrules@/nanobind/i_to_nanobind.py \
 	@cxxpythonrules@/nanobind/doxy2nanobind.py \

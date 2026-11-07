@@ -96,7 +96,7 @@ NB_SRC += @srclib@/virtual_diamond_example_nb.cc
 NB_SRC += @srclib@/with_parameter_like_nb.cc
 NB_SRC += @srclib@/skeleton_nb_module.cc
 EXTRA_DIST += @srclib@/skeleton_nb_opaque.h
-EXTRA_DIST += @srclib@/skeleton_nb_init.inc
+EXTRA_DIST += @srclib@/observer_nb.h
 NB_LIBADD = libskeleton.la
 
 # A second extension module using the main one's types (cross-module test,
