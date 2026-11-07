@@ -122,9 +122,11 @@ SKELETON_WARN_CXXFLAGS=""
 # three of it are gcc only (dropped for clang by the check below).
 # -Wextra-semi is left out: the X(...); style of using the Boost
 # serialization macros (SKELETON_EXPORT_KEY(Foo);) gives a warning per use.
+# -Wnull-dereference is left out: in optimized builds gcc reports false
+# positives inside libstdc++'s shared_ptr (weak_ptr::lock).
 for skeleton_flag in -Wall -Wextra -Wpedantic -Wshadow -Wold-style-cast \
     -Wsuggest-override -Wnon-virtual-dtor -Wconversion -Wsign-conversion \
-    -Wduplicated-cond -Wduplicated-branches -Wlogical-op -Wnull-dereference \
+    -Wduplicated-cond -Wduplicated-branches -Wlogical-op \
     -Wcast-qual -Wformat=2 -Wdeprecated-copy-dtor; do
   AX_CHECK_COMPILE_FLAG([$skeleton_flag],
     [SKELETON_WARN_CXXFLAGS="$SKELETON_WARN_CXXFLAGS $skeleton_flag"], [], [-Werror])

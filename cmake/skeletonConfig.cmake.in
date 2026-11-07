@@ -1,0 +1,12 @@
+# CMake package for the skeleton library: find_package(skeleton), then link
+# skeleton::skeleton.
+@PACKAGE_INIT@
+include(CMakeFindDependencyMacro)
+find_dependency(Boost 1.84 COMPONENTS serialization iostreams)
+find_dependency(Threads)
+find_dependency(PkgConfig)
+pkg_check_modules(BLITZ REQUIRED IMPORTED_TARGET blitz)
+find_path(SKELETON_MDSPAN_INCLUDE_DIR mdspan/mdspan.hpp REQUIRED)
+include("${CMAKE_CURRENT_LIST_DIR}/skeletonTargets.cmake")
+target_include_directories(skeleton::skeleton INTERFACE ${SKELETON_MDSPAN_INCLUDE_DIR})
+check_required_components(skeleton)
