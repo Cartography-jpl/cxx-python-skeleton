@@ -14,21 +14,10 @@ template<class T, typename BlockMember<T>::type P> struct BlockMemberSetter {
 template<class T, typename BlockMember<T>::type P>
 const bool BlockMemberSetter<T, P>::done = (BlockMember<T>::ptr = P, true);
 
+// For each type in CXX_PYTHON_RULES_BLITZ_OWNER_TYPES (blitz_mdspan.h).
 #define CXX_PYTHON_RULES_BLOCK_MEMBER(T)                                       \
   template struct BlockMember<T>;                                              \
   template struct BlockMemberSetter<T, &blitz::MemoryBlockReference<T>::block_>;
-
-CXX_PYTHON_RULES_BLOCK_MEMBER(double);
-CXX_PYTHON_RULES_BLOCK_MEMBER(float);
-CXX_PYTHON_RULES_BLOCK_MEMBER(int);
-CXX_PYTHON_RULES_BLOCK_MEMBER(unsigned int);
-CXX_PYTHON_RULES_BLOCK_MEMBER(short int);
-CXX_PYTHON_RULES_BLOCK_MEMBER(unsigned short int);
-CXX_PYTHON_RULES_BLOCK_MEMBER(char);
-CXX_PYTHON_RULES_BLOCK_MEMBER(signed char);
-CXX_PYTHON_RULES_BLOCK_MEMBER(unsigned char);
-CXX_PYTHON_RULES_BLOCK_MEMBER(bool);
-CXX_PYTHON_RULES_BLOCK_MEMBER(long);
-CXX_PYTHON_RULES_BLOCK_MEMBER(std::string);
+CXX_PYTHON_RULES_BLITZ_OWNER_TYPES(CXX_PYTHON_RULES_BLOCK_MEMBER)
 }
 }

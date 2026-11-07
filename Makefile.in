@@ -848,7 +848,9 @@ RANLIB = @RANLIB@
 SED = @SED@
 SET_MAKE = @SET_MAKE@
 SHELL = @SHELL@
+SKELETON_DEBUG_CPPFLAGS = @SKELETON_DEBUG_CPPFLAGS@
 SKELETON_RELEASE_CPPFLAGS = @SKELETON_RELEASE_CPPFLAGS@
+SKELETON_SANITIZER_PRELOAD = @SKELETON_SANITIZER_PRELOAD@
 SKELETON_WARN_CXXFLAGS = @SKELETON_WARN_CXXFLAGS@
 SPHINXBUILD = @SPHINXBUILD@
 STRIP = @STRIP@
@@ -954,8 +956,9 @@ include_HEADERS =
 EXTRA_DIST = README.md bootstrap config/m4_local/README config/m4 \
 	@srcscript@/make_compile_commands.py \
 	@srcscript@/run_clang_tidy.sh @srcscript@/api_snapshot.py \
-	@cxxpythonrules@/README.md CMakeLists.txt \
-	@cxxpythonrules@/lib/generic_object.cc.sample \
+	@srcscript@/lsan.supp @srcscript@/ubsan.supp \
+	@srcscript@/check_all.sh @cxxpythonrules@/README.md \
+	CMakeLists.txt @cxxpythonrules@/lib/generic_object.cc.sample \
 	@cxxpythonrules@/lib/generic_object.h.sample \
 	@cxxpythonrules@/lib/generic_object_map.cc.sample \
 	@cxxpythonrules@/lib/generic_object_map.h.sample \
@@ -977,10 +980,27 @@ CYTHON_SRC =
 pkgconfig_DATA = 
 MOSTLYCLEANFILES = $(am__append_5)
 # To pick up the generated skeleton_config.h and skeleton_build_config.h
-AM_CPPFLAGS = $(SKELETON_RELEASE_CPPFLAGS) \
+AM_CPPFLAGS = $(SKELETON_RELEASE_CPPFLAGS) $(SKELETON_DEBUG_CPPFLAGS) \
 	-I$(srcdir)/@cxxpythonrules@/lib -I$(srcdir)/@srclib@ \
 	-I@srclib@
 AM_CXXFLAGS = $(SKELETON_WARN_CXXFLAGS)
+
+#=================================================================
+# Sanitizer options for the tests (configure --enable-sanitizers). The
+# C++ tests check for leaks, with the one accepted leak suppressed
+# (script/lsan.supp); the python tests don't (python doesn't free
+# everything at exit) and preload the sanitizer runtimes (see
+# --enable-sanitizers in config/m4_local/skeleton_common.m4).
+@SKELETON_SANITIZERS_TRUE@SANITIZER_ENV = UBSAN_OPTIONS=print_stacktrace=1:halt_on_error=1:suppressions=$(abs_top_srcdir)/script/ubsan.supp \
+@SKELETON_SANITIZERS_TRUE@  LSAN_OPTIONS=suppressions=$(abs_top_srcdir)/script/lsan.supp
+
+@SKELETON_SANITIZERS_FALSE@SANITIZER_CXX_ENV = 
+@SKELETON_SANITIZERS_TRUE@SANITIZER_CXX_ENV = $(SANITIZER_ENV) ASAN_OPTIONS=fast_unwind_on_malloc=0
+@SKELETON_SANITIZERS_FALSE@SANITIZER_PYTHON_ENV = 
+@SKELETON_SANITIZERS_TRUE@SANITIZER_PYTHON_ENV = $(SANITIZER_ENV) ASAN_OPTIONS=detect_leaks=0
+@SKELETON_SANITIZERS_FALSE@SANITIZER_PRELOAD = 
+@SKELETON_SANITIZERS_TRUE@SANITIZER_PRELOAD = $(SKELETON_SANITIZER_PRELOAD)
+AM_TESTS_ENVIRONMENT = $(SANITIZER_CXX_ENV)
 
 #=================================================================
 # Some flags needed for GCC compilers.
@@ -3299,14 +3319,17 @@ dist-clean-up-python:
 
 python-check: script/setup_skeleton.sh
 	source $< && \
-        $(PYTEST) $(PYTEST_FLAGS) $(PYTEST_EXTRAFLAGS) $(srcdir)/@srcpython@/tests $(EXTRA_PYTHON_TEST)
+        $(SANITIZER_PYTHON_ENV) LD_PRELOAD="$(SANITIZER_PRELOAD) $$LD_PRELOAD" $(PYTEST) $(PYTEST_FLAGS) $(PYTEST_EXTRAFLAGS) $(srcdir)/@srcpython@/tests $(EXTRA_PYTHON_TEST)
 
 #=================================================================
 # The python tests against the build tree (part of "make check", no
 # install needed): the extension modules from .libs and the python
 # packages from the source tree, in nb_pkg/. libskeleton is preloaded,
 # since the modules' RPATH (conda links with --disable-new-dtags) would
-# otherwise find an installed libskeleton first, as in ST.11.
+# otherwise find an installed libskeleton first, as in ST.11. pytest's
+# temporary directory is in the build directory: pytest.ini's
+# ./pytest_tmp would be in the source tree, shared by every build
+# directory's "make check", and pytest empties it when it starts.
 @BUILD_PYTHON_BINDINGS_TRUE@python-check-build: all
 @BUILD_PYTHON_BINDINGS_TRUE@	rm -rf nb_pkg && $(MKDIR_P) nb_pkg/skeleton_cxx
 @BUILD_PYTHON_BINDINGS_TRUE@	for f in __init__.py all.py _nanobind_support.py py.typed; do \
@@ -3316,8 +3339,10 @@ python-check: script/setup_skeleton.sh
 @BUILD_PYTHON_BINDINGS_TRUE@	ln -s $(abs_top_srcdir)/@srcpython@/skeleton nb_pkg/skeleton
 @BUILD_PYTHON_BINDINGS_TRUE@	cd $(srcdir)/@srcpython@ && \
 @BUILD_PYTHON_BINDINGS_TRUE@	  PYTHONPATH=$(abs_builddir)/nb_pkg:$$PYTHONPATH \
-@BUILD_PYTHON_BINDINGS_TRUE@	  LD_PRELOAD=$(abs_builddir)/.libs/libskeleton.so \
-@BUILD_PYTHON_BINDINGS_TRUE@	  $(PYTEST) $(PYTEST_FLAGS) -p no:cacheprovider $(PYTEST_EXTRAFLAGS) tests $(EXTRA_PYTHON_TEST)
+@BUILD_PYTHON_BINDINGS_TRUE@	  $(SANITIZER_PYTHON_ENV) \
+@BUILD_PYTHON_BINDINGS_TRUE@	  LD_PRELOAD="$(SANITIZER_PRELOAD) $(abs_builddir)/.libs/libskeleton.so" \
+@BUILD_PYTHON_BINDINGS_TRUE@	  $(PYTEST) $(PYTEST_FLAGS) -p no:cacheprovider --basetemp=$(abs_builddir)/pytest_tmp \
+@BUILD_PYTHON_BINDINGS_TRUE@	  $(PYTEST_EXTRAFLAGS) tests $(EXTRA_PYTHON_TEST)
 @BUILD_PYTHON_BINDINGS_TRUE@clean-nb-pkg:
 @BUILD_PYTHON_BINDINGS_TRUE@	rm -rf nb_pkg
 # CXX_PYTHON_RULES_NAMESPACE and CXX_PYTHON_RULES_HAVE_BOOST_SERIALIZATION
@@ -3334,6 +3359,25 @@ install-python: all
 golden-archives: golden_archive_generator
 	source script/setup_skeleton.sh && \
 	./golden_archive_generator $(abs_top_srcdir)/@unittestdata@/golden
+
+# Check that the generator writes the committed golden archives byte for
+# byte (it does unless the archive format changed). Skipped with
+# --without-boost-serialization (no archives to write).
+@HAVE_BOOST_SERIALIZATION_TRUE@golden-check: golden_archive_generator
+@HAVE_BOOST_SERIALIZATION_TRUE@	rm -rf golden_check_tmp && $(MKDIR_P) golden_check_tmp
+@HAVE_BOOST_SERIALIZATION_TRUE@	source script/setup_skeleton.sh && \
+@HAVE_BOOST_SERIALIZATION_TRUE@	  $(SANITIZER_CXX_ENV) ./golden_archive_generator golden_check_tmp > /dev/null
+@HAVE_BOOST_SERIALIZATION_TRUE@	@n=0; bad=0; \
+@HAVE_BOOST_SERIALIZATION_TRUE@	for f in golden_check_tmp/*; do \
+@HAVE_BOOST_SERIALIZATION_TRUE@	  test -e "$$f" || continue; n=$$((n+1)); \
+@HAVE_BOOST_SERIALIZATION_TRUE@	  cmp -s "$$f" $(abs_top_srcdir)/@unittestdata@/golden/$$(basename "$$f") || \
+@HAVE_BOOST_SERIALIZATION_TRUE@	    { echo "golden-check: $$(basename "$$f") differs"; bad=$$((bad+1)); }; \
+@HAVE_BOOST_SERIALIZATION_TRUE@	done; \
+@HAVE_BOOST_SERIALIZATION_TRUE@	echo "golden-check: $$n files, $$bad differ"; \
+@HAVE_BOOST_SERIALIZATION_TRUE@	rm -rf golden_check_tmp; test $$bad = 0
+@HAVE_BOOST_SERIALIZATION_FALSE@golden-check:
+@HAVE_BOOST_SERIALIZATION_FALSE@	@echo "golden-check: skipped, built without boost serialization"
+.PHONY: golden-check golden-archives
 
 # Variables used in testing
 export abs_top_srcdir 
@@ -3355,7 +3399,7 @@ skeleton-check-am: skeleton_test_all
 	@echo "(useful during development). It does run the python "
 	@echo "tests, use check for that"
 	@echo "====================================================="
-	$(srcdir)/$(srclib)/test_all.sh
+	$(SANITIZER_CXX_ENV) $(srcdir)/$(srclib)/test_all.sh
 
 # Allow searchs for .i, .h. and .cc files in this directory
 vpath %.cc $(srcdir)/@srclib@
@@ -3379,6 +3423,7 @@ vpath %.i $(srcdir)/@srclib@
 @BUILD_PYTHON_BINDINGS_TRUE@	cp $(srcdir)/@cxxpythonrules@/__init__.py $(srcdir)/@cxxpythonrules@/_nanobind_support.py nb_pyi/$(notdir $(pkgpythoncxxdir))/
 @BUILD_PYTHON_BINDINGS_TRUE@	cp .libs/_bindings$(PYTHON_EXT_SUFFIX_SO) nb_pyi/$(notdir $(pkgpythoncxxdir))/ 2>/dev/null || cp .libs/_bindings.so nb_pyi/$(notdir $(pkgpythoncxxdir))/
 @BUILD_PYTHON_BINDINGS_TRUE@	cd nb_pyi && PYTHONPATH=.:$${PYTHONPATH} LD_LIBRARY_PATH=$(abs_top_builddir)/.libs:$${LD_LIBRARY_PATH} \
+@BUILD_PYTHON_BINDINGS_TRUE@	  $(SANITIZER_PYTHON_ENV) LD_PRELOAD="$(SANITIZER_PRELOAD) $${LD_PRELOAD}" \
 @BUILD_PYTHON_BINDINGS_TRUE@	  $(PYTHON) -m nanobind.stubgen -m $(notdir $(pkgpythoncxxdir))._bindings -o _bindings.pyi -q
 @BUILD_PYTHON_BINDINGS_TRUE@	rm -rf nb_pyi/$(notdir $(pkgpythoncxxdir))
 

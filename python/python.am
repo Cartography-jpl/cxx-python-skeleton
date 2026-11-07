@@ -51,7 +51,7 @@ PYTEST_FLAGS= -q -n $(PYTEST_NJOB)
 
 python-check: script/setup_skeleton.sh
 	source $< && \
-        $(PYTEST) $(PYTEST_FLAGS) $(PYTEST_EXTRAFLAGS) $(srcdir)/@srcpython@/tests $(EXTRA_PYTHON_TEST)
+        $(SANITIZER_PYTHON_ENV) LD_PRELOAD="$(SANITIZER_PRELOAD) $$LD_PRELOAD" $(PYTEST) $(PYTEST_FLAGS) $(PYTEST_EXTRAFLAGS) $(srcdir)/@srcpython@/tests $(EXTRA_PYTHON_TEST)
 
 INSTALLCHECK_HOOK+= python-check
 
@@ -60,7 +60,10 @@ INSTALLCHECK_HOOK+= python-check
 # install needed): the extension modules from .libs and the python
 # packages from the source tree, in nb_pkg/. libskeleton is preloaded,
 # since the modules' RPATH (conda links with --disable-new-dtags) would
-# otherwise find an installed libskeleton first, as in ST.11.
+# otherwise find an installed libskeleton first, as in ST.11. pytest's
+# temporary directory is in the build directory: pytest.ini's
+# ./pytest_tmp would be in the source tree, shared by every build
+# directory's "make check", and pytest empties it when it starts.
 if BUILD_PYTHON_BINDINGS
 python-check-build: all
 	rm -rf nb_pkg && $(MKDIR_P) nb_pkg/skeleton_cxx
@@ -71,8 +74,10 @@ python-check-build: all
 	ln -s $(abs_top_srcdir)/@srcpython@/skeleton nb_pkg/skeleton
 	cd $(srcdir)/@srcpython@ && \
 	  PYTHONPATH=$(abs_builddir)/nb_pkg:$$PYTHONPATH \
-	  LD_PRELOAD=$(abs_builddir)/.libs/libskeleton.so \
-	  $(PYTEST) $(PYTEST_FLAGS) -p no:cacheprovider $(PYTEST_EXTRAFLAGS) tests $(EXTRA_PYTHON_TEST)
+	  $(SANITIZER_PYTHON_ENV) \
+	  LD_PRELOAD="$(SANITIZER_PRELOAD) $(abs_builddir)/.libs/libskeleton.so" \
+	  $(PYTEST) $(PYTEST_FLAGS) -p no:cacheprovider --basetemp=$(abs_builddir)/pytest_tmp \
+	  $(PYTEST_EXTRAFLAGS) tests $(EXTRA_PYTHON_TEST)
 CHECK_HOOK+= python-check-build
 clean-nb-pkg:
 	rm -rf nb_pkg

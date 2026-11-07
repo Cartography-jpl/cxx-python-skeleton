@@ -1,3 +1,5 @@
 installskeleton_DATA = @srcscript@/setup_skeleton.csh @srcscript@/setup_skeleton.sh
 EXTRA_DIST+= @srcscript@/make_compile_commands.py @srcscript@/run_clang_tidy.sh
 EXTRA_DIST+= @srcscript@/api_snapshot.py
+EXTRA_DIST+= @srcscript@/lsan.supp @srcscript@/ubsan.supp
+EXTRA_DIST+= @srcscript@/check_all.sh

@@ -1,0 +1,3 @@
+# UndefinedBehaviorSanitizer suppressions (configure --enable-sanitizers).
+# One line per finding in third-party code (Blitz, Boost, nanobind), with
+# the reason. Findings in our own code are fixed, not suppressed.

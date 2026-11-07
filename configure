@@ -716,11 +716,15 @@ PYTHON_LIBS
 PYTHON_CPPFLAGS
 PYTHON_VERSION
 PYTHON
+SKELETON_DEBUG_CPPFLAGS
 SKELETON_RELEASE_CPPFLAGS
 pkgconfigdir
 PKG_CONFIG_LIBDIR
 PKG_CONFIG_PATH
 PKG_CONFIG
+SKELETON_SANITIZERS_FALSE
+SKELETON_SANITIZERS_TRUE
+SKELETON_SANITIZER_PRELOAD
 SKELETON_WARN_CXXFLAGS
 HAVE_GCC_FALSE
 HAVE_GCC_TRUE
@@ -883,6 +887,7 @@ with_sysroot
 enable_libtool_lock
 enable_debug
 enable_werror
+enable_sanitizers
 with_python
 with_doxygen
 with_boost
@@ -1570,6 +1575,9 @@ Optional Features:
   --disable-libtool-lock  avoid locking (might break parallel builds)
   --enable-debug          Enable compiler debugging flags
   --enable-werror         treat compiler warnings as errors
+  --enable-sanitizers[=LIST]
+                          build with the sanitizers in LIST, comma separated
+                          (default: address,undefined)
   --enable-python-editable-mode
                           install the python code in editable mode (pip
                           install -e) in make install
@@ -22277,6 +22285,94 @@ fi
 
 
 #=================================================================
+# Sanitizers: --enable-sanitizers builds everything with AddressSanitizer
+# and UndefinedBehaviorSanitizer, --enable-sanitizers=LIST with the ones
+# in LIST (e.g. address, or undefined). The flags are added here, after
+# AC_ENABLE_DEBUG has set CXXFLAGS, so a debug build keeps them. "make
+# check" then sets the sanitizer options (common.am) and, for the python
+# tests, preloads the sanitizer runtimes: libtool links shared libraries
+# with -nostdlib, so libskeleton and the extension modules don't pull them
+# in, and python itself isn't built with them.
+# In a conda environment, configure in one with conda's compiler
+# activation (pixi run, or the build-rpath recipe in CLAUDE.md): without
+# it the sanitizer runtime can link against the host's libraries.
+#=================================================================
+
+# Check whether --enable-sanitizers was given.
+if test ${enable_sanitizers+y}
+then :
+  enableval=$enable_sanitizers;
+else case e in #(
+  e) enable_sanitizers=no ;;
+esac
+fi
+
+case "$enable_sanitizers" in
+  no) skeleton_sanitizers= ;;
+  yes) skeleton_sanitizers=address,undefined ;;
+  *) skeleton_sanitizers=$enable_sanitizers ;;
+esac
+SKELETON_SANITIZER_PRELOAD=
+if test -n "$skeleton_sanitizers"; then
+  skeleton_san_flags="-fsanitize=$skeleton_sanitizers -fno-omit-frame-pointer"
+  CXXFLAGS="$CXXFLAGS $skeleton_san_flags"
+  CFLAGS="$CFLAGS $skeleton_san_flags"
+  LDFLAGS="$LDFLAGS $skeleton_san_flags"
+  ac_ext=cpp
+ac_cpp='$CXXCPP $CPPFLAGS'
+ac_compile='$CXX -c $CXXFLAGS $CPPFLAGS conftest.$ac_ext >&5'
+ac_link='$CXX -o conftest$ac_exeext $CXXFLAGS $CPPFLAGS $LDFLAGS conftest.$ac_ext $LIBS >&5'
+ac_compiler_gnu=$ac_cv_cxx_compiler_gnu
+
+  { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking whether $CXX builds with $skeleton_san_flags" >&5
+printf %s "checking whether $CXX builds with $skeleton_san_flags... " >&6; }
+  cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+int
+main (void)
+{
+
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_cxx_try_link "$LINENO"
+then :
+  { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: yes" >&5
+printf "%s\n" "yes" >&6; }
+else case e in #(
+  e) { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no" >&5
+printf "%s\n" "no" >&6; }
+     as_fn_error $? "$CXX can't build with $skeleton_san_flags" "$LINENO" 5 ;;
+esac
+fi
+rm -f core conftest.err conftest.$ac_objext conftest.beam \
+    conftest$ac_exeext conftest.$ac_ext
+  ac_ext=c
+ac_cpp='$CPP $CPPFLAGS'
+ac_compile='$CC -c $CFLAGS $CPPFLAGS conftest.$ac_ext >&5'
+ac_link='$CC -o conftest$ac_exeext $CFLAGS $CPPFLAGS $LDFLAGS conftest.$ac_ext $LIBS >&5'
+ac_compiler_gnu=$ac_cv_c_compiler_gnu
+
+  for skeleton_san in address:asan undefined:ubsan; do
+    case ",$skeleton_sanitizers," in
+      *,${skeleton_san%%:*},*)
+        SKELETON_SANITIZER_PRELOAD="$SKELETON_SANITIZER_PRELOAD `$CXX -print-file-name=lib${skeleton_san##*:}.so`" ;;
+    esac
+  done
+fi
+
+ if test -n "$skeleton_sanitizers"; then
+  SKELETON_SANITIZERS_TRUE=
+  SKELETON_SANITIZERS_FALSE='#'
+else
+  SKELETON_SANITIZERS_TRUE='#'
+  SKELETON_SANITIZERS_FALSE=
+fi
+
+
+#=================================================================
 # Add prefix, THIRDPARTY, and /opt/afids_support for pkgconfig file
 
 
@@ -22438,7 +22534,15 @@ pkgconfigdir=${libdir}/pkgconfig
 # compiled with it, as when it was in the installed skeleton_config.h (it
 # no longer reaches code that just uses the installed headers).
 if test "x$enable_debug" != "xyes"; then
-   SKELETON_RELEASE_CPPFLAGS=-DBOOST_DISABLE_ASSERTS
+   SKELETON_RELEASE_CPPFLAGS=-DBOOST_DISABLE_ASSERTS=
+fi
+
+
+# A debug build also turns on libstdc++'s assertions (bounds checks in
+# std::vector, std::array, std::string and other precondition checks). It
+# doesn't change the ABI, so code built with and without it can be mixed.
+if test "x$enable_debug" = "xyes"; then
+   SKELETON_DEBUG_CPPFLAGS=-D_GLIBCXX_ASSERTIONS
 fi
 
 
@@ -27016,6 +27120,10 @@ Usually this means the macro was only invoked conditionally." "$LINENO" 5
 fi
 if test -z "${HAVE_GCC_TRUE}" && test -z "${HAVE_GCC_FALSE}"; then
   as_fn_error $? "conditional \"HAVE_GCC\" was never defined.
+Usually this means the macro was only invoked conditionally." "$LINENO" 5
+fi
+if test -z "${SKELETON_SANITIZERS_TRUE}" && test -z "${SKELETON_SANITIZERS_FALSE}"; then
+  as_fn_error $? "conditional \"SKELETON_SANITIZERS\" was never defined.
 Usually this means the macro was only invoked conditionally." "$LINENO" 5
 fi
 if test -z "${HAVE_SPHINX_TRUE}" && test -z "${HAVE_SPHINX_FALSE}"; then

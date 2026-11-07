@@ -40,8 +40,27 @@ CYTHON_SRC =
 pkgconfig_DATA =
 MOSTLYCLEANFILES =
 
-AM_CPPFLAGS= $(SKELETON_RELEASE_CPPFLAGS)
+AM_CPPFLAGS= $(SKELETON_RELEASE_CPPFLAGS) $(SKELETON_DEBUG_CPPFLAGS)
 AM_CXXFLAGS= $(SKELETON_WARN_CXXFLAGS)
+
+#=================================================================
+# Sanitizer options for the tests (configure --enable-sanitizers). The
+# C++ tests check for leaks, with the one accepted leak suppressed
+# (script/lsan.supp); the python tests don't (python doesn't free
+# everything at exit) and preload the sanitizer runtimes (see
+# --enable-sanitizers in config/m4_local/skeleton_common.m4).
+if SKELETON_SANITIZERS
+SANITIZER_ENV = UBSAN_OPTIONS=print_stacktrace=1:halt_on_error=1:suppressions=$(abs_top_srcdir)/script/ubsan.supp \
+  LSAN_OPTIONS=suppressions=$(abs_top_srcdir)/script/lsan.supp
+SANITIZER_CXX_ENV = $(SANITIZER_ENV) ASAN_OPTIONS=fast_unwind_on_malloc=0
+SANITIZER_PYTHON_ENV = $(SANITIZER_ENV) ASAN_OPTIONS=detect_leaks=0
+SANITIZER_PRELOAD = $(SKELETON_SANITIZER_PRELOAD)
+else
+SANITIZER_CXX_ENV =
+SANITIZER_PYTHON_ENV =
+SANITIZER_PRELOAD =
+endif
+AM_TESTS_ENVIRONMENT = $(SANITIZER_CXX_ENV)
 
 #=================================================================
 # Some flags needed for GCC compilers.

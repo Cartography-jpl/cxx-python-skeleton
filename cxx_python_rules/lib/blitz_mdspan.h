@@ -5,6 +5,7 @@
 #include <cstddef>
 #include <memory>
 #include <stdexcept>
+#include <string>
 
 namespace CXX_PYTHON_RULES_NAMESPACE {
 /****************************************************************/ /**
@@ -82,6 +83,30 @@ template<class T> struct BlockMember {
   using type = blitz::MemoryBlock<T>* blitz::MemoryBlockReference<T>::*;
   static type ptr;
 };
+
+// The element types BlockMember is instantiated for (in blitz_mdspan.cc),
+// so the types to_blitz and the numpy conversion support. To support
+// another, add it here.
+#define CXX_PYTHON_RULES_BLITZ_OWNER_TYPES(X)                                  \
+  X(double)                                                                    \
+  X(float)                                                                     \
+  X(int)                                                                       \
+  X(unsigned int)                                                              \
+  X(short int)                                                                 \
+  X(unsigned short int)                                                        \
+  X(char)                                                                      \
+  X(signed char)                                                               \
+  X(unsigned char)                                                             \
+  X(bool)                                                                      \
+  X(long)                                                                      \
+  X(std::string)
+
+template<class T> inline constexpr bool blitz_owner_supported = false;
+#define CXX_PYTHON_RULES_BLITZ_OWNER_DECLARE(T)                                \
+  extern template struct BlockMember<T>;                                       \
+  template<> inline constexpr bool blitz_owner_supported<T> = true;
+CXX_PYTHON_RULES_BLITZ_OWNER_TYPES(CXX_PYTHON_RULES_BLITZ_OWNER_DECLARE)
+#undef CXX_PYTHON_RULES_BLITZ_OWNER_DECLARE
 }
 
 template<class Mdspan>
@@ -89,6 +114,9 @@ blitz::Array<typename Mdspan::element_type, Mdspan::rank()>
 to_blitz(const Mdspan& M, std::shared_ptr<void> Owner = nullptr)
 {
   using T = typename Mdspan::element_type;
+  static_assert(detail::blitz_owner_supported<T>,
+                "to_blitz: unsupported element type; add it to "
+                "CXX_PYTHON_RULES_BLITZ_OWNER_TYPES in blitz_mdspan.h");
   constexpr int N = static_cast<int>(Mdspan::rank());
   blitz::TinyVector<int, N> shape;
   blitz::TinyVector<blitz::diffType, N> stride;

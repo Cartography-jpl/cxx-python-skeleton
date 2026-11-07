@@ -133,6 +133,51 @@ fi
 AC_SUBST([SKELETON_WARN_CXXFLAGS])
 
 #=================================================================
+# Sanitizers: --enable-sanitizers builds everything with AddressSanitizer
+# and UndefinedBehaviorSanitizer, --enable-sanitizers=LIST with the ones
+# in LIST (e.g. address, or undefined). The flags are added here, after
+# AC_ENABLE_DEBUG has set CXXFLAGS, so a debug build keeps them. "make
+# check" then sets the sanitizer options (common.am) and, for the python
+# tests, preloads the sanitizer runtimes: libtool links shared libraries
+# with -nostdlib, so libskeleton and the extension modules don't pull them
+# in, and python itself isn't built with them.
+# In a conda environment, configure in one with conda's compiler
+# activation (pixi run, or the build-rpath recipe in CLAUDE.md): without
+# it the sanitizer runtime can link against the host's libraries.
+#=================================================================
+
+AC_ARG_ENABLE([sanitizers],
+  [AS_HELP_STRING([--enable-sanitizers@<:@=LIST@:>@],
+    [build with the sanitizers in LIST, comma separated (default: address,undefined)])],
+  [], [enable_sanitizers=no])
+case "$enable_sanitizers" in
+  no) skeleton_sanitizers= ;;
+  yes) skeleton_sanitizers=address,undefined ;;
+  *) skeleton_sanitizers=$enable_sanitizers ;;
+esac
+SKELETON_SANITIZER_PRELOAD=
+if test -n "$skeleton_sanitizers"; then
+  skeleton_san_flags="-fsanitize=$skeleton_sanitizers -fno-omit-frame-pointer"
+  CXXFLAGS="$CXXFLAGS $skeleton_san_flags"
+  CFLAGS="$CFLAGS $skeleton_san_flags"
+  LDFLAGS="$LDFLAGS $skeleton_san_flags"
+  AC_LANG_PUSH([C++])
+  AC_MSG_CHECKING([whether $CXX builds with $skeleton_san_flags])
+  AC_LINK_IFELSE([AC_LANG_PROGRAM([], [])], [AC_MSG_RESULT([yes])],
+    [AC_MSG_RESULT([no])
+     AC_MSG_ERROR([$CXX can't build with $skeleton_san_flags])])
+  AC_LANG_POP([C++])
+  for skeleton_san in address:asan undefined:ubsan; do
+    case ",$skeleton_sanitizers," in
+      *,${skeleton_san%%:*},*)
+        SKELETON_SANITIZER_PRELOAD="$SKELETON_SANITIZER_PRELOAD `$CXX -print-file-name=lib${skeleton_san##*:}.so`" ;;
+    esac
+  done
+fi
+AC_SUBST([SKELETON_SANITIZER_PRELOAD])
+AM_CONDITIONAL([SKELETON_SANITIZERS], [test -n "$skeleton_sanitizers"])
+
+#=================================================================
 # Add prefix, THIRDPARTY, and /opt/afids_support for pkgconfig file
 
 PKG_PROG_PKG_CONFIG

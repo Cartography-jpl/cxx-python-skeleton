@@ -1,4 +1,6 @@
 #include "unit_test_support.h"
+#include <memory>
+#include <type_traits>
 #include "blitz_mdspan.h"
 
 using namespace Skeleton;
@@ -94,6 +96,26 @@ BOOST_AUTO_TEST_CASE(negative_stride)
   a = 1, 2, 3, 4;
   a.reverseSelf(0);
   BOOST_CHECK_THROW(to_mdspan(a), std::runtime_error);
+}
+
+BOOST_AUTO_TEST_CASE(every_owner_type)
+{
+  // to_blitz with an owner for every type in
+  // CXX_PYTHON_RULES_BLITZ_OWNER_TYPES: a type missing from the
+  // instantiations in blitz_mdspan.cc fails to link this test.
+  auto check = []<class T>(const T& Value) {
+    // (Not std::vector, which has no data() for bool.)
+    std::shared_ptr<T[]> owner = std::make_shared<T[]>(6, Value);
+    md::mdspan<T, md::dextents<std::ptrdiff_t, 2>> m(owner.get(), 2, 3);
+    blitz::Array<T, 2> a =
+        to_blitz(m, std::shared_ptr<void>(owner, owner.get()));
+    owner.reset();
+    BOOST_CHECK_EQUAL(a.rows(), 2);
+    BOOST_CHECK(a(1, 2) == Value);
+  };
+#define SKELETON_CHECK_OWNER_TYPE(T) check(std::type_identity_t<T>{});
+  CXX_PYTHON_RULES_BLITZ_OWNER_TYPES(SKELETON_CHECK_OWNER_TYPE)
+#undef SKELETON_CHECK_OWNER_TYPE
 }
 
 BOOST_AUTO_TEST_SUITE_END()

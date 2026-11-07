@@ -61,6 +61,7 @@ nb_pyi/_bindings.pyi: _bindings.la
 	cp $(srcdir)/@cxxpythonrules@/__init__.py $(srcdir)/@cxxpythonrules@/_nanobind_support.py nb_pyi/$(notdir $(pkgpythoncxxdir))/
 	cp .libs/_bindings$(PYTHON_EXT_SUFFIX_SO) nb_pyi/$(notdir $(pkgpythoncxxdir))/ 2>/dev/null || cp .libs/_bindings.so nb_pyi/$(notdir $(pkgpythoncxxdir))/
 	cd nb_pyi && PYTHONPATH=.:$${PYTHONPATH} LD_LIBRARY_PATH=$(abs_top_builddir)/.libs:$${LD_LIBRARY_PATH} \
+	  $(SANITIZER_PYTHON_ENV) LD_PRELOAD="$(SANITIZER_PRELOAD) $${LD_PRELOAD}" \
 	  $(PYTHON) -m nanobind.stubgen -m $(notdir $(pkgpythoncxxdir))._bindings -o _bindings.pyi -q
 	rm -rf nb_pyi/$(notdir $(pkgpythoncxxdir))
 nodist_pkgpythoncxx_DATA = nb_pyi/_bindings.pyi

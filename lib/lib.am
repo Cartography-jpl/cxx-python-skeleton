@@ -142,6 +142,28 @@ golden-archives: golden_archive_generator
 	source script/setup_skeleton.sh && \
 	./golden_archive_generator $(abs_top_srcdir)/@unittestdata@/golden
 
+# Check that the generator writes the committed golden archives byte for
+# byte (it does unless the archive format changed). Skipped with
+# --without-boost-serialization (no archives to write).
+if HAVE_BOOST_SERIALIZATION
+golden-check: golden_archive_generator
+	rm -rf golden_check_tmp && $(MKDIR_P) golden_check_tmp
+	source script/setup_skeleton.sh && \
+	  $(SANITIZER_CXX_ENV) ./golden_archive_generator golden_check_tmp > /dev/null
+	@n=0; bad=0; \
+	for f in golden_check_tmp/*; do \
+	  test -e "$$f" || continue; n=$$((n+1)); \
+	  cmp -s "$$f" $(abs_top_srcdir)/@unittestdata@/golden/$$(basename "$$f") || \
+	    { echo "golden-check: $$(basename "$$f") differs"; bad=$$((bad+1)); }; \
+	done; \
+	echo "golden-check: $$n files, $$bad differ"; \
+	rm -rf golden_check_tmp; test $$bad = 0
+else
+golden-check:
+	@echo "golden-check: skipped, built without boost serialization"
+endif
+.PHONY: golden-check golden-archives
+
 # Variables used in testing
 export abs_top_srcdir 
 export abs_top_builddir
@@ -168,7 +190,7 @@ skeleton-check-am: skeleton_test_all
 	@echo "(useful during development). It does run the python "
 	@echo "tests, use check for that"
 	@echo "====================================================="
-	$(srcdir)/$(srclib)/test_all.sh
+	$(SANITIZER_CXX_ENV) $(srcdir)/$(srclib)/test_all.sh
 
 # Allow searchs for .i, .h. and .cc files in this directory
 vpath %.cc $(srcdir)/@srclib@

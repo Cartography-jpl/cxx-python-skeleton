@@ -19,9 +19,17 @@ SKELETON_COMMON
 # compiled with it, as when it was in the installed skeleton_config.h (it
 # no longer reaches code that just uses the installed headers).
 if test "x$enable_debug" != "xyes"; then
-   SKELETON_RELEASE_CPPFLAGS=-DBOOST_DISABLE_ASSERTS
+   SKELETON_RELEASE_CPPFLAGS=-DBOOST_DISABLE_ASSERTS=
 fi
 AC_SUBST([SKELETON_RELEASE_CPPFLAGS])
+
+# A debug build also turns on libstdc++'s assertions (bounds checks in
+# std::vector, std::array, std::string and other precondition checks). It
+# doesn't change the ABI, so code built with and without it can be mixed.
+if test "x$enable_debug" = "xyes"; then
+   SKELETON_DEBUG_CPPFLAGS=-D_GLIBCXX_ASSERTIONS
+fi
+AC_SUBST([SKELETON_DEBUG_CPPFLAGS])
 
 #=================================================================
 # Find location of afids and geocal

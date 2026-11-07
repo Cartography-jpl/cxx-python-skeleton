@@ -40,6 +40,8 @@ namespace nb = nanobind;
 
 template<class T> constexpr const char* numpy_dtype_name()
 {
+  static_assert(std::is_arithmetic_v<T>,
+                "numpy_dtype_name: only numbers and bool are supported");
   if constexpr(std::is_same_v<T, bool>)
     return "bool";
   else if constexpr(std::is_floating_point_v<T>)

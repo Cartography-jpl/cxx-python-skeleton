@@ -1,0 +1,10 @@
+# LeakSanitizer suppressions for the C++ tests (configure --enable-sanitizers).
+#
+# serialize_function/directory_restored reads a deliberately truncated
+# archive. Boost.Serialization (1.90, iserializer.hpp) gives up ownership of
+# an object loaded through a pointer before its data is read, so when the
+# archive ends partway through it, nothing frees it. A load error path in
+# Boost, accepted (implementation_plan.md, ST finding B). Needs
+# ASAN_OPTIONS=fast_unwind_on_malloc=0 for the full stack, which make check
+# sets.
+leak:directory_restored
