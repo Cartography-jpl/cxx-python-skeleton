@@ -41,7 +41,7 @@ public:
     Os << "ObservableExample " << value_;
   }
 private:
-  double value_;
+  double value_ = 0;
   friend class boost::serialization::access;
   template<class Archive>
   void serialize(Archive& ar, const unsigned int version);

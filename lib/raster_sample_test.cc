@@ -62,6 +62,9 @@ BOOST_AUTO_TEST_CASE(memory)
   BOOST_CHECK_EQUAL(m.data()(0, 2), 9);
   BOOST_CHECK_THROW(m.read(4, 0, 2, 1), Exception);
   BOOST_CHECK_THROW(m.read_ptr(0, 5, 1, 2, buf.data()), Exception);
+  // Negative sizes are caught before the mdspan is made.
+  BOOST_CHECK_THROW(m.read_ptr(0, 0, -1, 2, buf.data()), Exception);
+  BOOST_CHECK_THROW(m.read_ptr(0, 0, 1, -2, buf.data()), Exception);
   BOOST_CHECK_THROW(m.write(4, 5, v), Exception);
 }
 

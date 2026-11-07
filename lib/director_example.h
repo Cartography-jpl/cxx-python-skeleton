@@ -4,7 +4,6 @@
 #include "skeleton_exception.h"
 #include <memory>
 #include <vector>
-#include <iostream>
 
 namespace Skeleton {
 /****************************************************************/ /**
@@ -21,12 +20,8 @@ public:
   DirectorExample(int value_to_add, const std::string& name)
     : value_to_add_(value_to_add), name_(name)
   {
-    std::cerr << "Creating C++ " << name_ << "\n";
   }
-  ~DirectorExample() override
-  {
-    std::cerr << "Destroying C++ " << name_ << "\n";
-  }
+  ~DirectorExample() override = default;
   virtual int func(int v) const { return v + value_to_add_; }
   virtual void print(std::ostream& Os) const;
   int value_to_add() const { return value_to_add_; }
@@ -38,7 +33,7 @@ protected:
   // constructs the trampoline with this (CXX_PYTHON_RULES_NB_DIRECTOR_SERIALIZATION)
   DirectorExample() = default;
 private:
-  int value_to_add_;
+  int value_to_add_ = 0;
   std::string name_;
   friend class boost::serialization::access;
   template<class Archive>
@@ -108,11 +103,8 @@ private:
 *******************************************************************/
 class DirectorExampleUser : public Printable<DirectorExampleUser> {
 public:
-  DirectorExampleUser() { std::cerr << "Creating DirectorExampleUser\n"; }
-  ~DirectorExampleUser() override
-  {
-    std::cerr << "Destroying DirectorExampleUser\n";
-  }
+  DirectorExampleUser() = default;
+  ~DirectorExampleUser() override = default;
   virtual void print(std::ostream& Os) const { Os << "DirectorExampleUser"; }
   const std::vector<std::shared_ptr<DirectorExample>>& value_vec() const
   {

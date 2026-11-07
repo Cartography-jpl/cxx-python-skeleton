@@ -78,9 +78,12 @@ public:
   void read_ptr(int Lstart, int Sstart, int Number_line, int Number_sample,
                 int* Res) const
   {
-    read_into_checked(Lstart, Sstart,
-                      md::mdspan<int, md::dextents<std::ptrdiff_t, 2>>(
-                          Res, Number_line, Number_sample));
+    // Check before making the mdspan: a negative extent is a
+    // precondition violation of its constructor.
+    check_region(Lstart, Sstart, Number_line, Number_sample);
+    read_into(Lstart, Sstart,
+              md::mdspan<int, md::dextents<std::ptrdiff_t, 2>>(Res, Number_line,
+                                                               Number_sample));
   }
   void write_ptr(int Lstart, int Sstart, int Number_line, int Number_sample,
                  const int* V)
@@ -172,8 +175,8 @@ private:
 *******************************************************************/
 
 struct LegacyRasterFile {
-  int number_line;
-  int number_sample;
+  int number_line = 0;
+  int number_sample = 0;
   std::vector<int> buf;
 };
 // Return 0 on success, -1 if the block is outside the file.

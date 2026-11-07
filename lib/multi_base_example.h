@@ -67,8 +67,8 @@ public:
   }
 private:
   SimpleCameraLike() = default;
-  double focal_length_;
-  int number_band_;
+  double focal_length_ = 0;
+  int number_band_ = 0;
   friend class boost::serialization::access;
   template<class Archive>
   void serialize(Archive& ar, const unsigned int version);

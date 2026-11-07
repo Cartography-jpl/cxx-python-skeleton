@@ -25,7 +25,7 @@ public:
     Os << "ValueSample(" << v_ << ")";
   }
 private:
-  double v_;
+  double v_ = 0;
 };
 
 /****************************************************************/ /**
@@ -37,7 +37,7 @@ private:
 class CxxPythonRulesSample : public Printable<CxxPythonRulesSample> {
 public:
   CxxPythonRulesSample(int Count = 0, const std::string& Name = "")
-    : count_(Count), name_(Name), scale_(1.0)
+    : count_(Count), name_(Name)
   {
     position_ = {{1.0, 2.0, 3.0}};
     data_.resize(2, 2);
@@ -144,9 +144,9 @@ public:
     Os << "CxxPythonRulesSample(" << count_ << ", " << name_ << ")";
   }
 private:
-  int count_;
+  int count_ = 0;
   std::string name_;
-  double scale_;
+  double scale_ = 1.0;
   double weight_set_ = 0;
   std::optional<int> oint_;
   std::optional<double> odouble_;

@@ -25,7 +25,7 @@ public:
   virtual void print(std::ostream& Os) const;
 private:
   std::string to_write;
-  int word_to_read;
+  int word_to_read = 0;
 };
 }
 #endif

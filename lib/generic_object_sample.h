@@ -15,7 +15,7 @@ public:
   int v() const { return v_; }
   void v(int V) { v_ = V; }
 private:
-  int v_;
+  int v_ = 0;
   friend class boost::serialization::access;
   template<class Archive>
   void serialize(Archive& ar, const unsigned int version);
