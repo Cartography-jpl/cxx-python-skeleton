@@ -34,9 +34,8 @@ private:
 };
 
 /****************************************************************/ /**
-  Simple class to test the smaller rules (cxx_python_rules/nanobind,
-  the SWIG swig_rules/include before phase S6; see
-  cxx_python_rules_sample_test.py): std::optional, boost::rational,
+  Simple class to test the smaller rules (cxx_python_rules/nanobind;
+  see cxx_python_rules_sample_test.py): std::optional, boost::rational,
   std::array, properties and the pickle helpers.
 
   Thread safety: as for a standard library type: const member functions

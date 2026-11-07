@@ -12,9 +12,8 @@ namespace Skeleton {
 /****************************************************************/ /**
   A serialized class with fixed size array and optional members, the
   kind geocal has (boost::array is used in about 700 places there).
-  These were boost::array and boost::optional until phase S3 of
-  claude_notes/implementation_plan.md changed them to std::array and
-  std::optional; the golden archives written with the boost types
+  These were boost::array and boost::optional; the golden archives
+  written with the boost types
   (unit_test_data/golden/array_sample.*) still load, and writing them
   again gives the same bytes.
 

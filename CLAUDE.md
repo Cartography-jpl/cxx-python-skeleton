@@ -23,6 +23,9 @@ C++20 (now C++23), Boost → std, `std::shared_ptr`, and replacing SWIG with nan
   package `skeleton_swig._swig_wrap` → `skeleton_cxx._bindings`. Older notes in `claude_notes/` use the old names. The
   local checkouts and scratch build directories were renamed to match (paths below).
 - Code work starts only when the maintainer says so.
+- The second code review (`claude_notes/code_review_2026-11-07.md`) and its fix plan
+  (`claude_notes/code_review_2026-11-07_fix_plan.md`, phases F0–F10, progress log at its end) followed S7. CI on the
+  JPL runner is planned there but deferred.
 
 ## What this repo is
 
@@ -46,6 +49,8 @@ make                         # build the C++ library and the nanobind python ext
 make check                   # C++ unit tests, then the python tests against the build tree (no install needed)
 make skeleton-check           # C++-only unit tests (faster loop)
 make installcheck             # the python tests against the installed package
+make golden-check             # the golden archive generator writes unit_test_data/golden byte for byte
+script/check_all.sh DIR[@MANIFEST]...   # build (no warnings), check, golden-check, format-check, lint; summary
 ```
 
 Useful `configure` options:
@@ -54,6 +59,12 @@ Useful `configure` options:
   doxygen XML of the headers by `cxx_python_rules/nanobind/doxy2nanobind.py`).
 - `--without-boost-serialization` — disable boost-serialization support code. This builds only the C++ library and
   its tests (the python extension needs serialization for pickling, so it isn't built).
+- `--enable-sanitizers[=LIST]` — build with AddressSanitizer and UndefinedBehaviorSanitizer (or the ones in LIST,
+  e.g. `address`). `make check` sets the sanitizer options (`script/lsan.supp` has the one accepted Boost leak,
+  `script/ubsan.supp` is for third-party findings) and preloads the runtimes for the python tests. On frenchpeas,
+  configure it in the `build-rpath` environment (conda's compiler activation); in the plain `build` environment the
+  sanitizer runtime links against the host's libraries. The scratch build is `build-asan`.
+- `--enable-debug` — debug flags, and `-D_GLIBCXX_ASSERTIONS` (libstdc++ bounds and precondition checks).
 - `--enable-python-editable-mode` — `make install` installs the pure python code in `python/` as an editable pip
   install (`pip install -e`) instead of copying it. Can also be selected for one run with
   `make install PYTHON_EDITABLE_MODE=t` (use `PYTHON_EDITABLE_MODE=` to force a normal install when configure enabled
@@ -110,6 +121,12 @@ configure/build/run tests against, e.g. (from inside it):
 It's fine to modify this environment's `pixi.toml`/add packages to it as needed to get a build working — it's
 disposable scratch space, not something to be precious about.
 
+Other scratch builds next to it (frenchpeas names): `build-gcc14` (own pixi environment), `build-noserial`
+(`--without-boost-serialization`), `build-asan` (`--enable-sanitizers`, in the `build-rpath` environment),
+`build-clang` (clang 22 with conda gcc's libstdc++; configured by its `configure_clang.sh`), `build-cmake`. Run
+the checks over several with e.g. `script/check_all.sh build@build/pixi.toml build-gcc14@build-gcc14/pixi.toml`;
+`baseline/` has the API snapshot and clang-tidy baselines of the fix plans.
+
 ## Formatting
 
 C++ (`.h`, `.cc` in `lib/`, `cxx_python_rules/lib/` and `cxx_python_rules/nanobind/`) is formatted with clang-format, using `.clang-format` at the
@@ -117,8 +134,9 @@ repository root (clang-format 22 from the pixi env, pinned). Format what you cha
 `make format` for everything; `make format-check` only checks, and `make lint` runs clang-tidy with the checks in
 `.clang-tidy` (fails on any finding; also writes the clangd `compile_commands.json`). The project's code compiles
 with `-Wall -Wextra -Wpedantic -Wshadow -Wold-style-cast -Wsuggest-override -Wnon-virtual-dtor -Wconversion
--Wsign-conversion` (set by configure, `config/m4_local/skeleton_common.m4`; `--enable-werror` for errors) and has no
-warnings; keep it that way.
+-Wsign-conversion -Wduplicated-cond -Wduplicated-branches -Wlogical-op -Wcast-qual -Wformat=2
+-Wdeprecated-copy-dtor` (set by configure, `config/m4_local/skeleton_common.m4`; `--enable-werror` for errors) and
+has no warnings with gcc 14, gcc 15 or clang 22; keep it that way.
 `.clang-format-ignore` excludes copies of upstream code (`cxx_python_rules/lib/serialize_shared_ptr.h`,
 `cxx_python_rules/nanobind/gc_shared_ptr.h`), which keep their upstream style. `.sample` files aren't formatted by
 clang-format; keep them in the same style by hand. Python uses `ruff format`.
@@ -185,8 +203,12 @@ instead of going through the top-level autotools build.
   `RasterImage::read_ptr` and `CalcRaster` patterns).
 - Pickling uses boost serialization (`cxx_python_rules_nb::pickle_serialization`, `__reduce__`); see
   `lib/skeleton_serialize_support.h` and the `*.sample` files under `cxx_python_rules/lib/`.
-- `cxx_python_rules/lib/serialize_function.cc`, `weak_ptr_serialize_support.cc` and `blitz_mdspan.cc` are compiled into
-  the C++ library. `CXX_PYTHON_RULES_NAMESPACE` (`Skeleton`) and `CXX_PYTHON_RULES_HAVE_BOOST_SERIALIZATION` are defined
+- Serialization functions (`serialize_function.h`): `_binary` is the binary format, `_generic` returns a
+  `GenericObject`, `_string` works in memory (bytes in python), otherwise the argument is a file name. Archives can hold
+  pickles: treat them as trusted input. Thread safety per class is in the class comments and the "Threads" section of
+  `cxx_python_rules/README.md` (free-threaded python is a later goal).
+- `cxx_python_rules/lib/serialize_function.cc`, `weak_ptr_serialize_support.cc`, `director_hook.cc` and
+  `blitz_mdspan.cc` are compiled into the C++ library. `CXX_PYTHON_RULES_NAMESPACE` (`Skeleton`) and `CXX_PYTHON_RULES_HAVE_BOOST_SERIALIZATION` are defined
   in `skeleton_config.h` (from `lib/skeleton_config.h.in`; installed, only `SKELETON_*`/`CXX_PYTHON_RULES_*` macros),
   not with `-D`. The autoheader output is the private `skeleton_build_config.h`. The library stays free of python.
 - Relative file names inside an archive resolve against the archive's directory through a per-thread archive base

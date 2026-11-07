@@ -12,8 +12,8 @@
 #include <boost/serialization/vector.hpp>
 #include <boost/serialization/map.hpp>
 #include <boost/serialization/list.hpp>
-// The std::array serializer. (No boost::array here since phase S3; archives
-// written with boost::array load through it.)
+// The std::array serializer (archives written with boost::array load
+// through it).
 #include <boost/serialization/array.hpp>
 #include <boost/archive/polymorphic_iarchive.hpp>
 #include <boost/archive/polymorphic_oarchive.hpp>

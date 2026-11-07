@@ -7,8 +7,8 @@
 
 namespace Skeleton {
 /****************************************************************/ /**
-  Sample for replacing a raw pointer plus sizes with an mdspan
-  (claude_notes/implementation_plan.md S7). Modeled on geocal's
+  Sample for replacing a raw pointer plus sizes with an mdspan.
+  Modeled on geocal's
   RasterImage, whose virtual
 
     read_ptr(int Lstart, int Sstart, int Number_line, int Number_sample,

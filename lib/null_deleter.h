@@ -13,8 +13,7 @@ namespace Skeleton {
   with enable_shared_from_this, so shared_from_this() would then return
   this non-owning pointer instead of the real owner (a dangling pointer
   risk). A shared_ptr<void> leaves weak_this alone. Observer::this_obj
-  is made by to_ptr, so this covers it too. See
-  claude_notes/implementation_plan.md §2.1 and §2.4.
+  is made by to_ptr, so this covers it too.
 *******************************************************************/
 struct null_deleter {
   void operator()(void const*) const {}

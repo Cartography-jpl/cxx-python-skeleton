@@ -33,7 +33,7 @@ jsonpickle = "*"
 ptpython = "*"
 ipython = "*"
 
-# Tooling for the modernization (see claude_notes/implementation_plan.md S0.4)
+# Formatting and lint (make format, format-check, lint).
 # Pinned: clang-format output differs a little between versions, and
 # "make format" should give the same result for everyone.
 clang-tools = "22.*"
@@ -43,17 +43,16 @@ clang-tools = "22.*"
 clang-22 = "22.*"
 nanobind = "*"
 # mdspan (Kokkos reference implementation) for the numpy <-> Blitz bridge
-# (lib/skeleton_mdspan.h). Pinned to this snapshot: 0.6.0 only has
-# std::experimental (claude_notes/implementation_plan.md S6.1 item 7).
+# (cxx_python_rules/lib/cxx_python_rules_mdspan.h). Pinned to this
+# snapshot: 0.6.0 only has std::experimental.
 mdspan = "==0.6.1.dev20260223"
 # For the CMake reference build of the nanobind module (CMakeLists.txt)
 cmake = "*"
 ninja = "*"
-# Test coverage (claude_notes/implementation_plan.md section 4a, "make coverage")
+# Test coverage ("make coverage")
 gcovr = "*"
 pytest-cov = "*"
 # addr2line, for function names and file:line in Exception::stacktrace()
-# (claude_notes/implementation_plan.md S1.5)
 binutils = "*"
 
 [pypi-dependencies]

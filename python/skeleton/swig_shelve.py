@@ -53,7 +53,9 @@ def from_db_type(value: Any) -> Any:
 
 
 def read_shelve(f: str | os.PathLike[str]) -> Any:
-    """This handles reading a value from a shelve file. The string f should
+    """This handles reading a value from a shelve file. Shelves can hold
+    pickles, and loading a pickle can run arbitrary code: read only
+    shelves you trust. The string f should
     be of the form file_name:key, file_name.xml, file_name.xml.gz,
     file_name.bin, file_name.bin.gz or file_name.json. We
     open the given file, and read the value for the given key.

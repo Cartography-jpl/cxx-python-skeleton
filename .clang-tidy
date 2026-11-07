@@ -1,7 +1,6 @@
 # clang-tidy checks for "make lint" (the same file is used in cxx-python-skeleton
-# and geocal). These are the checks applied in phase S1.3 of
-# claude_notes/implementation_plan.md (cxx-python-skeleton), so new code keeps
-# to them. Add a check here only after the code has been cleaned up for it.
+# and geocal). The code is clean for all of them, so new code keeps to them.
+# Add a check here only after the code has been cleaned up for it.
 Checks: >
   -*,
   modernize-use-override,
@@ -33,11 +32,9 @@ Checks: >
 CheckOptions:
   cppcoreguidelines-special-member-functions.AllowSoleDefaultDtor: true
   cppcoreguidelines-special-member-functions.AllowMissingMoveFunctionsWhenCopyIsDeleted: true
-# Added in claude_notes/code_review_fix_plan.md R7.2 (cxx-python-skeleton).
-# The checks after bugprone-* were added by the 2026-11-07 fix plan (F6.8)
-# in cxx-python-skeleton. geocal uses the same file, but its "make lint"
-# fails on a check until geocal's code is cleaned up for it, so geocal
-# keeps its own list until then and adds them one at a time.
+# geocal uses the same file, but its "make lint" fails on a check until
+# geocal's code is cleaned up for it, so geocal adds the checks after
+# bugprone-* one at a time.
 # cppcoreguidelines-special-member-functions: a class that declares any of
 # the five special members declares them all, except that a lone defaulted
 # destructor, and missing moves when copying is deleted, are fine.

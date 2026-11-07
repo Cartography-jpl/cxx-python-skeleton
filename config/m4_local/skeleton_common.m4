@@ -82,8 +82,7 @@ case "$ADDR2LINE" in
 esac
 
 #=================================================================
-# Require C++23 (gcc >= 14, the minimum compiler tested; see
-# claude_notes/implementation_plan.md phases S1 and S7). Use -std=c++23,
+# Require C++23 (gcc >= 14, the minimum compiler tested). Use -std=c++23,
 # not gnu++23: nothing here needs the GNU extensions, and the strict mode
 # catches nonportable code. nanobind needs at least C++17. Library
 # features newer than gcc 14 (std::mdspan, gcc 16; range formatting,
@@ -111,15 +110,15 @@ AM_CONDITIONAL([HAVE_GCC], [test "$GCC" = yes])
 # library, its tests and the python bindings; nanobind's own source has
 # its own flags in nanobind.am, and third-party headers are -isystem).
 # Each flag is only used if the compiler takes it. The code is clean with
-# all of them (claude_notes/code_review_fix_plan.md R7.1).
+# all of them (gcc 14, gcc 15, clang 22).
 # --enable-werror makes warnings errors; it is off by default, so a new
 # compiler's new warnings don't break builds for users.
 #=================================================================
 
 AC_LANG_PUSH([C++])
 SKELETON_WARN_CXXFLAGS=""
-# The second line was added by the 2026-11-07 fix plan (F6.9); the first
-# three of it are gcc only (dropped for clang by the check below).
+# -Wduplicated-cond, -Wduplicated-branches and -Wlogical-op are gcc only
+# (the check below drops them for clang).
 # -Wextra-semi is left out: the X(...); style of using the Boost
 # serialization macros (SKELETON_EXPORT_KEY(Foo);) gives a warning per use.
 # -Wnull-dereference is left out: in optimized builds gcc reports false

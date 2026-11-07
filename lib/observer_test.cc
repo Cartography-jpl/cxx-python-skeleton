@@ -5,9 +5,8 @@
 
 using namespace Skeleton;
 
-// Code review 2026-11-06 §2.2: copying an observer copied its this_obj,
-// so registering the copy registered the original. Copying (and moving)
-// is now a compile error (decision D2 of claude_notes/code_review_fix_plan.md).
+// Copying an observer would copy its this_obj, so registering the copy
+// would register the original. Copying (and moving) is a compile error.
 static_assert(!std::is_copy_constructible_v<ObserverExample> &&
               !std::is_move_constructible_v<ObserverExample> &&
               !std::is_copy_assignable_v<ObserverExample>);

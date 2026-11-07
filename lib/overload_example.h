@@ -10,8 +10,7 @@ namespace Skeleton {
   Overloads that differ only in the type of the first argument, like
   geocal's Resampler::resample_field (a Blitz double array, a
   shared_ptr to a RasterImage, or a file name). Each returns the name
-  of the overload called, so a test can check which one python picks
-  (claude_notes/implementation_plan.md S6.1 item 7).
+  of the overload called, so a test can check which one python picks.
 
   Thread safety: as for a standard library type: const member functions
   can be called from several threads at once; anything else needs

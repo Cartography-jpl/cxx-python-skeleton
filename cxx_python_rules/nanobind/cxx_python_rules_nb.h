@@ -1,6 +1,5 @@
 #pragma once
 // The nanobind rules library: include this (first) in every binding file.
-// It replaced the SWIG rules (swig_rules/include, removed in phase S6).
 //
 // Needs CXX_PYTHON_RULES_NAMESPACE (the namespace of GenericObject and of
 // serialize_function.h), which the project's configuration header defines
@@ -117,8 +116,8 @@ private:
 
 //-----------------------------------------------------------------------
 /// Classes the rules need: blitz::Range (for std::optional<blitz::Range>)
-/// and boost::rational<int> ("rational_int"), as swig_std.i and
-/// swig_rational.i did.
+/// and boost::rational<int> ("rational_int"), the names the SWIG bindings
+/// used.
 //-----------------------------------------------------------------------
 
 void bind_common_types(nb::module_& m);
@@ -131,7 +130,7 @@ void bind_common_types(nb::module_& m);
 void init_module(nb::module_& m);
 
 //-----------------------------------------------------------------------
-/// Exception translation, the same as swig_exception.i:
+/// Exception translation, the same as the SWIG bindings had:
 ///  * a python exception raised in an override (nb::python_error) comes
 ///    back unchanged (nanobind does this);
 ///  * TypeErrorT (a library exception type, so the C++ library doesn't
@@ -198,7 +197,7 @@ template<class ExceptionT, class TypeErrorT> void register_exceptions()
 }
 
 //-----------------------------------------------------------------------
-/// Pickling with boost serialization (%pickle_serialization): __reduce__
+/// Pickling with boost serialization: __reduce__
 /// gives (_new_from_serialization, (serialize_write_binary_string(self),)).
 /// Works for python subclasses of a class with director serialization
 /// too (the python class and __dict__ are in the archive).
@@ -221,7 +220,7 @@ template<class C> void pickle_serialization(C& cls)
 }
 
 //-----------------------------------------------------------------------
-/// %pickle_serialization_dir: also records the directory, and loads
+/// Like pickle_serialization, but also records the directory, and loads
 /// from there (for objects with relative file names).
 //-----------------------------------------------------------------------
 
@@ -235,8 +234,7 @@ template<class C> void pickle_serialization_dir(C& cls)
 }
 
 //-----------------------------------------------------------------------
-/// %pickle_init(VER, attributes...): pickled as the constructor
-/// arguments, read from the given attributes.
+/// Pickled as the constructor arguments, read from the given attributes.
 //-----------------------------------------------------------------------
 
 template<class C>
@@ -254,7 +252,7 @@ void pickle_init(C& cls, int Version, std::vector<std::string> Attr)
 }
 
 //-----------------------------------------------------------------------
-/// %pickle_vector, for a bind_vector type.
+/// Pickling for a bind_vector type.
 //-----------------------------------------------------------------------
 
 template<class C> void pickle_vector(C& cls)
@@ -267,7 +265,7 @@ template<class C> void pickle_vector(C& cls)
 }
 
 //-----------------------------------------------------------------------
-/// print_to_string as __str__ (swig_print.i).
+/// print_to_string as __str__.
 //-----------------------------------------------------------------------
 
 template<class C> void printable(C& cls)
@@ -278,7 +276,7 @@ template<class C> void printable(C& cls)
 }
 
 //-----------------------------------------------------------------------
-/// Director serialization (director_serialization.i): a python subclass
+/// Director serialization: a python subclass
 /// of a C++ class, inside a boost archive. The C++ part is written as
 /// the C++ base class, plus "python_object", a pickle of the python
 /// class and __dict__ (in the same form SWIG wrote, so archives written

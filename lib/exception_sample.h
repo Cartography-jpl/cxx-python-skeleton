@@ -64,8 +64,9 @@ public:
     return "";
   }
   //-----------------------------------------------------------------------
-  /// Call value() and copy the exception before rethrowing (exercises
-  /// the PythonException copy, which has to keep the python error).
+  /// Call value() and rethrow the exception through a
+  /// std::exception_ptr (a python error from an override has to survive
+  /// that).
   //-----------------------------------------------------------------------
   int value_rethrow_copy() const
   {

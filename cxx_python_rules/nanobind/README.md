@@ -1,7 +1,6 @@
 # nanobind rules
 
-The nanobind replacement for the SWIG rules (phase S6 of
-`claude_notes/implementation_plan.md` in cxx-python-skeleton).
+The nanobind replacement for the SWIG rules.
 
 | File | What |
 |---|---|
@@ -12,7 +11,7 @@ The nanobind replacement for the SWIG rules (phase S6 of
 | `std_array.h` | `std::array<number, N>` <-> numpy. Use instead of `nanobind/stl/array.h`. |
 | `iostream.h` | A python file object as `std::istream` / `std::ostream`. |
 | `nanobind.am`, `nb_combined.cc` | Automake rules: nanobind's source compiled once, the extension module, docstrings, `.pyi` stubs. |
-| `doxy2nanobind.py`, `doxygen_nanobind.cfg` | Docstrings from the doxygen comments (replaces `doxy2swig.py`). |
+| `doxy2nanobind.py`, `doxygen_nanobind.cfg` | Docstrings from the doxygen comments. |
 | `i_to_nanobind.py` | One-time converter from SWIG `.i` files (written with the old `swig_rules` macros) to `*_nb.cc` binding code. Run it on all the `.i` files of a project together; see its docstring for what it converts and what it leaves for hand conversion (marked `HAND CONVERT`). It writes the style below (member pointers, `docs`, `"name"_a`); check the keyword names (taken from the `.i`) and add `.none()` where C++ accepts null. |
 
 ## Writing bindings

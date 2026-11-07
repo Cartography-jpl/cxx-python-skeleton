@@ -58,8 +58,7 @@ namespace Skeleton {
 
   If constructed with an ObservableExample, it registers itself with
   it in the constructor, and again when it is loaded from an archive
-  (the two places framework and geocal register, see
-  claude_notes/implementation_plan.md §2.4). Registering twice does
+  (the two places framework and geocal register). Registering twice does
   nothing, so it doesn't matter if the Observable's observer list in
   the archive already had it.
 

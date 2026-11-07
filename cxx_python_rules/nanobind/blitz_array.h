@@ -1,8 +1,7 @@
 #pragma once
 // numpy <-> blitz::Array<T, N> for nanobind, through an mdspan view
 // (blitz_mdspan.h has the mdspan <-> Blitz half, which doesn't depend on
-// python). Replaces swig_rules/include/swig_array.i; the behavior is the
-// same (claude_notes/implementation_plan.md S6.1 item 7):
+// python). The behavior is that of the SWIG typemaps it replaced:
 //
 // From python (argument, by value, const& or &):
 //  * a numpy array (or anything with the buffer/DLPack protocol) of
@@ -19,8 +18,7 @@
 // write to, only takes a view of a writable array of the right type: a
 // read-only array, or one that had to be copied (a list, another dtype,
 // negative strides), raises TypeError instead, because the caller would
-// not see what C++ writes. (Code review 2026-11-06 §2.7: C++ used to
-// write into read-only numpy arrays.)
+// not see what C++ writes.
 //
 // To python (return value):
 //  * a numpy view of the C++ memory, which keeps the blitz data alive.

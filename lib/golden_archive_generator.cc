@@ -1,7 +1,8 @@
-// Writes the "golden" archives in unit_test_data/golden. These are
-// written by the current code and then committed, so later phases of
-// the modernization can check they still read archives written by the
-// original std::shared_ptr/boost::array code.
+// Writes the "golden" archives in unit_test_data/golden. They are
+// committed, so the tests check that the code still reads archives
+// written by earlier versions (some were written with boost::shared_ptr,
+// boost::array and boost::optional, see unit_test_data/golden/README.md)
+// and writes the same bytes ("make golden-check").
 //
 // Regenerate deliberately (see unit_test_data/golden/README.md):
 //   make golden-archives
@@ -151,10 +152,8 @@ int run(int argc, char** argv)
   write_arrays<short int>("short");
   write_array_string<1>("blitz_string_array_1d");
   write_array_string<2>("blitz_string_array_2d");
-  // Added 2026-11-05 (phase S3.1), written with boost::array and
-  // boost::optional before converting to std::array and std::optional
-  // (S3.2); since then written with the std types, giving the same files.
-  // Values differ from the ArraySample defaults, so a load that reads
+  // First written with boost::array and boost::optional members; the std
+  // types write the same files. Values differ from the ArraySample defaults, so a load that reads
   // nothing would be caught.
   auto as = std::make_shared<ArraySample>();
   as->position_ = {{0.5, -1.25, 3e8}};
@@ -168,8 +167,8 @@ int run(int argc, char** argv)
   ase->count(std::nullopt);
   ase->scale(std::nullopt);
   write_object("array_sample_empty", ase);
-  // Added 2026-11-06 (phase S5), the consumer pattern samples. Written
-  // with std::shared_ptr, before S4.
+  // The consumer pattern samples (observers, multiple and virtual bases).
+  // First written with boost::shared_ptr.
   auto ob = std::make_shared<ObservableExample>(1.5);
   auto obs_ctor = std::make_shared<ObserverExample>("ctor", ob);
   auto obs_plain = std::make_shared<ObserverExample>("plain");

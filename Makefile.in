@@ -979,7 +979,6 @@ EXTRA_DIST = README.md bootstrap config/m4_local/README config/m4 \
 	@cxxpythonrules@/nanobind/doxy2nanobind.py \
 	@cxxpythonrules@/nanobind/doxygen_nanobind.cfg \
 	@cxxpythonrules@/nanobind/README.md
-CYTHON_SRC = 
 pkgconfig_DATA = 
 MOSTLYCLEANFILES = $(am__append_5)
 # To pick up the generated skeleton_config.h and skeleton_build_config.h
@@ -1065,8 +1064,8 @@ NB_SRC = @srclib@/array_sample_nb.cc \
 	@srclib@/with_parameter_like_nb.cc \
 	@srclib@/skeleton_nb_module.cc
 # Only the compiled Boost libraries libskeleton uses: iostreams (gzip) and
-# serialization. regex and filesystem were replaced by std in phase S2 of
-# claude_notes/implementation_plan.md; configure still looks for them
+# serialization. regex and filesystem were replaced by std; configure
+# still looks for them
 # (config/m4/ac_boost.m4 is shared with geocal, which needs them).
 
 # Include blitz in builds
@@ -1081,8 +1080,8 @@ skeletonincdir = @includedir@/skeleton
 
 #=================================================================
 # List of source files
-# Samples for consumer patterns (phase S5)
-# raw pointer plus size -> mdspan (phase S7)
+# Samples of the patterns geocal and framework use
+# Sample for replacing a raw pointer plus size with an mdspan
 skeletoninc_HEADERS = @cxxpythonrules@/lib/serialize_function.h \
 	@cxxpythonrules@/lib/serialize_shared_ptr.h \
 	@cxxpythonrules@/lib/director_hook.h \
@@ -1129,8 +1128,7 @@ libskeleton_la_CPPFLAGS = $(AM_CPPFLAGS) $(BOOST_CPPFLAGS) $(BLITZ_CFLAGS)
 # can't shadow it). This then runs the C++ and python
 # tests and writes a report to coverage/ (index.html for the C++, and
 # python/index.html for the python). Needs gcovr and pytest-cov. This
-# isn't part of "make check". See claude_notes/implementation_plan.md
-# section 4a. --merge-lines counts a line in a template as covered if any
+# isn't part of "make check". --merge-lines counts a line in a template as covered if any
 # instance runs it (otherwise a template like Observer<T> shows as
 # uncovered for every instance that a test doesn't use).
 GCOVR = gcovr

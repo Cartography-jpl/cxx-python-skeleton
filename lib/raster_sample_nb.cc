@@ -1,5 +1,5 @@
 // Python bindings for raster_sample.h, the mdspan sample modeled on
-// geocal's RasterImage and CalcRaster (phase S7).
+// geocal's RasterImage and CalcRaster.
 #include "skeleton_nb_opaque.h"
 #include "raster_sample.h"
 #include "skeleton_exception.h"

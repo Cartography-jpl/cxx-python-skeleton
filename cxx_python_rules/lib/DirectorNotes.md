@@ -1,8 +1,8 @@
 # Python subclasses of C++ classes (nanobind)
 
 These notes replace the SWIG-era ones (directors, `my_shared_ptr.i`,
-`PythonRefPtrCleanup`, `SHARED_PTR_NO_OWN`), which went away with SWIG in phase S6 of
-`claude_notes/implementation_plan.md`. The reference example and tests are
+`PythonRefPtrCleanup`, `SHARED_PTR_NO_OWN`), which went away with SWIG. The reference example and
+tests are
 `lib/director_example.h`, `lib/director_example_nb.cc`, `python/tests/unit/director_example_test.py`
 and `python/tests/unit/nanobind_test.py`.
 
@@ -66,8 +66,8 @@ Follow `lib/director_example_nb.cc`:
 
 A `weak_ptr` is valid while some C++ `shared_ptr` owns the object. For an object of a director
 class owned only by python there is no such owner: the `shared_ptr` made for a call is
-released when the call returns, and a `weak_ptr` set from it expires at once. This is decided
-(implementation plan decision 6, S6.1 item 4). SWIG kept such a `weak_ptr` valid with the
+released when the call returns, and a `weak_ptr` set from it expires at once. This is a
+decision, not a bug to fix. SWIG kept such a `weak_ptr` valid with the
 `SHARED_PTR_NO_OWN` typemap, which was unsafe to keep in a `shared_ptr`; there is no
 equivalent. Give the object a C++ owner (e.g. put it in a `GenericObjectMap`) if a `weak_ptr`
 to it has to stay valid. The Observer pattern isn't affected: observer lists hold `weak_ptr`s

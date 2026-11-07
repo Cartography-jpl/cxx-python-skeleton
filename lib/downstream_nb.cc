@@ -1,10 +1,11 @@
 // A second extension module, skeleton_cxx._skeleton_downstream, that uses
 // the classes bound in the main module (_bindings) without binding them
 // again: the pattern of geocal -> ECOSTRESS and framework -> the instrument
-// repositories (claude_notes/implementation_plan.md S6.1 item 10). Both
+// repositories. Both
 // modules must use the same nanobind version and build flags; nanobind
 // shares its type information between them, and the cxx_python_rules type
-// registry is shared through a capsule in builtins (type_registry.h).
+// registry is shared through a capsule in builtins, one per project
+// namespace (type_registry.h).
 #include "cxx_python_rules_nb.h"
 #include "generic_object_sample.h"
 

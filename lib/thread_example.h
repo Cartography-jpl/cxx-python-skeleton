@@ -9,7 +9,7 @@ namespace Skeleton {
   waits for them, the way geocal's ThreadPool does. An exception thrown
   on a worker (including a python exception from an override) is saved
   as a std::exception_ptr and the first one is rethrown by the waiting
-  thread. See claude_notes/implementation_plan.md S6.1 item 11.
+  thread.
 
   Thread safety: run calls Obj->func on several threads at once, so
   Obj's func has to be safe for that (a python override runs with the

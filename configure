@@ -1636,7 +1636,7 @@ Optional Packages:
                           (optional).
   --without-boost-serialization
                           Do not include code to support doing boost
-                          serialization with GeoCal objects
+                          serialization with Skeleton objects
   --without-documentation Bypass running doxygen to update documentation. This
                           is useful for a build environment that is used for
                           development, but you'll want all of your "real"
@@ -20456,8 +20456,7 @@ printf "%s\n" "#define SKELETON_ADDR2LINE $ADDR2LINE" >>confdefs.h
 esac
 
 #=================================================================
-# Require C++23 (gcc >= 14, the minimum compiler tested; see
-# claude_notes/implementation_plan.md phases S1 and S7). Use -std=c++23,
+# Require C++23 (gcc >= 14, the minimum compiler tested). Use -std=c++23,
 # not gnu++23: nothing here needs the GNU extensions, and the strict mode
 # catches nonportable code. nanobind needs at least C++17. Library
 # features newer than gcc 14 (std::mdspan, gcc 16; range formatting,
@@ -22204,7 +22203,7 @@ fi
 # library, its tests and the python bindings; nanobind's own source has
 # its own flags in nanobind.am, and third-party headers are -isystem).
 # Each flag is only used if the compiler takes it. The code is clean with
-# all of them (claude_notes/code_review_fix_plan.md R7.1).
+# all of them (gcc 14, gcc 15, clang 22).
 # --enable-werror makes warnings errors; it is off by default, so a new
 # compiler's new warnings don't break builds for users.
 #=================================================================
@@ -22216,8 +22215,8 @@ ac_link='$CXX -o conftest$ac_exeext $CXXFLAGS $CPPFLAGS $LDFLAGS conftest.$ac_ex
 ac_compiler_gnu=$ac_cv_cxx_compiler_gnu
 
 SKELETON_WARN_CXXFLAGS=""
-# The second line was added by the 2026-11-07 fix plan (F6.9); the first
-# three of it are gcc only (dropped for clang by the check below).
+# -Wduplicated-cond, -Wduplicated-branches and -Wlogical-op are gcc only
+# (the check below drops them for clang).
 # -Wextra-semi is left out: the X(...); style of using the Boost
 # serialization macros (SKELETON_EXPORT_KEY(Foo);) gives a warning per use.
 # -Wnull-dereference is left out: in optimized builds gcc reports false
@@ -22605,19 +22604,8 @@ fi
 
 
 #=================================================================
-# Find location of afids and geocal
-# (note for skeleton we don't depend on AFIDS, but leave this name in
-# place in case we need to add this back in).
+# Find python and the python modules the build and tests need.
 
-#AFIDS_LOCATION
-
-#=================================================================
-# Find python. Note that the virtual environment has modules that
-# depend on the afids build, so set LD_LIBRARY_PATH here for AFIDS
-# before checking all the modules.
-
-original_ld_library_path="${LD_LIBRARY_PATH}"
-export LD_LIBRARY_PATH="${afidsdir}/lib64:${afidsdir}/lib:${LD_LIBRARY_PATH}"
 
 # Guard against running twice
 if test "x$done_python" = "x"; then
@@ -24262,7 +24250,6 @@ printf "%s\n" "no" >&6; }
    as_fn_error $? "python 3.12 or later is required, $PYTHON is $($PYTHON --version 2>&1)" "$LINENO" 5
 fi
 
-LD_LIBRARY_PATH="${original_ld_library_path}"
 
 #=================================================================
 # Various thirdparty libraries.
@@ -26901,8 +26888,7 @@ fi
 
 
 #=================================================================
-# nanobind, for the python bindings (they replaced SWIG in phase S6 of
-# claude_notes/implementation_plan.md).
+# nanobind, for the python bindings.
 
 { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for nanobind" >&5
 printf %s "checking for nanobind... " >&6; }

@@ -2,7 +2,7 @@
 // Registry of the classes bound with nanobind, keyed by the C++ type.
 //
 // nanobind gives each class one bound base, and a virtual base can't be a
-// nanobind base at all (claude_notes/implementation_plan.md §2.1). So for
+// nanobind base at all (it crashes). So for
 // the GenericObject hierarchy, which has secondary and virtual bases
 // everywhere, nanobind alone can't:
 //  * return a shared_ptr<Base> as the most derived python type when the

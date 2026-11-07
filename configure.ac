@@ -32,22 +32,10 @@ fi
 AC_SUBST([SKELETON_DEBUG_CPPFLAGS])
 
 #=================================================================
-# Find location of afids and geocal
-# (note for skeleton we don't depend on AFIDS, but leave this name in
-# place in case we need to add this back in).
+# Find python and the python modules the build and tests need.
 
-#AFIDS_LOCATION
-
-#=================================================================
-# Find python. Note that the virtual environment has modules that
-# depend on the afids build, so set LD_LIBRARY_PATH here for AFIDS
-# before checking all the modules.
-
-original_ld_library_path="${LD_LIBRARY_PATH}"
-export LD_LIBRARY_PATH="${afidsdir}/lib64:${afidsdir}/lib:${LD_LIBRARY_PATH}"
 AFIDS_PYTHON(required)
 SKELETON_PYTHON_MINIMUM
-LD_LIBRARY_PATH="${original_ld_library_path}"
 
 #=================================================================
 # Various thirdparty libraries.
@@ -77,8 +65,7 @@ fi
 AC_SUBST([python_editable_mode_default])
 
 #=================================================================
-# nanobind, for the python bindings (they replaced SWIG in phase S6 of
-# claude_notes/implementation_plan.md).
+# nanobind, for the python bindings.
 AC_NANOBIND(optional)
 
 #=================================================================
@@ -88,7 +75,7 @@ AC_NANOBIND(optional)
 
 AC_ARG_WITH([boost-serialization],
             [AS_HELP_STRING([--without-boost-serialization],
-	      [Do not include code to support doing boost serialization with GeoCal objects])],
+	      [Do not include code to support doing boost serialization with Skeleton objects])],
 	      [with_boost_serialization=no],
               [with_boost_serialization=yes])
 if test "$with_boost_serialization" = "yes"; then

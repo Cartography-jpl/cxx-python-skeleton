@@ -14,7 +14,7 @@
 #include <boost/serialization/list.hpp>
 // boost::array (Boost >= 1.64, always true for the minimum 1.84) and
 // std::array serializers. Drop boost_array.hpp once the project has no
-// boost::array left (the skeleton has none since its phase S3).
+// boost::array left (the skeleton has none).
 #include <boost/serialization/boost_array.hpp>
 #include <boost/serialization/array.hpp>
 #include <boost/archive/polymorphic_iarchive.hpp>

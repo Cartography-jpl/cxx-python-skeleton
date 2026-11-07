@@ -14,10 +14,8 @@ template<class T> class Observable;
 
   This is a copy of the Observer in framework (lib/Support/observer.h),
   which is geocal's version plus CacheInvalidatedObserver, duplicate
-  detection and serialization of the observer lists. It is here so
-  the std::shared_ptr and nanobind phases are tested against the
-  pattern both projects use; see claude_notes/implementation_plan.md
-  §2.4.
+  detection and serialization of the observer lists, so the skeleton
+  tests the pattern both projects use.
 
   A note on lifetime of objects. When an Observer is destroyed,
   nothing special needs to be done. The Observable is automatically

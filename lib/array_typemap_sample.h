@@ -7,8 +7,7 @@
 namespace Skeleton {
 /****************************************************************/ /**
   Simple class to test blitz::Array <-> numpy in the python bindings
-  (cxx_python_rules/nanobind/blitz_array.h; the SWIG typemaps in
-  swig_rules/include/swig_array.i before phase S6). See
+  (cxx_python_rules/nanobind/blitz_array.h). See
   array_typemap_sample_test.py.
 
   The "echo" functions return what they were given, so python can

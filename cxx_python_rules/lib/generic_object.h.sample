@@ -40,7 +40,7 @@ namespace GeoCal {
   can find the shared_ptr that already owns an object: without that,
   nanobind makes a new control block for every python to C++
   conversion, and a weak_ptr to an object passed in from python expires
-  at once (claude_notes/implementation_plan.md §2.1). It is a virtual
+  at once. It is a virtual
   base of most classes, so use std::dynamic_pointer_cast on the result
   of shared_from_this().
 

@@ -1,7 +1,7 @@
 #pragma once
 // A python file object (anything with read(n) / write(bytes)) as a
 // std::istream or std::ostream, for C++ functions that take a stream
-// (nanobind has nothing for this; replaces swig_iostream.i). Use in a
+// (nanobind has nothing for this). Use in a
 // binding lambda:
 //
 //   .def("write", [](const Foo& self, nb::object fh) {

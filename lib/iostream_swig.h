@@ -6,8 +6,10 @@
 
 namespace Skeleton {
 /****************************************************************/ /**
-  This is a simple class that we can use to test that we use SWIG
-  to map between python IO object and C++ stream object.
+  A simple class to test C++ functions taking a std::ostream or
+  std::istream, which python calls with a file object
+  (cxx_python_rules/nanobind/iostream.h). The name is from the SWIG
+  bindings, kept for geocal's python code.
 
   Thread safety: as for a standard library type: const member functions
   can be called from several threads at once; anything else needs

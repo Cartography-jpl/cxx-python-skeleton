@@ -1,7 +1,7 @@
 This contains generic rules for wrapping C++ code for python.
 
-These were SWIG rules (`swig_rules`, repository `swig-rules`) until phase S6 of the modernization
-(`claude_notes/implementation_plan.md` in cxx-python-skeleton), and were renamed in 2026-11. The directory holds the
+These were SWIG rules (`swig_rules`, repository `swig-rules`) until the bindings moved to nanobind,
+and were renamed in 2026-11. The directory holds the
 nanobind rules (`nanobind/`, see `nanobind/README.md`) and the C++ support code they use (`lib/`). The python package
 with the extension module is `<package>_cxx`, the module `<package>_cxx._bindings`.
 

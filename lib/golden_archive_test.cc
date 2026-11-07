@@ -113,8 +113,8 @@ BOOST_AUTO_TEST_CASE(generic_objects)
 
 BOOST_AUTO_TEST_CASE(array_sample)
 {
-  // Written with boost::array and boost::optional (S3.1); must keep
-  // loading after the switch to std::array and std::optional.
+  // Written with boost::array and boost::optional; must keep loading
+  // with std::array and std::optional.
   for(bool binary : {false, true}) {
     auto a = read_golden<ArraySample>(test_data_dir(), "array_sample", binary);
     BOOST_CHECK_EQUAL(a->position_[0], 0.5);
@@ -254,8 +254,8 @@ BOOST_AUTO_TEST_CASE(multi_base)
 BOOST_AUTO_TEST_CASE(rewrite_identical)
 {
   // Every golden object archive, read and written again, gives the same
-  // bytes. This is the S4 acceptance test (std::shared_ptr mustn't change
-  // the archives), see claude_notes/implementation_plan.md §8.
+  // bytes (e.g. the switch to std::shared_ptr mustn't change the
+  // archives).
   for(const char* name :
       {"generic_object_a", "generic_object_b", "generic_object_b2",
        "generic_object_c", "generic_object_map", "director_example",

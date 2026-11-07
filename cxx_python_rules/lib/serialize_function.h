@@ -89,9 +89,8 @@ serialize_read_binary_string(std::string_view Data)
 /// (so loads on different threads don't interfere; a thread started
 /// during a load doesn't see it), and empty when nothing sets it.
 ///
-/// This replaced changing the process's current directory during a load
-/// (code review 2026-11-06 §2.5), which broke relative file access on
-/// every other thread.
+/// (Changing the process's current directory during a load instead would
+/// break relative file access on every other thread.)
 //-----------------------------------------------------------------------
 
 const std::filesystem::path& archive_base_directory();

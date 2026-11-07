@@ -22,6 +22,7 @@ file into the source tree so clangd finds it:
 doesn't need bear or intercept-build (bear's conda build needs a newer glibc
 than some of our hosts have), it just reads the compile lines make would run.
 """
+
 import json
 import os
 import re
@@ -80,7 +81,9 @@ for line in out.splitlines():
     # The compiler may have a prefix, e.g. conda's activated compiler is
     # x86_64-conda-linux-gnu-c++.
     compiler = os.path.basename(args[0])
-    if not srcs or not compiler.endswith(("g++", "gcc", "c++", "cc", "clang", "clang++")):
+    if not srcs or not compiler.endswith(
+        ("g++", "gcc", "c++", "cc", "clang", "clang++")
+    ):
         continue
     # Drop dependency tracking and output options clang doesn't need.
     keep, skip = [], 0
@@ -97,8 +100,9 @@ for line in out.splitlines():
         else:
             keep.append(a)
     f = os.path.abspath(srcs[-1])
-    entries.append({"directory": cwd, "file": f,
-                    "arguments": keep[:1] + extra + keep[1:]})
+    entries.append(
+        {"directory": cwd, "file": f, "arguments": keep[:1] + extra + keep[1:]}
+    )
 with open("compile_commands.json", "w") as fh:
     json.dump(entries, fh, indent=1)
 print(f"wrote {len(entries)} entries to {cwd}/compile_commands.json")

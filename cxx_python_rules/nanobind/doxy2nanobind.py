@@ -7,11 +7,9 @@ Writes cxx_python_rules_nb::docstring_table() (declared in cxx_python_rules_nb.h
 from the qualified C++ name ("Ns::Class" or "Ns::Class::member") to its
 documentation as plain text; overloads of a member are put together, each
 under its signature. The binding code looks names up with
-cxx_python_rules_nb::doc(name). This replaces doxy2swig.py, which wrote SWIG
-%feature("docstring") directives.
+cxx_python_rules_nb::doc(name).
 
-Symbols in anonymous namespaces are left out (doxy2swig wrote an
-unparsable line for them). If the directory doesn't exist (no doxygen),
+Symbols in anonymous namespaces are left out. If the directory doesn't exist (no doxygen),
 the table is empty.
 """
 

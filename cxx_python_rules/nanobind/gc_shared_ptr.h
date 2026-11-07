@@ -8,8 +8,8 @@
 
     Use this instead of nanobind/stl/shared_ptr.h (never include both).
     Changes from upstream, all marked "CXX_PYTHON_RULES FORK", needed for classes
-    with virtual bases (the GenericObject hierarchy, see
-    claude_notes/implementation_plan.md §2.1 and type_registry.h):
+    with virtual bases (the GenericObject hierarchy, see type_registry.h and
+    cxx_python_rules/nanobind/README.md):
 
     1. enable_shared_from_this path: std::dynamic_pointer_cast instead of
        static_pointer_cast (ill-formed across a virtual base).
@@ -35,6 +35,13 @@
 #include <nanobind/nanobind.h>
 #include <memory>
 #include "type_registry.h"
+
+// CXX_PYTHON_RULES FORK: a reminder to compare this file with upstream.
+static_assert(NB_VERSION_MAJOR == 3 && NB_VERSION_MINOR == 1,
+              "nanobind changed: compare gc_shared_ptr.h with nanobind's "
+              "stl/shared_ptr.h, and CXX_PYTHON_RULES_NB_OVERRIDE_REF "
+              "(cxx_python_rules_nb.h) with nanobind's trampoline code, then "
+              "update the version here");
 
 NAMESPACE_BEGIN(NB_NAMESPACE)
 NAMESPACE_BEGIN(detail)

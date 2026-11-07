@@ -140,9 +140,9 @@ template<class S> blitz::Array<double, 2> test_matrix(const S& Storage)
 }
 #endif
 
-// Code review 2026-11-06 §2.1: a column-major array was written in
-// memory order and came back scrambled. Now any storage is written in
-// row-major order, and a loaded array is always row-major.
+// Any storage order is written in row-major order (a column-major array
+// written in memory order would come back scrambled), and a loaded array
+// is always row-major.
 BOOST_AUTO_TEST_CASE(column_major)
 {
   if(!have_serialize_supported())
@@ -191,9 +191,8 @@ BOOST_AUTO_TEST_CASE(strided)
 #endif
 }
 
-// The archive doesn't record the base, so a nonzero base is an error
-// (decision D1 of claude_notes/code_review_fix_plan.md), not silently
-// dropped.
+// The archive doesn't record the base, so a nonzero base is an error,
+// not silently dropped.
 BOOST_AUTO_TEST_CASE(nonzero_base)
 {
   if(!have_serialize_supported())

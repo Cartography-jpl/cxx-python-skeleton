@@ -28,9 +28,9 @@
 #include <boost/archive/polymorphic_oarchive.hpp>
 
 //-----------------------------------------------------------------------
-/// This is largely a duplicate of boost/serialization/shared_ptr.hpp
-/// (since phase S4 for std::shared_ptr; the archive format is the same
-/// as for boost::shared_ptr: version 1, not tracked, the pointer as
+/// This is largely a duplicate of boost/serialization/shared_ptr.hpp, for
+/// std::shared_ptr (the archive format is the same as for
+/// boost::shared_ptr: version 1, not tracked, the pointer as
 /// "px", so archives written with boost::shared_ptr still load and
 /// writing again gives the same bytes).
 /// We need to have our own copy to add support for python subclasses

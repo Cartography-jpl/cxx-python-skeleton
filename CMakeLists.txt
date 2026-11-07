@@ -1,5 +1,5 @@
-# CMake reference build of the C++ library and the nanobind python module
-# (claude_notes/implementation_plan.md S6.4). autotools is the primary build
+# CMake reference build of the C++ library and the nanobind python module.
+# autotools is the primary build
 # here; this is the small example framework (which uses CMake) can copy. It
 # builds libskeleton, the extension module skeleton_cxx/_bindings and the
 # C++ unit tests:

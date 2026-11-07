@@ -1,6 +1,6 @@
 #pragma once
-// std::array<T, N> of numbers <-> numpy, as the SWIG std::array typemaps
-// did (swig_boost_array.i): in, anything numpy converts to a 1-D array of
+// std::array<T, N> of numbers <-> numpy, as the SWIG typemaps did: in,
+// anything numpy converts to a 1-D array of
 // length N (list, tuple, any dtype or strides; always a copy); out, a new
 // numpy array (a copy). Use this instead of nanobind/stl/array.h, which
 // gives a python list (never include both).

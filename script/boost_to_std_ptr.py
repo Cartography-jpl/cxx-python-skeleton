@@ -20,8 +20,8 @@ Not rewritten, reported instead: boost::scoped_ptr, intrusive_ptr,
 shared_array, BOOST_SP_* macros, and "using boost::shared_ptr". These need a
 person to look at them.
 
-Written for the skeleton's phase S4 (claude_notes/implementation_plan.md
-§8), to be reused unchanged for geocal and framework. Prints one line per
+Written for the skeleton's switch to std::shared_ptr, to be reused unchanged
+for geocal and framework. Prints one line per
 changed file and a summary; --dry-run changes nothing.
 """
 
