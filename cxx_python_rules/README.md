@@ -79,9 +79,13 @@ a file sets a per-thread *archive base directory* (`serialize_function.h`),
 and such an object opens `resolve_archive_path(name)`. Python pickles made
 with `pickle_serialization_dir` load with the directory they were made in,
 and `archive_base_directory_scope(dir)` (python) or `ArchiveBaseDirectory`
-(C++) sets it for a block of code, e.g. reading a shelve. This replaced
-changing the process's current directory during a load, which broke
-relative file access on every other thread. `lib/DirectorNotes.md`
+(C++) sets it for a block of code. This replaced changing the process's
+current directory during a load in the C++ readers, which broke relative
+file access on every other thread. `read_shelve` (`swig_shelve.py`) still
+changes to the shelve's directory while it reads as well, so code that
+opens files by relative name without the resolver (a python class's
+`__setstate__`, a C++ class not converted yet) keeps working; don't read
+shelves while other threads use relative file names. `lib/DirectorNotes.md`
 describes python subclasses of C++ classes (ownership, `weak_ptr`,
 serialization, threads).
 

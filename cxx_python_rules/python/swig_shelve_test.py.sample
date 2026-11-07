@@ -8,6 +8,7 @@ from pathlib import Path
 import pytest
 
 from geocal import (
+    FileReferenceSample,
     GenericObjectA,
     GenericObjectC,
     GenericObjectMap,
@@ -65,6 +66,71 @@ def test_other_directory(isolated_dir, fname):
     cwd = os.getcwd()
     write_shelve(fname, GenericObjectA(2))
     assert read_shelve(fname).v == 2
+    assert os.getcwd() == cwd
+
+
+class PyFileReference:
+    """A pure python object that reads a file, by a relative name, when it is
+    unpickled. Only the change of directory in read_shelve makes this work;
+    the archive base directory is only seen by code that asks for it."""
+
+    def __init__(self, fname):
+        self.fname = fname
+        self.contents = Path(fname).read_text()
+
+    def __getstate__(self):
+        return {"fname": self.fname}
+
+    def __setstate__(self, state):
+        self.__init__(state["fname"])
+
+
+@pytest.mark.parametrize(
+    "fname", ["t.xml", "t.xml.gz", "t.bin", "t.bin.gz", "t.db:key", "t.json"]
+)
+def test_relative_file_name(isolated_dir, fname):
+    """Objects in a shelve can refer to files by names relative to the shelve
+    file, and the shelve can be read from any directory. This C++ class
+    opens resolve_archive_path(name) when loaded."""
+    if fname.endswith(".json") and not have_jsonpickle:
+        pytest.skip("needs jsonpickle")
+    os.mkdir("sub")
+    Path("sub/f.txt").write_text("relative contents\n")
+    os.chdir("sub")
+    write_shelve(fname, FileReferenceSample("f.txt"))
+    os.chdir("..")
+    cwd = os.getcwd()
+    assert read_shelve(f"sub/{fname}").contents == "relative contents"
+    assert os.getcwd() == cwd
+    # Also from a different directory than the one the shelve was made in.
+    os.mkdir("other")
+    os.chdir("other")
+    assert read_shelve(f"../sub/{fname}").contents == "relative contents"
+
+
+@pytest.mark.parametrize("fname", ["t.db:key", "t.json"])
+def test_relative_file_name_python(isolated_dir, fname):
+    """The same for a python object that knows nothing about the archive base
+    directory: read_shelve changes to the shelve's directory while reading."""
+    if fname.endswith(".json") and not have_jsonpickle:
+        pytest.skip("needs jsonpickle")
+    os.mkdir("sub")
+    Path("sub/f.txt").write_text("python contents\n")
+    os.chdir("sub")
+    write_shelve(fname, PyFileReference("f.txt"))
+    os.chdir("..")
+    cwd = os.getcwd()
+    assert read_shelve(f"sub/{fname}").contents == "python contents\n"
+    assert os.getcwd() == cwd
+
+
+def test_directory_restored_on_error(isolated_dir):
+    """The current directory is restored when reading fails."""
+    os.mkdir("sub")
+    write_shelve("sub/t.db:key", 1)
+    cwd = os.getcwd()
+    with pytest.raises(KeyError):
+        read_shelve("sub/t.db:other_key")
     assert os.getcwd() == cwd
 
 

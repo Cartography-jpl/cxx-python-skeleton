@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import contextlib
 import os
 import pickle
 import sqlite3
@@ -77,44 +78,59 @@ def read_shelve(f: str | os.PathLike[str]) -> Any:
     import modules. For xml, bin and json files, we look for the file
     "extra_python_init.py" found in the same directory.
 
-    Because we often use relative names for files, relative file names
-    in the objects read are relative to the directory of the database
-    file, through the archive base directory (cxx_python_rules
-    serialize_function.h), not by changing the current directory (which
-    would affect every thread). "extra_python_init.py" and
-    "_extra_python_init" also run with the current directory unchanged.
+    Because we often use relative names for files, relative file names in
+    the objects read are relative to the directory of the database file:
+    the current directory is changed to it while the file is read, and
+    changed back afterwards. This covers any code that opens a file while
+    loading (C++ or python). It is also the archive base directory (cxx_python_rules
+    serialize_function.h) for code that uses resolve_archive_path, which
+    doesn't depend on the current directory. Changing the current directory
+    affects every thread, so don't read shelves while other threads use
+    relative file names. "extra_python_init.py" and "_extra_python_init" run
+    in the database file's directory too.
 
     """
-    fname = str(f).split(":")[0]
+    fname = os.path.abspath(str(f).split(":")[0])
     dirn = os.path.dirname(fname)
     f2, ext = os.path.splitext(f)
     if ext not in (".gz"):
         f2 = str(f)
     extra_init = Path(dirn, "extra_python_init.py")
-    if os.path.splitext(f2)[1] == ".xml":
-        if extra_init.exists():
-            exec(extra_init.read_text())  # noqa: S102
-        return skelswig.serialize_read_generic(fname)
-    if os.path.splitext(f2)[1] == ".bin":
-        if extra_init.exists():
-            exec(extra_init.read_text())  # noqa: S102
-        return skelswig.serialize_read_binary_generic(fname)
-    if os.path.splitext(f)[1] == ".json":
-        if extra_init.exists():
-            exec(extra_init.read_text())  # noqa: S102
-        if have_jsonpickle:
-            with skelswig.archive_base_directory_scope(os.path.abspath(dirn)):
+    with _shelve_directory(dirn):
+        if os.path.splitext(f2)[1] == ".xml":
+            if extra_init.exists():
+                exec(extra_init.read_text())  # noqa: S102
+            return skelswig.serialize_read_generic(fname)
+        if os.path.splitext(f2)[1] == ".bin":
+            if extra_init.exists():
+                exec(extra_init.read_text())  # noqa: S102
+            return skelswig.serialize_read_binary_generic(fname)
+        if os.path.splitext(f)[1] == ".json":
+            if extra_init.exists():
+                exec(extra_init.read_text())  # noqa: S102
+            if have_jsonpickle:
                 return jsonpickle.decode(Path(fname).read_text(), keys=True)
-        else:
             raise RuntimeError(
                 "Use of .json file requires jsonpickle package to be installed"
             )
-    with skelswig.archive_base_directory_scope(os.path.abspath(dirn)):
         t = SQLiteShelf(fname, "r")
         if "_extra_python_init" in list(t.keys()):
             exec(t["_extra_python_init"])  # noqa: S102
         key = str(f).split(":")[1]
         return t[key]
+
+
+@contextlib.contextmanager
+def _shelve_directory(dirn: str) -> Iterator[None]:
+    """Make dirn the current directory and the archive base directory
+    inside the with block, and restore both at the end (also on error)."""
+    curdir = os.getcwd()
+    os.chdir(dirn)
+    try:
+        with skelswig.archive_base_directory_scope(dirn):
+            yield
+    finally:
+        os.chdir(curdir)
 
 
 def shelve_time_after(f1: str | os.PathLike[str], f2: str | os.PathLike[str]) -> bool:

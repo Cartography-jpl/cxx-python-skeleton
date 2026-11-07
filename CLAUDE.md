@@ -191,7 +191,9 @@ instead of going through the top-level autotools build.
   not with `-D`. The autoheader output is the private `skeleton_build_config.h`. The library stays free of python.
 - Relative file names inside an archive resolve against the archive's directory through a per-thread archive base
   directory (`resolve_archive_path`, `ArchiveBaseDirectory` in `serialize_function.h`; python
-  `archive_base_directory_scope`), never by changing the current directory.
+  `archive_base_directory_scope`); the C++ readers don't change the current directory. `read_shelve`
+  (`python/skeleton/swig_shelve.py`) also changes to the shelve's directory while reading, so code that doesn't use
+  the resolver (python `__setstate__`, C++ classes not converted yet) still finds its files.
 
 ## Python subclasses of C++ classes
 
