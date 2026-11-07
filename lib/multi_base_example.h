@@ -6,6 +6,7 @@
 #include "with_parameter_like.h"
 #include <memory>
 #include <string>
+#include <utility>
 
 namespace Skeleton {
 /****************************************************************/ /**
@@ -82,7 +83,10 @@ private:
 *******************************************************************/
 class MultiBaseExample : public Printable<MultiBaseExample> {
 public:
-  MultiBaseExample(const std::shared_ptr<CameraLike>& Cam) : cam_(Cam) {}
+  explicit MultiBaseExample(std::shared_ptr<CameraLike> Cam)
+    : cam_(std::move(Cam))
+  {
+  }
   ~MultiBaseExample() override = default;
   const std::shared_ptr<CameraLike>& camera() const { return cam_; }
   std::shared_ptr<WithParameterLike> camera_as_with_parameter() const

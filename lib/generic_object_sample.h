@@ -2,6 +2,7 @@
 #define GENERIC_OBJECT_SAMPLE_H
 #include "printable.h"
 #include <memory>
+#include <utility>
 
 namespace Skeleton {
 /****************************************************************/ /**
@@ -9,7 +10,7 @@ namespace Skeleton {
 *******************************************************************/
 class GenericObjectA : public Printable<GenericObjectA> {
 public:
-  GenericObjectA(int V) : v_(V) {}
+  explicit GenericObjectA(int V) : v_(V) {}
   GenericObjectA() = default;
   void print(std::ostream& Os) const { Os << "A"; }
   int v() const { return v_; }
@@ -23,7 +24,9 @@ private:
 
 class GenericObjectB : public Printable<GenericObjectB> {
 public:
-  GenericObjectB(const std::shared_ptr<GenericObjectA>& V) : a_(V) {}
+  explicit GenericObjectB(std::shared_ptr<GenericObjectA> V) : a_(std::move(V))
+  {
+  }
   void print(std::ostream& Os) const { Os << "B"; }
   const std::shared_ptr<GenericObjectA>& a() const { return a_; }
   void a(const std::shared_ptr<GenericObjectA>& V) { a_ = V; }
@@ -37,7 +40,7 @@ private:
 
 class GenericObjectB2 : public Printable<GenericObjectB2> {
 public:
-  GenericObjectB2(const GenericObjectA& V) : a_(V) {}
+  explicit GenericObjectB2(GenericObjectA V) : a_(std::move(V)) {}
   void print(std::ostream& Os) const { Os << "B2"; }
   const GenericObjectA& a() const { return a_; }
   void a(const GenericObjectA& V) { a_ = V; }
@@ -51,7 +54,7 @@ private:
 
 class GenericObjectC : public Printable<GenericObjectC> {
 public:
-  GenericObjectC(const std::shared_ptr<GenericObjectA>& V) : a_(V) {}
+  explicit GenericObjectC(const std::shared_ptr<GenericObjectA>& V) : a_(V) {}
   void print(std::ostream& Os) const { Os << "C"; }
   std::shared_ptr<GenericObjectA> a() const { return a_.lock(); }
   void a(const std::shared_ptr<GenericObjectA>& V) { a_ = V; }

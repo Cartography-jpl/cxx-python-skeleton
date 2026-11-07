@@ -33,6 +33,7 @@
 #include <map>
 #include <string>
 #include <vector>
+#include <utility>
 
 #ifndef CXX_PYTHON_RULES_NB_PACKAGE
 #error                                                                         \
@@ -211,7 +212,7 @@ template<class C>
 void pickle_init(C& cls, int Version, std::vector<std::string> Attr)
 {
   cls.def_static("pickle_format_version", [Version]() { return Version; });
-  cls.def("__reduce__", [Version, Attr](nb::handle self) {
+  cls.def("__reduce__", [Version, Attr = std::move(Attr)](nb::handle self) {
     nb::list args;
     args.append(self.type());
     args.append(Version);

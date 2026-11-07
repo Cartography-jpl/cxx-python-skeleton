@@ -2,6 +2,7 @@
 #define IOSTREAM_SWIG_H
 #include "printable.h"
 #include <iostream>
+#include <utility>
 
 namespace Skeleton {
 /****************************************************************/ /**
@@ -15,8 +16,8 @@ public:
   /// Constructor
   //-----------------------------------------------------------------------
 
-  IostreamSwig(const std::string& To_write = "hi there", int Word_to_read = 2)
-    : to_write(To_write), word_to_read(Word_to_read)
+  explicit IostreamSwig(std::string To_write = "hi there", int Word_to_read = 2)
+    : to_write(std::move(To_write)), word_to_read(Word_to_read)
   {
   }
   ~IostreamSwig() override = default;

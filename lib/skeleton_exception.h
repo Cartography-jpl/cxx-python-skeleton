@@ -27,6 +27,9 @@ namespace Skeleton {
 template<class... Args> struct ExceptionFormat {
   template<class S>
     requires std::convertible_to<const S&, std::string_view>
+  // Implicit on purpose: throw Exception("fmt {}", x) converts the string
+  // literal to ExceptionFormat, as std::format_string works.
+  // NOLINTNEXTLINE(google-explicit-constructor)
   consteval ExceptionFormat(
       const S& Fmt, std::source_location Loc = std::source_location::current())
     : fmt(Fmt), loc(Loc)
@@ -56,9 +59,9 @@ public:
   /// the error. The string is used as is, it isn't a format string.
   //-----------------------------------------------------------------------
 
-  Exception(const std::string& W = "",
-            std::source_location Loc = std::source_location::current())
-    : msg_(W), loc_(Loc)
+  explicit Exception(std::string W = "",
+                     std::source_location Loc = std::source_location::current())
+    : msg_(std::move(W)), loc_(Loc)
   {
     capture();
   }
@@ -75,7 +78,8 @@ public:
   /// \cond
   template<class... Args>
     requires(sizeof...(Args) > 0)
-  Exception(ExceptionFormat<std::type_identity_t<Args>...> Fmt, Args&&... A)
+  explicit Exception(ExceptionFormat<std::type_identity_t<Args>...> Fmt,
+                     Args&&... A)
     : msg_(std::format(Fmt.fmt, std::forward<Args>(A)...)), loc_(Fmt.loc)
   {
     capture();

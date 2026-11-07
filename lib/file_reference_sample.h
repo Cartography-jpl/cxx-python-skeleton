@@ -3,6 +3,7 @@
 #include "printable.h"
 #include "generic_object_sample.h"
 #include <memory>
+#include <utility>
 #include <fstream>
 #include <vector>
 
@@ -16,7 +17,10 @@ namespace Skeleton {
 *******************************************************************/
 class FileReferenceSample : public Printable<FileReferenceSample> {
 public:
-  FileReferenceSample(const std::string& Fname) : fname_(Fname) { read(); }
+  explicit FileReferenceSample(std::string Fname) : fname_(std::move(Fname))
+  {
+    read();
+  }
   ~FileReferenceSample() override = default;
   const std::string& file_name() const { return fname_; }
   const std::string& contents() const { return contents_; }

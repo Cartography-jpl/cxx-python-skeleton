@@ -106,7 +106,7 @@ public:
   /// Rows x Cols column-major array, with element (i, j) = 10 * i + j.
   //-----------------------------------------------------------------------
 
-  ColumnMajorSample(int Rows = 2, int Cols = 3)
+  explicit ColumnMajorSample(int Rows = 2, int Cols = 3)
     : data_(Rows, Cols, blitz::ColumnMajorArray<2>())
   {
     for(int i = 0; i < Rows; ++i)

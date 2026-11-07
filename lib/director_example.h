@@ -3,6 +3,7 @@
 #include "printable.h"
 #include "skeleton_exception.h"
 #include <memory>
+#include <utility>
 #include <vector>
 
 namespace Skeleton {
@@ -17,8 +18,8 @@ public:
   /// Constructor
   //-----------------------------------------------------------------------
 
-  DirectorExample(int value_to_add, const std::string& name)
-    : value_to_add_(value_to_add), name_(name)
+  DirectorExample(int value_to_add, std::string name)
+    : value_to_add_(value_to_add), name_(std::move(name))
   {
   }
   ~DirectorExample() override = default;
@@ -51,8 +52,8 @@ public:
   //-----------------------------------------------------------------------
 
   DirectorExampleNested(int value_to_add, const std::string& name,
-                        const std::shared_ptr<DirectorExample> Obj)
-    : DirectorExample(value_to_add, name), obj_(Obj)
+                        std::shared_ptr<DirectorExample> Obj)
+    : DirectorExample(value_to_add, name), obj_(std::move(Obj))
   {
   }
   ~DirectorExampleNested() override = default;
@@ -73,7 +74,10 @@ private:
 *******************************************************************/
 class DirectorExampleWeakPtr : public Printable<DirectorExampleWeakPtr> {
 public:
-  DirectorExampleWeakPtr(const std::shared_ptr<DirectorExample>& V) : a_(V) {}
+  explicit DirectorExampleWeakPtr(const std::shared_ptr<DirectorExample>& V)
+    : a_(V)
+  {
+  }
   ~DirectorExampleWeakPtr() override = default;
   void print(std::ostream& Os) const
   {

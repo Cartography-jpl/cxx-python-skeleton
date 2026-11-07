@@ -7,6 +7,7 @@
 #include <array>
 #include <blitz/array.h>
 #include <vector>
+#include <utility>
 
 namespace Skeleton {
 /****************************************************************/ /**
@@ -17,7 +18,7 @@ namespace Skeleton {
 *******************************************************************/
 class ValueSample : public Printable<ValueSample> {
 public:
-  ValueSample(double V = 0) : v_(V) {}
+  explicit ValueSample(double V = 0) : v_(V) {}
   ~ValueSample() override = default;
   double v() const { return v_; }
   virtual void print(std::ostream& Os) const
@@ -36,8 +37,8 @@ private:
 *******************************************************************/
 class CxxPythonRulesSample : public Printable<CxxPythonRulesSample> {
 public:
-  CxxPythonRulesSample(int Count = 0, const std::string& Name = "")
-    : count_(Count), name_(Name)
+  explicit CxxPythonRulesSample(int Count = 0, std::string Name = "")
+    : count_(Count), name_(std::move(Name))
   {
     position_ = {{1.0, 2.0, 3.0}};
     data_.resize(2, 2);

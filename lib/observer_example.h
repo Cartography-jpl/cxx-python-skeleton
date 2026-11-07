@@ -5,6 +5,7 @@
 #include "skeleton_exception.h"
 #include <memory>
 #include <string>
+#include <utility>
 
 namespace Skeleton {
 /****************************************************************/ /**
@@ -15,7 +16,7 @@ namespace Skeleton {
 class ObservableExample : public Observable<ObservableExample>,
                           public Printable<ObservableExample> {
 public:
-  ObservableExample(double V = 0) : value_(V) {}
+  explicit ObservableExample(double V = 0) : value_(V) {}
   ~ObservableExample() override = default;
   void add_observer(Observer<ObservableExample>& Obs) override
   {
@@ -64,10 +65,9 @@ namespace Skeleton {
 class ObserverExample : public Observer<ObservableExample>,
                         public Printable<ObserverExample> {
 public:
-  ObserverExample(const std::string& Name = "") : name_(Name) {}
-  ObserverExample(const std::string& Name,
-                  const std::shared_ptr<ObservableExample>& Obj)
-    : name_(Name), observed_(Obj)
+  explicit ObserverExample(std::string Name = "") : name_(std::move(Name)) {}
+  ObserverExample(std::string Name, std::shared_ptr<ObservableExample> Obj)
+    : name_(std::move(Name)), observed_(std::move(Obj))
   {
     if(observed_)
       observed_->add_observer(*this);
@@ -131,7 +131,8 @@ private:
 class CacheExample : public CacheInvalidatedObserver,
                      public Printable<CacheExample> {
 public:
-  CacheExample(const std::shared_ptr<ObservableExample>& Obj) : observed_(Obj)
+  explicit CacheExample(std::shared_ptr<ObservableExample> Obj)
+    : observed_(std::move(Obj))
   {
     if(!observed_)
       throw Exception("CacheExample: Obj is null");

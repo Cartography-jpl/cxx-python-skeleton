@@ -24,7 +24,7 @@ namespace {
 // An observer kept as a member of another class.
 class HasMemberObserver {
 public:
-  HasMemberObserver(ObservableExample& O) : obs("member")
+  explicit HasMemberObserver(ObservableExample& O) : obs("member")
   {
     O.add_observer(obs);
   }

@@ -92,6 +92,8 @@ public:
   /// Pass by value (converted differently than a const reference).
   //-----------------------------------------------------------------------
 
+  // By value on purpose (the bindings convert it differently).
+  // NOLINTNEXTLINE(performance-unnecessary-value-param)
   double sum_by_value(blitz::Array<double, 2> A) const { return blitz::sum(A); }
 
   //-----------------------------------------------------------------------
@@ -161,9 +163,11 @@ public:
       res.push_back(a.copy());
     return res;
   }
+  // By value on purpose, like sum_by_value.
+  // NOLINTNEXTLINE(performance-unnecessary-value-param)
   int vector_size(std::vector<blitz::Array<int, 2>> V) const
   {
-    return (int)V.size();
+    return static_cast<int>(V.size());
   }
 
   //-----------------------------------------------------------------------

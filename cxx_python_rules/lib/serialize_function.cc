@@ -38,7 +38,7 @@ protected:
   /// set up the streambuf.
   //-----------------------------------------------------------------------
 
-  FilteringOstream(const std::string& Fname)
+  explicit FilteringOstream(const std::string& Fname)
     : std::ostream(&sb), f(Fname.c_str())
   {
   }
@@ -73,7 +73,7 @@ protected:
   /// set up the streambuf.
   //-----------------------------------------------------------------------
 
-  FilteringIstream(const std::string& Fname)
+  explicit FilteringIstream(const std::string& Fname)
     : std::istream(&sb), f(Fname.c_str())
   {
   }
@@ -104,7 +104,7 @@ public:
   /// compression. We look at the File name, and if ends if ".gz" then
   /// we automatically gzip the file.
   //-----------------------------------------------------------------------
-  OstreamCompress(const std::string& Fname) : FilteringOstream(Fname)
+  explicit OstreamCompress(const std::string& Fname) : FilteringOstream(Fname)
   {
     if(Fname.ends_with(".gz"))
       sb.push(boost::iostreams::gzip_compressor());
@@ -132,7 +132,7 @@ public:
   /// See all also IfstreamCs which both handles decompression and
   /// stripping out comments.
   //-----------------------------------------------------------------------
-  IstreamCompress(const std::string& Fname) : FilteringIstream(Fname)
+  explicit IstreamCompress(const std::string& Fname) : FilteringIstream(Fname)
   {
     if(Fname.ends_with(".gz"))
       sb.push(boost::iostreams::gzip_decompressor());
@@ -148,7 +148,7 @@ public:
 
 class DirChange {
 public:
-  DirChange(const std::string& newdir)
+  explicit DirChange(const std::string& newdir)
   {
     dirhandle = open(".", O_RDONLY);
     if(dirhandle == -1)

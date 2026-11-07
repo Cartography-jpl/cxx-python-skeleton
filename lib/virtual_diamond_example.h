@@ -5,6 +5,7 @@
 #include "with_parameter_like.h"
 #include <memory>
 #include <string>
+#include <utility>
 
 namespace Skeleton {
 /****************************************************************/ /**
@@ -44,7 +45,8 @@ class Diamond : public virtual RootLike,
                 public virtual NestedLike,
                 public Printable<Diamond> {
 public:
-  Diamond(const std::string& Name, double P0, double P1) : name_(Name), p_(2)
+  Diamond(std::string Name, double P0, double P1)
+    : name_(std::move(Name)), p_(2)
   {
     p_ = P0, P1;
   }
@@ -73,7 +75,9 @@ private:
 *******************************************************************/
 class VirtualDiamondExample : public Printable<VirtualDiamondExample> {
 public:
-  VirtualDiamondExample(const std::shared_ptr<Diamond>& D) : d_(D) {}
+  explicit VirtualDiamondExample(std::shared_ptr<Diamond> D) : d_(std::move(D))
+  {
+  }
   ~VirtualDiamondExample() override = default;
   const std::shared_ptr<Diamond>& diamond() const { return d_; }
   std::shared_ptr<RootLike> as_root() const { return d_; }

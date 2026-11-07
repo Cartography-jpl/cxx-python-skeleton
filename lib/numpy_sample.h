@@ -13,7 +13,7 @@ namespace Skeleton {
 class NumpySample : public Printable<NumpySample> {
 public:
   NumpySample() : data_(2, 2) { data_ = 1, 2, 3, 4; }
-  NumpySample(const blitz::Array<double, 2>& Din) : data_(Din) {}
+  explicit NumpySample(const blitz::Array<double, 2>& Din) : data_(Din) {}
   const blitz::Array<double, 2>& data() const { return data_; }
   //-----------------------------------------------------------------------
   /// Used to test std::optional<blitz::Range> in the bindings. Returns

@@ -274,7 +274,7 @@ protected:
 
   class PointerEqual {
   public:
-    PointerEqual(Observer<T>* t) : t_(t) {}
+    explicit PointerEqual(Observer<T>* t) : t_(t) {}
     bool operator()(const std::weak_ptr<Observer<T>>& w) const
     {
       return w.lock().get() == t_;
@@ -283,7 +283,7 @@ protected:
   };
   class CPointerEqual {
   public:
-    CPointerEqual(CacheInvalidatedObserver* t) : t_(t) {}
+    explicit CPointerEqual(CacheInvalidatedObserver* t) : t_(t) {}
     bool operator()(const std::weak_ptr<CacheInvalidatedObserver>& w) const
     {
       return w.lock().get() == t_;
