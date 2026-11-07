@@ -21,6 +21,7 @@ execute_process(COMMAND "${Python_EXECUTABLE}" -m nanobind --cmake_dir
 find_package(nanobind CONFIG REQUIRED)
 find_package(Boost 1.84 REQUIRED COMPONENTS serialization iostreams)
 find_package(PkgConfig REQUIRED)
+find_package(Threads REQUIRED)
 pkg_check_modules(BLITZ REQUIRED IMPORTED_TARGET blitz)
 find_path(MDSPAN_INCLUDE_DIR mdspan/mdspan.hpp REQUIRED)
 find_program(ADDR2LINE addr2line)
@@ -54,7 +55,7 @@ target_include_directories(skeleton PUBLIC
   ${CMAKE_BINARY_DIR}/config ${CMAKE_SOURCE_DIR}/lib ${CMAKE_SOURCE_DIR}/cxx_python_rules/lib
   ${MDSPAN_INCLUDE_DIR})
 target_link_libraries(skeleton PUBLIC Boost::serialization Boost::iostreams
-  PkgConfig::BLITZ ${CMAKE_DL_LIBS})
+  PkgConfig::BLITZ Threads::Threads ${CMAKE_DL_LIBS})
 
 # Docstrings from doxygen (an empty table without doxygen).
 file(GLOB LIB_HEADERS ${CMAKE_SOURCE_DIR}/lib/*.h)
@@ -92,6 +93,11 @@ foreach(m _bindings _skeleton_downstream)
   target_compile_definitions(${m} PRIVATE CXX_PYTHON_RULES_NB_PACKAGE="skeleton_cxx")
   target_link_libraries(${m} PRIVATE skeleton)
   target_compile_options(${m} PRIVATE ${SKELETON_WARNINGS})
+  # nanobind and python headers as system headers (as configure does), so
+  # the warnings above don't apply to them: with GCC an -isystem directory
+  # that is also given with -I is searched as a system directory.
+  target_include_directories(${m} SYSTEM PRIVATE ${Python_INCLUDE_DIRS}
+    ${nanobind_ROOT}/../include ${nanobind_ROOT}/../ext/robin_map/include)
   # Default visibility for the binding code, see cxx_python_rules/nanobind/nanobind.am
   set_target_properties(${m} PROPERTIES CXX_VISIBILITY_PRESET default
     LIBRARY_OUTPUT_DIRECTORY ${PKG} BUILD_RPATH $<TARGET_FILE_DIR:skeleton>)
