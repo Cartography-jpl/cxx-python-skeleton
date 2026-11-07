@@ -13,12 +13,10 @@
 #include <boost/serialization/vector.hpp>
 #include <boost/serialization/map.hpp>
 #include <boost/serialization/list.hpp>
-// At boost 1.64, the header file to include for boost::array changed
-// names. Pretty annoying, but select the right file to include. array.hpp
-// is always needed too: it has the std::array serializer.
-#ifdef HAVE_BOOST_SERIALIZATION_BOOST_ARRAY_HPP
+// boost::array (Boost >= 1.64, always true for the minimum 1.84) and
+// std::array serializers. Drop boost_array.hpp once the project has no
+// boost::array left (the skeleton has none since its phase S3).
 #include <boost/serialization/boost_array.hpp>
-#endif
 #include <boost/serialization/array.hpp>
 #include <boost/archive/polymorphic_iarchive.hpp>
 #include <boost/archive/polymorphic_oarchive.hpp>

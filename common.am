@@ -40,7 +40,7 @@ CYTHON_SRC =
 pkgconfig_DATA =
 MOSTLYCLEANFILES =
 
-AM_CPPFLAGS=
+AM_CPPFLAGS= $(SKELETON_RELEASE_CPPFLAGS)
 
 #=================================================================
 # Some flags needed for GCC compilers.

@@ -1,122 +1,14 @@
-/* lib/skeleton_config.h.in.  Generated from configure.ac by autoheader.  */
+#pragma once
+// lib/skeleton_config.h: made by configure from lib/skeleton_config.h.in.
+// Installed headers include it (through generic_object.h), so it defines
+// only SKELETON_* and CXX_PYTHON_RULES_* macros. What only the library
+// build needs (autoconf's PACKAGE, HAVE_*, the addr2line path) is in
+// skeleton_build_config.h, which isn't installed.
 
-/* Disable assertions in boost */
-#undef BOOST_DISABLE_ASSERTS
+// Namespace of GenericObject and of the cxx_python_rules code.
+#define CXX_PYTHON_RULES_NAMESPACE Skeleton
 
-/* Defined if the cxx_python_rules code supports boost serialization */
-#undef CXX_PYTHON_RULES_HAVE_BOOST_SERIALIZATION
-
-/* Namespace of GenericObject and of the cxx_python_rules code */
-#undef CXX_PYTHON_RULES_NAMESPACE
-
-/* Defined if we have Blitz */
-#undef HAVE_BLITZ
-
-/* define if the Boost library is available */
-#undef HAVE_BOOST
-
-/* define if the Boost::Date_Time library is available */
-#undef HAVE_BOOST_DATE_TIME
-
-/* define if the Boost::Filesystem library is available */
-#undef HAVE_BOOST_FILESYSTEM
-
-/* define if the Boost::IOStreams library is available */
-#undef HAVE_BOOST_IOSTREAMS
-
-/* define if the Boost::Regex library is available */
-#undef HAVE_BOOST_REGEX
-
-/* define if the Boost::Serialization library is available */
-#undef HAVE_BOOST_SERIALIZATION
-
-/* Define to 1 if you have the <boost/serialization/boost_array.hpp> header
-   file. */
-#undef HAVE_BOOST_SERIALIZATION_BOOST_ARRAY_HPP
-
-/* define if the Boost::System library is available */
-#undef HAVE_BOOST_SYSTEM
-
-/* define if the compiler supports basic C++23 syntax */
-#undef HAVE_CXX23
-
-/* Define to 1 if you have the <dlfcn.h> header file. */
-#undef HAVE_DLFCN_H
-
-/* Define to 1 if you have the <inttypes.h> header file. */
-#undef HAVE_INTTYPES_H
-
-/* Define if you have POSIX threads libraries and header files. */
-#undef HAVE_PTHREAD
-
-/* Have PTHREAD_PRIO_INHERIT. */
-#undef HAVE_PTHREAD_PRIO_INHERIT
-
-/* If available, contains the Python version number currently in use. */
-#undef HAVE_PYTHON
-
-/* Define to 1 if you have the <stdint.h> header file. */
-#undef HAVE_STDINT_H
-
-/* Define to 1 if you have the <stdio.h> header file. */
-#undef HAVE_STDIO_H
-
-/* Define to 1 if you have the <stdlib.h> header file. */
-#undef HAVE_STDLIB_H
-
-/* Define to 1 if you have the <strings.h> header file. */
-#undef HAVE_STRINGS_H
-
-/* Define to 1 if you have the <string.h> header file. */
-#undef HAVE_STRING_H
-
-/* Define to 1 if you have the <sys/stat.h> header file. */
-#undef HAVE_SYS_STAT_H
-
-/* Define to 1 if you have the <sys/types.h> header file. */
-#undef HAVE_SYS_TYPES_H
-
-/* Define to 1 if you have the <unistd.h> header file. */
-#undef HAVE_UNISTD_H
-
-/* Define to the sub-directory where libtool stores uninstalled libraries. */
-#undef LT_OBJDIR
-
-/* Name of package */
-#undef PACKAGE
-
-/* Define to the address where bug reports for this package should be sent. */
-#undef PACKAGE_BUGREPORT
-
-/* Define to the full name of this package. */
-#undef PACKAGE_NAME
-
-/* Define to the full name and version of this package. */
-#undef PACKAGE_STRING
-
-/* Define to the one symbol short name of this package. */
-#undef PACKAGE_TARNAME
-
-/* Define to the home page for this package. */
-#undef PACKAGE_URL
-
-/* Define to the version of this package. */
-#undef PACKAGE_VERSION
-
-/* Define to necessary symbol if this constant uses a non-standard name on
-   your system. */
-#undef PTHREAD_CREATE_JOINABLE
-
-/* Absolute path of addr2line, used for stack traces */
-#undef SKELETON_ADDR2LINE
-
-/* Defined if we have boost serialization */
-#undef SKELETON_HAVE_BOOST_SERIALIZATION
-
-/* Define to 1 if all of the C89 standard headers exist (not just the ones
-   required in a freestanding environment). This macro is provided for
-   backward compatibility; new code need not use it. */
-#undef STDC_HEADERS
-
-/* Version number of package */
-#undef VERSION
+// Boost.Serialization support (configure --without-boost-serialization
+// turns it off).
+@skeleton_no_serialization@#define SKELETON_HAVE_BOOST_SERIALIZATION 1
+@skeleton_no_serialization@#define CXX_PYTHON_RULES_HAVE_BOOST_SERIALIZATION 1

@@ -26,17 +26,17 @@ find_path(MDSPAN_INCLUDE_DIR mdspan/mdspan.hpp REQUIRED)
 find_program(ADDR2LINE addr2line)
 find_program(DOXYGEN doxygen)
 
-# What autoconf's lib/skeleton_config.h has, as far as the code uses it.
-set(SKELETON_HAVE_BOOST_SERIALIZATION 1)
-file(WRITE ${CMAKE_BINARY_DIR}/skeleton_config.h.cmake
-  "#cmakedefine SKELETON_HAVE_BOOST_SERIALIZATION 1\n"
-  "#define CXX_PYTHON_RULES_HAVE_BOOST_SERIALIZATION 1\n"
-  "#define CXX_PYTHON_RULES_NAMESPACE Skeleton\n"
-  "#define HAVE_BOOST_SERIALIZATION_BOOST_ARRAY_HPP 1\n"
+# The configuration headers autoconf makes: skeleton_config.h (from the
+# same template; installed headers include it) and skeleton_build_config.h
+# (private, as far as the code uses it).
+set(skeleton_no_serialization "")
+configure_file(${CMAKE_SOURCE_DIR}/lib/skeleton_config.h.in
+  ${CMAKE_BINARY_DIR}/config/skeleton_config.h @ONLY)
+file(WRITE ${CMAKE_BINARY_DIR}/skeleton_build_config.h.cmake
   "#cmakedefine ADDR2LINE\n"
   "#ifdef ADDR2LINE\n#undef ADDR2LINE\n#define SKELETON_ADDR2LINE ${ADDR2LINE}\n#endif\n")
-configure_file(${CMAKE_BINARY_DIR}/skeleton_config.h.cmake
-  ${CMAKE_BINARY_DIR}/config/skeleton_config.h)
+configure_file(${CMAKE_BINARY_DIR}/skeleton_build_config.h.cmake
+  ${CMAKE_BINARY_DIR}/config/skeleton_build_config.h)
 
 # The C++ library: lib/*.cc and cxx_python_rules/lib/*.cc, without the tests,
 # the bindings and the golden archive generator.

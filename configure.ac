@@ -5,13 +5,23 @@ AC_INIT([cxx-python-skeleton],[0.10])
 AC_CONFIG_AUX_DIR([config])
 AC_CONFIG_MACRO_DIRS([config/m4 config/m4_local])
 AC_CONFIG_FILES([script/setup_skeleton.csh script/setup_skeleton.sh])
-AC_CONFIG_HEADERS([lib/skeleton_config.h])
+# skeleton_build_config.h (autoheader) is private to the build;
+# skeleton_config.h (from a hand-written template) is installed.
+AC_CONFIG_HEADERS([lib/skeleton_build_config.h])
+AC_CONFIG_FILES([lib/skeleton_config.h])
 AC_CONFIG_FILES([lib/global_fixture_default.cc])
 
 SKELETON_COMMON
 
-# The namespace of GenericObject and of the cxx_python_rules C++ code.
-AC_DEFINE([CXX_PYTHON_RULES_NAMESPACE], [Skeleton], [Namespace of GenericObject and of the cxx_python_rules code])
+# AC_ENABLE_DEBUG (in SKELETON_COMMON) defines BOOST_DISABLE_ASSERTS for a
+# non-debug build in skeleton_build_config.h, which only skeleton_exception.cc
+# includes. Pass it on the command line too, so all of the library is
+# compiled with it, as when it was in the installed skeleton_config.h (it
+# no longer reaches code that just uses the installed headers).
+if test "x$enable_debug" != "xyes"; then
+   SKELETON_RELEASE_CPPFLAGS=-DBOOST_DISABLE_ASSERTS
+fi
+AC_SUBST([SKELETON_RELEASE_CPPFLAGS])
 
 #=================================================================
 # Find location of afids and geocal
@@ -73,9 +83,12 @@ AC_ARG_WITH([boost-serialization],
 	      [with_boost_serialization=no],
               [with_boost_serialization=yes])
 if test "$with_boost_serialization" = "yes"; then
-    AC_DEFINE(SKELETON_HAVE_BOOST_SERIALIZATION,,[Defined if we have boost serialization])
-    AC_DEFINE(CXX_PYTHON_RULES_HAVE_BOOST_SERIALIZATION,,[Defined if the cxx_python_rules code supports boost serialization])
+    skeleton_no_serialization=
+else
+    skeleton_no_serialization="// "
 fi
+# Comments out the serialization macros in lib/skeleton_config.h.
+AC_SUBST([skeleton_no_serialization])
 AM_CONDITIONAL([HAVE_BOOST_SERIALIZATION], [test "$with_boost_serialization" = "yes"])
 
 #=================================================================

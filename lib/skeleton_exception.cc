@@ -1,4 +1,6 @@
 #include "skeleton_exception.h"
+// SKELETON_ADDR2LINE (not in the installed skeleton_config.h).
+#include "skeleton_build_config.h"
 #include <atomic>
 // Boost.Stacktrace is only used in this file, so the header stays light
 // and only libskeleton needs its link dependencies (-ldl). It records the

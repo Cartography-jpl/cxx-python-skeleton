@@ -149,8 +149,10 @@ export testdatadir
 export run_test = *
 
 AM_CPPFLAGS+= -I$(srcdir)/@srclib@
-# To pick up generated skeleton_config.h file
+# To pick up the generated skeleton_config.h and skeleton_build_config.h
 AM_CPPFLAGS+= -I@srclib@
+# skeleton_config.h is made by configure and installed with the headers.
+nodist_skeletoninc_HEADERS = @srclib@/skeleton_config.h
 
 #=================================================================
 # Normally check builds all the libraries, and tests all the pyton. This

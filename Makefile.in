@@ -195,9 +195,10 @@ DIST_COMMON = $(srcdir)/Makefile.am $(top_srcdir)/configure \
 am__CONFIG_DISTCLEAN_FILES = config.status config.cache config.log \
  configure.lineno config.status.lineno
 mkinstalldirs = $(install_sh) -d
-CONFIG_HEADER = $(top_builddir)/lib/skeleton_config.h
+CONFIG_HEADER = $(top_builddir)/lib/skeleton_build_config.h
 CONFIG_CLEAN_FILES = script/setup_skeleton.csh \
-	script/setup_skeleton.sh lib/global_fixture_default.cc
+	script/setup_skeleton.sh lib/skeleton_config.h \
+	lib/global_fixture_default.cc
 CONFIG_CLEAN_VPATH_FILES =
 am__installdirs = "$(DESTDIR)$(bindir)" "$(DESTDIR)$(libdir)" \
 	"$(DESTDIR)$(pkgpythoncxxdir)" "$(DESTDIR)$(bindir)" \
@@ -206,7 +207,7 @@ am__installdirs = "$(DESTDIR)$(bindir)" "$(DESTDIR)$(libdir)" \
 	"$(DESTDIR)$(installskeletondir)" \
 	"$(DESTDIR)$(pkgpythoncxxdir)" "$(DESTDIR)$(pkgconfigdir)" \
 	"$(DESTDIR)$(pkgpythoncxxdir)" "$(DESTDIR)$(includedir)" \
-	"$(DESTDIR)$(skeletonincdir)"
+	"$(DESTDIR)$(skeletonincdir)" "$(DESTDIR)$(skeletonincdir)"
 PROGRAMS = $(bin_PROGRAMS)
 am__vpath_adj_setup = srcdirstrip=`echo "$(srcdir)" | sed 's|.|.|g'`;
 am__vpath_adj = case $$p in \
@@ -493,7 +494,8 @@ am__pep3147_tweak = \
 py_compile = $(top_srcdir)/config/py-compile
 DATA = $(installskeleton_DATA) $(nodist_pkgpythoncxx_DATA) \
 	$(pkgconfig_DATA) $(pkgpythoncxx_DATA)
-HEADERS = $(include_HEADERS) $(skeletoninc_HEADERS)
+HEADERS = $(include_HEADERS) $(nodist_skeletoninc_HEADERS) \
+	$(skeletoninc_HEADERS)
 am__tagged_files = $(HEADERS) $(SOURCES) $(TAGS_FILES) $(LISP)
 # Read a list of newline-separated strings from the standard input,
 # and print each of them once, without duplicates.  Input order is
@@ -708,6 +710,7 @@ am__DIST_COMMON = $(srcdir)/Makefile.in $(srcdir)/common.am \
 	$(top_srcdir)/config/missing $(top_srcdir)/config/py-compile \
 	$(top_srcdir)/config/test-driver \
 	$(top_srcdir)/lib/global_fixture_default.cc.in \
+	$(top_srcdir)/lib/skeleton_build_config.h.in \
 	$(top_srcdir)/lib/skeleton_config.h.in \
 	$(top_srcdir)/script/setup_skeleton.csh.in \
 	$(top_srcdir)/script/setup_skeleton.sh.in AUTHORS COPYING \
@@ -844,6 +847,7 @@ RANLIB = @RANLIB@
 SED = @SED@
 SET_MAKE = @SET_MAKE@
 SHELL = @SHELL@
+SKELETON_RELEASE_CPPFLAGS = @SKELETON_RELEASE_CPPFLAGS@
 SPHINXBUILD = @SPHINXBUILD@
 STRIP = @STRIP@
 VERSION = @VERSION@
@@ -907,6 +911,7 @@ pythondir = @pythondir@
 runstatedir = @runstatedir@
 sbindir = @sbindir@
 sharedstatedir = @sharedstatedir@
+skeleton_no_serialization = @skeleton_no_serialization@
 skeletonpkgpythondir = @skeletonpkgpythondir@
 srccython = @srccython@
 srcdir = @srcdir@
@@ -969,8 +974,9 @@ EXTRA_DIST = README.md bootstrap config/m4_local/README config/m4 \
 CYTHON_SRC = 
 pkgconfig_DATA = 
 MOSTLYCLEANFILES = $(am__append_5)
-# To pick up generated skeleton_config.h file
-AM_CPPFLAGS = -I$(srcdir)/@cxxpythonrules@/lib -I$(srcdir)/@srclib@ \
+# To pick up the generated skeleton_config.h and skeleton_build_config.h
+AM_CPPFLAGS = $(SKELETON_RELEASE_CPPFLAGS) \
+	-I$(srcdir)/@cxxpythonrules@/lib -I$(srcdir)/@srclib@ \
 	-I@srclib@
 
 #=================================================================
@@ -1176,6 +1182,8 @@ golden_archive_generator_SOURCES = @srclib@/golden_archive_generator.cc
 golden_archive_generator_LDADD = libskeleton.la
 golden_archive_generator_LDFLAGS = $(UNINSTALLED_PROGRAM_LINK_FLAGS)
 golden_archive_generator_CPPFLAGS = $(AM_CPPFLAGS) $(BOOST_CPPFLAGS) $(BLITZ_CFLAGS)
+# skeleton_config.h is made by configure and installed with the headers.
+nodist_skeletoninc_HEADERS = @srclib@/skeleton_config.h
 @BUILD_PYTHON_BINDINGS_TRUE@libnanobind_core_la_SOURCES = @cxxpythonrules@/nanobind/nb_combined.cc
 @BUILD_PYTHON_BINDINGS_TRUE@libnanobind_core_la_CPPFLAGS = $(PYTHON_CPPFLAGS) $(NANOBIND_CPPFLAGS) -I$(NANOBIND_SRCDIR)
 @BUILD_PYTHON_BINDINGS_TRUE@libnanobind_core_la_CXXFLAGS = -std=c++23 -O2 -fPIC -fvisibility=hidden -fno-strict-aliasing
@@ -1244,23 +1252,25 @@ $(ACLOCAL_M4): @MAINTAINER_MODE_TRUE@ $(am__aclocal_m4_deps)
 	$(am__cd) $(srcdir) && $(ACLOCAL) $(ACLOCAL_AMFLAGS)
 $(am__aclocal_m4_deps):
 
-lib/skeleton_config.h: lib/stamp-h1
+lib/skeleton_build_config.h: lib/stamp-h1
 	@test -f $@ || rm -f lib/stamp-h1
 	@test -f $@ || $(MAKE) $(AM_MAKEFLAGS) lib/stamp-h1
 
-lib/stamp-h1: $(top_srcdir)/lib/skeleton_config.h.in $(top_builddir)/config.status
+lib/stamp-h1: $(top_srcdir)/lib/skeleton_build_config.h.in $(top_builddir)/config.status
 	$(AM_V_at)rm -f lib/stamp-h1
-	$(AM_V_GEN)cd $(top_builddir) && $(SHELL) ./config.status lib/skeleton_config.h
-$(top_srcdir)/lib/skeleton_config.h.in: @MAINTAINER_MODE_TRUE@ $(am__configure_deps) 
+	$(AM_V_GEN)cd $(top_builddir) && $(SHELL) ./config.status lib/skeleton_build_config.h
+$(top_srcdir)/lib/skeleton_build_config.h.in: @MAINTAINER_MODE_TRUE@ $(am__configure_deps) 
 	$(AM_V_GEN)($(am__cd) $(top_srcdir) && $(AUTOHEADER))
 	$(AM_V_at)rm -f lib/stamp-h1
 	$(AM_V_at)touch $@
 
 distclean-hdr:
-	-rm -f lib/skeleton_config.h lib/stamp-h1
+	-rm -f lib/skeleton_build_config.h lib/stamp-h1
 script/setup_skeleton.csh: $(top_builddir)/config.status $(top_srcdir)/script/setup_skeleton.csh.in
 	cd $(top_builddir) && $(SHELL) ./config.status $@
 script/setup_skeleton.sh: $(top_builddir)/config.status $(top_srcdir)/script/setup_skeleton.sh.in
+	cd $(top_builddir) && $(SHELL) ./config.status $@
+lib/skeleton_config.h: $(top_builddir)/config.status $(top_srcdir)/lib/skeleton_config.h.in
 	cd $(top_builddir) && $(SHELL) ./config.status $@
 lib/global_fixture_default.cc: $(top_builddir)/config.status $(top_srcdir)/lib/global_fixture_default.cc.in
 	cd $(top_builddir) && $(SHELL) ./config.status $@
@@ -2421,6 +2431,27 @@ uninstall-includeHEADERS:
 	@list='$(include_HEADERS)'; test -n "$(includedir)" || list=; \
 	files=`for p in $$list; do echo $$p; done | sed -e 's|^.*/||'`; \
 	dir='$(DESTDIR)$(includedir)'; $(am__uninstall_files_from_dir)
+install-nodist_skeletonincHEADERS: $(nodist_skeletoninc_HEADERS)
+	@$(NORMAL_INSTALL)
+	@list='$(nodist_skeletoninc_HEADERS)'; test -n "$(skeletonincdir)" || list=; \
+	if test -n "$$list"; then \
+	  echo " $(MKDIR_P) '$(DESTDIR)$(skeletonincdir)'"; \
+	  $(MKDIR_P) "$(DESTDIR)$(skeletonincdir)" || exit 1; \
+	fi; \
+	for p in $$list; do \
+	  if test -f "$$p"; then d=; else d="$(srcdir)/"; fi; \
+	  echo "$$d$$p"; \
+	done | $(am__base_list) | \
+	while read files; do \
+	  echo " $(INSTALL_HEADER) $$files '$(DESTDIR)$(skeletonincdir)'"; \
+	  $(INSTALL_HEADER) $$files "$(DESTDIR)$(skeletonincdir)" || exit $$?; \
+	done
+
+uninstall-nodist_skeletonincHEADERS:
+	@$(NORMAL_UNINSTALL)
+	@list='$(nodist_skeletoninc_HEADERS)'; test -n "$(skeletonincdir)" || list=; \
+	files=`for p in $$list; do echo $$p; done | sed -e 's|^.*/||'`; \
+	dir='$(DESTDIR)$(skeletonincdir)'; $(am__uninstall_files_from_dir)
 install-skeletonincHEADERS: $(skeletoninc_HEADERS)
 	@$(NORMAL_INSTALL)
 	@list='$(skeletoninc_HEADERS)'; test -n "$(skeletonincdir)" || list=; \
@@ -2875,7 +2906,7 @@ install-checkPROGRAMS: install-libLTLIBRARIES
 install-pkgpythoncxxLTLIBRARIES: install-libLTLIBRARIES
 
 installdirs:
-	for dir in "$(DESTDIR)$(bindir)" "$(DESTDIR)$(libdir)" "$(DESTDIR)$(pkgpythoncxxdir)" "$(DESTDIR)$(bindir)" "$(DESTDIR)$(installskeletondir)" "$(DESTDIR)$(pkgpythoncxxdir)" "$(DESTDIR)$(installskeletondir)" "$(DESTDIR)$(pkgpythoncxxdir)" "$(DESTDIR)$(pkgconfigdir)" "$(DESTDIR)$(pkgpythoncxxdir)" "$(DESTDIR)$(includedir)" "$(DESTDIR)$(skeletonincdir)"; do \
+	for dir in "$(DESTDIR)$(bindir)" "$(DESTDIR)$(libdir)" "$(DESTDIR)$(pkgpythoncxxdir)" "$(DESTDIR)$(bindir)" "$(DESTDIR)$(installskeletondir)" "$(DESTDIR)$(pkgpythoncxxdir)" "$(DESTDIR)$(installskeletondir)" "$(DESTDIR)$(pkgpythoncxxdir)" "$(DESTDIR)$(pkgconfigdir)" "$(DESTDIR)$(pkgpythoncxxdir)" "$(DESTDIR)$(includedir)" "$(DESTDIR)$(skeletonincdir)" "$(DESTDIR)$(skeletonincdir)"; do \
 	  test -z "$$dir" || $(MKDIR_P) "$$dir"; \
 	done
 install: $(BUILT_SOURCES)
@@ -3009,7 +3040,8 @@ info-am:
 
 install-data-am: install-dist_installskeletonSCRIPTS \
 	install-includeHEADERS install-installskeletonDATA \
-	install-nodist_pkgpythoncxxDATA install-pkgconfigDATA \
+	install-nodist_pkgpythoncxxDATA \
+	install-nodist_skeletonincHEADERS install-pkgconfigDATA \
 	install-pkgpythoncxxDATA install-pkgpythoncxxLTLIBRARIES \
 	install-pkgpythoncxxPYTHON install-skeletonincHEADERS
 	@$(NORMAL_INSTALL)
@@ -3125,7 +3157,8 @@ ps-am:
 uninstall-am: uninstall-binPROGRAMS uninstall-dist_binSCRIPTS \
 	uninstall-dist_installskeletonSCRIPTS uninstall-includeHEADERS \
 	uninstall-installskeletonDATA uninstall-libLTLIBRARIES \
-	uninstall-nodist_pkgpythoncxxDATA uninstall-pkgconfigDATA \
+	uninstall-nodist_pkgpythoncxxDATA \
+	uninstall-nodist_skeletonincHEADERS uninstall-pkgconfigDATA \
 	uninstall-pkgpythoncxxDATA uninstall-pkgpythoncxxLTLIBRARIES \
 	uninstall-pkgpythoncxxPYTHON uninstall-skeletonincHEADERS
 	@$(NORMAL_INSTALL)
@@ -3151,7 +3184,8 @@ uninstall-am: uninstall-binPROGRAMS uninstall-dist_binSCRIPTS \
 	install-html-am install-includeHEADERS install-info \
 	install-info-am install-installskeletonDATA \
 	install-libLTLIBRARIES install-man \
-	install-nodist_pkgpythoncxxDATA install-pdf install-pdf-am \
+	install-nodist_pkgpythoncxxDATA \
+	install-nodist_skeletonincHEADERS install-pdf install-pdf-am \
 	install-pkgconfigDATA install-pkgpythoncxxDATA \
 	install-pkgpythoncxxLTLIBRARIES install-pkgpythoncxxPYTHON \
 	install-ps install-ps-am install-skeletonincHEADERS \
@@ -3164,9 +3198,9 @@ uninstall-am: uninstall-binPROGRAMS uninstall-dist_binSCRIPTS \
 	uninstall-dist_installskeletonSCRIPTS uninstall-hook \
 	uninstall-includeHEADERS uninstall-installskeletonDATA \
 	uninstall-libLTLIBRARIES uninstall-nodist_pkgpythoncxxDATA \
-	uninstall-pkgconfigDATA uninstall-pkgpythoncxxDATA \
-	uninstall-pkgpythoncxxLTLIBRARIES uninstall-pkgpythoncxxPYTHON \
-	uninstall-skeletonincHEADERS
+	uninstall-nodist_skeletonincHEADERS uninstall-pkgconfigDATA \
+	uninstall-pkgpythoncxxDATA uninstall-pkgpythoncxxLTLIBRARIES \
+	uninstall-pkgpythoncxxPYTHON uninstall-skeletonincHEADERS
 
 .PRECIOUS: Makefile
 

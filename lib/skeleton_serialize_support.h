@@ -12,12 +12,8 @@
 #include <boost/serialization/vector.hpp>
 #include <boost/serialization/map.hpp>
 #include <boost/serialization/list.hpp>
-// At boost 1.64, the header file to include for boost::array changed
-// names. Pretty annoying, but select the right file to include. array.hpp
-// is always needed too: it has the std::array serializer.
-#ifdef HAVE_BOOST_SERIALIZATION_BOOST_ARRAY_HPP
-#include <boost/serialization/boost_array.hpp>
-#endif
+// The std::array serializer. (No boost::array here since phase S3; archives
+// written with boost::array load through it.)
 #include <boost/serialization/array.hpp>
 #include <boost/archive/polymorphic_iarchive.hpp>
 #include <boost/archive/polymorphic_oarchive.hpp>

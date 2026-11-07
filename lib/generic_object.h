@@ -1,12 +1,7 @@
 #pragma once
-// These get defined in skeleton_config.h. Undef them to stop warnings
-// if we change these.
-#undef PACKAGE
-#undef PACKAGE_NAME
-#undef PACKAGE_STRING
-#undef PACKAGE_TARNAME
-#undef PACKAGE_VERSION
-#undef VERSION
+// The project configuration (CXX_PYTHON_RULES_NAMESPACE,
+// SKELETON_HAVE_BOOST_SERIALIZATION); the cxx_python_rules headers reach
+// it through this header.
 #include "skeleton_config.h"
 #include <memory>
 #include <string>

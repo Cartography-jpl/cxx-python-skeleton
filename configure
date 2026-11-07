@@ -662,6 +662,7 @@ WITH_DOCUMENTATION_FALSE
 WITH_DOCUMENTATION_TRUE
 HAVE_BOOST_SERIALIZATION_FALSE
 HAVE_BOOST_SERIALIZATION_TRUE
+skeleton_no_serialization
 HAVE_NANOBIND_FALSE
 HAVE_NANOBIND_TRUE
 NANOBIND_VERSION
@@ -715,6 +716,7 @@ PYTHON_LIBS
 PYTHON_CPPFLAGS
 PYTHON_VERSION
 PYTHON
+SKELETON_RELEASE_CPPFLAGS
 pkgconfigdir
 PKG_CONFIG_LIBDIR
 PKG_CONFIG_PATH
@@ -3152,7 +3154,11 @@ ac_compiler_gnu=$ac_cv_c_compiler_gnu
 
 ac_config_files="$ac_config_files script/setup_skeleton.csh script/setup_skeleton.sh"
 
-ac_config_headers="$ac_config_headers lib/skeleton_config.h"
+# skeleton_build_config.h (autoheader) is private to the build;
+# skeleton_config.h (from a hand-written template) is installed.
+ac_config_headers="$ac_config_headers lib/skeleton_build_config.h"
+
+ac_config_files="$ac_config_files lib/skeleton_config.h"
 
 ac_config_files="$ac_config_files lib/global_fixture_default.cc"
 
@@ -22337,9 +22343,14 @@ pkgconfigdir=${libdir}/pkgconfig
 
 
 
-# The namespace of GenericObject and of the cxx_python_rules C++ code.
-
-printf "%s\n" "#define CXX_PYTHON_RULES_NAMESPACE Skeleton" >>confdefs.h
+# AC_ENABLE_DEBUG (in SKELETON_COMMON) defines BOOST_DISABLE_ASSERTS for a
+# non-debug build in skeleton_build_config.h, which only skeleton_exception.cc
+# includes. Pass it on the command line too, so all of the library is
+# compiled with it, as when it was in the installed skeleton_config.h (it
+# no longer reaches code that just uses the installed headers).
+if test "x$enable_debug" != "xyes"; then
+   SKELETON_RELEASE_CPPFLAGS=-DBOOST_DISABLE_ASSERTS
+fi
 
 
 #=================================================================
@@ -26680,13 +26691,12 @@ esac
 fi
 
 if test "$with_boost_serialization" = "yes"; then
-
-printf "%s\n" "#define SKELETON_HAVE_BOOST_SERIALIZATION /**/" >>confdefs.h
-
-
-printf "%s\n" "#define CXX_PYTHON_RULES_HAVE_BOOST_SERIALIZATION /**/" >>confdefs.h
-
+    skeleton_no_serialization=
+else
+    skeleton_no_serialization="// "
 fi
+# Comments out the serialization macros in lib/skeleton_config.h.
+
  if test "$with_boost_serialization" = "yes"; then
   HAVE_BOOST_SERIALIZATION_TRUE=
   HAVE_BOOST_SERIALIZATION_FALSE='#'
@@ -27926,7 +27936,8 @@ do
   case $ac_config_target in
     "script/setup_skeleton.csh") CONFIG_FILES="$CONFIG_FILES script/setup_skeleton.csh" ;;
     "script/setup_skeleton.sh") CONFIG_FILES="$CONFIG_FILES script/setup_skeleton.sh" ;;
-    "lib/skeleton_config.h") CONFIG_HEADERS="$CONFIG_HEADERS lib/skeleton_config.h" ;;
+    "lib/skeleton_build_config.h") CONFIG_HEADERS="$CONFIG_HEADERS lib/skeleton_build_config.h" ;;
+    "lib/skeleton_config.h") CONFIG_FILES="$CONFIG_FILES lib/skeleton_config.h" ;;
     "lib/global_fixture_default.cc") CONFIG_FILES="$CONFIG_FILES lib/global_fixture_default.cc" ;;
     "depfiles") CONFIG_COMMANDS="$CONFIG_COMMANDS depfiles" ;;
     "libtool") CONFIG_COMMANDS="$CONFIG_COMMANDS libtool" ;;
