@@ -88,6 +88,30 @@ inline const char* doc(const char* Name)
 }
 
 //-----------------------------------------------------------------------
+/// The docstrings of one class: doc() for the class, doc("f") for its
+/// member f. Make one per bound class:
+///
+///   const auto doc = cxx_python_rules_nb::docs("Ns::Foo");
+///   nb::class_<Ns::Foo> c(m, "Foo", doc());
+///   c.def("f", &Ns::Foo::f, doc("f"));
+///
+/// A member declared in a base class is documented under the base's name;
+/// use cxx_python_rules_nb::doc("Ns::Base::f") for it.
+//-----------------------------------------------------------------------
+
+class docs {
+public:
+  explicit docs(std::string Class) : cls(std::move(Class)) {}
+  const char* operator()() const { return doc(cls.c_str()); }
+  const char* operator()(const char* Member) const
+  {
+    return doc((cls + "::" + Member).c_str());
+  }
+private:
+  std::string cls;
+};
+
+//-----------------------------------------------------------------------
 /// Classes the rules need: blitz::Range (for std::optional<blitz::Range>)
 /// and boost::rational<int> ("rational_int"), as swig_std.i and
 /// swig_rational.i did.

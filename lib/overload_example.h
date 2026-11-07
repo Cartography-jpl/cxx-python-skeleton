@@ -16,12 +16,15 @@ namespace Skeleton {
 class OverloadExample : public Printable<OverloadExample> {
 public:
   OverloadExample() = default;
-  static std::string which(const blitz::Array<double, 2>&) { return "array"; }
-  static std::string which(const std::shared_ptr<NumpySample>&)
+  static std::string which(const blitz::Array<double, 2>& /* A */)
+  {
+    return "array";
+  }
+  static std::string which(const std::shared_ptr<NumpySample>& /* S */)
   {
     return "NumpySample";
   }
-  static std::string which(const std::string&) { return "string"; }
+  static std::string which(const std::string& /* S */) { return "string"; }
   virtual void print(std::ostream& Os) const { Os << "OverloadExample"; }
 };
 }

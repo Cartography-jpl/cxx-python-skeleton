@@ -9,19 +9,20 @@
 #include "generic_object_sample.h"
 
 namespace nb = nanobind;
+using namespace nb::literals;
 
 namespace Skeleton {
 // A class only the downstream module knows, derived from a class bound in
 // the main module.
 class DownstreamB : public GenericObjectB {
 public:
-  DownstreamB(const std::shared_ptr<GenericObjectA>& A, int Extra)
-    : GenericObjectB(A), extra_(Extra)
+  DownstreamB(std::shared_ptr<GenericObjectA> A, int Extra)
+    : GenericObjectB(std::move(A)), extra_(Extra)
   {
   }
   int extra() const { return extra_; }
 private:
-  int extra_;
+  int extra_ = 0;
 };
 }
 
@@ -32,21 +33,20 @@ NB_MODULE(_skeleton_downstream, m)
   nb::module_::import_(CXX_PYTHON_RULES_NB_PACKAGE "._bindings");
   m.def(
       "make_a", [](int V) { return std::make_shared<GenericObjectA>(V); },
-      nb::arg("V"));
+      "V"_a);
   m.def(
       "a_value",
-      [](const std::shared_ptr<GenericObjectA>& A) { return A->v(); },
-      nb::arg("A"));
+      [](const std::shared_ptr<GenericObjectA>& A) { return A->v(); }, "A"_a);
   // Returned as GenericObject, python gets the most derived type (the
   // registry knows the main module's classes).
   m.def(
       "as_generic", [](const std::shared_ptr<GenericObject>& G) { return G; },
-      nb::arg("G").none());
+      "G"_a.none());
   nb::class_<DownstreamB, GenericObjectB>(m, "DownstreamB")
       .def(nb::new_([](const std::shared_ptr<GenericObjectA>& A, int Extra) {
              return std::make_shared<DownstreamB>(A, Extra);
            }),
-           nb::arg("A"), nb::arg("Extra"))
+           "A"_a, "Extra"_a)
       .def_prop_ro("extra", &DownstreamB::extra);
   cxx_python_rules_nb::register_type<DownstreamB>();
 }
