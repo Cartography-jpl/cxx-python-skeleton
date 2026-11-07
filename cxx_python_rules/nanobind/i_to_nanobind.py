@@ -7,9 +7,18 @@ binding code.
 All the .i files of a module are read together, so class hierarchies and
 %template instances can span files. For each a.i this writes OUT/a_nb.cc
 with a function ``void init_a(nb::module_& m)``, and it writes
-OUT/<prefix>_init.inc (the init calls, in %import order) and
-OUT/<prefix>_opaque.h (NB_MAKE_OPAQUE for each %template vector, which every
-binding file must include).
+OUT/<prefix>_init.cc (``<prefix>_init_all(m)``, calling the init functions in
+%import order; call it from NB_MODULE) and OUT/<prefix>_opaque.h
+(NB_MAKE_OPAQUE for each %template vector, which every binding file must
+include).
+
+The output is meant to be maintained by hand afterwards, so it is written
+as ordinary nanobind code (cxx_python_rules/nanobind/README.md, "Rules for
+binding code"): member pointers, nb::overload_cast for overloads, "name"_a
+arguments, a cxx_python_rules_nb::docs helper per class, "using namespace"
+for the library's namespace, and lambdas only where they do something.
+Check the result: keyword names come from the .i parameter names, and
+.none() is only added with --allow-none.
 
 The .i files are the specification of the python API, so the output
 follows them:
@@ -22,18 +31,21 @@ follows them:
   constructed object has a C++ control block, decision 6), or nb::init
   for a director class (nanobind constructs the trampoline for python
   subclasses).
-* methods -> .def / .def_static, as lambdas (so overloads, const and
-  reference returns need no casts); parameters typed as a reference to a
-  class that is a secondary or virtual base somewhere are taken as a
-  shared_ptr (which the cxx_python_rules caster converts through the type
-  registry).
+* methods -> .def / .def_static with a member pointer (nb::overload_cast
+  if the name is overloaded). A lambda only where needed: parameters typed
+  as a reference to a class that is a secondary or virtual base somewhere
+  are taken as a shared_ptr (which the cxx_python_rules caster converts
+  through the type registry), OUTPUT/FORCE_COPY/stream arguments, and the
+  director dispatch for virtual functions of a director class.
 * the %python_attribute variants -> .def_prop_ro / _rw (the _virtual
   variant keeps SWIG's _v_<name> method, which python overrides).
 * %python_attribute_std_array -> property using to_std_array.
 * %pickle_serialization(_dir), %pickle_init, %pickle_vector -> the
   cxx_python_rules_nb helpers.
 * %feature("director") -> a trampoline class with NB_OVERRIDE for every
-  virtual function declared in the .i (for the class and its bases).
+  virtual function declared in the .i (for the class and its bases);
+  CXX_PYTHON_RULES_NB_OVERRIDE_REF for one whose only argument is a
+  reference to a bound class (NB_OVERRIDE would pass python a copy).
 * %skeleton_director_serialization -> CXX_PYTHON_RULES_NB_DIRECTOR_SERIALIZATION.
 * %template(Name) std::vector<...> -> nb::bind_vector; %template of a
   class template -> that class with the template argument filled in.
@@ -334,9 +346,18 @@ def statements(body: str):
 
 class Converter:
     def __init__(
-        self, ns: str, header_dirs: list[Path], director_macro: str, prefix: str = "nb"
+        self,
+        ns: str,
+        header_dirs: list[Path],
+        director_macro: str,
+        prefix: str = "nb",
+        allow_none: bool = False,
     ):
         self.prefix = prefix
+        # Add .none() to every shared_ptr argument (what SWIG accepted). Off by
+        # default: with .none() on a parameter C++ dereferences, python
+        # crashes; add it by hand where C++ accepts a null pointer.
+        self.allow_none = allow_none
         self.ns = ns
         self.header_dirs = header_dirs
         self.director_macro = director_macro
@@ -734,6 +755,47 @@ class Converter:
                 ca.append(name)
         return lp, ca, outs
 
+    def is_simple(self, f: Func) -> bool:
+        """True if f can be bound with a member/function pointer: no output,
+        stream, FORCE_COPY or SHARED_PTR_NO_OWN arguments, and no argument
+        that has to be taken as a shared_ptr (a reference to a secondary or
+        virtual base)."""
+        for p in f.params:
+            t = self.qualify(p.type)
+            if p.name.startswith(("OUTPUT", "SHARED_PTR_NO_OWN", "FORCE_COPY")):
+                return False
+            if re.match(r"^std::(o|i)stream &$", t):
+                return False
+            if self.ptype(p.type) != t:
+                return False
+        return True
+
+    def fptr(self, scope: str, f: Func, overloaded: bool, member: bool = True) -> str:
+        """&Scope::f, or nb::overload_cast<...>(&Scope::f[, nb::const_]) if
+        f is overloaded."""
+        ptr = f"&{scope}::{f.name}" if scope else f"&{f.name}"
+        if not overloaded:
+            return ptr
+        types = ", ".join(self.qualify(p.type) for p in f.params)
+        c = ", nb::const_" if member and f.const and not f.static else ""
+        return f"nb::overload_cast<{types}>({ptr}{c})"
+
+    def unqualify(self, text: str) -> str:
+        """Drop "Ns::" outside string literals (the files have "using
+        namespace Ns;"); docstring keys keep the full name."""
+        parts = text.split('"')
+        for i in range(0, len(parts), 2):
+            parts[i] = re.sub(rf"\b{self.ns}::", "", parts[i])
+        return '"'.join(parts)
+
+    def is_bound_ref(self, t: str) -> bool:
+        """Is t a reference to a class bound in this module set?"""
+        m = re.match(r"^(const )?(.+?) &$", self.qualify(t))
+        if not m:
+            return False
+        name = m.group(2).replace(f"{self.ns}::", "")
+        return name in self.classes or self.qualify(m.group(2)) in self.instances
+
     def arg_names(self, f: Func) -> str:
         res = []
         for i, p in enumerate(f.params):
@@ -744,10 +806,10 @@ class Converter:
                 if not p.name.startswith(("SHARED_PTR_NO_OWN", "FORCE_COPY"))
                 else f"arg{i}"
             )
-            a = f'nb::arg("{n}")'
+            a = f'"{n}"_a'
             # SWIG accepted None (an empty pointer) for a shared_ptr argument;
-            # nanobind only does if the argument says so.
-            if "shared_ptr" in p.type:
+            # nanobind only does with .none(). See allow_none.
+            if self.allow_none and "shared_ptr" in p.type:
                 a += ".none()"
             if p.default is not None:
                 a += f" = {p.default}"
@@ -761,8 +823,18 @@ class Converter:
         pyname: str | None = None,
         self_t: str | None = None,
         tramp: str | None = None,
+        overloaded: bool = False,
+        doc_expr: str | None = None,
     ) -> str:
         pyname = pyname or f.name
+        doc = doc_expr or f'doc("{f.name}")'
+        d = "def_static" if f.static else "def"
+        dispatch = tramp and f.virtual and not f.pure and not f.static
+        if self.is_simple(f) and not dispatch:
+            return (
+                f'    c.{d}("{pyname}", {self.fptr(ci_cpp, f, overloaded)}'
+                f"{self.arg_names(f)}, {doc});"
+            )
         pre: list[str] = []
         lp, ca, outs = self.call_args(f, pre, [])
         self_t = self_t or ci_cpp
@@ -782,7 +854,7 @@ class Converter:
                 return (
                     f'    c.def("{pyname}", []({params}) -> decltype(auto) {{ {" ".join(pre)} '
                     f"if(dynamic_cast<{c}{tramp}*>(&self)) return {qcall}; return {call}; }}"
-                    f'{self.arg_names(f)}, cxx_python_rules_nb::doc("{ci_cpp}::{f.name}"));'
+                    f"{self.arg_names(f)}, {doc});"
                 )
         if outs:
             if f.ret == "void":
@@ -796,8 +868,6 @@ class Converter:
             lam = f"[]({params}) {{ {' '.join(pre)} {body} }}"
         else:
             lam = f"[]({params}) -> decltype(auto) {{ {' '.join(pre)} return {call}; }}"
-        d = "def_static" if f.static else "def"
-        doc = f'cxx_python_rules_nb::doc("{ci_cpp}::{f.name}")'
         return f'    c.{d}("{pyname}", {lam}{self.arg_names(f)}, {doc});'
 
     def attr_def(
@@ -805,7 +875,7 @@ class Converter:
     ) -> list[str]:
         self_t = self_t or ci_cpp
         t = self.qualify(a.type.replace("virtual ", "").strip())
-        doc = f'cxx_python_rules_nb::doc("{ci_cpp}::{a.cppname}")'
+        doc = f'doc("{a.cppname}")'
         get_self = f"{self_t}&" if "nonconst" in a.kind else f"const {self_t}&"
         if a.kind == "python_attribute_std_array":
             n, tt = a.cppname, re.match(r"std::array<(\w+), (\d+)>", t)
@@ -813,9 +883,11 @@ class Converter:
                 f'    c.def_prop_rw("{a.pyname}", [](const {self_t}& self) {{ return self.{n}; }}, '
                 f"[]({self_t}& self, nb::handle v) {{ self.{n} = cxx_python_rules_nb::to_std_array<{tt.group(1)}, {tt.group(2)}>(v); }}, {doc});"
             ]
-        getter = (
-            f"[]({get_self} self) -> decltype(auto) {{ return self.{a.cppname}(); }}"
-        )
+        # The getter by member pointer (the overload with no arguments; a
+        # setter may have the same name). The setter stays a lambda taking
+        # const T&, which works whether the C++ takes T or const T&.
+        cq = "" if "nonconst" in a.kind else ", nb::const_"
+        getter = f"nb::overload_cast<>(&{ci_cpp}::{a.cppname}{cq})"
         setter = f"[]({self_t}& self, const {t}& v) {{ self.{a.cppname}(v); }}"
         if a.kind == "python_attribute_with_set_virtual" and tramp:
             getter = (
@@ -829,7 +901,7 @@ class Converter:
         if a.kind == "python_attribute_with_set_virtual":
             return [
                 f'    c.def("_v_{a.pyname}", {getter});',
-                f'    c.def("_v_{a.pyname}", {setter}, nb::arg("V"));',
+                f'    c.def("_v_{a.pyname}", {setter}, "V"_a);',
                 f'    c.def_prop_rw("{a.pyname}", [](nb::handle self) {{ return self.attr("_v_{a.pyname}")(); }}, '
                 f'[](nb::handle self, nb::handle v) {{ self.attr("_v_{a.pyname}")(v); }}, {doc});',
             ]
@@ -901,6 +973,16 @@ class Converter:
             an = ", ".join(p.name for p in f.params)
             macro = "NB_OVERRIDE_PURE_NAME" if f.pure else "NB_OVERRIDE_NAME"
             pyn = f.pyname or f.name
+            refs = [p for p in f.params if self.is_bound_ref(p.type)]
+            if refs and len(f.params) == 1 and not f.pure:
+                # NB_OVERRIDE_NAME would pass a copy of the object to python.
+                macro = "CXX_PYTHON_RULES_NB_OVERRIDE_REF"
+            elif refs:
+                out.append(
+                    "  // HAND CONVERT: NB_OVERRIDE passes a copy of "
+                    + ", ".join(p.name for p in refs)
+                    + " to python; see CXX_PYTHON_RULES_NB_OVERRIDE_REF"
+                )
             out.append(
                 f"  {self.qualify(f.ret)} {f.name}({ps}){' const' if f.const else ''} override"
                 f' {{ {macro}("{pyn}", {f.name}{", " + an if an else ""}); }}'
@@ -921,12 +1003,15 @@ class Converter:
             targs.append(tramp)
         body = [
             f"  {{",
-            f'    nb::class_<{", ".join(targs)}> c(m, "{ci.pyname}", cxx_python_rules_nb::doc("{ci.cpp}"));',
+            f'    const auto doc = cxx_python_rules_nb::docs("{ci.cpp}");',
+            f'    nb::class_<{", ".join(targs)}> c(m, "{ci.pyname}", doc());',
         ]
-        unused = [b for b in ci.bases if b != ci.nb_base]
+        unused = [b for b in ci.bases if b not in (ci.nb_base, "GenericObject")]
         if unused:
             body.insert(
-                1, f"    // Bases not bound as the nanobind base: {', '.join(unused)}"
+                1,
+                f"    // Not nanobind bases (nanobind allows one, never a virtual "
+                f"one): {', '.join(unused)}; their methods are bound here.",
             )
         abstract = ci.nodefaultctor or (
             any(f.pure for f in ci.methods) and not ci.director
@@ -952,12 +1037,18 @@ class Converter:
                     )
         extra_m, extra_a = self.inherited_unbound(ci)
         has_print = False
+        names = [f.name for f in ci.methods + extra_m]
         for f in ci.methods + extra_m:
             if f.name == "print_to_string":
                 has_print = True
                 continue
             body.append(
-                self.method_def(ci.cpp, f, tramp=tramp if f in ci.methods else None)
+                self.method_def(
+                    ci.cpp,
+                    f,
+                    tramp=tramp if f in ci.methods else None,
+                    overloaded=names.count(f.name) > 1,
+                )
             )
         for a in ci.attrs + extra_a:
             body += self.attr_def(ci.cpp, a, tramp=tramp if a in ci.attrs else None)
@@ -973,15 +1064,18 @@ class Converter:
             body.append("    // HAND CONVERT: " + h.replace("\n", "\n    //   "))
         body.append(f"    cxx_python_rules_nb::register_type<{ci.cpp}>();")
         if tramp:
-            body.append(f"    cxx_python_rules_nb::register_alias<{tramp}, {ci.cpp}>();")
+            body.append(
+                f"    cxx_python_rules_nb::register_alias<{tramp}, {ci.cpp}>();"
+            )
         body.append("  }")
         return out, body
 
     def write(self, out_dir: Path) -> None:
         out_dir.mkdir(parents=True, exist_ok=True)
         opaque = [
-            "// Generated by i_to_nanobind.py: the std::vector types bound with",
-            "// nb::bind_vector. Every binding file must include this.",
+            "// The std::vector types bound with nb::bind_vector, declared opaque (a",
+            "// python object that refers to the C++ vector, rather than a converted",
+            "// list). Every binding file includes this, so all agree.",
             "#pragma once",
             '#include "cxx_python_rules_nb.h"',
         ]
@@ -1005,12 +1099,20 @@ class Converter:
 
         for n in self.modules:
             visit(n)
-        lines = ["// Generated by i_to_nanobind.py: module init, in %import order."]
+        lines = [
+            "// Calls the init function of each binding file. A class has to be",
+            "// bound before a class that has it as its nanobind base, so they are",
+            f"// called in %import order. Call {self.prefix}_init_all(m) from NB_MODULE.",
+            f'#include "{self.prefix}_opaque.h"',
+            "",
+            "namespace nb = nanobind;",
+            "",
+        ]
         lines += [f"void init_{n}(nb::module_& m);" for n in order]
-        lines += ["#define CXX_PYTHON_RULES_NB_INIT_ALL(m) \\"]
-        lines += [f"  init_{n}(m); \\" for n in order]
-        lines.append("")
-        (out_dir / f"{self.prefix}_init.inc").write_text("\n".join(lines) + "\n")
+        lines += ["", f"void {self.prefix}_init_all(nb::module_& m)", "{"]
+        lines += [f"  init_{n}(m);" for n in order]
+        lines.append("}")
+        (out_dir / f"{self.prefix}_init.cc").write_text("\n".join(lines) + "\n")
 
     def write_module(self, mod: Module, out_dir: Path) -> None:
         pre, body = [], []
@@ -1021,19 +1123,26 @@ class Converter:
                 body += b
             elif kind == "vector":
                 typ, pyname = it
-                v = f'  {{\n    auto c = nb::bind_vector<{self.qualify(typ)}>(m, "{pyname}");'
                 if pyname in self.extend_pickle_vector:
-                    v += "\n    cxx_python_rules_nb::pickle_vector(c);"
-                body.append(v + "\n  }")
+                    body.append(
+                        f'  {{\n    auto c = nb::bind_vector<{self.qualify(typ)}>(m, "{pyname}");'
+                        "\n    cxx_python_rules_nb::pickle_vector(c);\n  }"
+                    )
+                else:
+                    body.append(
+                        f'  nb::bind_vector<{self.qualify(typ)}>(m, "{pyname}");'
+                    )
             elif kind == "func":
                 f = it
+                fnames = [g.name for k, g in mod.items if k == "func"]
                 body.append(
                     self.method_def(
-                        self.ns, Func(f.name, f.ret, f.params, static=True)
+                        self.ns,
+                        Func(f.name, f.ret, f.params, static=True),
+                        overloaded=fnames.count(f.name) > 1,
+                        doc_expr=f'cxx_python_rules_nb::doc("{self.ns}::{f.name}")',
                     ).replace("c.def_static", "m.def")
                 )
-        for typ, pyname, vmod in self.vectors:
-            pass
         ds = []
         for kind, it in mod.items:
             if kind == "class" and it.director_serialization:
@@ -1045,14 +1154,16 @@ class Converter:
             "// HAND CONVERT: " + h.replace("\n", "\n//   ") + "\n" for h in mod.hand
         )
         incs = "".join(f'#include "{i}"\n' for i in mod.includes)
-        text = (
-            f"// Generated by cxx_python_rules/nanobind/i_to_nanobind.py from {mod.path.name}.\n"
-            f'#include "{self.prefix}_opaque.h"\n{incs}'
-            f"#include <memory>\n\n"
-            f"namespace nb = nanobind;\n\n"
-            f"namespace {{\n"
-            + "\n".join(pre)
-            + "\n}\n\n"
+        what = ", ".join(mod.includes) or mod.path.name
+        anon = ("namespace {\n" + "\n".join(pre) + "\n}\n\n") if pre else ""
+        text = self.unqualify(
+            f"// Python bindings for {what} (converted from {mod.path.name} by\n"
+            f"// cxx_python_rules/nanobind/i_to_nanobind.py).\n"
+            f'#include "{self.prefix}_opaque.h"\n{incs}\n'
+            f"namespace nb = nanobind;\n"
+            f"using namespace nb::literals;\n"
+            f"using namespace {self.ns};\n\n"
+            + anon
             + "\n".join(ds)
             + ("\n\n" if ds else "")
             + hand
@@ -1075,11 +1186,21 @@ def main() -> int:
     ap.add_argument(
         "--prefix",
         default="nb",
-        help="name of the <prefix>_opaque.h and <prefix>_init.inc files",
+        help="name of the <prefix>_opaque.h and <prefix>_init.cc files",
+    )
+    ap.add_argument(
+        "--allow-none",
+        action="store_true",
+        help="add .none() to every shared_ptr argument (what SWIG accepted); "
+        "by default add it by hand where C++ accepts a null pointer",
     )
     args = ap.parse_args()
     c = Converter(
-        args.namespace, args.header_dir, args.director_serialization_macro, args.prefix
+        args.namespace,
+        args.header_dir,
+        args.director_serialization_macro,
+        args.prefix,
+        args.allow_none,
     )
     for f in args.files:
         c.read(f)
