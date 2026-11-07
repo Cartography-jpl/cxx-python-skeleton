@@ -1,13 +1,7 @@
-#ifndef GEOCAL_GENERIC_OBJECT_H
-#define GEOCAL_GENERIC_OBJECT_H
-// These get defined in geocal_config.h. Undef them to stop warnings
-// if we change these.
-#undef PACKAGE
-#undef PACKAGE_NAME
-#undef PACKAGE_STRING
-#undef PACKAGE_TARNAME
-#undef PACKAGE_VERSION
-#undef VERSION
+#pragma once
+// The project configuration (CXX_PYTHON_RULES_NAMESPACE,
+// GEOCAL_HAVE_BOOST_SERIALIZATION); the cxx_python_rules headers reach
+// it through this header.
 #include "geocal_config.h"
 #include <memory>
 #include <string>
@@ -67,5 +61,3 @@ private:
 }
 
 GEOCAL_EXPORT_KEY(GenericObject);
-
-#endif

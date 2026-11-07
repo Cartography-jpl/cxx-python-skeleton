@@ -18,7 +18,9 @@ class the same way (below).
 
 The binding of a virtual function calls the C++ base implementation directly when the object
 is a python subclass (`dynamic_cast` to the trampoline), so `super().func(v)` in an override
-doesn't call the override again.
+doesn't run the override a second time. (Without it the bound function would call the virtual
+`func`, which goes back through the trampoline; nanobind notices the re-entry and calls the C++
+base, so it doesn't recurse forever, but the override has run twice by then.)
 
 ### Adding a class python can subclass
 
@@ -28,6 +30,9 @@ Follow `lib/director_example_nb.cc`:
    `NB_TRAMPOLINE(Base)`, a public default constructor (needed for serialization), and one
    override per virtual function python may override: `NB_OVERRIDE_NAME("name", name, args...)`
    (`NB_OVERRIDE_PURE_NAME` for a pure virtual). Include the virtual functions of the bases.
+   If the one argument is a reference to a bound class (e.g. `notify_update(const T&)`), use
+   `CXX_PYTHON_RULES_NB_OVERRIDE_REF` instead: `NB_OVERRIDE_NAME` passes python a *copy* of
+   the object (and fails for a class that can't be copied).
 2. If the class is serialized, `CXX_PYTHON_RULES_NB_DIRECTOR_SERIALIZATION(PyBase, Base, Name)`
    at namespace scope (see "Serialization of python subclasses").
 3. `nb::class_<Base, FirstNonVirtualBase, PyBase>` (leave out a virtual base, see

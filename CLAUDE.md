@@ -59,7 +59,8 @@ Useful `configure` options:
   `make install PYTHON_EDITABLE_MODE=t` (use `PYTHON_EDITABLE_MODE=` to force a normal install when configure enabled
   it). The extension modules (`.so`) are always a full install. The source tree must stay in place.
 
-Building requires: boost (>=1.84), blitz, nanobind (found through the configured python, `config/m4/ac_nanobind.m4`),
+Building requires: python >= 3.12 (checked by configure), boost (>=1.84), blitz, nanobind (found through the configured
+python, `config/m4/ac_nanobind.m4`),
 mdspan (conda-forge `mdspan`, pinned snapshot) and doxygen for the docstrings. `configure` (via `AFIDS_PYTHON`,
 `config/m4/afids_python.m4`) also requires numpy, scipy, matplotlib, sphinx, and sqlite3 to be importable by the
 configured Python, plus a `pytest`/`py.test` program on `PATH`. A pixi-based dev environment is provided at
@@ -114,7 +115,10 @@ disposable scratch space, not something to be precious about.
 C++ (`.h`, `.cc` in `lib/`, `cxx_python_rules/lib/` and `cxx_python_rules/nanobind/`) is formatted with clang-format, using `.clang-format` at the
 repository root (clang-format 22 from the pixi env, pinned). Format what you change: `clang-format -i <files>`, or
 `make format` for everything; `make format-check` only checks, and `make lint` runs clang-tidy with the checks in
-`.clang-tidy` (fails on any finding; also writes the clangd `compile_commands.json`).
+`.clang-tidy` (fails on any finding; also writes the clangd `compile_commands.json`). The project's code compiles
+with `-Wall -Wextra -Wpedantic -Wshadow -Wold-style-cast -Wsuggest-override -Wnon-virtual-dtor -Wconversion
+-Wsign-conversion` (set by configure, `config/m4_local/skeleton_common.m4`; `--enable-werror` for errors) and has no
+warnings; keep it that way.
 `.clang-format-ignore` excludes copies of upstream code (`cxx_python_rules/lib/serialize_shared_ptr.h`,
 `cxx_python_rules/nanobind/gc_shared_ptr.h`), which keep their upstream style. `.sample` files aren't formatted by
 clang-format; keep them in the same style by hand. Python uses `ruff format`.
@@ -154,11 +158,16 @@ instead of going through the top-level autotools build.
 ## Architecture: the nanobind bindings
 
 - The bindings are `lib/*_nb.cc`, one `init_<name>(nb::module_&)` per header group, called in dependency order from
-  `lib/skeleton_nb_module.cc` (`skeleton_nb_init.inc`) to make one extension module, `skeleton_cxx._bindings`.
+  `lib/skeleton_nb_module.cc` to make one extension module, `skeleton_cxx._bindings`.
   Every binding file includes `lib/skeleton_nb_opaque.h` (the `nb::bind_vector` types), which includes
-  `cxx_python_rules/nanobind/cxx_python_rules_nb.h` (the rules library). They were generated from the old `.i` files by
-  `cxx_python_rules/nanobind/i_to_nanobind.py` and are maintained by hand now. `lib/downstream_nb.cc` is a second module
-  (`_skeleton_downstream`) that tests using the main module's types from another module.
+  `cxx_python_rules/nanobind/cxx_python_rules_nb.h` (the rules library). They are ordinary hand-written nanobind code
+  (rules and an example in `cxx_python_rules/nanobind/README.md`, "Writing bindings"): member pointers
+  (`nb::overload_cast` for overloads), keyword names equal to the C++ parameter names (`"Count"_a`), a
+  `cxx_python_rules_nb::docs` helper per class, and lambdas only for director dispatch and conversions.
+  `lib/observer_nb.h` binds any `Observer<T>`/`Observable<T>`. `.none()` only where C++ accepts a null pointer.
+  `lib/downstream_nb.cc` is a second module (`_skeleton_downstream`) that tests using the main module's types from
+  another module. `script/api_snapshot.py` writes the python API (signatures, keywords, docstrings) for comparing
+  before and after a change.
 - All C++ classes exposed to python should derive (usually virtually) from `GenericObject` (`lib/generic_object.h`),
   which has `std::enable_shared_from_this`. Each bound class calls `cxx_python_rules_nb::register_type<T>()`: the type
   registry (`cxx_python_rules/nanobind/type_registry.h`) and the forked `shared_ptr` caster (`gc_shared_ptr.h`) use it to
@@ -178,7 +187,11 @@ instead of going through the top-level autotools build.
   `lib/skeleton_serialize_support.h` and the `*.sample` files under `cxx_python_rules/lib/`.
 - `cxx_python_rules/lib/serialize_function.cc`, `weak_ptr_serialize_support.cc` and `blitz_mdspan.cc` are compiled into
   the C++ library. `CXX_PYTHON_RULES_NAMESPACE` (`Skeleton`) and `CXX_PYTHON_RULES_HAVE_BOOST_SERIALIZATION` are defined
-  in `skeleton_config.h` by `configure.ac` (not with `-D`). The library stays free of python.
+  in `skeleton_config.h` (from `lib/skeleton_config.h.in`; installed, only `SKELETON_*`/`CXX_PYTHON_RULES_*` macros),
+  not with `-D`. The autoheader output is the private `skeleton_build_config.h`. The library stays free of python.
+- Relative file names inside an archive resolve against the archive's directory through a per-thread archive base
+  directory (`resolve_archive_path`, `ArchiveBaseDirectory` in `serialize_function.h`; python
+  `archive_base_directory_scope`), never by changing the current directory.
 
 ## Python subclasses of C++ classes
 
