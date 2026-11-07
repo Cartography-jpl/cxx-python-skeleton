@@ -1,4 +1,6 @@
 #include "unit_test_support.h"
+#include "cxx_python_rules_sample.h"
+#include <type_traits>
 #include "printable.h"
 #include "generic_object_sample.h"
 #include "director_example.h"
@@ -116,5 +118,12 @@ BOOST_AUTO_TEST_CASE(format)
   static_assert(!PrintableObject<std::string>);
   static_assert(!PrintableObject<int>);
 }
+
+// GenericObject can only be copied as part of a derived class (no slicing
+// through a GenericObject&); derived value types stay copyable.
+static_assert(!std::is_copy_constructible_v<GenericObject> &&
+              !std::is_copy_assignable_v<GenericObject>);
+static_assert(std::is_copy_constructible_v<ValueSample> &&
+              std::is_copy_assignable_v<ValueSample>);
 
 BOOST_AUTO_TEST_SUITE_END()

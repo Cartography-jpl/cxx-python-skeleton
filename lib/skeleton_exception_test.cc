@@ -1,4 +1,5 @@
 #include "unit_test_support.h"
+#include <type_traits>
 #include "skeleton_exception.h"
 #include <iomanip>
 #include <string_view>
@@ -173,6 +174,24 @@ BOOST_AUTO_TEST_CASE(stacktrace)
   Exception::capture_stacktrace(true);
   BOOST_CHECK_EQUAL(e3.stacktrace(), "");
   BOOST_CHECK(!Exception("y").stacktrace().empty());
+}
+
+BOOST_AUTO_TEST_CASE(copy_shares_message)
+{
+  // Copying can't throw (the data is shared), and appending to a copy
+  // doesn't change the original (copy on write).
+  static_assert(std::is_nothrow_copy_constructible_v<Exception> &&
+                std::is_nothrow_copy_assignable_v<Exception>);
+  Exception e("first");
+  Exception e2 = e;
+  BOOST_CHECK(e2.what() == e.what());
+  e2 << " second";
+  BOOST_CHECK_EQUAL(std::string(e.what()), "first");
+  BOOST_CHECK_EQUAL(std::string(e2.what()), "first second");
+  // A move copies, so the moved-from exception still works.
+  Exception e3 = std::move(e2);
+  BOOST_CHECK_EQUAL(std::string(e3.what()), "first second");
+  BOOST_CHECK_EQUAL(std::string(e2.what()), "first second"); // NOLINT
 }
 
 BOOST_AUTO_TEST_SUITE_END()

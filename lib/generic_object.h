@@ -49,9 +49,19 @@ namespace Skeleton {
 *******************************************************************/
 class GenericObject : public std::enable_shared_from_this<GenericObject> {
 public:
+  GenericObject() = default;
   // Have a virtual member function, which forces RTTI information to
   // be available.
   virtual ~GenericObject() = default;
+protected:
+  // Copying only as part of a derived class, so a derived object can't
+  // be sliced through a GenericObject& (C++ Core Guidelines C.67).
+  // Copying doesn't copy the shared_from_this owner (the copy is a new
+  // object). No move operations: this is a virtual base, where a move
+  // assignment can run more than once (gcc's -Wvirtual-move-assign), so a
+  // move copies, as it always has here.
+  GenericObject(const GenericObject&) = default;
+  GenericObject& operator=(const GenericObject&) = default;
 private:
   friend class boost::serialization::access;
   template<class Archive>

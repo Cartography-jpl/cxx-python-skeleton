@@ -4,6 +4,7 @@
 #include <concepts>
 #include <format>
 #include <ios>
+#include <memory>
 #include <source_location>
 #include <sstream>
 #include <string>
@@ -54,6 +55,12 @@ template<class... Args> struct ExceptionFormat {
   std::runtime_error: python sees both as RuntimeError, but only this
   carries the stack trace and source location.
 
+  Copying an Exception can't throw (the message, location and stack
+  trace are shared between copies, copy on write), so it is safe to
+  copy while an exception is being thrown and from any thread. A class
+  derived from it that adds members of its own (e.g. a std::string)
+  loses that, unless it shares them the same way.
+
   Two choices kept on purpose (code review 2026-11-06):
   * It derives from Printable, and so from GenericObject and
     enable_shared_from_this, which makes it a little heavier than a
@@ -74,7 +81,7 @@ public:
 
   explicit Exception(std::string W = "",
                      std::source_location Loc = std::source_location::current())
-    : msg_(std::move(W)), loc_(Loc)
+    : d_(std::make_shared<Data>(std::move(W), Loc))
   {
     capture();
   }
@@ -93,11 +100,19 @@ public:
     requires(sizeof...(Args) > 0)
   explicit Exception(ExceptionFormat<std::type_identity_t<Args>...> Fmt,
                      Args&&... A)
-    : msg_(std::format(Fmt.fmt, std::forward<Args>(A)...)), loc_(Fmt.loc)
+    : d_(std::make_shared<Data>(std::format(Fmt.fmt, std::forward<Args>(A)...),
+                                Fmt.loc))
   {
     capture();
   }
   /// \endcond
+
+  // Copies share the data, so copying can't throw. Declaring these also
+  // means there is no move constructor (a move copies), so the data is
+  // never null.
+  Exception(const Exception&) noexcept = default;
+  Exception& operator=(const Exception&) noexcept = default;
+  ~Exception() override = default;
 
   //-----------------------------------------------------------------------
   /// Write to exception what() string. Stream manipulators carry over
@@ -105,19 +120,20 @@ public:
   /// << x << y formats both x and y with 8 digits).
   //-----------------------------------------------------------------------
 
-  template<class T> inline Exception& operator<<(const T& V)
+  template<class T> Exception& operator<<(const T& V)
   {
+    Data& d = own();
     std::ostringstream os;
-    os.flags(flags_);
-    os.precision(precision_);
-    os.width(width_);
-    os.fill(fill_);
+    os.flags(d.flags);
+    os.precision(d.precision);
+    os.width(d.width);
+    os.fill(d.fill);
     os << V;
-    flags_ = os.flags();
-    precision_ = os.precision();
-    width_ = os.width();
-    fill_ = os.fill();
-    msg_ += os.str();
+    d.flags = os.flags();
+    d.precision = os.precision();
+    d.width = os.width();
+    d.fill = os.fill();
+    d.msg += os.str();
     return *this;
   }
 
@@ -137,7 +153,7 @@ public:
   /// Description of what the error is.
   //-----------------------------------------------------------------------
 
-  const char* what() const noexcept override { return msg_.c_str(); }
+  const char* what() const noexcept override { return d_->msg.c_str(); }
 
   //-----------------------------------------------------------------------
   /// Where the exception was created (file, line, function). For a
@@ -145,7 +161,7 @@ public:
   /// ours, unless it passes its own source_location through.
   //-----------------------------------------------------------------------
 
-  const std::source_location& source_location() const { return loc_; }
+  const std::source_location& source_location() const { return d_->loc; }
 
   //-----------------------------------------------------------------------
   /// The stack trace captured when the exception was created, one
@@ -164,15 +180,34 @@ public:
   static void capture_stacktrace(bool V);
   static bool capture_stacktrace();
 private:
+  struct Data {
+    Data(std::string Msg, std::source_location Loc)
+      : msg(std::move(Msg)), loc(Loc)
+    {
+    }
+    std::string msg;
+    std::source_location loc;
+    std::vector<void*> trace;
+    // Stream state carried between operator<< calls.
+    std::ios_base::fmtflags flags = std::ios_base::dec | std::ios_base::skipws;
+    std::streamsize precision = 6;
+    std::streamsize width = 0;
+    char fill = ' ';
+  };
+
+  //-----------------------------------------------------------------------
+  // The data, copied first if another Exception shares it (operator<< is
+  // used while building the exception, when it normally has one owner).
+  //-----------------------------------------------------------------------
+
+  Data& own()
+  {
+    if(d_.use_count() > 1)
+      d_ = std::make_shared<Data>(*d_);
+    return *d_;
+  }
   void capture();
-  std::string msg_;
-  std::source_location loc_;
-  std::vector<void*> trace_;
-  // Stream state carried between operator<< calls.
-  std::ios_base::fmtflags flags_ = std::ios_base::dec | std::ios_base::skipws;
-  std::streamsize precision_ = 6;
-  std::streamsize width_ = 0;
-  char fill_ = ' ';
+  std::shared_ptr<Data> d_;
 };
 
 /****************************************************************/ /**

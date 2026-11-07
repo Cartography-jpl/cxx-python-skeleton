@@ -43,14 +43,14 @@ void Exception::capture()
   try {
     // Skip this function itself.
     boost::stacktrace::stacktrace st(1, static_cast<std::size_t>(-1));
-    trace_.reserve(st.size());
+    d_->trace.reserve(st.size());
     for(const auto& f : st)
       // Stored as void* for frame(void*) in stacktrace(); never written.
-      trace_.push_back(const_cast<void*>(f.address()));
+      d_->trace.push_back(const_cast<void*>(f.address()));
   } catch(...) {
     // A failure to get the stack trace shouldn't replace the error being
     // reported, so just go without one.
-    trace_.clear();
+    d_->trace.clear();
   }
 }
 
@@ -146,14 +146,14 @@ std::string Exception::stacktrace() const
 {
   std::string res;
 #ifdef SKELETON_ADDR2LINE
-  std::vector<std::string> f = symbolize(trace_);
+  std::vector<std::string> f = symbolize(d_->trace);
   for(std::size_t i = 0; i < f.size(); ++i)
     res += std::format("{:2}# {}\n", i, f[i]);
 #else
-  for(std::size_t i = 0; i < trace_.size(); ++i)
+  for(std::size_t i = 0; i < d_->trace.size(); ++i)
     res += std::format(
         "{:2}# {}\n", i,
-        boost::stacktrace::to_string(boost::stacktrace::frame(trace_[i])));
+        boost::stacktrace::to_string(boost::stacktrace::frame(d_->trace[i])));
 #endif
   return res;
 }
