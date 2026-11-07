@@ -463,3 +463,22 @@ def test_director_example_weak_ptr(isolated_dir, serial):
     assert c.expired()
     assert c.use_count() == 0
     assert c.a() is None
+
+
+class DirectorWithNote(DirectorExample):
+    def __init__(self, v, name):
+        super().__init__(v, name)
+        self.note = "hello"
+
+
+@pytest.mark.xfail(strict=True, reason="review 2026-11-07 §4.3, fixed in F1.3")
+def test_xml_string_python_subclass():
+    # The XML archive holds the pickle of the python part as raw bytes, so
+    # it isn't valid UTF-8 text.
+    from skeleton import serialize_read_generic_string, serialize_write_string
+
+    d = DirectorWithNote(3, "x")
+    d2 = serialize_read_generic_string(serialize_write_string(d))
+    assert isinstance(d2, DirectorWithNote)
+    assert d2.note == "hello"
+    assert d2.func(1) == 4
