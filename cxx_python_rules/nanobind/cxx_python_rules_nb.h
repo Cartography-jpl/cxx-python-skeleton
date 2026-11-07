@@ -4,8 +4,11 @@
 // It replaced the SWIG rules (swig_rules/include, removed in phase S6).
 //
 // Needs CXX_PYTHON_RULES_NAMESPACE (the namespace of GenericObject and of
-// serialize_function.h) and CXX_PYTHON_RULES_NB_PACKAGE (the python package the
-// extension module is in, e.g. "skeleton_cxx") to be defined.
+// serialize_function.h), which the project's configuration header defines
+// (reached through generic_object.h), and CXX_PYTHON_RULES_NB_PACKAGE (the
+// python package the extension module is in, e.g. "geocal_cxx"), which
+// nanobind.am passes on the command line.
+#include "generic_object.h"
 #include <nanobind/nanobind.h>
 #include <nanobind/stl/string.h>
 #include <nanobind/stl/vector.h>

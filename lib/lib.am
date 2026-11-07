@@ -67,9 +67,6 @@ skeletoninc_HEADERS+= @srclib@/virtual_diamond_example.h
 libskeleton_la_SOURCES+= @srclib@/virtual_diamond_example.cc
 skeletoninc_HEADERS+= @srclib@/overload_example.h
 skeletoninc_HEADERS+= @srclib@/thread_example.h
-skeletoninc_HEADERS+= @srclib@/skeleton_mdspan.h
-skeletoninc_HEADERS+= @srclib@/blitz_mdspan.h
-libskeleton_la_SOURCES+= @srclib@/blitz_mdspan.cc
 libskeleton_la_SOURCES+= @srclib@/thread_example.cc
 # raw pointer plus size -> mdspan (phase S7)
 skeletoninc_HEADERS+= @srclib@/raster_sample.h
@@ -112,7 +109,6 @@ _skeleton_downstream_la_CXXFLAGS = $(_bindings_la_CXXFLAGS)
 _skeleton_downstream_la_LDFLAGS = $(_bindings_la_LDFLAGS)
 _skeleton_downstream_la_LIBADD = libnanobind_core.la libskeleton.la
 endif
-NB_MAPPER_NAMESPACE = Skeleton
 NB_DOXYGEN_INPUT = $(addprefix $(srcdir)/, $(filter %.h, $(skeletoninc_HEADERS)))
 
 # Test files
@@ -141,7 +137,6 @@ golden_archive_generator_SOURCES = @srclib@/golden_archive_generator.cc
 golden_archive_generator_LDADD = libskeleton.la
 golden_archive_generator_LDFLAGS = $(UNINSTALLED_PROGRAM_LINK_FLAGS)
 golden_archive_generator_CPPFLAGS = $(AM_CPPFLAGS) $(BOOST_CPPFLAGS) $(BLITZ_CFLAGS)
-golden_archive_generator_CPPFLAGS+= -DCXX_PYTHON_RULES_NAMESPACE=Skeleton
 
 golden-archives: golden_archive_generator
 	source script/setup_skeleton.sh && \

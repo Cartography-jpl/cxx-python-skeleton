@@ -167,7 +167,8 @@ instead of going through the top-level autotools build.
 - Non-director classes are constructed with `nb::new_` + `std::make_shared`; director classes (python may subclass
   them) have a trampoline and `nb::init`.
 - `Printable` (`lib/printable.h`): `print_to_string` is bound and used for `__str__`.
-- numpy <-> `blitz::Array` goes through an `mdspan` view (`lib/skeleton_mdspan.h`, `lib/blitz_mdspan.h`, C++ tested in
+- numpy <-> `blitz::Array` goes through an `mdspan` view (`cxx_python_rules/lib/cxx_python_rules_mdspan.h`,
+  `cxx_python_rules/lib/blitz_mdspan.h`, C++ tested in
   `blitz_mdspan_test.cc`; python side `cxx_python_rules/nanobind/blitz_array.h`): zero copy for the right dtype, the blitz
   array keeps the numpy array alive. Index an mdspan with `m[i, j]` (C++23); inside a macro such as
   `BOOST_CHECK_EQUAL` it needs extra parentheses, `(m[i, j])`, since the comma splits the macro arguments.
@@ -175,8 +176,9 @@ instead of going through the top-level autotools build.
   `RasterImage::read_ptr` and `CalcRaster` patterns).
 - Pickling uses boost serialization (`cxx_python_rules_nb::pickle_serialization`, `__reduce__`); see
   `lib/skeleton_serialize_support.h` and the `*.sample` files under `cxx_python_rules/lib/`.
-- `cxx_python_rules/lib/serialize_function.cc` and `weak_ptr_serialize_support.cc` are compiled into the C++ library with
-  `-DCXX_PYTHON_RULES_NAMESPACE=Skeleton`. The library stays free of python.
+- `cxx_python_rules/lib/serialize_function.cc`, `weak_ptr_serialize_support.cc` and `blitz_mdspan.cc` are compiled into
+  the C++ library. `CXX_PYTHON_RULES_NAMESPACE` (`Skeleton`) and `CXX_PYTHON_RULES_HAVE_BOOST_SERIALIZATION` are defined
+  in `skeleton_config.h` by `configure.ac` (not with `-D`). The library stays free of python.
 
 ## Python subclasses of C++ classes
 

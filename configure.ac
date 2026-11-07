@@ -10,6 +10,9 @@ AC_CONFIG_FILES([lib/global_fixture_default.cc])
 
 SKELETON_COMMON
 
+# The namespace of GenericObject and of the cxx_python_rules C++ code.
+AC_DEFINE([CXX_PYTHON_RULES_NAMESPACE], [Skeleton], [Namespace of GenericObject and of the cxx_python_rules code])
+
 #=================================================================
 # Find location of afids and geocal
 # (note for skeleton we don't depend on AFIDS, but leave this name in
@@ -71,6 +74,7 @@ AC_ARG_WITH([boost-serialization],
               [with_boost_serialization=yes])
 if test "$with_boost_serialization" = "yes"; then
     AC_DEFINE(SKELETON_HAVE_BOOST_SERIALIZATION,,[Defined if we have boost serialization])
+    AC_DEFINE(CXX_PYTHON_RULES_HAVE_BOOST_SERIALIZATION,,[Defined if the cxx_python_rules code supports boost serialization])
 fi
 AM_CONDITIONAL([HAVE_BOOST_SERIALIZATION], [test "$with_boost_serialization" = "yes"])
 

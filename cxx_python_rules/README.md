@@ -54,8 +54,22 @@ and `lib/printable.h.sample` are examples (the specific code isn't required).
 `Printable` maps the C++ `operator<<` to `print_to_string`, which the bindings
 use for `__str__`.
 
-`lib/serialize_function.cc` and `lib/weak_ptr_serialize_support.cc` are
-compiled into the C++ library, with `-DCXX_PYTHON_RULES_NAMESPACE=<namespace>`.
+The project's configuration header (the one `generic_object.h` includes; in
+the skeleton `skeleton_config.h`, from `configure.ac`) defines
+`CXX_PYTHON_RULES_NAMESPACE` (e.g. `#define CXX_PYTHON_RULES_NAMESPACE GeoCal`)
+and, if Boost.Serialization is used, `CXX_PYTHON_RULES_HAVE_BOOST_SERIALIZATION`.
+Every header here reaches it through `generic_object.h`, so code using the
+installed headers needs no `-D` flags. (They used to be command-line flags;
+a header used without them silently put its code in a namespace literally
+called `CXX_PYTHON_RULES_NAMESPACE`. `cxx_python_rules_mdspan.h` now stops
+with an `#error` instead.)
+
+`lib/serialize_function.cc`, `lib/weak_ptr_serialize_support.cc` and
+`lib/blitz_mdspan.cc` are compiled into the C++ library.
+`lib/cxx_python_rules_mdspan.h` makes mdspan (the Kokkos implementation)
+available as `CXX_PYTHON_RULES_NAMESPACE::md`, and `lib/blitz_mdspan.h` has
+views between `blitz::Array` and mdspan, the C++ half of the numpy bridge
+in `nanobind/blitz_array.h`.
 Serialization (boost) gives pickling; `lib/serialize_support.h.sample` is
 the pattern for the library's own support header. `lib/DirectorNotes.md`
 describes python subclasses of C++ classes (ownership, `weak_ptr`,

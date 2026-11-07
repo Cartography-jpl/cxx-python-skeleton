@@ -11,7 +11,7 @@ namespace CXX_PYTHON_RULES_NAMESPACE {
 /// C++) it is null. Given the object just read, it returns the
 /// shared_ptr to use for it, or null to use a normal one. Replaces the
 /// SWIG-era SwigTypeMapperBase::is_python_director/
-/// swig_python_director_setup, and keeps libskeleton free of python.
+/// swig_python_director_setup, and keeps the C++ library free of python.
 //-----------------------------------------------------------------------
 
 using DirectorHook =

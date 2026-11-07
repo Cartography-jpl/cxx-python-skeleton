@@ -5,7 +5,6 @@
 #   NB_SRC              binding source files (the *_nb.cc files and the
 #                       file with NB_MODULE)
 #   NB_LIBADD           the C++ library the bindings wrap
-#   NB_MAPPER_NAMESPACE namespace of GenericObject (CXX_PYTHON_RULES_NAMESPACE)
 #   NB_DOXYGEN_INPUT    headers to take docstrings from
 #   pkgpythoncxxdir    where the python package goes
 #   pkgpythoncxx_LTLIBRARIES (set, possibly empty, before this file and
@@ -28,9 +27,7 @@ _bindings_la_SOURCES+= @cxxpythonrules@/nanobind/cxx_python_rules_nb.cc
 nodist__bindings_la_SOURCES = nb_docstrings.cc
 _bindings_la_CPPFLAGS = $(AM_CPPFLAGS) $(PYTHON_CPPFLAGS) $(NANOBIND_CPPFLAGS)
 _bindings_la_CPPFLAGS+= -I$(srcdir)/@cxxpythonrules@/nanobind -I$(srcdir)/@cxxpythonrules@/lib
-_bindings_la_CPPFLAGS+= -DCXX_PYTHON_RULES_NAMESPACE=$(NB_MAPPER_NAMESPACE)
 _bindings_la_CPPFLAGS+= -DCXX_PYTHON_RULES_NB_PACKAGE='"$(notdir $(pkgpythoncxxdir))"'
-_bindings_la_CPPFLAGS+= -DCXX_PYTHON_RULES_HAVE_BOOST_SERIALIZATION
 # Not -fvisibility=hidden (nanobind recommends it, and nanobind's own code
 # above has it): the binding code instantiates Boost.Serialization
 # templates for library classes (director serialization), and with hidden

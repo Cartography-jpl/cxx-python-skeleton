@@ -30,6 +30,8 @@ find_program(DOXYGEN doxygen)
 set(SKELETON_HAVE_BOOST_SERIALIZATION 1)
 file(WRITE ${CMAKE_BINARY_DIR}/skeleton_config.h.cmake
   "#cmakedefine SKELETON_HAVE_BOOST_SERIALIZATION 1\n"
+  "#define CXX_PYTHON_RULES_HAVE_BOOST_SERIALIZATION 1\n"
+  "#define CXX_PYTHON_RULES_NAMESPACE Skeleton\n"
   "#define HAVE_BOOST_SERIALIZATION_BOOST_ARRAY_HPP 1\n"
   "#cmakedefine ADDR2LINE\n"
   "#ifdef ADDR2LINE\n#undef ADDR2LINE\n#define SKELETON_ADDR2LINE ${ADDR2LINE}\n#endif\n")
@@ -44,8 +46,6 @@ add_library(skeleton SHARED ${LIB_SRC})
 target_include_directories(skeleton PUBLIC
   ${CMAKE_BINARY_DIR}/config ${CMAKE_SOURCE_DIR}/lib ${CMAKE_SOURCE_DIR}/cxx_python_rules/lib
   ${MDSPAN_INCLUDE_DIR})
-target_compile_definitions(skeleton PUBLIC CXX_PYTHON_RULES_NAMESPACE=Skeleton
-  CXX_PYTHON_RULES_HAVE_BOOST_SERIALIZATION)
 target_link_libraries(skeleton PUBLIC Boost::serialization Boost::iostreams
   PkgConfig::BLITZ ${CMAKE_DL_LIBS})
 

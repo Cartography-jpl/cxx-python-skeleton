@@ -28,10 +28,12 @@ skeletoninc_HEADERS+= @cxxpythonrules@/lib/serialize_shared_ptr.h
 skeletoninc_HEADERS+= @cxxpythonrules@/lib/director_hook.h
 skeletoninc_HEADERS+= @cxxpythonrules@/lib/weak_ptr_serialize_support.h
 libskeleton_la_SOURCES+= @cxxpythonrules@/lib/weak_ptr_serialize_support.cc
-libskeleton_la_CPPFLAGS+= -DCXX_PYTHON_RULES_NAMESPACE=Skeleton
-if HAVE_BOOST_SERIALIZATION
-libskeleton_la_CPPFLAGS+= -DCXX_PYTHON_RULES_HAVE_BOOST_SERIALIZATION
-endif
+skeletoninc_HEADERS+= @cxxpythonrules@/lib/cxx_python_rules_mdspan.h
+skeletoninc_HEADERS+= @cxxpythonrules@/lib/blitz_mdspan.h
+libskeleton_la_SOURCES+= @cxxpythonrules@/lib/blitz_mdspan.cc
+# CXX_PYTHON_RULES_NAMESPACE and CXX_PYTHON_RULES_HAVE_BOOST_SERIALIZATION
+# come from the project's configuration header (configure.ac), not from
+# the command line, so installed headers work without extra flags.
 
 # Shortcut for building and installing just the library and python
 install-python-2: install-libLTLIBRARIES install-python-skeleton install-pkgpythoncxxLTLIBRARIES install-pkgpythoncxxPYTHON install-pkgpythoncxxDATA install-nodist_pkgpythoncxxDATA

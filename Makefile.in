@@ -46,7 +46,6 @@
 #   NB_SRC              binding source files (the *_nb.cc files and the
 #                       file with NB_MODULE)
 #   NB_LIBADD           the C++ library the bindings wrap
-#   NB_MAPPER_NAMESPACE namespace of GenericObject (CXX_PYTHON_RULES_NAMESPACE)
 #   NB_DOXYGEN_INPUT    headers to take docstrings from
 #   pkgpythoncxxdir    where the python package goes
 #   pkgpythoncxx_LTLIBRARIES (set, possibly empty, before this file and
@@ -139,18 +138,17 @@ host_triplet = @host@
 bin_PROGRAMS =
 @BUILD_PYTHON_BINDINGS_TRUE@am__append_1 = python-check-build
 @BUILD_PYTHON_BINDINGS_TRUE@am__append_2 = clean-nb-pkg
-@HAVE_BOOST_SERIALIZATION_TRUE@am__append_3 = -DCXX_PYTHON_RULES_HAVE_BOOST_SERIALIZATION
 check_PROGRAMS = skeleton_test_all$(EXEEXT) \
 	golden_archive_generator$(EXEEXT)
 
 # A second extension module using the main one's types (cross-module test,
 # python/tests/unit/downstream_test.py).
-@BUILD_PYTHON_BINDINGS_TRUE@am__append_4 = _skeleton_downstream.la \
+@BUILD_PYTHON_BINDINGS_TRUE@am__append_3 = _skeleton_downstream.la \
 @BUILD_PYTHON_BINDINGS_TRUE@	_bindings.la
 
 # nanobind's own source, with its own flags (none of our warnings).
-@BUILD_PYTHON_BINDINGS_TRUE@am__append_5 = libnanobind_core.la
-@BUILD_PYTHON_BINDINGS_TRUE@am__append_6 = nb_docstrings.cc \
+@BUILD_PYTHON_BINDINGS_TRUE@am__append_4 = libnanobind_core.la
+@BUILD_PYTHON_BINDINGS_TRUE@am__append_5 = nb_docstrings.cc \
 @BUILD_PYTHON_BINDINGS_TRUE@	nb_pyi/_bindings.pyi
 subdir = .
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
@@ -324,6 +322,7 @@ libskeleton_la_LIBADD =
 am_libskeleton_la_OBJECTS =  \
 	@cxxpythonrules@/lib/libskeleton_la-serialize_function.lo \
 	@cxxpythonrules@/lib/libskeleton_la-weak_ptr_serialize_support.lo \
+	@cxxpythonrules@/lib/libskeleton_la-blitz_mdspan.lo \
 	@srclib@/libskeleton_la-generic_object.lo \
 	@srclib@/libskeleton_la-generic_object_sample.lo \
 	@srclib@/libskeleton_la-director_example.lo \
@@ -338,7 +337,6 @@ am_libskeleton_la_OBJECTS =  \
 	@srclib@/libskeleton_la-with_parameter_like.lo \
 	@srclib@/libskeleton_la-multi_base_example.lo \
 	@srclib@/libskeleton_la-virtual_diamond_example.lo \
-	@srclib@/libskeleton_la-blitz_mdspan.lo \
 	@srclib@/libskeleton_la-thread_example.lo \
 	@srclib@/libskeleton_la-raster_sample.lo
 libskeleton_la_OBJECTS = $(am_libskeleton_la_OBJECTS)
@@ -393,6 +391,7 @@ DEFAULT_INCLUDES =
 depcomp = $(SHELL) $(top_srcdir)/config/depcomp
 am__maybe_remake_depfiles = depfiles
 am__depfiles_remade = ./$(DEPDIR)/_bindings_la-nb_docstrings.Plo \
+	@cxxpythonrules@/lib/$(DEPDIR)/libskeleton_la-blitz_mdspan.Plo \
 	@cxxpythonrules@/lib/$(DEPDIR)/libskeleton_la-serialize_function.Plo \
 	@cxxpythonrules@/lib/$(DEPDIR)/libskeleton_la-weak_ptr_serialize_support.Plo \
 	@cxxpythonrules@/nanobind/$(DEPDIR)/_bindings_la-cxx_python_rules_nb.Plo \
@@ -423,7 +422,6 @@ am__depfiles_remade = ./$(DEPDIR)/_bindings_la-nb_docstrings.Plo \
 	@srclib@/$(DEPDIR)/golden_archive_generator-golden_archive_generator.Po \
 	@srclib@/$(DEPDIR)/libskeleton_la-array_sample.Plo \
 	@srclib@/$(DEPDIR)/libskeleton_la-blitz_array_serialize_support.Plo \
-	@srclib@/$(DEPDIR)/libskeleton_la-blitz_mdspan.Plo \
 	@srclib@/$(DEPDIR)/libskeleton_la-director_example.Plo \
 	@srclib@/$(DEPDIR)/libskeleton_la-file_reference_sample.Plo \
 	@srclib@/$(DEPDIR)/libskeleton_la-generic_object.Plo \
@@ -937,7 +935,7 @@ noop =
 
 # Set up for the library
 lib_LTLIBRARIES = libskeleton.la
-noinst_LTLIBRARIES = $(am__append_5)
+noinst_LTLIBRARIES = $(am__append_4)
 dist_bin_SCRIPTS = 
 AM_LDFLAGS = 
 BUILT_SOURCES = complain_if_afids
@@ -970,7 +968,7 @@ EXTRA_DIST = README.md bootstrap config/m4_local/README config/m4 \
 	@cxxpythonrules@/nanobind/README.md
 CYTHON_SRC = 
 pkgconfig_DATA = 
-MOSTLYCLEANFILES = $(am__append_6)
+MOSTLYCLEANFILES = $(am__append_5)
 # To pick up generated skeleton_config.h file
 AM_CPPFLAGS = -I$(srcdir)/@cxxpythonrules@/lib -I$(srcdir)/@srclib@ \
 	-I@srclib@
@@ -1002,6 +1000,7 @@ check_DATA =
 # Build these up as we go
 libskeleton_la_SOURCES = @cxxpythonrules@/lib/serialize_function.cc \
 	@cxxpythonrules@/lib/weak_ptr_serialize_support.cc \
+	@cxxpythonrules@/lib/blitz_mdspan.cc \
 	@srclib@/generic_object.cc @srclib@/generic_object_sample.cc \
 	@srclib@/director_example.cc @srclib@/generic_object_map.cc \
 	@srclib@/skeleton_exception.cc @srclib@/iostream_swig.cc \
@@ -1009,8 +1008,8 @@ libskeleton_la_SOURCES = @cxxpythonrules@/lib/serialize_function.cc \
 	@srclib@/file_reference_sample.cc @srclib@/array_sample.cc \
 	@srclib@/observer.cc @srclib@/observer_example.cc \
 	@srclib@/with_parameter_like.cc @srclib@/multi_base_example.cc \
-	@srclib@/virtual_diamond_example.cc @srclib@/blitz_mdspan.cc \
-	@srclib@/thread_example.cc @srclib@/raster_sample.cc
+	@srclib@/virtual_diamond_example.cc @srclib@/thread_example.cc \
+	@srclib@/raster_sample.cc
 # Python binding sources (nanobind), cxx_python_rules/nanobind/nanobind.am
 
 # Python bindings (nanobind), see cxx_python_rules/nanobind/nanobind.am
@@ -1055,6 +1054,8 @@ skeletoninc_HEADERS = @cxxpythonrules@/lib/serialize_function.h \
 	@cxxpythonrules@/lib/serialize_shared_ptr.h \
 	@cxxpythonrules@/lib/director_hook.h \
 	@cxxpythonrules@/lib/weak_ptr_serialize_support.h \
+	@cxxpythonrules@/lib/cxx_python_rules_mdspan.h \
+	@cxxpythonrules@/lib/blitz_mdspan.h \
 	@srclib@/skeleton_serialize_support.h \
 	@srclib@/generic_object.h @srclib@/generic_object_sample.h \
 	@srclib@/director_example.h @srclib@/generic_object_map.h \
@@ -1070,8 +1071,7 @@ skeletoninc_HEADERS = @cxxpythonrules@/lib/serialize_function.h \
 	@srclib@/observer_example.h @srclib@/with_parameter_like.h \
 	@srclib@/multi_base_example.h \
 	@srclib@/virtual_diamond_example.h @srclib@/overload_example.h \
-	@srclib@/thread_example.h @srclib@/skeleton_mdspan.h \
-	@srclib@/blitz_mdspan.h @srclib@/raster_sample.h
+	@srclib@/thread_example.h @srclib@/raster_sample.h
 skeleton_test_all_SOURCES = @srclib@/test_all.cc \
 	@srclib@/global_fixture.cc @srclib@/global_fixture_default.cc \
 	@srclib@/generic_object_map_test.cc @srclib@/printable_test.cc \
@@ -1086,9 +1086,7 @@ dist_installskeleton_SCRIPTS =
 
 # Make sure we don't have any pyc or pycache files floating around
 DIST_HOOK = dist-clean-up-python
-libskeleton_la_CPPFLAGS = $(AM_CPPFLAGS) $(BOOST_CPPFLAGS) \
-	$(BLITZ_CFLAGS) -DCXX_PYTHON_RULES_NAMESPACE=Skeleton \
-	$(am__append_3)
+libskeleton_la_CPPFLAGS = $(AM_CPPFLAGS) $(BOOST_CPPFLAGS) $(BLITZ_CFLAGS)
 
 #=================================================================
 # Test coverage report. This needs a build configured with
@@ -1149,7 +1147,7 @@ PYTEST_FLAGS = -q -n $(PYTEST_NJOB)
 
 # Where the python package with the extension module goes.
 pkgpythoncxxdir = $(prefix)/@pythondir@/skeleton_cxx
-pkgpythoncxx_LTLIBRARIES = $(am__append_4)
+pkgpythoncxx_LTLIBRARIES = $(am__append_3)
 #=================================================================
 # LDFLAGS for programs run from the build tree and never installed (the
 # unit tests, the golden archive generator). The -rpath makes them use the
@@ -1173,13 +1171,11 @@ NB_LIBADD = libskeleton.la
 @BUILD_PYTHON_BINDINGS_TRUE@_skeleton_downstream_la_CXXFLAGS = $(_bindings_la_CXXFLAGS)
 @BUILD_PYTHON_BINDINGS_TRUE@_skeleton_downstream_la_LDFLAGS = $(_bindings_la_LDFLAGS)
 @BUILD_PYTHON_BINDINGS_TRUE@_skeleton_downstream_la_LIBADD = libnanobind_core.la libskeleton.la
-NB_MAPPER_NAMESPACE = Skeleton
 NB_DOXYGEN_INPUT = $(addprefix $(srcdir)/, $(filter %.h, $(skeletoninc_HEADERS)))
 golden_archive_generator_SOURCES = @srclib@/golden_archive_generator.cc
 golden_archive_generator_LDADD = libskeleton.la
 golden_archive_generator_LDFLAGS = $(UNINSTALLED_PROGRAM_LINK_FLAGS)
-golden_archive_generator_CPPFLAGS = $(AM_CPPFLAGS) $(BOOST_CPPFLAGS) \
-	$(BLITZ_CFLAGS) -DCXX_PYTHON_RULES_NAMESPACE=Skeleton
+golden_archive_generator_CPPFLAGS = $(AM_CPPFLAGS) $(BOOST_CPPFLAGS) $(BLITZ_CFLAGS)
 @BUILD_PYTHON_BINDINGS_TRUE@libnanobind_core_la_SOURCES = @cxxpythonrules@/nanobind/nb_combined.cc
 @BUILD_PYTHON_BINDINGS_TRUE@libnanobind_core_la_CPPFLAGS = $(PYTHON_CPPFLAGS) $(NANOBIND_CPPFLAGS) -I$(NANOBIND_SRCDIR)
 @BUILD_PYTHON_BINDINGS_TRUE@libnanobind_core_la_CXXFLAGS = -std=c++23 -O2 -fPIC -fvisibility=hidden -fno-strict-aliasing
@@ -1191,10 +1187,8 @@ golden_archive_generator_CPPFLAGS = $(AM_CPPFLAGS) $(BOOST_CPPFLAGS) \
 @BUILD_PYTHON_BINDINGS_TRUE@	$(NANOBIND_CPPFLAGS) \
 @BUILD_PYTHON_BINDINGS_TRUE@	-I$(srcdir)/@cxxpythonrules@/nanobind \
 @BUILD_PYTHON_BINDINGS_TRUE@	-I$(srcdir)/@cxxpythonrules@/lib \
-@BUILD_PYTHON_BINDINGS_TRUE@	-DCXX_PYTHON_RULES_NAMESPACE=$(NB_MAPPER_NAMESPACE) \
 @BUILD_PYTHON_BINDINGS_TRUE@	-DCXX_PYTHON_RULES_NB_PACKAGE='"$(notdir \
-@BUILD_PYTHON_BINDINGS_TRUE@	$(pkgpythoncxxdir))"' \
-@BUILD_PYTHON_BINDINGS_TRUE@	-DCXX_PYTHON_RULES_HAVE_BOOST_SERIALIZATION
+@BUILD_PYTHON_BINDINGS_TRUE@	$(pkgpythoncxxdir))"'
 # Not -fvisibility=hidden (nanobind recommends it, and nanobind's own code
 # above has it): the binding code instantiates Boost.Serialization
 # templates for library classes (director serialization), and with hidden
@@ -1478,6 +1472,9 @@ libnanobind_core.la: $(libnanobind_core_la_OBJECTS) $(libnanobind_core_la_DEPEND
 @cxxpythonrules@/lib/libskeleton_la-weak_ptr_serialize_support.lo:  \
 	@cxxpythonrules@/lib/$(am__dirstamp) \
 	@cxxpythonrules@/lib/$(DEPDIR)/$(am__dirstamp)
+@cxxpythonrules@/lib/libskeleton_la-blitz_mdspan.lo:  \
+	@cxxpythonrules@/lib/$(am__dirstamp) \
+	@cxxpythonrules@/lib/$(DEPDIR)/$(am__dirstamp)
 @srclib@/libskeleton_la-generic_object.lo: @srclib@/$(am__dirstamp) \
 	@srclib@/$(DEPDIR)/$(am__dirstamp)
 @srclib@/libskeleton_la-generic_object_sample.lo:  \
@@ -1506,8 +1503,6 @@ libnanobind_core.la: $(libnanobind_core_la_OBJECTS) $(libnanobind_core_la_DEPEND
 	@srclib@/$(am__dirstamp) @srclib@/$(DEPDIR)/$(am__dirstamp)
 @srclib@/libskeleton_la-virtual_diamond_example.lo:  \
 	@srclib@/$(am__dirstamp) @srclib@/$(DEPDIR)/$(am__dirstamp)
-@srclib@/libskeleton_la-blitz_mdspan.lo: @srclib@/$(am__dirstamp) \
-	@srclib@/$(DEPDIR)/$(am__dirstamp)
 @srclib@/libskeleton_la-thread_example.lo: @srclib@/$(am__dirstamp) \
 	@srclib@/$(DEPDIR)/$(am__dirstamp)
 @srclib@/libskeleton_la-raster_sample.lo: @srclib@/$(am__dirstamp) \
@@ -1639,6 +1634,7 @@ distclean-compile:
 	-rm -f *.tab.c
 
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/_bindings_la-nb_docstrings.Plo@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@@cxxpythonrules@/lib/$(DEPDIR)/libskeleton_la-blitz_mdspan.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@@cxxpythonrules@/lib/$(DEPDIR)/libskeleton_la-serialize_function.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@@cxxpythonrules@/lib/$(DEPDIR)/libskeleton_la-weak_ptr_serialize_support.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@@cxxpythonrules@/nanobind/$(DEPDIR)/_bindings_la-cxx_python_rules_nb.Plo@am__quote@ # am--include-marker
@@ -1669,7 +1665,6 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@@srclib@/$(DEPDIR)/golden_archive_generator-golden_archive_generator.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@@srclib@/$(DEPDIR)/libskeleton_la-array_sample.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@@srclib@/$(DEPDIR)/libskeleton_la-blitz_array_serialize_support.Plo@am__quote@ # am--include-marker
-@AMDEP_TRUE@@am__include@ @am__quote@@srclib@/$(DEPDIR)/libskeleton_la-blitz_mdspan.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@@srclib@/$(DEPDIR)/libskeleton_la-director_example.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@@srclib@/$(DEPDIR)/libskeleton_la-file_reference_sample.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@@srclib@/$(DEPDIR)/libskeleton_la-generic_object.Plo@am__quote@ # am--include-marker
@@ -1926,6 +1921,13 @@ _bindings_la-nb_docstrings.lo: nb_docstrings.cc
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libskeleton_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o @cxxpythonrules@/lib/libskeleton_la-weak_ptr_serialize_support.lo `test -f '@cxxpythonrules@/lib/weak_ptr_serialize_support.cc' || echo '$(srcdir)/'`@cxxpythonrules@/lib/weak_ptr_serialize_support.cc
 
+@cxxpythonrules@/lib/libskeleton_la-blitz_mdspan.lo: @cxxpythonrules@/lib/blitz_mdspan.cc
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libskeleton_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT @cxxpythonrules@/lib/libskeleton_la-blitz_mdspan.lo -MD -MP -MF @cxxpythonrules@/lib/$(DEPDIR)/libskeleton_la-blitz_mdspan.Tpo -c -o @cxxpythonrules@/lib/libskeleton_la-blitz_mdspan.lo `test -f '@cxxpythonrules@/lib/blitz_mdspan.cc' || echo '$(srcdir)/'`@cxxpythonrules@/lib/blitz_mdspan.cc
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) @cxxpythonrules@/lib/$(DEPDIR)/libskeleton_la-blitz_mdspan.Tpo @cxxpythonrules@/lib/$(DEPDIR)/libskeleton_la-blitz_mdspan.Plo
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='@cxxpythonrules@/lib/blitz_mdspan.cc' object='@cxxpythonrules@/lib/libskeleton_la-blitz_mdspan.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libskeleton_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o @cxxpythonrules@/lib/libskeleton_la-blitz_mdspan.lo `test -f '@cxxpythonrules@/lib/blitz_mdspan.cc' || echo '$(srcdir)/'`@cxxpythonrules@/lib/blitz_mdspan.cc
+
 @srclib@/libskeleton_la-generic_object.lo: @srclib@/generic_object.cc
 @am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libskeleton_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT @srclib@/libskeleton_la-generic_object.lo -MD -MP -MF @srclib@/$(DEPDIR)/libskeleton_la-generic_object.Tpo -c -o @srclib@/libskeleton_la-generic_object.lo `test -f '@srclib@/generic_object.cc' || echo '$(srcdir)/'`@srclib@/generic_object.cc
 @am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) @srclib@/$(DEPDIR)/libskeleton_la-generic_object.Tpo @srclib@/$(DEPDIR)/libskeleton_la-generic_object.Plo
@@ -2023,13 +2025,6 @@ _bindings_la-nb_docstrings.lo: nb_docstrings.cc
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='@srclib@/virtual_diamond_example.cc' object='@srclib@/libskeleton_la-virtual_diamond_example.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libskeleton_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o @srclib@/libskeleton_la-virtual_diamond_example.lo `test -f '@srclib@/virtual_diamond_example.cc' || echo '$(srcdir)/'`@srclib@/virtual_diamond_example.cc
-
-@srclib@/libskeleton_la-blitz_mdspan.lo: @srclib@/blitz_mdspan.cc
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libskeleton_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT @srclib@/libskeleton_la-blitz_mdspan.lo -MD -MP -MF @srclib@/$(DEPDIR)/libskeleton_la-blitz_mdspan.Tpo -c -o @srclib@/libskeleton_la-blitz_mdspan.lo `test -f '@srclib@/blitz_mdspan.cc' || echo '$(srcdir)/'`@srclib@/blitz_mdspan.cc
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) @srclib@/$(DEPDIR)/libskeleton_la-blitz_mdspan.Tpo @srclib@/$(DEPDIR)/libskeleton_la-blitz_mdspan.Plo
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='@srclib@/blitz_mdspan.cc' object='@srclib@/libskeleton_la-blitz_mdspan.lo' libtool=yes @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libskeleton_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o @srclib@/libskeleton_la-blitz_mdspan.lo `test -f '@srclib@/blitz_mdspan.cc' || echo '$(srcdir)/'`@srclib@/blitz_mdspan.cc
 
 @srclib@/libskeleton_la-thread_example.lo: @srclib@/thread_example.cc
 @am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libskeleton_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT @srclib@/libskeleton_la-thread_example.lo -MD -MP -MF @srclib@/$(DEPDIR)/libskeleton_la-thread_example.Tpo -c -o @srclib@/libskeleton_la-thread_example.lo `test -f '@srclib@/thread_example.cc' || echo '$(srcdir)/'`@srclib@/thread_example.cc
@@ -2936,6 +2931,7 @@ clean-am: clean-binPROGRAMS clean-checkPROGRAMS clean-generic \
 distclean: distclean-am
 	-rm -f $(am__CONFIG_DISTCLEAN_FILES)
 	-rm -f ./$(DEPDIR)/_bindings_la-nb_docstrings.Plo
+	-rm -f @cxxpythonrules@/lib/$(DEPDIR)/libskeleton_la-blitz_mdspan.Plo
 	-rm -f @cxxpythonrules@/lib/$(DEPDIR)/libskeleton_la-serialize_function.Plo
 	-rm -f @cxxpythonrules@/lib/$(DEPDIR)/libskeleton_la-weak_ptr_serialize_support.Plo
 	-rm -f @cxxpythonrules@/nanobind/$(DEPDIR)/_bindings_la-cxx_python_rules_nb.Plo
@@ -2966,7 +2962,6 @@ distclean: distclean-am
 	-rm -f @srclib@/$(DEPDIR)/golden_archive_generator-golden_archive_generator.Po
 	-rm -f @srclib@/$(DEPDIR)/libskeleton_la-array_sample.Plo
 	-rm -f @srclib@/$(DEPDIR)/libskeleton_la-blitz_array_serialize_support.Plo
-	-rm -f @srclib@/$(DEPDIR)/libskeleton_la-blitz_mdspan.Plo
 	-rm -f @srclib@/$(DEPDIR)/libskeleton_la-director_example.Plo
 	-rm -f @srclib@/$(DEPDIR)/libskeleton_la-file_reference_sample.Plo
 	-rm -f @srclib@/$(DEPDIR)/libskeleton_la-generic_object.Plo
@@ -3051,6 +3046,7 @@ maintainer-clean: maintainer-clean-am
 	-rm -f $(am__CONFIG_DISTCLEAN_FILES)
 	-rm -rf $(top_srcdir)/autom4te.cache
 	-rm -f ./$(DEPDIR)/_bindings_la-nb_docstrings.Plo
+	-rm -f @cxxpythonrules@/lib/$(DEPDIR)/libskeleton_la-blitz_mdspan.Plo
 	-rm -f @cxxpythonrules@/lib/$(DEPDIR)/libskeleton_la-serialize_function.Plo
 	-rm -f @cxxpythonrules@/lib/$(DEPDIR)/libskeleton_la-weak_ptr_serialize_support.Plo
 	-rm -f @cxxpythonrules@/nanobind/$(DEPDIR)/_bindings_la-cxx_python_rules_nb.Plo
@@ -3081,7 +3077,6 @@ maintainer-clean: maintainer-clean-am
 	-rm -f @srclib@/$(DEPDIR)/golden_archive_generator-golden_archive_generator.Po
 	-rm -f @srclib@/$(DEPDIR)/libskeleton_la-array_sample.Plo
 	-rm -f @srclib@/$(DEPDIR)/libskeleton_la-blitz_array_serialize_support.Plo
-	-rm -f @srclib@/$(DEPDIR)/libskeleton_la-blitz_mdspan.Plo
 	-rm -f @srclib@/$(DEPDIR)/libskeleton_la-director_example.Plo
 	-rm -f @srclib@/$(DEPDIR)/libskeleton_la-file_reference_sample.Plo
 	-rm -f @srclib@/$(DEPDIR)/libskeleton_la-generic_object.Plo
@@ -3288,6 +3283,9 @@ python-check: script/setup_skeleton.sh
 @BUILD_PYTHON_BINDINGS_TRUE@	  $(PYTEST) $(PYTEST_FLAGS) -p no:cacheprovider $(PYTEST_EXTRAFLAGS) tests $(EXTRA_PYTHON_TEST)
 @BUILD_PYTHON_BINDINGS_TRUE@clean-nb-pkg:
 @BUILD_PYTHON_BINDINGS_TRUE@	rm -rf nb_pkg
+# CXX_PYTHON_RULES_NAMESPACE and CXX_PYTHON_RULES_HAVE_BOOST_SERIALIZATION
+# come from the project's configuration header (configure.ac), not from
+# the command line, so installed headers work without extra flags.
 
 # Shortcut for building and installing just the library and python
 install-python-2: install-libLTLIBRARIES install-python-skeleton install-pkgpythoncxxLTLIBRARIES install-pkgpythoncxxPYTHON install-pkgpythoncxxDATA install-nodist_pkgpythoncxxDATA

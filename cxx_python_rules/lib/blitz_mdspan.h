@@ -1,13 +1,13 @@
-#ifndef BLITZ_MDSPAN_H
-#define BLITZ_MDSPAN_H
-#include "skeleton_mdspan.h"
+#ifndef CXX_PYTHON_RULES_BLITZ_MDSPAN_H
+#define CXX_PYTHON_RULES_BLITZ_MDSPAN_H
+#include "cxx_python_rules_mdspan.h"
 #include <blitz/array.h>
 #include <array>
 #include <cstddef>
 #include <memory>
 #include <stdexcept>
 
-namespace Skeleton {
+namespace CXX_PYTHON_RULES_NAMESPACE {
 /****************************************************************/ /**
   Views between blitz::Array and mdspan, sharing the same memory. This
   is the C++ half of the numpy <-> Blitz bridge used by the python

@@ -22337,6 +22337,11 @@ pkgconfigdir=${libdir}/pkgconfig
 
 
 
+# The namespace of GenericObject and of the cxx_python_rules C++ code.
+
+printf "%s\n" "#define CXX_PYTHON_RULES_NAMESPACE Skeleton" >>confdefs.h
+
+
 #=================================================================
 # Find location of afids and geocal
 # (note for skeleton we don't depend on AFIDS, but leave this name in
@@ -26677,6 +26682,9 @@ fi
 if test "$with_boost_serialization" = "yes"; then
 
 printf "%s\n" "#define SKELETON_HAVE_BOOST_SERIALIZATION /**/" >>confdefs.h
+
+
+printf "%s\n" "#define CXX_PYTHON_RULES_HAVE_BOOST_SERIALIZATION /**/" >>confdefs.h
 
 fi
  if test "$with_boost_serialization" = "yes"; then

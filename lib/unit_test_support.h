@@ -1,7 +1,6 @@
 #ifndef UNIT_TEST_SUPPORT_H
 #define UNIT_TEST_SUPPORT_H
 #include "global_fixture.h"
-#define CXX_PYTHON_RULES_NAMESPACE Skeleton
 #include "serialize_function.h"
 #include <boost/test/unit_test.hpp>
 #include <boost/test/floating_point_comparison.hpp>

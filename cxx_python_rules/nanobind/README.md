@@ -8,7 +8,7 @@ The nanobind replacement for the SWIG rules (phase S6 of
 | `cxx_python_rules_nb.h`, `cxx_python_rules_nb.cc` | Include first in every binding file. Exception translation, pickling helpers (`pickle_serialization`, `pickle_init`, ...), `printable`, docstring lookup (`doc`), director serialization (`CXX_PYTHON_RULES_NB_DIRECTOR_SERIALIZATION`), `blitz::Range` and `boost::rational<int>`. |
 | `gc_shared_ptr.h` | Fork of nanobind's `std::shared_ptr` caster (nanobind 3.1.0), for classes with virtual bases. The changes are marked `CXX_PYTHON_RULES FORK`; re-check against upstream at each nanobind upgrade. Never include `nanobind/stl/shared_ptr.h` as well. |
 | `type_registry.h` | Bound classes by C++ type: most derived python type for a returned `shared_ptr`, and passing a derived object for a parameter typed as a secondary or virtual base (or `GenericObject`). Shared by all extension modules through a capsule in `builtins`. |
-| `blitz_array.h` | numpy <-> `blitz::Array<T, N>` through an `mdspan` view (`lib/blitz_mdspan.h` in the skeleton). |
+| `blitz_array.h` | numpy <-> `blitz::Array<T, N>` through an `mdspan` view (`cxx_python_rules/lib/blitz_mdspan.h`). |
 | `std_array.h` | `std::array<number, N>` <-> numpy. Use instead of `nanobind/stl/array.h`. |
 | `iostream.h` | A python file object as `std::istream` / `std::ostream`. |
 | `nanobind.am`, `nb_combined.cc` | Automake rules: nanobind's source compiled once, the extension module, docstrings, `.pyi` stubs. |

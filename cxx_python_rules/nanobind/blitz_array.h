@@ -93,11 +93,12 @@ template<class T, int N> bool view_of(nb::handle src, blitz::Array<T, N>& res)
     if(str[i] < 0)
       return false;
   }
-  using M = Skeleton::strided_mdspan<T, N>;
+  using M = CXX_PYTHON_RULES_NAMESPACE::strided_mdspan<T, N>;
   M m(const_cast<T*>(a.data()),
-      typename M::mapping_type(Skeleton::md::dextents<std::ptrdiff_t, N>(ext),
-                               str));
-  res.reference(Skeleton::to_blitz(m, python_owner(src)));
+      typename M::mapping_type(
+          CXX_PYTHON_RULES_NAMESPACE::md::dextents<std::ptrdiff_t, N>(ext),
+          str));
+  res.reference(CXX_PYTHON_RULES_NAMESPACE::to_blitz(m, python_owner(src)));
   return true;
 }
 
