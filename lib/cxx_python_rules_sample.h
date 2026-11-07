@@ -100,7 +100,7 @@ public:
 
   int get_count_squared() const { return count_ * count_; }
   double get_scale() const { return scale_; }
-  void get_scale(const double& V) { scale_ = V; }
+  void get_scale(double V) { scale_ = V; }
   int counter() { return count_; }
   blitz::Array<double, 2>& data_ptr() { return data_; }
   double data_value(int I, int J) const
@@ -110,7 +110,7 @@ public:
     return data_(I, J);
   }
   virtual double weight() const { return 2.0; }
-  virtual void weight(const double& V) { weight_set_ = V; }
+  virtual void weight(double V) { weight_set_ = V; }
   double weight_set() const { return weight_set_; }
   double weight_from_cpp() const { return weight(); }
 

@@ -111,7 +111,7 @@ std::string errno_text()
 // if its name ends in ".gz". Opening errors throw, naming the file.
 //-----------------------------------------------------------------------
 
-class OutputFile {
+class OutputFile final {
 public:
   explicit OutputFile(const std::filesystem::path& Fname)
     : f(clear_errno(Fname))
@@ -132,7 +132,7 @@ private:
   std::ostream os{&sb};
 };
 
-class InputFile {
+class InputFile final {
 public:
   explicit InputFile(const std::filesystem::path& Fname) : f(clear_errno(Fname))
   {

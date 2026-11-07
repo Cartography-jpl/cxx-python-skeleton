@@ -132,7 +132,10 @@ public:
   }
 
   //-----------------------------------------------------------------------
-  /// Multiple array returns, through OUTPUT/OUTPUT1/OUTPUT2 arguments.
+  /// Several results returned through non-const reference arguments.
+  /// New code would return a struct; these are kept to show how to bind
+  /// geocal's functions of this form (the binding returns a tuple, see
+  /// array_typemap_sample_nb.cc).
   //-----------------------------------------------------------------------
 
   void split(const blitz::Array<double, 2>& A, blitz::Array<double, 1>& Row0,

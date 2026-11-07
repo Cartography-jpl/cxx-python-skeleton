@@ -59,7 +59,7 @@ strided_mdspan<T, N> to_mdspan(const blitz::Array<T, N>& A)
 //-----------------------------------------------------------------------
 
 namespace detail {
-template<class T> class OwnerMemoryBlock : public blitz::MemoryBlock<T> {
+template<class T> class OwnerMemoryBlock final : public blitz::MemoryBlock<T> {
 public:
   OwnerMemoryBlock(T* Data, std::size_t Length, std::shared_ptr<void> Owner)
     : blitz::MemoryBlock<T>(Length, Data), owner(std::move(Owner))

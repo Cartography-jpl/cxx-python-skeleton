@@ -61,7 +61,7 @@ BOOST_AUTO_TEST_CASE(memory)
   std::vector<int> w{7, 8, 9};
   m.write_ptr(0, 0, 1, 3, w.data());
   BOOST_CHECK_EQUAL(m.data()(0, 2), 9);
-  BOOST_CHECK_THROW(m.read(4, 0, 2, 1), Exception);
+  BOOST_CHECK_THROW(std::ignore = m.read(4, 0, 2, 1), Exception);
   BOOST_CHECK_THROW(m.read_ptr(0, 5, 1, 2, buf.data()), Exception);
   // Negative sizes are caught before the mdspan is made.
   BOOST_CHECK_THROW(m.read_ptr(0, 0, -1, 2, buf.data()), Exception);
@@ -104,7 +104,7 @@ BOOST_AUTO_TEST_CASE(buffer)
   BOOST_CHECK_EQUAL(b.number_copy(), 3);
   BOOST_CHECK_EQUAL(b.read(0, 0, 1, 2)(0, 1), 2);
   BOOST_CHECK_EQUAL(b.read(4, 6, 1, 2)(0, 1), 3);
-  BOOST_CHECK_THROW(b.read(5, 0, 2, 1), Exception);
+  BOOST_CHECK_THROW(std::ignore = b.read(5, 0, 2, 1), Exception);
 }
 
 BOOST_AUTO_TEST_CASE(read_with_pad)
@@ -137,7 +137,7 @@ BOOST_AUTO_TEST_CASE(sub)
   BOOST_CHECK_EQUAL(s.number_line(), 3);
   BOOST_CHECK_EQUAL(s.number_sample(), 4);
   BOOST_CHECK_MATRIX_CLOSE(s.read(0, 0, 3, 4), expected(2, 3, 3, 4));
-  BOOST_CHECK_THROW(s.read(0, 0, 4, 4), Exception);
+  BOOST_CHECK_THROW(std::ignore = s.read(0, 0, 4, 4), Exception);
   blitz::Array<int, 2> r = s.read_with_pad(-1, 0, 2, 4);
   BOOST_CHECK_EQUAL(r(0, 0), 0);
   BOOST_CHECK_EQUAL(r(1, 0), 2003);

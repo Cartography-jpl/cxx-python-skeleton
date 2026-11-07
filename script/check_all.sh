@@ -3,7 +3,7 @@
 #
 #   script/check_all.sh [-j N] DIR[@MANIFEST] ...
 #
-# For each DIR: build (and fail on any compiler warning), "make check",
+# For each DIR: build, "make check" (both failing on any compiler warning),
 # "make golden-check". Then, once, in the first DIR: "make format-check" and
 # "make lint". Prints a summary table, and exits non-zero if anything
 # failed. Logs are in each DIR, check_all_<step>.log. The warning check
@@ -45,7 +45,9 @@ run_step() {
   else
     result="ok"
   fi
-  if [ "$step" = build ] && [ $rc -eq 0 ]; then
+  # Count warnings in the check step too: the test programs are only
+  # compiled by "make check".
+  if { [ "$step" = build ] || [ "$step" = check ]; } && [ $rc -eq 0 ]; then
     local nwarn
     nwarn=$(grep -c 'warning:' "$log")
     if [ "$nwarn" -ne 0 ]; then
@@ -53,7 +55,7 @@ run_step() {
       status=1
     fi
   fi
-  if [ "$step" = check ] && [ $rc -eq 0 ]; then
+  if [ "$step" = check ] && [ "$result" = ok ]; then
     local py
     py=$(grep -E '[0-9]+ passed' "$log" | tail -1)
     [ -n "$py" ] && result="ok ($py)"

@@ -2,7 +2,9 @@
 #include "printable.h"
 #include <memory>
 #include <ranges>
+#include <functional>
 #include <string>
+#include <string_view>
 #include <map>
 #include <vector>
 
@@ -28,7 +30,10 @@ namespace Skeleton {
 *******************************************************************/
 class GenericObjectMap : public Printable<GenericObjectMap> {
 public:
-  using map_type = std::map<std::string, std::shared_ptr<GenericObject>>;
+  // std::less<>: lookups take a std::string_view without making a
+  // std::string.
+  using map_type =
+      std::map<std::string, std::shared_ptr<GenericObject>, std::less<>>;
   using iterator = map_type::iterator;
   using const_iterator = map_type::const_iterator;
 
@@ -62,7 +67,8 @@ public:
   /// value in the map.
   //-----------------------------------------------------------------------
 
-  std::shared_ptr<GenericObject> get_generic(const std::string& Key) const
+  [[nodiscard]] std::shared_ptr<GenericObject>
+  get_generic(std::string_view Key) const
   {
     auto i = map_.find(Key);
     return i != map_.end() ? i->second : nullptr;
@@ -73,7 +79,8 @@ public:
   /// value in the map or it doesn't match type
   //-----------------------------------------------------------------------
 
-  template<class T> std::shared_ptr<T> get(const std::string& Key) const
+  template<class T>
+  [[nodiscard]] std::shared_ptr<T> get(std::string_view Key) const
   {
     return std::dynamic_pointer_cast<T>(get_generic(Key));
   }
@@ -86,8 +93,18 @@ public:
   {
     return map_[Key];
   }
-  bool contains(const std::string& Key) const { return map_.contains(Key); }
-  bool erase(const std::string& Key) { return map_.erase(Key) > 0; }
+  [[nodiscard]] bool contains(std::string_view Key) const
+  {
+    return map_.contains(Key);
+  }
+  bool erase(std::string_view Key)
+  {
+    auto i = map_.find(Key);
+    if(i == map_.end())
+      return false;
+    map_.erase(i);
+    return true;
+  }
   std::size_t size() const { return map_.size(); }
   bool empty() const { return map_.empty(); }
   void clear() { map_.clear(); }

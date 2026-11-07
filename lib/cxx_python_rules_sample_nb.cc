@@ -14,10 +14,7 @@ class PyCxxPythonRulesSample : public CxxPythonRulesSample {
 public:
   NB_TRAMPOLINE(CxxPythonRulesSample);
   double weight() const override { NB_OVERRIDE_NAME("_v_weight", weight); }
-  void weight(const double& V) override
-  {
-    NB_OVERRIDE_NAME("_v_weight", weight, V);
-  }
+  void weight(double V) override { NB_OVERRIDE_NAME("_v_weight", weight, V); }
 };
 }
 
@@ -85,8 +82,7 @@ void init_cxx_python_rules_sample(nb::module_& m)
     c.def_prop_ro("count_squared", &S::get_count_squared,
                   doc("get_count_squared"));
     c.def_prop_rw("scale", nb::overload_cast<>(&S::get_scale, nb::const_),
-                  nb::overload_cast<const double&>(&S::get_scale),
-                  doc("get_scale"));
+                  nb::overload_cast<double>(&S::get_scale), doc("get_scale"));
     c.def_prop_ro("counter", &S::counter, doc("counter"));
     // A writable numpy view of the C++ array (non-const reference).
     c.def_prop_ro("data", &S::data_ptr, doc("data_ptr"));

@@ -34,9 +34,10 @@ private:
   // directory otherwise.
   void read()
   {
-    std::ifstream in(resolve_archive_path(fname_));
+    std::filesystem::path p = resolve_archive_path(fname_);
+    std::ifstream in(p);
     if(!in)
-      throw Exception("Can't open {}", fname_);
+      throw Exception("Can't open {} (looked for {})", fname_, p.string());
     std::getline(in, contents_);
   }
   std::string fname_;

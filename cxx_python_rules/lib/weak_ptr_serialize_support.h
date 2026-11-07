@@ -80,7 +80,7 @@ bool is_ptr_serialized(const GenericObject* P);
 /// directly) the functions above use one set per thread.
 //-----------------------------------------------------------------------
 
-class PtrSerializeScope {
+class PtrSerializeScope final {
 public:
   PtrSerializeScope();
   ~PtrSerializeScope();

@@ -96,8 +96,8 @@ public:
   /// Read into a new blitz array (a numpy array in python).
   //-----------------------------------------------------------------------
 
-  blitz::Array<int, 2> read(int Lstart, int Sstart, int Number_line,
-                            int Number_sample) const;
+  [[nodiscard]] blitz::Array<int, 2>
+  read(int Lstart, int Sstart, int Number_line, int Number_sample) const;
 
   //-----------------------------------------------------------------------
   /// Like read, but the region may go past the edges of the image; the
@@ -105,9 +105,10 @@ public:
   /// the middle of the result (a submdspan), no temporary.
   //-----------------------------------------------------------------------
 
-  blitz::Array<int, 2> read_with_pad(int Lstart, int Sstart, int Number_line,
-                                     int Number_sample,
-                                     int Fill_value = 0) const;
+  [[nodiscard]] blitz::Array<int, 2> read_with_pad(int Lstart, int Sstart,
+                                                   int Number_line,
+                                                   int Number_sample,
+                                                   int Fill_value = 0) const;
 
   //-----------------------------------------------------------------------
   /// Write a blitz array (a numpy array in python) at Lstart, Sstart.

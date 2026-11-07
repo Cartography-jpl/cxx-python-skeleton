@@ -32,14 +32,14 @@ std::string serialize_write_string(const std::shared_ptr<GenericObject>& Obj);
 std::string
 serialize_write_binary_string(const std::shared_ptr<GenericObject>& Obj);
 
-std::shared_ptr<GenericObject>
+[[nodiscard]] std::shared_ptr<GenericObject>
 serialize_read_generic(const std::filesystem::path& Fname);
-std::shared_ptr<GenericObject>
+[[nodiscard]] std::shared_ptr<GenericObject>
 serialize_read_binary_generic(const std::filesystem::path& Fname);
 
-std::shared_ptr<GenericObject>
+[[nodiscard]] std::shared_ptr<GenericObject>
 serialize_read_generic_string(std::string_view Data);
-std::shared_ptr<GenericObject>
+[[nodiscard]] std::shared_ptr<GenericObject>
 serialize_read_binary_generic_string(std::string_view Data);
 
 //-----------------------------------------------------------------------
@@ -48,12 +48,13 @@ serialize_read_binary_generic_string(std::string_view Data);
 /// pickle_serialization_dir.
 //-----------------------------------------------------------------------
 
-std::shared_ptr<GenericObject>
+[[nodiscard]] std::shared_ptr<GenericObject>
 serialize_read_binary_generic_string(std::string_view Data,
                                      const std::filesystem::path& Base_dir);
 
 template<class T>
-inline std::shared_ptr<T> serialize_read(const std::filesystem::path& Fname)
+[[nodiscard]] std::shared_ptr<T>
+serialize_read(const std::filesystem::path& Fname)
 {
   return std::dynamic_pointer_cast<T>(serialize_read_generic(Fname));
 }
@@ -66,13 +67,14 @@ serialize_read_binary(const std::filesystem::path& Fname)
 }
 
 template<class T>
-inline std::shared_ptr<T> serialize_read_string(std::string_view Data)
+[[nodiscard]] std::shared_ptr<T> serialize_read_string(std::string_view Data)
 {
   return std::dynamic_pointer_cast<T>(serialize_read_generic_string(Data));
 }
 
 template<class T>
-inline std::shared_ptr<T> serialize_read_binary_string(std::string_view Data)
+[[nodiscard]] std::shared_ptr<T>
+serialize_read_binary_string(std::string_view Data)
 {
   return std::dynamic_pointer_cast<T>(
       serialize_read_binary_generic_string(Data));
@@ -106,14 +108,15 @@ std::filesystem::path set_archive_base_directory(std::filesystem::path Dir);
 /// directory / P.
 //-----------------------------------------------------------------------
 
-std::filesystem::path resolve_archive_path(const std::filesystem::path& P);
+[[nodiscard]] std::filesystem::path
+resolve_archive_path(const std::filesystem::path& P);
 
 //-----------------------------------------------------------------------
 /// Set the archive base directory for a scope, and restore the previous
 /// one at the end (so nested loads work).
 //-----------------------------------------------------------------------
 
-class ArchiveBaseDirectory {
+class ArchiveBaseDirectory final {
 public:
   explicit ArchiveBaseDirectory(std::filesystem::path Dir)
     : prev_(set_archive_base_directory(std::move(Dir)))

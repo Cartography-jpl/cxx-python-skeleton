@@ -9,6 +9,7 @@
 #include <filesystem>
 #include <fstream>
 #include <thread>
+#include <tuple>
 #include <vector>
 
 // Tests for the file based entry points in
@@ -107,9 +108,11 @@ BOOST_AUTO_TEST_CASE(string_round_trip)
 BOOST_AUTO_TEST_CASE(missing_file)
 {
   TempDir d;
-  BOOST_CHECK_THROW(serialize_read_generic(d.file("not_here.xml")),
+  BOOST_CHECK_THROW(std::ignore =
+                        serialize_read_generic(d.file("not_here.xml")),
                     std::exception);
-  BOOST_CHECK_THROW(serialize_read_binary_generic(d.file("not_here.bin")),
+  BOOST_CHECK_THROW(std::ignore =
+                        serialize_read_binary_generic(d.file("not_here.bin")),
                     std::exception);
 }
 
@@ -129,7 +132,7 @@ BOOST_AUTO_TEST_CASE(directory_restored)
     std::ofstream os(d.file("sub/bad.xml"));
     os << "<?xml version=\"1.0\"?>\n<not_a_boost_archive/>\n";
   }
-  BOOST_CHECK_THROW(serialize_read_generic(d.file("sub/bad.xml")),
+  BOOST_CHECK_THROW(std::ignore = serialize_read_generic(d.file("sub/bad.xml")),
                     std::exception);
   BOOST_CHECK(std::filesystem::current_path() == cwd);
   {
@@ -139,7 +142,8 @@ BOOST_AUTO_TEST_CASE(directory_restored)
     std::ofstream os(d.file("sub/truncated.xml"));
     os << s.substr(0, s.size() / 2);
   }
-  BOOST_CHECK_THROW(serialize_read_generic(d.file("sub/truncated.xml")),
+  BOOST_CHECK_THROW(std::ignore =
+                        serialize_read_generic(d.file("sub/truncated.xml")),
                     std::exception);
   BOOST_CHECK(std::filesystem::current_path() == cwd);
   BOOST_CHECK(archive_base_directory().empty());

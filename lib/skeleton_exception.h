@@ -170,7 +170,7 @@ public:
   /// nothing unless it is asked for.
   //-----------------------------------------------------------------------
 
-  std::string stacktrace() const;
+  [[nodiscard]] std::string stacktrace() const;
 
   //-----------------------------------------------------------------------
   /// Turn capturing the stack trace on or off (on by default), for

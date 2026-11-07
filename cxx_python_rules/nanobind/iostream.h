@@ -22,7 +22,7 @@
 namespace cxx_python_rules_nb __attribute__((visibility("hidden"))) {
   namespace nb = nanobind;
 
-  class py_streambuf : public std::streambuf {
+  class py_streambuf final : public std::streambuf {
   public:
     explicit py_streambuf(nb::object Fh) : fh(std::move(Fh))
     {
@@ -73,7 +73,7 @@ namespace cxx_python_rules_nb __attribute__((visibility("hidden"))) {
     char obuf[4096] = {};
   };
 
-  class py_ostream : public std::ostream {
+  class py_ostream final : public std::ostream {
   public:
     explicit py_ostream(nb::object Fh)
       : std::ostream(nullptr), buf(std::move(Fh))
@@ -85,7 +85,7 @@ namespace cxx_python_rules_nb __attribute__((visibility("hidden"))) {
     py_streambuf buf;
   };
 
-  class py_istream : public std::istream {
+  class py_istream final : public std::istream {
   public:
     explicit py_istream(nb::object Fh)
       : std::istream(nullptr), buf(std::move(Fh))

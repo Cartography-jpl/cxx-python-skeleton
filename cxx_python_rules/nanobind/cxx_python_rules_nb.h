@@ -10,6 +10,7 @@
 #include "generic_object.h"
 #include <nanobind/nanobind.h>
 #include <nanobind/stl/string.h>
+#include <nanobind/stl/string_view.h>
 #include <nanobind/stl/vector.h>
 #include <nanobind/stl/optional.h>
 #include <nanobind/stl/bind_vector.h>
@@ -28,7 +29,9 @@
 #include <boost/serialization/nvp.hpp>
 #include <boost/serialization/string.hpp>
 #include <exception>
+#include <functional>
 #include <map>
+#include <string_view>
 #include <string>
 #include <vector>
 #include <utility>
@@ -63,8 +66,8 @@ inline nb::module_& support()
 /// (nanobind crashes on a null docstring).
 //-----------------------------------------------------------------------
 
-std::map<std::string, const char*>& docstring_table();
-inline const char* doc(const char* Name)
+std::map<std::string, const char*, std::less<>>& docstring_table();
+inline const char* doc(std::string_view Name)
 {
   auto& t = docstring_table();
   auto i = t.find(Name);
@@ -72,9 +75,9 @@ inline const char* doc(const char* Name)
     return i->second;
   // A template instance, e.g. Ns::Observer<Ns::Foo>::notify_update is
   // documented as Ns::Observer::notify_update.
-  std::string n(Name), s;
+  std::string s;
   int depth = 0;
-  for(char c : n) {
+  for(char c : Name) {
     if(c == '<')
       ++depth;
     else if(c == '>')
@@ -101,10 +104,12 @@ inline const char* doc(const char* Name)
 class docs {
 public:
   explicit docs(std::string Class) : cls(std::move(Class)) {}
-  const char* operator()() const { return doc(cls.c_str()); }
-  const char* operator()(const char* Member) const
+  const char* operator()() const { return doc(cls); }
+  const char* operator()(std::string_view Member) const
   {
-    return doc((cls + "::" + Member).c_str());
+    std::string name = cls;
+    name.append("::").append(Member);
+    return doc(name);
   }
 private:
   std::string cls;
