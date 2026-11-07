@@ -26,6 +26,10 @@ C++20 (now C++23), Boost → std, `std::shared_ptr`, and replacing SWIG with nan
 - The second code review (`claude_notes/code_review_2026-11-07.md`) and its fix plan
   (`claude_notes/code_review_2026-11-07_fix_plan.md`, phases F0–F10, progress log at its end) followed S7. CI on the
   JPL runner is planned there but deferred.
+- A third review (`claude_notes/code_review_2026-11-07_third.md`) found five bugs at the boundaries (python file
+  errors dropped, archive write errors lost or a gzip hang, python minimum, drifted samples, star import). Its fix
+  plan (`claude_notes/code_review_2026-11-07_third_fix_plan.md`, phases T0–T9, decisions made) is ready but set
+  aside: not started.
 
 ## What this repo is
 
