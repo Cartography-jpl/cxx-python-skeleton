@@ -2,7 +2,10 @@
 
 **Date:** 2026-11-07
 **Status:** Ready; decisions D14 to D18 made (the recommendations). Set aside by the maintainer on 2026-11-07;
-not started, no code changed.
+not started, no code changed. **Then scheduled (maintainer, 2026-11-07): at least T0–T2 are done before geocal's
+Phase 0**, because T2 fixes an archive write bug that geocal has today (confirmed in geocal, see geocal's
+`claude_documents/cpp_modernization_and_library_plan.md` §0.2); geocal ports T2 in its Phase 0 step 9. The rest
+(T3–T9) may follow then or later; geocal takes those with its Phase 6 copy of `cxx_python_rules/`.
 **Input:** `claude_notes/code_review_2026-11-07_third.md` ("the review"; its section numbers are given as §3.1 and
 so on).
 **Goal:** when every step is done, each item in the review is fixed or has a written reason for being left. The
@@ -363,6 +366,7 @@ T0 → T1 → T2 → T3 → T4 → T5 → T6 → T7 → T8 → T9. Notes:
 | Plan written | done | 2026-11-07. The review was corrected at the same time (corrections 1 to 4 above), after checking the stream and gzip fixes in scratch prototypes. |
 | Decisions D14 to D18 | done | 2026-11-07 (maintainer): the recommendations: D14 A (python 3.13, after T3's check of geocal and framework), D15 A (samples script), D16 A (add the C++ names to `__all__`), D17 A (no hardening option now), D18 B (targeted style changes only). |
 | Set aside | — | 2026-11-07 (maintainer): plan ready, set aside for now. Start at T0. |
+| Scheduled | — | 2026-11-07 (maintainer, from the geocal plan update): do at least T0–T2 before geocal's Phase 0. Checked for geocal on frenchpeas: `serialize_write` to `/dev/full` returns with no error for a small archive (plain and `.gz`), raises for a large plain one, and hangs for a large `.gz` one, as in review §3.2. T3 step 0: geocal's envs are on python 3.13.7 (linux and osx locks); framework is still `python<3.9`, which it has to leave anyway, so D14 (3.13) stands. |
 | T0 baseline | | |
 | T1 stream adapters | | |
 | T2 archive writes | | |

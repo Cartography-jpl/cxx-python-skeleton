@@ -2,7 +2,7 @@
 
 **Date:** 2026-10-23 (reviewed and updated 2026-10-30: geocal sync §2.5, test coverage phase ST §4a; 2026-11-05:
 geocal/framework sync §2.6)
-**Status:** In progress. Phases S0–S7 are done, then the 2026-11-07 code review fix plan (`code_review_2026-11-07_fix_plan.md`); see §0. The third review's fix plan (`code_review_2026-11-07_third_fix_plan.md`) is ready but set aside (not started).
+**Status:** In progress. Phases S0–S7 are done, then the 2026-11-07 code review fix plan (`code_review_2026-11-07_fix_plan.md`); see §0. The third review's fix plan (`code_review_2026-11-07_third_fix_plan.md`) is ready but not started; **at least its T0–T2 come next, before geocal's Phase 0** (maintainer, 2026-11-07).
 **Purpose:** Work through every modernization step planned for geocal (and later framework) on this small repository
 first, so the problems are found and solved here before touching the large repositories.
 
