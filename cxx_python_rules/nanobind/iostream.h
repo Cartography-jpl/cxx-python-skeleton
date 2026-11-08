@@ -7,15 +7,26 @@
 //   .def("write", [](const Foo& self, nb::object fh) {
 //          cxx_python_rules_nb::py_ostream os(fh);
 //          self.write(os);
+//          os.flush();
 //        })
 //
 // Input is unbuffered (one byte per read call), so after the C++ read the
 // python file position is just past what C++ consumed, as with SWIG.
-// Output is buffered and flushed when the stream is destroyed.
+// Output is buffered. Flush it explicitly at the end, as above: then an
+// error in the last write (e.g. a full disk) comes out of the call. The
+// destructor flushes too, but it can't throw, so there an error is only
+// reported as "Exception ignored in ..." (sys.unraisablehook).
+//
+// An exception raised by the python file object's write or read (or a
+// TypeError, e.g. a text-mode file given bytes) comes out of the C++ code
+// that used the stream: the streams have badbit in their exception mask,
+// so iostreams rethrow what the streambuf threw instead of only setting
+// badbit. An ordinary end of file still doesn't throw.
 #include <nanobind/nanobind.h>
 #include <array>
 #include <istream>
 #include <ostream>
+#include <stdexcept>
 #include <streambuf>
 #include <string>
 
@@ -36,7 +47,8 @@ namespace cxx_python_rules_nb __attribute__((visibility("hidden"))) {
       try {
         flush();
       } catch(...) { // NOLINT(bugprone-empty-catch)
-        // A destructor can't throw; a failed final write is lost.
+        // A destructor can't throw. py_ostream's destructor has flushed
+        // already (and reported a failure), so this is only a fallback.
       }
     }
   protected:
@@ -64,12 +76,28 @@ namespace cxx_python_rules_nb __attribute__((visibility("hidden"))) {
       return 0;
     }
   private:
+    // Write the buffer to python. The buffer is emptied first, so data
+    // whose write failed isn't written again by a later flush. A raw file
+    // (open(..., buffering=0)) may write less than it was given and return
+    // the count; then write the rest. Other file objects return None, or
+    // the full count.
     void flush()
     {
-      std::ptrdiff_t n = pptr() - pbase();
-      if(n > 0)
-        fh.attr("write")(nb::bytes(pbase(), static_cast<size_t>(n)));
+      auto n = static_cast<size_t>(pptr() - pbase());
       setp(obuf.data(), obuf.data() + obuf.size());
+      const char* p = obuf.data();
+      while(n > 0) {
+        nb::object r = fh.attr("write")(nb::bytes(p, n));
+        if(!nb::isinstance<nb::int_>(r))
+          return;
+        auto written = nb::cast<size_t>(r);
+        if(written == 0 || written > n)
+          throw std::runtime_error("python file object's write wrote " +
+                                   std::to_string(written) + " of " +
+                                   std::to_string(n) + " bytes");
+        p += written;
+        n -= written;
+      }
     }
     nb::object fh;
     char ibuf = 0;
@@ -82,10 +110,23 @@ namespace cxx_python_rules_nb __attribute__((visibility("hidden"))) {
       : std::ostream(nullptr), buf(std::move(Fh))
     {
       rdbuf(&buf);
+      // After rdbuf: the constructor's null buffer set badbit, and a mask
+      // with a bit that is already set throws at once.
+      exceptions(std::ios::badbit);
     }
     py_ostream(const py_ostream&) = delete;
     py_ostream& operator=(const py_ostream&) = delete;
-    ~py_ostream() override { flush(); }
+    ~py_ostream() override
+    {
+      try {
+        flush();
+      } catch(nb::python_error& e) {
+        // Can't throw from here; let python print it.
+        e.discard_as_unraisable("cxx_python_rules_nb::py_ostream");
+      } catch(...) { // NOLINT(bugprone-empty-catch)
+        // Nothing to report it to.
+      }
+    }
   private:
     py_streambuf buf;
   };
@@ -96,6 +137,7 @@ namespace cxx_python_rules_nb __attribute__((visibility("hidden"))) {
       : std::istream(nullptr), buf(std::move(Fh))
     {
       rdbuf(&buf);
+      exceptions(std::ios::badbit); // after rdbuf, as in py_ostream
     }
   private:
     py_streambuf buf;

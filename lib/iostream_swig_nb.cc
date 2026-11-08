@@ -20,6 +20,7 @@ void init_iostream_swig(nb::module_& m)
       [](const IostreamSwig& self, nb::object Os) {
         cxx_python_rules_nb::py_ostream os(std::move(Os));
         self.write(os);
+        os.flush(); // so an error in the last write comes out here
       },
       "Os"_a, doc("write"));
   c.def(

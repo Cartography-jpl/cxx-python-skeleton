@@ -54,7 +54,6 @@ class _FailingFile:
         raise OSError("read failed")
 
 
-@pytest.mark.xfail(strict=True, reason="T1: python errors are dropped")
 def test_iostream_write_text_file(tmp_path):
     """A text-mode file wants str, not bytes: the TypeError from its write
     comes out of the C++ call (review 2026-11-07 third, section 3.1)."""
@@ -64,15 +63,46 @@ def test_iostream_write_text_file(tmp_path):
             iostream_swig.write(fh)
 
 
-@pytest.mark.xfail(strict=True, reason="T1: python errors are dropped")
 def test_iostream_write_error():
     iostream_swig = IostreamSwig("hello world")
     with pytest.raises(OSError, match="disk full"):
         iostream_swig.write(_FailingFile())
 
 
-@pytest.mark.xfail(strict=True, reason="T1: python errors are dropped")
 def test_iostream_read_error():
     iostream_swig = IostreamSwig("hello world", 2)
     with pytest.raises(OSError, match="read failed"):
         iostream_swig.read(_FailingFile())
+
+
+def test_iostream_write_raw_file(tmp_path):
+    """A raw file (buffering=0) returns the count it wrote."""
+    content = "x" * 100_000
+    with open(tmp_path / "out.bin", "wb", buffering=0) as fh:
+        IostreamSwig(content).write(fh)
+    assert (tmp_path / "out.bin").read_bytes() == content.encode()
+
+
+class _ShortWriteFile(BytesIO):
+    """Writes at most 1000 bytes per call, as a raw file may."""
+
+    def write(self, data):
+        return super().write(bytes(data[:1000]))
+
+
+def test_iostream_write_short_writes():
+    content = "".join(chr(ord("a") + i % 26) for i in range(10_000))
+    fh = _ShortWriteFile()
+    IostreamSwig(content).write(fh)
+    assert fh.getvalue() == content.encode()
+
+
+class _ZeroWriteFile:
+    def write(self, data):
+        return 0
+
+
+def test_iostream_write_nothing_written():
+    """A write that writes nothing raises instead of looping forever."""
+    with pytest.raises(RuntimeError, match="wrote 0 of"):
+        IostreamSwig("hello world").write(_ZeroWriteFile())

@@ -64,7 +64,8 @@ void init_foo(nb::module_& m)
   * a parameter that is a *reference to a secondary or virtual base*, taken as a `shared_ptr`
     (the type registry converts any derived object) and dereferenced;
   * *output arguments* returned as a tuple, an argument C++ should get a *copy* of
-    (`A.copy()`), *stream* arguments (`py_ostream`/`py_istream`, `iostream.h`), and a
+    (`A.copy()`), *stream* arguments (`py_ostream`/`py_istream`, `iostream.h`; call
+    `os.flush()` after the C++ call, so an error in the last write is raised), and a
     `std::array` member set with `to_std_array`;
   * `nb::new_` constructors returning `std::make_shared` (non-director classes);
   * conversions the python API needs (e.g. `std::filesystem::path` results as `str`, archives

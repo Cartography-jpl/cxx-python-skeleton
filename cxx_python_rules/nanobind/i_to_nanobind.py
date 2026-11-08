@@ -717,7 +717,9 @@ class Converter:
     def call_args(
         self, f: Func, pre: list[str], post: list[str]
     ) -> tuple[list[str], list[str], list[str]]:
-        """(lambda params, call arguments, output names)."""
+        """(lambda params, call arguments, output names). Statements to run
+        before the call are added to pre, and after it to post (the flush of
+        an output stream, so an error in its last write is raised)."""
         lp, ca, outs = [], [], []
         for p in f.params:
             t = self.qualify(p.type)
@@ -731,6 +733,7 @@ class Converter:
             if re.match(r"^std::ostream &$", t):
                 lp.append(f"nb::object {p.name}")
                 pre.append(f"cxx_python_rules_nb::py_ostream {p.name}_os({p.name});")
+                post.append(f"{p.name}_os.flush();")
                 ca.append(f"{p.name}_os")
                 continue
             if re.match(r"^std::istream &$", t):
@@ -836,7 +839,19 @@ class Converter:
                 f"{self.arg_names(f)}, {doc});"
             )
         pre: list[str] = []
-        lp, ca, outs = self.call_args(f, pre, [])
+        post: list[str] = []
+        lp, ca, outs = self.call_args(f, pre, post)
+        after = " ".join(post)
+
+        def ret(c: str) -> str:
+            """Statements that call c, run post and return the result.
+            decltype(auto) keeps a reference result a reference."""
+            if not post:
+                return f"return {c};"
+            if f.ret == "void":
+                return f"{c}; {after} return;"
+            return f"decltype(auto) r = {c}; {after} return r;"
+
         self_t = self_t or ci_cpp
         if f.static:
             params = ", ".join(lp)
@@ -851,23 +866,28 @@ class Converter:
                 # would call the python override again.
                 c = "const " if f.const else ""
                 qcall = f"self.{ci_cpp}::{f.name}({', '.join(ca)})"
+                first = ret(qcall) if not post else f"{{ {ret(qcall)} }}"
                 return (
                     f'    c.def("{pyname}", []({params}) -> decltype(auto) {{ {" ".join(pre)} '
-                    f"if(dynamic_cast<{c}{tramp}*>(&self)) return {qcall}; return {call}; }}"
+                    f"if(dynamic_cast<{c}{tramp}*>(&self)) {first} {ret(call)} }}"
                     f"{self.arg_names(f)}, {doc});"
                 )
         if outs:
             if f.ret == "void":
-                body = f"{call}; "
-                ret = (
+                body = f"{call}; " + (f"{after} " if post else "")
+                res = (
                     outs[0] if len(outs) == 1 else f"nb::make_tuple({', '.join(outs)})"
                 )
-                body += f"return {ret};"
+                body += f"return {res};"
             else:
-                body = f"auto r = {call}; return nb::make_tuple(r, {', '.join(outs)});"
+                body = (
+                    f"auto r = {call}; "
+                    + (f"{after} " if post else "")
+                    + f"return nb::make_tuple(r, {', '.join(outs)});"
+                )
             lam = f"[]({params}) {{ {' '.join(pre)} {body} }}"
         else:
-            lam = f"[]({params}) -> decltype(auto) {{ {' '.join(pre)} return {call}; }}"
+            lam = f"[]({params}) -> decltype(auto) {{ {' '.join(pre)} {ret(call)} }}"
         return f'    c.{d}("{pyname}", {lam}{self.arg_names(f)}, {doc});'
 
     def attr_def(
