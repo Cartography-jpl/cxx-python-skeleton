@@ -2,6 +2,11 @@
 // SKELETON_ADDR2LINE (not in the installed skeleton_config.h).
 #include "skeleton_build_config.h"
 #include <atomic>
+#include <format>
+#include <iterator>
+#include <ranges>
+#include <string>
+#include <vector>
 // Boost.Stacktrace is only used in this file, so the header stays light
 // and only libskeleton needs its link dependencies (-ldl). It records the
 // addresses. If configure found addr2line (binutils), stacktrace() runs it
@@ -19,6 +24,7 @@
 #include <fstream>
 #include <map>
 #include <string_view>
+#include <utility>
 #endif
 
 using namespace Skeleton;
@@ -98,18 +104,30 @@ std::string shell_quote(const std::string& S)
 //-----------------------------------------------------------------------
 
 namespace {
-std::vector<std::string> symbolize(const std::vector<void*>& Trace)
+// The frames of a trace in one module: index in the trace, and the
+// address to give addr2line (relative to the module's load address for a
+// shared object).
+using ModuleFrames = std::vector<std::pair<std::size_t, std::uintptr_t>>;
+
+//-----------------------------------------------------------------------
+// Map each address to its module and offset. Res gets the text to show
+// if addr2line finds nothing ("<address> in <module>", or just the
+// address if dladdr doesn't know it); the result has the frames to look
+// up, by module.
+//-----------------------------------------------------------------------
+
+std::map<std::string, ModuleFrames> locate(const std::vector<void*>& Trace,
+                                           std::vector<std::string>& Res)
 {
-  std::vector<std::string> res(Trace.size());
-  std::map<std::string, std::vector<std::size_t>> by_module;
-  std::vector<std::uintptr_t> offset(Trace.size(), 0);
-  for(std::size_t i = 0; i < Trace.size(); ++i) {
+  std::map<std::string, ModuleFrames> by_module;
+  for(const auto [i, p] : std::views::enumerate(Trace)) {
+    const auto idx = static_cast<std::size_t>(i);
     // A return address is just past the call, look up the call itself.
-    auto a = reinterpret_cast<std::uintptr_t>(Trace[i]);
+    auto a = reinterpret_cast<std::uintptr_t>(p);
     Dl_info di;
-    if(a == 0 || !dladdr(static_cast<char*>(Trace[i]) - 1, &di) ||
-       !di.dli_fname || !*di.dli_fname) {
-      res[i] = std::format("{}", Trace[i]);
+    if(a == 0 || !dladdr(static_cast<char*>(p) - 1, &di) || !di.dli_fname ||
+       !*di.dli_fname) {
+      Res[idx] = std::format("{}", p);
       continue;
     }
     std::string m = di.dli_fname;
@@ -120,42 +138,60 @@ std::vector<std::string> symbolize(const std::vector<void*>& Trace)
       if(ec)
         m = di.dli_fname;
     }
-    offset[i] =
+    const std::uintptr_t offset =
         a - 1 -
         (is_et_dyn(m) ? reinterpret_cast<std::uintptr_t>(di.dli_fbase) : 0);
-    res[i] = std::format("{:#x} in {}", a, m);
-    by_module[m].push_back(i);
+    Res[idx] = std::format("{:#x} in {}", a, m);
+    by_module[m].emplace_back(idx, offset);
   }
-  for(const auto& [m, idx] : by_module) {
-    // SKELETON_ADDR2LINE is the unquoted path (as Boost.Stacktrace wanted it).
-    std::string cmd = shell_quote(BOOST_PP_STRINGIZE(SKELETON_ADDR2LINE)) +
-                                  " -C -f -e " + shell_quote(m);
-    for(std::size_t i : idx)
-      cmd += std::format(" {:#x}", offset[i]);
-    cmd += " 2>/dev/null";
-    // Every part of cmd is quoted (shell_quote) or a number.
-    FILE* f = popen(cmd.c_str(), "r"); // NOLINT(bugprone-command-processor)
-    if(!f)
+  return by_module;
+}
+
+//-----------------------------------------------------------------------
+// Run addr2line once for the frames in Module, and replace their entries
+// in Res with "function at file:line" (or "function in module") where it
+// finds a function.
+//-----------------------------------------------------------------------
+
+void addr2line(const std::string& Module, const ModuleFrames& Frames,
+               std::vector<std::string>& Res)
+{
+  // SKELETON_ADDR2LINE is the unquoted path (as Boost.Stacktrace wanted it).
+  std::string cmd = shell_quote(BOOST_PP_STRINGIZE(SKELETON_ADDR2LINE)) +
+                                " -C -f -e " + shell_quote(Module);
+  for(const auto& fr : Frames)
+    std::format_to(std::back_inserter(cmd), " {:#x}", fr.second);
+  cmd += " 2>/dev/null";
+  // Every part of cmd is quoted (shell_quote) or a number.
+  FILE* f = popen(cmd.c_str(), "r"); // NOLINT(bugprone-command-processor)
+  if(!f)
+    return;
+  std::array<char, 4096> buf{};
+  for(const auto& fr : Frames) {
+    std::string func, loc;
+    if(fgets(buf.data(), static_cast<int>(buf.size()), f))
+      func = buf.data();
+    if(fgets(buf.data(), static_cast<int>(buf.size()), f))
+      loc = buf.data();
+    while(!func.empty() && func.back() == '\n')
+      func.pop_back();
+    while(!loc.empty() && loc.back() == '\n')
+      loc.pop_back();
+    if(func.empty() || func == "??")
       continue;
-    std::array<char, 4096> buf{};
-    for(std::size_t i : idx) {
-      std::string func, loc;
-      if(fgets(buf.data(), static_cast<int>(buf.size()), f))
-        func = buf.data();
-      if(fgets(buf.data(), static_cast<int>(buf.size()), f))
-        loc = buf.data();
-      while(!func.empty() && func.back() == '\n')
-        func.pop_back();
-      while(!loc.empty() && loc.back() == '\n')
-        loc.pop_back();
-      if(func.empty() || func == "??")
-        continue;
-      res[i] = std::move(func);
-      res[i].append(loc.starts_with("??") ? " in " : " at ");
-      res[i].append(loc.starts_with("??") ? m : loc);
-    }
-    pclose(f);
+    std::string& r = Res[fr.first];
+    r = std::move(func);
+    r.append(loc.starts_with("??") ? " in " : " at ");
+    r.append(loc.starts_with("??") ? Module : loc);
   }
+  pclose(f);
+}
+
+std::vector<std::string> symbolize(const std::vector<void*>& Trace)
+{
+  std::vector<std::string> res(Trace.size());
+  for(const auto& [m, frames] : locate(Trace, res))
+    addr2line(m, frames, res);
   return res;
 }
 }
@@ -165,14 +201,12 @@ std::string Exception::stacktrace() const
 {
   std::string res;
 #ifdef SKELETON_ADDR2LINE
-  std::vector<std::string> f = symbolize(d_->trace);
-  for(std::size_t i = 0; i < f.size(); ++i)
-    res += std::format("{:2}# {}\n", i, f[i]);
+  for(const auto& [i, f] : std::views::enumerate(symbolize(d_->trace)))
+    std::format_to(std::back_inserter(res), "{:2}# {}\n", i, f);
 #else
-  for(std::size_t i = 0; i < d_->trace.size(); ++i)
-    res += std::format(
-        "{:2}# {}\n", i,
-        boost::stacktrace::to_string(boost::stacktrace::frame(d_->trace[i])));
+  for(const auto [i, p] : std::views::enumerate(d_->trace))
+    std::format_to(std::back_inserter(res), "{:2}# {}\n", i,
+                   boost::stacktrace::to_string(boost::stacktrace::frame(p)));
 #endif
   return res;
 }

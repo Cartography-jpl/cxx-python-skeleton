@@ -204,21 +204,21 @@ BufferRasterSample::BufferRasterSample(int Number_line, int Number_sample)
 void BufferRasterSample::read_into(int Lstart, int Sstart,
                                    const RasterView& Res) const
 {
-  int nl = static_cast<int>(Res.extent(0));
-  int ns = static_cast<int>(Res.extent(1));
-  int status;
-  if(is_row_major_contiguous(Res))
-    status = legacy_read_block(&f, Lstart, Sstart, nl, ns, Res.data_handle());
-  else {
+  const int nl = static_cast<int>(Res.extent(0));
+  const int ns = static_cast<int>(Res.extent(1));
+  const int status = [&] {
+    if(is_row_major_contiguous(Res))
+      return legacy_read_block(&f, Lstart, Sstart, nl, ns, Res.data_handle());
     ++number_copy_;
     std::vector<int> tmp(static_cast<std::size_t>(nl) *
                          static_cast<std::size_t>(ns));
-    status = legacy_read_block(&f, Lstart, Sstart, nl, ns, tmp.data());
-    if(status == 0)
+    const int s = legacy_read_block(&f, Lstart, Sstart, nl, ns, tmp.data());
+    if(s == 0)
       copy_view(md::mdspan<const int, md::dextents<std::ptrdiff_t, 2>>(
                     tmp.data(), nl, ns),
                 Res);
-  }
+    return s;
+  }();
   if(status != 0)
     throw Exception("legacy_read_block failed with status {}", status);
 }
@@ -226,19 +226,18 @@ void BufferRasterSample::read_into(int Lstart, int Sstart,
 void BufferRasterSample::write_from(int Lstart, int Sstart,
                                     const ConstRasterView& V)
 {
-  int nl = static_cast<int>(V.extent(0));
-  int ns = static_cast<int>(V.extent(1));
-  int status;
-  if(is_row_major_contiguous(V))
-    status = legacy_write_block(&f, Lstart, Sstart, nl, ns, V.data_handle());
-  else {
+  const int nl = static_cast<int>(V.extent(0));
+  const int ns = static_cast<int>(V.extent(1));
+  const int status = [&] {
+    if(is_row_major_contiguous(V))
+      return legacy_write_block(&f, Lstart, Sstart, nl, ns, V.data_handle());
     ++number_copy_;
     std::vector<int> tmp(static_cast<std::size_t>(nl) *
                          static_cast<std::size_t>(ns));
     copy_view(V, md::mdspan<int, md::dextents<std::ptrdiff_t, 2>>(tmp.data(),
                                                                   nl, ns));
-    status = legacy_write_block(&f, Lstart, Sstart, nl, ns, tmp.data());
-  }
+    return legacy_write_block(&f, Lstart, Sstart, nl, ns, tmp.data());
+  }();
   if(status != 0)
     throw Exception("legacy_write_block failed with status {}", status);
 }

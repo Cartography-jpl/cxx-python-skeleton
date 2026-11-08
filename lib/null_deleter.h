@@ -16,7 +16,7 @@ namespace Skeleton {
   is made by to_ptr, so this covers it too.
 *******************************************************************/
 struct null_deleter {
-  void operator()(void const*) const {}
+  static void operator()(void const*) {}
 };
 
 //-----------------------------------------------------------------------
