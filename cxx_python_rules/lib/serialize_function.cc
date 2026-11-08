@@ -5,16 +5,19 @@
 #include <cerrno>
 #include <system_error>
 #include <fstream>
+#include <ios>
 #include <memory>
 #include <spanstream>
 #include <sstream>
 #include <stdexcept>
 #include <string>
+#include <utility>
 #ifdef CXX_PYTHON_RULES_HAVE_BOOST_SERIALIZATION
 #include <boost/archive/polymorphic_binary_iarchive.hpp>
 #include <boost/archive/polymorphic_binary_oarchive.hpp>
 #include <boost/archive/polymorphic_xml_iarchive.hpp>
 #include <boost/archive/polymorphic_xml_oarchive.hpp>
+#include <boost/iostreams/categories.hpp>
 #include <boost/iostreams/filter/gzip.hpp>
 #include <boost/iostreams/filtering_stream.hpp>
 #endif

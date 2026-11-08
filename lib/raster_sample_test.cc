@@ -1,6 +1,7 @@
 #include "unit_test_support.h"
 #include <limits>
 #include <tuple>
+#include <utility>
 #include "raster_sample.h"
 #include "skeleton_exception.h"
 #include <vector>

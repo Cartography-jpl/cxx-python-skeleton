@@ -2,7 +2,7 @@
 
 **Date:** 2026-10-23 (reviewed and updated 2026-10-30: geocal sync §2.5, test coverage phase ST §4a; 2026-11-05:
 geocal/framework sync §2.6)
-**Status:** In progress. Phases S0–S7 are done, then the 2026-11-07 code review fix plan (`code_review_2026-11-07_fix_plan.md`); see §0. The third review's fix plan (`code_review_2026-11-07_third_fix_plan.md`) is ready but not started; **at least its T0–T2 come next, before geocal's Phase 0** (maintainer, 2026-11-07).
+**Status:** In progress. Phases S0–S7 are done, then the 2026-11-07 code review fix plan (`code_review_2026-11-07_fix_plan.md`); see §0. The third review's fix plan (`code_review_2026-11-07_third_fix_plan.md`, T0–T9) is done (2026-11-07); geocal's Phase 0 can start (its step 9 ports T2; the "Third code review fixes" row in the Notes for geocal table lists the rest).
 **Purpose:** Work through every modernization step planned for geocal (and later framework) on this small repository
 first, so the problems are found and solved here before touching the large repositories.
 
@@ -17,6 +17,8 @@ Related documents:
 * framework (`/home/smyth/Local/framework`): surveyed read-only; it will follow later with the same steps.
 
 ## 0. Handoff: where to pick up (read this first)
+
+**Status (2026-11-07):** after S7, the second review's fix plan (F0–F10) and the third review's fix plan (T0–T9, `code_review_2026-11-07_third_fix_plan.md`) are done; next is geocal's Phase 0. The rest of this paragraph is from 2026-11-06.
 
 **Status (2026-11-06, later):** **Phase S7 is done** (progress log; §11): C++23 with gcc 14 still the minimum
 (decision 22), a raw pointer plus size → `mdspan` sample (`lib/raster_sample.{h,cc}`), and the old bootstrap warning

@@ -62,6 +62,22 @@ bool is_gz_name(const std::string& F)
   return F.ends_with(".gz");
 }
 
+// Writing Obj to F (a symlink to /dev/full) throws, naming the file and
+// the reason.
+void check_full_disk_throws(const TempDir& D, const std::string& F,
+                            const std::shared_ptr<GenericObject>& Obj)
+{
+  const bool xml = F.contains(".xml");
+  BOOST_CHECK_EXCEPTION(xml ? serialize_write(D.file(F), Obj)
+                            : serialize_write_binary(D.file(F), Obj),
+                        std::runtime_error, [&](const std::runtime_error& e) {
+                          const std::string w = e.what();
+                          return w.contains("Trouble writing file") &&
+                                 w.contains(F) &&
+                                 w.contains("No space left on device");
+                        });
+}
+
 bool is_gzip(const std::string& F)
 {
   std::ifstream is(F, std::ios::binary);
@@ -234,22 +250,13 @@ BOOST_AUTO_TEST_CASE(write_full_disk)
     (*large)["a" + std::to_string(i)] = std::make_shared<GenericObjectA>(i);
   for(std::string f : {"full.xml", "full.xml.gz", "full.bin", "full.bin.gz"}) {
     std::filesystem::create_symlink("/dev/full", d.p / f);
-    const bool xml = f.contains(".xml");
-    for(const std::shared_ptr<GenericObject>& obj :
-        {std::shared_ptr<GenericObject>(small),
-         std::shared_ptr<GenericObject>(large)}) {
-      BOOST_TEST_CONTEXT(f << (obj == small ? " small" : " large"))
-      {
-        BOOST_CHECK_EXCEPTION(xml ? serialize_write(d.file(f), obj)
-                                  : serialize_write_binary(d.file(f), obj),
-                              std::runtime_error,
-                              [&](const std::runtime_error& e) {
-                                const std::string w = e.what();
-                                return w.contains("Trouble writing file") &&
-                                       w.contains(f) &&
-                                       w.contains("No space left on device");
-                              });
-      }
+    BOOST_TEST_CONTEXT(f << " small")
+    {
+      check_full_disk_throws(d, f, small);
+    }
+    BOOST_TEST_CONTEXT(f << " large")
+    {
+      check_full_disk_throws(d, f, large);
     }
   }
 }

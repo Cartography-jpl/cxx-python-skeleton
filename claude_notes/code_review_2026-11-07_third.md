@@ -1,5 +1,7 @@
 # Code review: quality and modernization, third look (2026-11-07)
 
+**Status:** fixed, see the third fix plan (`code_review_2026-11-07_third_fix_plan.md`, T0 to T9, done 2026-11-07). Each item is fixed or listed there under "Not doing, with reasons".
+
 **Scope.** All C++ in `lib/`, `cxx_python_rules/lib/` and `cxx_python_rules/nanobind/`, the build (`configure.ac`,
 `config/m4_local/`, `CMakeLists.txt`, `.clang-tidy`), and a shorter look at the python package. This review comes
 after the second review's fix plan (F0 to F10, `code_review_2026-11-07_fix_plan.md`) was finished.

@@ -87,7 +87,7 @@ namespace cxx_python_rules_nb __attribute__((visibility("hidden"))) {
       setp(obuf.data(), obuf.data() + obuf.size());
       const char* p = obuf.data();
       while(n > 0) {
-        nb::object r = fh.attr("write")(nb::bytes(p, n));
+        const nb::object r = fh.attr("write")(nb::bytes(p, n));
         if(!nb::isinstance<nb::int_>(r))
           return;
         auto written = nb::cast<size_t>(r);

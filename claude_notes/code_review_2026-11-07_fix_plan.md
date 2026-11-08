@@ -473,6 +473,11 @@ needs from this plan is in place by then: `script/check_all.sh` and `make golden
   (`workflow_dispatch`).
 - **Check:** a run is green; then break a test on purpose in a scratch branch and see the run fail.
 - Later, with free-threading (F7.3): a job on a free-threaded python.
+- Later (third fix plan, D17): hardening flags, as a `--enable-hardening` option (and the same in CMake) or a CI
+  job. The third review §6.3: the OpenSSF compiler-hardening guide recommends `-D_GLIBCXX_ASSERTIONS` in release
+  builds too, plus `-D_FORTIFY_SOURCE=3` and `-fstack-protector-strong` (gcc 14 bundles these as `-fhardened`).
+  conda's compiler activation already adds part of it (`-D_FORTIFY_SOURCE=2`, `-fstack-protector-strong`). Measure
+  release-mode `_GLIBCXX_ASSERTIONS` on geocal's hot loops (the Resampler) before turning it on there.
 - geocal can use the same workflow shape on the same runner.
 
 ## Notes for geocal (to copy into `implementation_plan.md` §0)

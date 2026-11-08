@@ -97,6 +97,18 @@ shelves while other threads use relative file names. `lib/DirectorNotes.md`
 describes python subclasses of C++ classes (ownership, `weak_ptr`,
 serialization, threads).
 
+Writing an archive to a file (`serialize_write`, `serialize_write_binary`)
+throws if any part of the write fails, including the last buffer and the
+gzip trailer, which are written after the archive itself: the message
+names the file and the reason (e.g. "No space left on device"). A gzip
+write error used to hang.
+
+C++ functions that take a `std::ostream`/`std::istream` get a python file
+object through `nanobind/iostream.h`. An exception from the file object's
+`write`/`read` comes out of the call; the binding flushes the output
+stream explicitly after the C++ call, so a failed last write is raised too
+(see the comment at the top of `iostream.h`).
+
 The python package files (`__init__.py`, `all.py`, `_nanobind_support.py`,
 `py.typed`) are installed next to the extension module.
 

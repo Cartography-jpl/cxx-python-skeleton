@@ -28,8 +28,8 @@ C++20 (now C++23), Boost → std, `std::shared_ptr`, and replacing SWIG with nan
   JPL runner is planned there but deferred.
 - A third review (`claude_notes/code_review_2026-11-07_third.md`) found five bugs at the boundaries (python file
   errors dropped, archive write errors lost or a gzip hang, python minimum, drifted samples, star import). Its fix
-  plan (`claude_notes/code_review_2026-11-07_third_fix_plan.md`, phases T0–T9, decisions made) is ready but set
-  aside: not started.
+  plan (`claude_notes/code_review_2026-11-07_third_fix_plan.md`, phases T0–T9, progress log at its end) is done
+  (2026-11-07).
 
 ## What this repo is
 
@@ -67,8 +67,12 @@ Useful `configure` options:
   e.g. `address`). `make check` sets the sanitizer options (`script/lsan.supp` has the one accepted Boost leak,
   `script/ubsan.supp` is for third-party findings) and preloads the runtimes for the python tests. On frenchpeas,
   configure it in the `build-rpath` environment (conda's compiler activation); in the plain `build` environment the
-  sanitizer runtime links against the host's libraries. The scratch build is `build-asan`.
-- `--enable-debug` — debug flags, and `-D_GLIBCXX_ASSERTIONS` (libstdc++ bounds and precondition checks).
+  sanitizer runtime links against the host's libraries. The scratch build is `build-asan`. With the undefined
+  sanitizer, configure leaves out Blitz's bounds checks (`-DBZ_DEBUG`): gcc takes over half an hour on the Blitz
+  serialization with both.
+- `--enable-debug` — debug flags (conda's `DEBUG_*FLAGS` in an env with its compiler activation, without
+  `-DNDEBUG`), `-DBZ_DEBUG` (Blitz bounds checks) and `-D_GLIBCXX_ASSERTIONS` (libstdc++ bounds and precondition
+  checks).
 - `--enable-python-editable-mode` — `make install` installs the pure python code in `python/` as an editable pip
   install (`pip install -e`) instead of copying it. Can also be selected for one run with
   `make install PYTHON_EDITABLE_MODE=t` (use `PYTHON_EDITABLE_MODE=` to force a normal install when configure enabled
@@ -157,7 +161,8 @@ valgrind=1 lib/test_all.sh                    # run under valgrind
 gdb=1 lib/test_all.sh                         # run under gdb
 ```
 Edit `lib/test_all.sh` locally for a fast inner loop, but it should be restored/left running all tests before
-committing (per the comment header in that file).
+committing (per the comment header in that file). `lib/unit_test_support.h` has `SKELETON_CHECK_MATRIX_CLOSE` and
+`SKELETON_CHECK_MATRIX_CLOSE_TOL` for comparing Blitz arrays (geocal's names have a `BOOST_` prefix).
 
 **Python tests** (pytest, run from a directory with the environment sourced):
 ```sh
