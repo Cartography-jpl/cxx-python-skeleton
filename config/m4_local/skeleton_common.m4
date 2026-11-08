@@ -247,3 +247,30 @@ else
    AC_MSG_ERROR([python 3.13 or later is required, $PYTHON is $($PYTHON --version 2>&1)])
 fi
 ])
+
+#=================================================================
+# Is Blitz built thread safe (--enable-threadsafe, BZ_THREADSAFE in its
+# bzconfig.h)? Without it the reference count of the memory a
+# blitz::Array shares isn't atomic, so classes that copy Blitz arrays
+# can't be used from several threads at once. A warning, not an error:
+# single threaded code works either way. Sets skeleton_blitz_threadsafe
+# (yes/no) for the configure summary. Call after AC_BLITZ.
+#=================================================================
+
+AC_DEFUN([SKELETON_BLITZ_THREADSAFE],[
+AC_LANG_PUSH([C++])
+skeleton_save_CPPFLAGS="$CPPFLAGS"
+CPPFLAGS="$CPPFLAGS $BLITZ_CFLAGS"
+AC_MSG_CHECKING([whether Blitz is thread safe])
+AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[#include <blitz/blitz.h>
+#ifndef BZ_THREADSAFE
+#error Blitz was built without --enable-threadsafe
+#endif]], [])],
+  [skeleton_blitz_threadsafe=yes], [skeleton_blitz_threadsafe=no])
+AC_MSG_RESULT([$skeleton_blitz_threadsafe])
+CPPFLAGS="$skeleton_save_CPPFLAGS"
+AC_LANG_POP([C++])
+if test "$skeleton_blitz_threadsafe" != yes; then
+  AC_MSG_WARN([Blitz isn't thread safe (BZ_THREADSAFE not defined): classes that copy Blitz arrays can't be used from several threads at once])
+fi
+])

@@ -42,6 +42,7 @@ SKELETON_PYTHON_MINIMUM
 AC_DOXYGEN(optional)
 AC_BOOST(required, 1.84.0)
 AC_BLITZ(required)
+SKELETON_BLITZ_THREADSAFE
 
 #=================================================================
 # Location of all the source code directories
@@ -127,6 +128,7 @@ LOC_MSG([Skeleton is now configured])
 LOC_MSG()
 LOC_MSG([  Installation directory:        ${prefix}])
 LOC_MSG([  Build debug version:           ${enable_debug}])
+LOC_MSG([  Blitz thread safe:             ${skeleton_blitz_threadsafe}])
 LOC_MSG([  CXX compiler:                  ${CXX} ${CXXFLAGS}])
 LOC_MSG()
 LOC_MSG([  Build python bindings:         ${build_python_bindings} (nanobind ${NANOBIND_VERSION})])

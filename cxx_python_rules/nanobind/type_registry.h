@@ -65,7 +65,10 @@ inline constexpr const char* registry_key =
 inline Map& registry()
 {
   // A function-local static is initialized exactly once, even with
-  // several threads.
+  // several threads. (With gcc, m and its guard variable are both one
+  // symbol for all modules (STB_GNU_UNIQUE), which agrees with the shared
+  // registry; the capsule shares it where they aren't. Compare support()
+  // in cxx_python_rules_nb.h, where only the guard was shared.)
   static Map* m = [] {
     nb::dict b = nb::borrow<nb::dict>(PyEval_GetBuiltins());
     if(b.contains(registry_key))

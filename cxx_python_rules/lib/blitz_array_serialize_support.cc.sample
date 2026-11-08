@@ -104,20 +104,17 @@ void boost::serialization::load(Archive& ar, blitz::Array<T, N>& A,
   template void boost::serialization::load(                                    \
       boost::archive::polymorphic_iarchive& ar, blitz::Array<T, N>& A,         \
       const unsigned version);
-#define GEOCAL_BLITZ_SERIALIZE_INSTANTIATE_ALL_RANK(T)                       \
+// Ranks 1 to R, for R = 2 or 5 (GEOCAL_BLITZ_SERIALIZE_TYPES).
+#define GEOCAL_BLITZ_SERIALIZE_INSTANTIATE_2(T)                              \
   GEOCAL_BLITZ_SERIALIZE_INSTANTIATE(T, 1)                                   \
-  GEOCAL_BLITZ_SERIALIZE_INSTANTIATE(T, 2)                                   \
+  GEOCAL_BLITZ_SERIALIZE_INSTANTIATE(T, 2)
+#define GEOCAL_BLITZ_SERIALIZE_INSTANTIATE_5(T)                              \
+  GEOCAL_BLITZ_SERIALIZE_INSTANTIATE_2(T)                                    \
   GEOCAL_BLITZ_SERIALIZE_INSTANTIATE(T, 3)                                   \
   GEOCAL_BLITZ_SERIALIZE_INSTANTIATE(T, 4)                                   \
   GEOCAL_BLITZ_SERIALIZE_INSTANTIATE(T, 5)
+#define GEOCAL_BLITZ_SERIALIZE_INSTANTIATE_TYPE(T, R)                        \
+  GEOCAL_BLITZ_SERIALIZE_INSTANTIATE_##R(T)
 
-GEOCAL_BLITZ_SERIALIZE_INSTANTIATE_ALL_RANK(double)
-GEOCAL_BLITZ_SERIALIZE_INSTANTIATE_ALL_RANK(float)
-GEOCAL_BLITZ_SERIALIZE_INSTANTIATE_ALL_RANK(int)
-GEOCAL_BLITZ_SERIALIZE_INSTANTIATE_ALL_RANK(unsigned int)
-GEOCAL_BLITZ_SERIALIZE_INSTANTIATE_ALL_RANK(short int)
-GEOCAL_BLITZ_SERIALIZE_INSTANTIATE_ALL_RANK(unsigned short int)
-GEOCAL_BLITZ_SERIALIZE_INSTANTIATE_ALL_RANK(bool)
-GEOCAL_BLITZ_SERIALIZE_INSTANTIATE(std::string, 1)
-GEOCAL_BLITZ_SERIALIZE_INSTANTIATE(std::string, 2)
+GEOCAL_BLITZ_SERIALIZE_TYPES(GEOCAL_BLITZ_SERIALIZE_INSTANTIATE_TYPE)
 #endif

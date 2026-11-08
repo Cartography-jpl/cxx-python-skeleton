@@ -11,14 +11,21 @@ import pickle
 from collections.abc import Iterator
 from typing import Any
 
-from . import _bindings
+# _bindings is imported inside the functions that use it, not here: the
+# extension module imports this module while it is being initialized
+# (init_statics in cxx_python_rules_nb.h), before _bindings can be
+# imported.
 
 
 def _new_from_serialization(data: bytes) -> Any:
+    from . import _bindings
+
     return _bindings.serialize_read_binary_generic_string(data)
 
 
 def _new_from_serialization_dir(directory: str, data: bytes) -> Any:
+    from . import _bindings
+
     # Relative file names in the archive are relative to directory (the
     # directory the object was pickled in), through the archive base
     # directory rather than by changing the current directory.
@@ -32,6 +39,8 @@ def archive_base_directory_scope(
     """Set the archive base directory (serialize_function.h) for this thread
     inside the with block: relative file names in archives loaded there,
     including pickles, are relative to directory."""
+    from . import _bindings
+
     prev = _bindings.set_archive_base_directory(os.fspath(directory))
     try:
         yield

@@ -104,20 +104,17 @@ void boost::serialization::load(Archive& ar, blitz::Array<T, N>& A,
   template void boost::serialization::load(                                    \
       boost::archive::polymorphic_iarchive& ar, blitz::Array<T, N>& A,         \
       const unsigned version);
-#define SKELETON_BLITZ_SERIALIZE_INSTANTIATE_ALL_RANK(T)                       \
+// Ranks 1 to R, for R = 2 or 5 (SKELETON_BLITZ_SERIALIZE_TYPES).
+#define SKELETON_BLITZ_SERIALIZE_INSTANTIATE_2(T)                              \
   SKELETON_BLITZ_SERIALIZE_INSTANTIATE(T, 1)                                   \
-  SKELETON_BLITZ_SERIALIZE_INSTANTIATE(T, 2)                                   \
+  SKELETON_BLITZ_SERIALIZE_INSTANTIATE(T, 2)
+#define SKELETON_BLITZ_SERIALIZE_INSTANTIATE_5(T)                              \
+  SKELETON_BLITZ_SERIALIZE_INSTANTIATE_2(T)                                    \
   SKELETON_BLITZ_SERIALIZE_INSTANTIATE(T, 3)                                   \
   SKELETON_BLITZ_SERIALIZE_INSTANTIATE(T, 4)                                   \
   SKELETON_BLITZ_SERIALIZE_INSTANTIATE(T, 5)
+#define SKELETON_BLITZ_SERIALIZE_INSTANTIATE_TYPE(T, R)                        \
+  SKELETON_BLITZ_SERIALIZE_INSTANTIATE_##R(T)
 
-SKELETON_BLITZ_SERIALIZE_INSTANTIATE_ALL_RANK(double)
-SKELETON_BLITZ_SERIALIZE_INSTANTIATE_ALL_RANK(float)
-SKELETON_BLITZ_SERIALIZE_INSTANTIATE_ALL_RANK(int)
-SKELETON_BLITZ_SERIALIZE_INSTANTIATE_ALL_RANK(unsigned int)
-SKELETON_BLITZ_SERIALIZE_INSTANTIATE_ALL_RANK(short int)
-SKELETON_BLITZ_SERIALIZE_INSTANTIATE_ALL_RANK(unsigned short int)
-SKELETON_BLITZ_SERIALIZE_INSTANTIATE_ALL_RANK(bool)
-SKELETON_BLITZ_SERIALIZE_INSTANTIATE(std::string, 1)
-SKELETON_BLITZ_SERIALIZE_INSTANTIATE(std::string, 2)
+SKELETON_BLITZ_SERIALIZE_TYPES(SKELETON_BLITZ_SERIALIZE_INSTANTIATE_TYPE)
 #endif

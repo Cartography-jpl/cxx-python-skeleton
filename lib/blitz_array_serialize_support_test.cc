@@ -2,6 +2,9 @@
 #include "unit_test_support.h"
 #include "skeleton_serialize_support.h"
 #include "skeleton_exception.h"
+#include <string>
+#include <type_traits>
+#include <utility>
 #ifdef SKELETON_HAVE_BOOST_SERIALIZATION
 #include <boost/archive/polymorphic_xml_iarchive.hpp>
 #include <boost/archive/polymorphic_xml_oarchive.hpp>
@@ -45,8 +48,12 @@ template<class T, int D> void round_trip()
   shp = 2;
   shp(0) = 3;
   blitz::Array<T, D> a(shp);
-  for(std::size_t i = 0; i < a.size(); ++i)
-    a.data()[i] = static_cast<T>(i % 3);
+  for(std::size_t i = 0; i < a.size(); ++i) {
+    if constexpr(std::is_same_v<T, std::string>)
+      a.data()[i] = std::to_string(i % 3);
+    else
+      a.data()[i] = static_cast<T>(i % 3);
+  }
   for(bool binary : {false, true}) {
     std::stringstream ss;
     if(binary) {
@@ -80,13 +87,12 @@ template<class T, int D> void round_trip()
   BOOST_CHECK_EQUAL(er.size(), 0u);
 }
 
-template<class T> void round_trip_all_rank()
+// Ranks 1 to R.
+template<class T, int R> void round_trip_all_rank()
 {
-  round_trip<T, 1>();
-  round_trip<T, 2>();
-  round_trip<T, 3>();
-  round_trip<T, 4>();
-  round_trip<T, 5>();
+  []<int... I>(std::integer_sequence<int, I...>) {
+    (round_trip<T, I + 1>(), ...);
+  }(std::make_integer_sequence<int, R>());
 }
 #endif
 
@@ -95,13 +101,11 @@ BOOST_AUTO_TEST_CASE(all_types)
   if(!have_serialize_supported())
     return;
 #ifdef SKELETON_HAVE_BOOST_SERIALIZATION
-  round_trip_all_rank<double>();
-  round_trip_all_rank<float>();
-  round_trip_all_rank<int>();
-  round_trip_all_rank<unsigned int>();
-  round_trip_all_rank<short int>();
-  round_trip_all_rank<unsigned short int>();
-  round_trip_all_rank<bool>();
+  // Every type and rank in the list: one without its instantiation in
+  // blitz_array_serialize_support.cc fails to link this test.
+#define ROUND_TRIP(T, R) round_trip_all_rank<T, R>();
+  SKELETON_BLITZ_SERIALIZE_TYPES(ROUND_TRIP)
+#undef ROUND_TRIP
 #endif
 }
 

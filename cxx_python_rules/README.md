@@ -115,10 +115,18 @@ What can be used from several threads at once:
   directory is per thread.
 - The skeleton's `Exception`: copies can be used on any thread (copying
   can't throw; copies share the data, copy on write).
+- Blitz arrays: copies share their memory with a reference count, which
+  is atomic only if Blitz was built with `--enable-threadsafe`. Configure
+  reports it ("Blitz thread safe" in its summary) and warns if not; then
+  classes that copy Blitz arrays can't be used from several threads at
+  once.
 - The `Observer`/`Observable` classes (in the skeleton's `lib/`): no.
   Register, notify and destroy observers on one thread, and don't destroy
   an observer while it is being notified.
-- The binding code in `nanobind/`: it relies on the GIL.
+- The binding code in `nanobind/`: it relies on the GIL. The python
+  modules it keeps (`<package>._nanobind_support` and numpy) are imported
+  when the extension module is imported (`init_statics`), under the
+  import lock, not at first use.
 
 Free-threaded python (no GIL) is a goal for later, not supported now. What
 is left for it:

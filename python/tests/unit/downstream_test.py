@@ -32,3 +32,11 @@ def test_downstream_class_derived_from_main_class():
 def test_downstream_main_object_pickles():
     a2 = pickle.loads(pickle.dumps(ds.make_a(9)))
     assert a2.v == 9
+
+
+def test_downstream_module_statics():
+    """The downstream module's own module statics are set: a list goes
+    through its numpy() (cxx_python_rules_nb.h, init_statics). gcc made the
+    guard variable of such a static one symbol for all modules, so this
+    module's copy was never set and this crashed."""
+    assert ds.array_sum([1.0, 2.0, 3.5]) == 6.5

@@ -32,6 +32,8 @@ NB_MODULE(_skeleton_downstream, m)
   using namespace Skeleton;
   // The main module has to be loaded first, for its types.
   nb::module_::import_(CXX_PYTHON_RULES_NB_PACKAGE "._bindings");
+  // This module's own copies of the module statics.
+  cxx_python_rules_nb::init_statics();
   m.def(
       "make_a", [](int V) { return std::make_shared<GenericObjectA>(V); },
       "V"_a);
@@ -40,6 +42,11 @@ NB_MODULE(_skeleton_downstream, m)
       [](const std::shared_ptr<GenericObjectA>& A) { return A->v(); }, "A"_a);
   // Returned as GenericObject, python gets the most derived type (the
   // registry knows the main module's classes).
+  // A list converted to a blitz::Array goes through numpy.array, so this
+  // checks that this module's own numpy() was set (init_statics).
+  m.def(
+      "array_sum",
+      [](const blitz::Array<double, 1>& A) { return blitz::sum(A); }, "A"_a);
   m.def(
       "as_generic", [](const std::shared_ptr<GenericObject>& G) { return G; },
       "G"_a.none());

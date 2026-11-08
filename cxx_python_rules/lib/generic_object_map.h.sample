@@ -2,6 +2,7 @@
 #include "printable.h"
 #include <memory>
 #include <ranges>
+#include <concepts>
 #include <functional>
 #include <string>
 #include <string_view>
@@ -84,6 +85,7 @@ public:
   //-----------------------------------------------------------------------
 
   template<class T>
+    requires std::derived_from<T, GenericObject>
   [[nodiscard]] std::shared_ptr<T> get(std::string_view Key) const
   {
     return std::dynamic_pointer_cast<T>(get_generic(Key));

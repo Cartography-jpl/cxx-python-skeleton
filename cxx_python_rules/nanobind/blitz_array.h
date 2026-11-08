@@ -65,9 +65,13 @@ template<class T> constexpr const char* numpy_dtype_name()
   }
 }
 
+// Set on first use, not with a guarded static: see support() in
+// cxx_python_rules_nb.h.
 inline nb::module_& numpy()
 {
-  static nb::module_* m = new nb::module_(nb::module_::import_("numpy"));
+  static nb::module_* m = nullptr;
+  if(!m)
+    m = new nb::module_(nb::module_::import_("numpy"));
   return *m;
 }
 

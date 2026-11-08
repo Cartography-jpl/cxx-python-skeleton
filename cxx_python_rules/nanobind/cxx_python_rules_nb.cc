@@ -56,6 +56,7 @@ void bind_common_types(nb::module_& m)
 void init_module(nb::module_& m)
 {
   CXX_PYTHON_RULES_NAMESPACE::director_hook() = director_hook_func;
+  init_statics();
   // For tests: is the class registered with register_type (or
   // register_alias)? A bound GenericObject class that isn't would come
   // back from C++ as the wrong python type.

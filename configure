@@ -26870,6 +26870,53 @@ done_blitz="yes"
 fi
 
 
+ac_ext=cpp
+ac_cpp='$CXXCPP $CPPFLAGS'
+ac_compile='$CXX -c $CXXFLAGS $CPPFLAGS conftest.$ac_ext >&5'
+ac_link='$CXX -o conftest$ac_exeext $CXXFLAGS $CPPFLAGS $LDFLAGS conftest.$ac_ext $LIBS >&5'
+ac_compiler_gnu=$ac_cv_cxx_compiler_gnu
+
+skeleton_save_CPPFLAGS="$CPPFLAGS"
+CPPFLAGS="$CPPFLAGS $BLITZ_CFLAGS"
+{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking whether Blitz is thread safe" >&5
+printf %s "checking whether Blitz is thread safe... " >&6; }
+cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+#include <blitz/blitz.h>
+#ifndef BZ_THREADSAFE
+#error Blitz was built without --enable-threadsafe
+#endif
+int
+main (void)
+{
+
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_cxx_try_compile "$LINENO"
+then :
+  skeleton_blitz_threadsafe=yes
+else case e in #(
+  e) skeleton_blitz_threadsafe=no ;;
+esac
+fi
+rm -f core conftest.err conftest.$ac_objext conftest.beam conftest.$ac_ext
+{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $skeleton_blitz_threadsafe" >&5
+printf "%s\n" "$skeleton_blitz_threadsafe" >&6; }
+CPPFLAGS="$skeleton_save_CPPFLAGS"
+ac_ext=c
+ac_cpp='$CPP $CPPFLAGS'
+ac_compile='$CC -c $CFLAGS $CPPFLAGS conftest.$ac_ext >&5'
+ac_link='$CC -o conftest$ac_exeext $CFLAGS $CPPFLAGS $LDFLAGS conftest.$ac_ext $LIBS >&5'
+ac_compiler_gnu=$ac_cv_c_compiler_gnu
+
+if test "$skeleton_blitz_threadsafe" != yes; then
+  { printf "%s\n" "$as_me:${as_lineno-$LINENO}: WARNING: Blitz isn't thread safe (BZ_THREADSAFE not defined): classes that copy Blitz arrays can't be used from several threads at once" >&5
+printf "%s\n" "$as_me: WARNING: Blitz isn't thread safe (BZ_THREADSAFE not defined): classes that copy Blitz arrays can't be used from several threads at once" >&2;}
+fi
+
+
 #=================================================================
 # Location of all the source code directories
 
@@ -29686,6 +29733,9 @@ echo "  Installation directory:        ${prefix}"
 
 
 echo "  Build debug version:           ${enable_debug}"
+
+
+echo "  Blitz thread safe:             ${skeleton_blitz_threadsafe}"
 
 
 echo "  CXX compiler:                  ${CXX} ${CXXFLAGS}"

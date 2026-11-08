@@ -1,5 +1,6 @@
 #pragma once
 #include "generic_object.h"
+#include <concepts>
 #include <filesystem>
 #include <memory>
 #include <string>
@@ -14,7 +15,8 @@ namespace CXX_PYTHON_RULES_NAMESPACE {
 /// boost::archive exception).
 ///
 /// Names: "_binary" is the binary format (no "_binary" is XML),
-/// "_generic" returns a GenericObject (the templates return a T), and
+/// "_generic" returns a GenericObject (the templates return a T, which
+/// must derive from GenericObject; null if the object isn't a T), and
 /// "_string" works in memory; without "_string" the first argument is a
 /// file name. The in-memory archive is bytes; an XML archive holding a
 /// python subclass object isn't valid UTF-8.
@@ -53,6 +55,7 @@ serialize_read_binary_generic_string(std::string_view Data,
                                      const std::filesystem::path& Base_dir);
 
 template<class T>
+  requires std::derived_from<T, GenericObject>
 [[nodiscard]] std::shared_ptr<T>
 serialize_read(const std::filesystem::path& Fname)
 {
@@ -60,6 +63,7 @@ serialize_read(const std::filesystem::path& Fname)
 }
 
 template<class T>
+  requires std::derived_from<T, GenericObject>
 [[nodiscard]] std::shared_ptr<T>
 serialize_read_binary(const std::filesystem::path& Fname)
 {
@@ -67,12 +71,14 @@ serialize_read_binary(const std::filesystem::path& Fname)
 }
 
 template<class T>
+  requires std::derived_from<T, GenericObject>
 [[nodiscard]] std::shared_ptr<T> serialize_read_string(std::string_view Data)
 {
   return std::dynamic_pointer_cast<T>(serialize_read_generic_string(Data));
 }
 
 template<class T>
+  requires std::derived_from<T, GenericObject>
 [[nodiscard]] std::shared_ptr<T>
 serialize_read_binary_string(std::string_view Data)
 {

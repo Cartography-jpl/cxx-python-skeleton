@@ -2,6 +2,7 @@
 #include "cxx_python_rules_mdspan.h"
 #include <blitz/array.h>
 #include <array>
+#include <concepts>
 #include <cstddef>
 #include <memory>
 #include <stdexcept>
@@ -111,7 +112,24 @@ CXX_PYTHON_RULES_BLITZ_OWNER_TYPES(CXX_PYTHON_RULES_BLITZ_OWNER_DECLARE)
 #undef CXX_PYTHON_RULES_BLITZ_OWNER_DECLARE
 }
 
-template<class Mdspan>
+//-----------------------------------------------------------------------
+/// What to_blitz needs from its argument: an mdspan (any extents, layout
+/// and accessor with a pointer data handle), or a type that looks like
+/// one. Anything else fails here, with a short message, rather than deep
+/// inside to_blitz.
+//-----------------------------------------------------------------------
+
+template<class M>
+concept mdspan_like = requires(const M& m, std::size_t i) {
+  typename M::element_type;
+  { M::rank() } -> std::convertible_to<std::size_t>;
+  { m.extent(i) } -> std::convertible_to<std::size_t>;
+  { m.stride(i) } -> std::convertible_to<std::ptrdiff_t>;
+  { m.data_handle() } -> std::convertible_to<typename M::element_type*>;
+  { m.mapping().required_span_size() } -> std::convertible_to<std::size_t>;
+};
+
+template<mdspan_like Mdspan>
 blitz::Array<typename Mdspan::element_type, Mdspan::rank()>
 to_blitz(const Mdspan& M, std::shared_ptr<void> Owner = nullptr)
 {
@@ -139,6 +157,12 @@ to_blitz(const Mdspan& M, std::shared_ptr<void> Owner = nullptr)
   if(Owner) {
     // res has no block (neverDeleteData), so just give it one. A new
     // MemoryBlock starts with one reference, which is res's.
+    // ptr is set by a static initializer in blitz_mdspan.cc; it is null
+    // only if this runs during static initialization, before that one.
+    if(!detail::BlockMember<T>::ptr)
+      throw std::runtime_error(
+          "to_blitz was called during static initialization, before the "
+          "initializers in blitz_mdspan.cc ran");
     blitz::MemoryBlockReference<T>& r = res;
     r.*(detail::BlockMember<T>::ptr) = new detail::OwnerMemoryBlock<T>(
         res.dataFirst(), span, std::move(Owner));

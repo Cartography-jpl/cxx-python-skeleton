@@ -54,9 +54,33 @@ using CXX_PYTHON_RULES_NAMESPACE::nbreg::register_type;
 
 inline nb::module_& support()
 {
-  static nb::module_* m = new nb::module_(
-      nb::module_::import_(CXX_PYTHON_RULES_NB_PACKAGE "._nanobind_support"));
+  // Constant initialized, set on first use (with the GIL; init_statics
+  // does it at import). Not "static T* m = new ...": gcc makes the guard
+  // variable of such a static one symbol shared by every module
+  // (STB_GNU_UNIQUE), while m itself is per module (nb::module_ is
+  // hidden). The first module to initialize it sets the shared guard, and
+  // every other module's m stays null.
+  static nb::module_* m = nullptr;
+  if(!m)
+    m = new nb::module_(
+        nb::module_::import_(CXX_PYTHON_RULES_NB_PACKAGE "._nanobind_support"));
   return *m;
+}
+
+//-----------------------------------------------------------------------
+/// Import the python modules the bindings keep (support() and numpy())
+/// now, while the extension module is imported (under the import lock),
+/// instead of at their first use, which may be on any thread. Each
+/// extension module has its own copies: init_module calls this, and a
+/// second module that doesn't call init_module (the skeleton's
+/// _skeleton_downstream) calls it in its NB_MODULE, after importing the
+/// main module.
+//-----------------------------------------------------------------------
+
+inline void init_statics()
+{
+  support();
+  CXX_PYTHON_RULES_NAMESPACE::nbblitz::numpy();
 }
 
 //-----------------------------------------------------------------------
@@ -123,8 +147,8 @@ private:
 void bind_common_types(nb::module_& m);
 
 //-----------------------------------------------------------------------
-/// Set up the module: exception translation (register_exceptions) and
-/// the hook for python subclasses in archives. Call first in NB_MODULE.
+/// Set up the module: the hook for python subclasses in archives, and
+/// init_statics. Call first in NB_MODULE, after register_exceptions.
 //-----------------------------------------------------------------------
 
 void init_module(nb::module_& m);
