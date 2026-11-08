@@ -61,6 +61,7 @@ Everything else must stay the same, which the T0 snapshot checks.
 | `to_blitz` throws if it runs before `blitz_mdspan.cc`'s initializers (during static initialization) | T7.2 | Nobody today |
 | numpy is imported when the extension module is imported | T7.3 | Import time (numpy is a required dependency) |
 | `configure` reports whether Blitz is thread safe, and warns if not | T7.4 | Builds with a Blitz built without `--enable-threadsafe` |
+| `--enable-debug` in an env with conda's compiler activation drops `-DNDEBUG` and adds `-DBZ_DEBUG` (Blitz bounds checks) | T6.11 | Debug builds: header `assert()`s and Blitz bounds checks are on; an out-of-bounds Blitz access stops the program |
 
 ## Decisions (maintainer, 2026-11-07: the recommendation in each case)
 
@@ -234,6 +235,21 @@ is; the installed package passes it too (`make installcheck`). `python/README_de
 10. **`skeleton_exception.cc:64-70` (`is_et_dyn`)**: use `<elf.h>`: check `ELFMAG`, read `e_type` (offset 16 for
     both ELF classes) in the byte order `e_ident[EI_DATA]` gives, and compare with `ET_DYN`. Then it is correct on
     any Linux, not just little-endian. The stack trace test still names functions.
+11. **Debug flags in environments with conda's compiler activation** (added 2026-11-07, after the decisions; found
+    by the review of geocal's modernization plan, checked here). `AC_ENABLE_DEBUG` (`config/m4/ac_enable_debug.m4`)
+    replaces `CXXFLAGS`/`CFLAGS` with conda's `DEBUG_CXXFLAGS`/`DEBUG_CFLAGS` but leaves `CPPFLAGS` alone, and
+    conda's activation puts `-DNDEBUG -D_FORTIFY_SOURCE=2 -O2` in `CPPFLAGS`. The S1.2 fix only removed the same
+    flags coming from Blitz's `.pc` file. So `--enable-debug` builds in activated envs (`build-gcc14`,
+    `build-rpath`, `build-asan` on frenchpeas; checked in their `Makefile`s) still compile with `-DNDEBUG`, which
+    turns off `assert()` in library headers (Boost's `BOOST_ASSERT`; neither the skeleton nor geocal calls
+    `assert()` itself). `-O2` is harmless there (the later `-Og` in `CXXFLAGS` wins), and `_GLIBCXX_ASSERTIONS`
+    doesn't depend on `NDEBUG`. The same branch also uses conda's `DEBUG_CXXFLAGS`, which have no `-DBZ_DEBUG`, so
+    those builds have **no Blitz bounds checking** (the non-activated fallback branch adds it). Fix in
+    `ac_enable_debug.m4` (a shared m4 file, like the S1.2 change): in the conda branch, `CPPFLAGS="$DEBUG_CPPFLAGS"`
+    when it is set (conda's is `-D_DEBUG -D_FORTIFY_SOURCE=2 -Og -isystem $PREFIX/include`), otherwise strip
+    `-DNDEBUG` from `CPPFLAGS`; and add `-DBZ_DEBUG` in both branches. Check: in `build-gcc14` a compile line has no
+    `-DNDEBUG` and has `-DBZ_DEBUG`, a release build is unchanged, and the full suite passes in `build-gcc14` and
+    `build-asan` (Blitz bounds checks may find something; fix it). geocal copies the file.
 
 Checks: full suite; golden identical; `script/samples.py --check`.
 
@@ -317,6 +333,7 @@ Checks: full suite; `make lint`; `make format-check`.
 | §3.4 | `script/samples.py --check` passes and is in `check_all.sh` |
 | §3.5 | `package_test.py` passes against the build tree and the installed package |
 | §3.6 | `grep -n '(".gz")' python cxx_python_rules -r` finds nothing; the overflow tests pass under UBSan; `grep -rn BOOST_CHECK_MATRIX lib` finds nothing |
+| T6.11 (not in the review) | A `build-gcc14` compile line has no `-DNDEBUG` and has `-DBZ_DEBUG`; suite passes in `build-gcc14` and `build-asan` |
 | §4.1 to §4.4 | The compile-failure checks recorded; configure prints "Blitz thread safe: yes" |
 | §4.5 | The four T8 items done; `misc-const-correctness` not added (D18) |
 | everything | API snapshot vs `baseline/api_t0.txt`: only the docstring of `IostreamSwig.write` (if changed); `baseline/tidy_strict.sh`: no new findings outside the ones T8 removes; `make golden-check` identical; `ruff format --check` clean |
@@ -355,6 +372,7 @@ T0 → T1 → T2 → T3 → T4 → T5 → T6 → T7 → T8 → T9. Notes:
 | T4 | Copy samples only from the generated ones; `serialize_support.h.sample` keeps the `boost_array.hpp` include and the `using` declarations geocal needs. |
 | T6.6 | Optional: qualify `polymorphic_[io]archive` in its 5 files, then drop the `using` declarations. |
 | T6.9 | The same `const&` for `this_obj()` in its `observer.h`, when it next updates its copy. |
+| T6.11 | Copy `ac_enable_debug.m4` (geocal plan Phase 0 step 4a); geocal's env has conda's compiler activation, so its debug builds have the same problem today. |
 | T7.1 | Run the `serialize_read`/`get<T>` grep before taking the constraint. |
 | T7.3 | Comes with the copied `_nanobind_support.py` and `cxx_python_rules_nb.cc`. |
 | T7.4 | The same configure check in geocal's m4; see what its Blitz says. |
@@ -366,6 +384,7 @@ T0 → T1 → T2 → T3 → T4 → T5 → T6 → T7 → T8 → T9. Notes:
 | Plan written | done | 2026-11-07. The review was corrected at the same time (corrections 1 to 4 above), after checking the stream and gzip fixes in scratch prototypes. |
 | Decisions D14 to D18 | done | 2026-11-07 (maintainer): the recommendations: D14 A (python 3.13, after T3's check of geocal and framework), D15 A (samples script), D16 A (add the C++ names to `__all__`), D17 A (no hardening option now), D18 B (targeted style changes only). |
 | Set aside | — | 2026-11-07 (maintainer): plan ready, set aside for now. Start at T0. |
+| T6.11 added | — | 2026-11-07: debug flags in activated envs (`-DNDEBUG` kept, no `-DBZ_DEBUG`), found by the review of geocal's plan and checked in this repository's build directories. Added after D14–D18; no decision needed (a bug fix). |
 | Scheduled | — | 2026-11-07 (maintainer, from the geocal plan update): do at least T0–T2 before geocal's Phase 0. Checked for geocal on frenchpeas: `serialize_write` to `/dev/full` returns with no error for a small archive (plain and `.gz`), raises for a large plain one, and hangs for a large `.gz` one, as in review §3.2. T3 step 0: geocal's envs are on python 3.13.7 (linux and osx locks); framework is still `python<3.9`, which it has to leave anyway, so D14 (3.13) stands. |
 | T0 baseline | | |
 | T1 stream adapters | | |
