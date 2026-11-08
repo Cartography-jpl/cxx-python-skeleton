@@ -12,10 +12,13 @@
 #include <boost/serialization/vector.hpp>
 #include <boost/serialization/map.hpp>
 #include <boost/serialization/list.hpp>
-// boost::array (Boost >= 1.64, always true for the minimum 1.84) and
-// std::array serializers. Drop boost_array.hpp once the project has no
-// boost::array left (the skeleton has none).
+// The std::array serializer (archives written with boost::array load
+// through it).
+// sample only:
+// geocal still has boost::array members, so it needs their serializer
+// too (Boost >= 1.64). Drop this once geocal has no boost::array left.
 #include <boost/serialization/boost_array.hpp>
+// end sample only
 #include <boost/serialization/array.hpp>
 #include <boost/archive/polymorphic_iarchive.hpp>
 #include <boost/archive/polymorphic_oarchive.hpp>

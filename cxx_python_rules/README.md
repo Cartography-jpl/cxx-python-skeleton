@@ -74,6 +74,13 @@ in `nanobind/blitz_array.h`.
 Serialization (boost) gives pickling; `lib/serialize_support.h.sample` is
 the pattern for the library's own support header.
 
+The `.sample` files (here and in `python/`) are written from the skeleton's
+own files by `script/samples.py --write`, with the names replaced (`Skeleton`
+becomes `GeoCal` and so on). In the skeleton, edit the file in `lib/` or
+`python/`, not the sample; `script/samples.py --check` (run by
+`script/check_all.sh`) finds a sample that has drifted. Lines only a sample
+has are kept between `// sample only:` and `// end sample only`.
+
 Relative file names inside an archive (an object that opens a file in its
 `load()`) are relative to the archive's directory: reading an archive from
 a file sets a per-thread *archive base directory* (`serialize_function.h`),

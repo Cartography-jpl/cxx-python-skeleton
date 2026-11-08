@@ -8,8 +8,7 @@
 #ifdef GEOCAL_HAVE_BOOST_SERIALIZATION
 #include <boost/serialization/split_free.hpp>
 
-namespace boost {
-namespace serialization {
+namespace boost::serialization {
 //-----------------------------------------------------------------------
 /// Save and load a blitz::Array. The archive has the shape and the
 /// values in row-major order: any storage order, stride or direction is
@@ -34,5 +33,5 @@ void serialize(Archive& ar, blitz::Array<T, N>& A, const unsigned version)
   split_free(ar, A, version);
 }
 }
-}
+
 #endif

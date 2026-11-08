@@ -6,7 +6,8 @@
 # For each DIR: build, "make check" (both failing on any compiler warning),
 # "make golden-check". Then, once, in the first DIR: "make format-check" and
 # "make lint" (make lint reads the compile commands of a gcc build, so put
-# a gcc build first). Prints a summary table, and exits non-zero if anything
+# a gcc build first); and "script/samples.py --check" (the .sample files
+# match their live files). Prints a summary table, and exits non-zero if anything
 # failed. Logs are in each DIR, check_all_<step>.log. The warning check
 # only sees what is compiled in this run: for a full check, start from a
 # clean build ("make clean" first).
@@ -21,7 +22,7 @@ if [ "${1:-}" = "-j" ]; then
   shift 2
 fi
 if [ $# -eq 0 ]; then
-  sed -n '2,16p' "$0" | sed 's/^# \{0,1\}//'
+  sed -n '2,17p' "$0" | sed 's/^# \{0,1\}//'
   exit 2
 fi
 
@@ -79,6 +80,21 @@ dir=${first%%@*}
 manifest=${first#*@}
 run_step "$dir" "$manifest" format format-check
 run_step "$dir" "$manifest" lint lint
+
+# The samples don't depend on a build directory.
+srcdir=$(cd "$(dirname "$0")/.." && pwd)
+log="$dir/check_all_samples.log"
+if (cd "$dir" && if [ -n "$manifest" ]; then
+      pixi run --manifest-path "$manifest" python "$srcdir/script/samples.py" --check
+    else
+      python3 "$srcdir/script/samples.py" --check
+    fi) > "$log" 2>&1; then
+  result=ok
+else
+  result="FAILED (see $log)"
+  status=1
+fi
+summary+=("$(printf '%-40s %-14s %s' "(source)" samples "$result")")
 
 echo
 printf '%-40s %-14s %s\n' "build directory" "step" "result"

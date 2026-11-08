@@ -6,10 +6,8 @@
 #include <memory>
 #include <string>
 
-namespace boost {
-namespace serialization {
+namespace boost::serialization {
 class access;
-}
 }
 
 #ifdef GEOCAL_HAVE_BOOST_SERIALIZATION

@@ -142,8 +142,9 @@ with `-Wall -Wextra -Wpedantic -Wshadow -Wold-style-cast -Wsuggest-override -Wno
 -Wdeprecated-copy-dtor` (set by configure, `config/m4_local/skeleton_common.m4`; `--enable-werror` for errors) and
 has no warnings with gcc 14, gcc 15 or clang 22; keep it that way.
 `.clang-format-ignore` excludes copies of upstream code (`cxx_python_rules/lib/serialize_shared_ptr.h`,
-`cxx_python_rules/nanobind/gc_shared_ptr.h`), which keep their upstream style. `.sample` files aren't formatted by
-clang-format; keep them in the same style by hand. Python uses `ruff format`.
+`cxx_python_rules/nanobind/gc_shared_ptr.h`), which keep their upstream style. `.sample` files are generated: edit the live file
+in `lib/` or `python/` and run `script/samples.py --write` (`--check`, also run by `script/check_all.sh`, compares;
+lines only a sample has go between `// sample only:` and `// end sample only`). Python uses `ruff format`.
 
 ## Tests
 
