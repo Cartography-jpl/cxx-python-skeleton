@@ -386,7 +386,7 @@ T0 → T1 → T2 → T3 → T4 → T5 → T6 → T7 → T8 → T9. Notes:
 | Set aside | — | 2026-11-07 (maintainer): plan ready, set aside for now. Start at T0. |
 | T6.11 added | — | 2026-11-07: debug flags in activated envs (`-DNDEBUG` kept, no `-DBZ_DEBUG`), found by the review of geocal's plan and checked in this repository's build directories. Added after D14–D18; no decision needed (a bug fix). |
 | Scheduled | — | 2026-11-07 (maintainer, from the geocal plan update): do at least T0–T2 before geocal's Phase 0. Checked for geocal on frenchpeas: `serialize_write` to `/dev/full` returns with no error for a small archive (plain and `.gz`), raises for a large plain one, and hangs for a large `.gz` one, as in review §3.2. T3 step 0: geocal's envs are on python 3.13.7 (linux and osx locks); framework is still `python<3.9`, which it has to leave anyway, so D14 (3.13) stands. |
-| T0 baseline | | |
+| T0 baseline | done | 2026-11-07. `check_all.sh` over `build`, `build-gcc14`, `build-noserial`, `build-asan`, `build-clang`: all ok, 0 warnings, 229 passed and 1 xfailed before the new tests (golden, format, lint ok); `build-cmake` builds with 0 warnings, ctest 3/3. Baselines in the build area's `baseline/`: `api_t0.txt` (with `snapdiff_t0.sh`), `tidy_strict.sh` and `tidy_strict_t0.txt` (983 findings, 696 `misc-include-cleaner`, as in the review), `check_all_t0.txt`. New tests: three in `iostream_swig_test.py`, `serialize_write_error_test.py` (8 cases, 6 `xfail`; the two large plain ones pass), `package_test.py`. With them: 231 passed, 11 xfailed (`build`, `build-asan`, `build-clang`). |
 | T1 stream adapters | | |
 | T2 archive writes | | |
 | T3 python minimum | | |

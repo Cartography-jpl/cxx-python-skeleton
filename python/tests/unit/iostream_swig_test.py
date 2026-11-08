@@ -1,5 +1,7 @@
 from io import BytesIO
 
+import pytest
+
 from skeleton import IostreamSwig
 
 
@@ -40,3 +42,37 @@ def test_iostream_read_to_eof():
     fh = BytesIO(content)
     assert iostream_swig.read(fh).encode("utf-8") == content
     assert fh.read() == b""
+
+
+class _FailingFile:
+    """A file object whose write and read raise, like a full disk."""
+
+    def write(self, data):
+        raise OSError("disk full")
+
+    def read(self, n=-1):
+        raise OSError("read failed")
+
+
+@pytest.mark.xfail(strict=True, reason="T1: python errors are dropped")
+def test_iostream_write_text_file(tmp_path):
+    """A text-mode file wants str, not bytes: the TypeError from its write
+    comes out of the C++ call (review 2026-11-07 third, section 3.1)."""
+    iostream_swig = IostreamSwig("hello world")
+    with open(tmp_path / "out.txt", "w") as fh:
+        with pytest.raises(TypeError):
+            iostream_swig.write(fh)
+
+
+@pytest.mark.xfail(strict=True, reason="T1: python errors are dropped")
+def test_iostream_write_error():
+    iostream_swig = IostreamSwig("hello world")
+    with pytest.raises(OSError, match="disk full"):
+        iostream_swig.write(_FailingFile())
+
+
+@pytest.mark.xfail(strict=True, reason="T1: python errors are dropped")
+def test_iostream_read_error():
+    iostream_swig = IostreamSwig("hello world", 2)
+    with pytest.raises(OSError, match="read failed"):
+        iostream_swig.read(_FailingFile())
