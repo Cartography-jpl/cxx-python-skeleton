@@ -11,8 +11,11 @@ install:
 install2:
 	pip install .
 
+# mkinit rewrites only the block between <AUTOGEN_INIT> and
+# </AUTOGEN_INIT>. Its --black needs black, which the environment doesn't
+# have, so ruff formats the result instead.
 update-init:
-	cd skeleton && mkinit . -w --black --nomods --relative
+	cd skeleton && mkinit . -w --nomods --relative && ruff format __init__.py
 
 # ------------------------------------------------------------------
 # It is *not* considered an error to fail ruff/mypy - these are just
