@@ -40,9 +40,6 @@
   boost::serialization::void_cast_register<Skeleton::NAME, Skeleton::BASE>();
 #define SKELETON_GENERIC_BASE(NAME) SKELETON_BASE(NAME, GenericObject);
 
-using boost::archive::polymorphic_iarchive;
-using boost::archive::polymorphic_oarchive;
-
 #endif
 
 #include "blitz_array_serialize_support.h"

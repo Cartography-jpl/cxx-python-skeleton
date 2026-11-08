@@ -44,9 +44,12 @@
 #define GEOCAL_BASE(NAME, BASE)                                              \
   boost::serialization::void_cast_register<GeoCal::NAME, GeoCal::BASE>();
 #define GEOCAL_GENERIC_BASE(NAME) GEOCAL_BASE(NAME, GenericObject);
-
+// sample only:
+// geocal's code uses the short names (5 files in its lib/); qualify them
+// there, then drop these.
 using boost::archive::polymorphic_iarchive;
 using boost::archive::polymorphic_oarchive;
+// end sample only
 
 #endif
 

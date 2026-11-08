@@ -249,8 +249,6 @@ private:
   array (a writable numpy view in python) for the region asked for;
   read_into then converts it to int into the caller's mdspan.
 
-  Not thread safe (data is shared scratch space), as in geocal.
-
   Thread safety: not thread safe (data is shared scratch space).
 *******************************************************************/
 

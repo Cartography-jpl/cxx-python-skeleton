@@ -111,6 +111,20 @@ def test_read_with_pad():
     np.testing.assert_array_equal(b.read_with_pad(10, 10, 2, 2, 3), np.full((2, 2), 3))
 
 
+def test_read_with_pad_near_int_max():
+    """Lstart + Number_line would overflow a C++ int (undefined behavior)."""
+    b = BufferRasterSample(6, 8)
+    big = 2**31 - 1 - 5
+    np.testing.assert_array_equal(
+        b.read_with_pad(big, 0, 10, 10, 3), np.full((10, 10), 3)
+    )
+    np.testing.assert_array_equal(
+        b.read_with_pad(0, big, 10, 10, 3), np.full((10, 10), 3)
+    )
+    with pytest.raises(RuntimeError, match="outside the full image"):
+        SubRasterSample(b, big, 0, 10, 1)
+
+
 def test_sub_keeps_full_alive():
     s = SubRasterSample(BufferRasterSample(6, 8), 2, 3, 3, 4)
     gc.collect()

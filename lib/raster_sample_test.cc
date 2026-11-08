@@ -1,4 +1,5 @@
 #include "unit_test_support.h"
+#include <limits>
 #include <tuple>
 #include "raster_sample.h"
 #include "skeleton_exception.h"
@@ -39,7 +40,7 @@ BOOST_AUTO_TEST_CASE(memory)
   MemoryRasterSample m(expected(0, 0, 5, 6));
   BOOST_CHECK_EQUAL(m.number_line(), 5);
   BOOST_CHECK_EQUAL(m.number_sample(), 6);
-  BOOST_CHECK_MATRIX_CLOSE(m.read(1, 2, 3, 4), expected(1, 2, 3, 4));
+  SKELETON_CHECK_MATRIX_CLOSE(m.read(1, 2, 3, 4), expected(1, 2, 3, 4));
   // The old pointer interface still works.
   std::vector<int> buf(12);
   m.read_ptr(1, 2, 3, 4, buf.data());
@@ -76,7 +77,7 @@ BOOST_AUTO_TEST_CASE(buffer)
 {
   BufferRasterSample b(6, 8);
   // Contiguous: the pointer goes straight to the "C library".
-  BOOST_CHECK_MATRIX_CLOSE(b.read(1, 2, 3, 4), expected(1, 2, 3, 4));
+  SKELETON_CHECK_MATRIX_CLOSE(b.read(1, 2, 3, 4), expected(1, 2, 3, 4));
   std::vector<int> buf(6);
   b.read_ptr(2, 3, 2, 3, buf.data());
   BOOST_CHECK_EQUAL(buf[5], 3005);
@@ -89,7 +90,7 @@ BOOST_AUTO_TEST_CASE(buffer)
   blitz::Array<int, 2> cm(3, 4, blitz::ColumnMajorArray<2>());
   b.read_into_checked(1, 2, to_mdspan(cm));
   BOOST_CHECK_EQUAL(b.number_copy(), 1);
-  BOOST_CHECK_MATRIX_CLOSE(cm, expected(1, 2, 3, 4));
+  SKELETON_CHECK_MATRIX_CLOSE(cm, expected(1, 2, 3, 4));
   blitz::Array<int, 2> big(3, 6);
   b.read_into_checked(0, 0,
                       to_mdspan(big(blitz::Range::all(), blitz::Range(1, 4))));
@@ -127,7 +128,17 @@ BOOST_AUTO_TEST_CASE(read_with_pad)
   r.reference(b.read_with_pad(10, 10, 2, 2, 3));
   BOOST_CHECK_EQUAL(blitz::sum(r), 12);
   // Inside: the same as read.
-  BOOST_CHECK_MATRIX_CLOSE(b.read_with_pad(1, 1, 2, 2), expected(1, 1, 2, 2));
+  SKELETON_CHECK_MATRIX_CLOSE(b.read_with_pad(1, 1, 2, 2),
+                              expected(1, 1, 2, 2));
+  // Near the ends of int: Lstart + Number_line would overflow an int
+  // (undefined behavior, which UBSan reports); all fill values.
+  constexpr int big = std::numeric_limits<int>::max() - 5;
+  constexpr int small = std::numeric_limits<int>::min() + 5;
+  for(auto [l, s] : {std::pair(big, 0), std::pair(0, big), std::pair(small, 0),
+                     std::pair(0, small)}) {
+    r.reference(b.read_with_pad(l, s, 10, 10, 3));
+    BOOST_CHECK_EQUAL(blitz::sum(r), 300);
+  }
 }
 
 BOOST_AUTO_TEST_CASE(sub)
@@ -136,7 +147,7 @@ BOOST_AUTO_TEST_CASE(sub)
   SubRasterSample s(b, 2, 3, 3, 4);
   BOOST_CHECK_EQUAL(s.number_line(), 3);
   BOOST_CHECK_EQUAL(s.number_sample(), 4);
-  BOOST_CHECK_MATRIX_CLOSE(s.read(0, 0, 3, 4), expected(2, 3, 3, 4));
+  SKELETON_CHECK_MATRIX_CLOSE(s.read(0, 0, 3, 4), expected(2, 3, 3, 4));
   BOOST_CHECK_THROW(std::ignore = s.read(0, 0, 4, 4), Exception);
   blitz::Array<int, 2> r = s.read_with_pad(-1, 0, 2, 4);
   BOOST_CHECK_EQUAL(r(0, 0), 0);
@@ -146,6 +157,10 @@ BOOST_AUTO_TEST_CASE(sub)
   s.write(2, 3, v);
   BOOST_CHECK_EQUAL(b->read(4, 6, 1, 1)(0, 0), 42);
   BOOST_CHECK_THROW(SubRasterSample(b, 4, 0, 3, 1), Exception);
+  // Lstart + Number_line would overflow an int.
+  constexpr int big = std::numeric_limits<int>::max() - 5;
+  BOOST_CHECK_THROW(SubRasterSample(b, big, 0, 10, 1), Exception);
+  BOOST_CHECK_THROW(SubRasterSample(b, 0, big, 1, 10), Exception);
   BOOST_CHECK_EQUAL(
       s.print_to_string(),
       "SubRasterSample 3 x 4 at (2, 3) of BufferRasterSample 6 x 8");
@@ -154,7 +169,7 @@ BOOST_AUTO_TEST_CASE(sub)
 BOOST_AUTO_TEST_CASE(calc)
 {
   auto c = std::make_shared<TestCalc>();
-  BOOST_CHECK_MATRIX_CLOSE(c->read(1, 2, 3, 4), expected(1, 2, 3, 4));
+  SKELETON_CHECK_MATRIX_CLOSE(c->read(1, 2, 3, 4), expected(1, 2, 3, 4));
   BOOST_CHECK_EQUAL(c->ncalc, 1);
   // Through a SubRasterSample, and the old pointer interface.
   SubRasterSample s(c, 1, 1, 5, 5);
@@ -171,12 +186,12 @@ BOOST_AUTO_TEST_CASE(copy)
   auto c = std::make_shared<TestCalc>();
   MemoryRasterSample m(7, 9);
   copy_raster(*c, m, 3, 4);
-  BOOST_CHECK_MATRIX_CLOSE(m.data(), expected(0, 0, 7, 9));
+  SKELETON_CHECK_MATRIX_CLOSE(m.data(), expected(0, 0, 7, 9));
   BOOST_CHECK_EQUAL(c->ncalc, 9);
   BufferRasterSample b(7, 9);
   MemoryRasterSample m2(7, 9);
   copy_raster(b, m2, 100, 100);
-  BOOST_CHECK_MATRIX_CLOSE(m2.data(), expected(0, 0, 7, 9));
+  SKELETON_CHECK_MATRIX_CLOSE(m2.data(), expected(0, 0, 7, 9));
   BOOST_CHECK_THROW(copy_raster(b, *std::make_shared<MemoryRasterSample>(7, 8)),
                     Exception);
   BOOST_CHECK_THROW(copy_raster(b, m2, 0, 1), Exception);

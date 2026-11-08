@@ -71,19 +71,21 @@ blitz::Array<int, 2> RasterSample::read_with_pad(int Lstart, int Sstart,
                     Number_sample);
   blitz::Array<int, 2> res(Number_line, Number_sample);
   res = Fill_value;
-  // The part of the region inside the image, in image coordinates.
-  int l0 = std::max(Lstart, 0);
-  int s0 = std::max(Sstart, 0);
-  int l1 = std::min(Lstart + Number_line, number_line());
-  int s1 = std::min(Sstart + Number_sample, number_sample());
+  // The part of the region inside the image, in image coordinates. In
+  // std::ptrdiff_t: Lstart + Number_line can overflow an int.
+  using P = std::ptrdiff_t;
+  const P l0 = std::max(Lstart, 0);
+  const P s0 = std::max(Sstart, 0);
+  const P l1 = std::min(P{Lstart} + Number_line, P{number_line()});
+  const P s1 = std::min(P{Sstart} + Number_sample, P{number_sample()});
   if(l0 >= l1 || s0 >= s1)
     return res;
   // Read it straight into that part of res: a strided view.
-  RasterView inside = md::submdspan(
-      to_mdspan(res),
-      std::pair<std::ptrdiff_t, std::ptrdiff_t>(l0 - Lstart, l1 - Lstart),
-      std::pair<std::ptrdiff_t, std::ptrdiff_t>(s0 - Sstart, s1 - Sstart));
-  read_into_checked(l0, s0, inside);
+  RasterView inside =
+      md::submdspan(to_mdspan(res), std::pair<P, P>(l0 - Lstart, l1 - Lstart),
+                    std::pair<P, P>(s0 - Sstart, s1 - Sstart));
+  // l0 and s0 are inside the image, so they fit in an int.
+  read_into_checked(static_cast<int>(l0), static_cast<int>(s0), inside);
   return res;
 }
 
@@ -152,8 +154,10 @@ int Skeleton::legacy_read_block(const LegacyRasterFile* F, int Lstart,
                                 int Sstart, int Number_line, int Number_sample,
                                 int* Buf)
 {
-  if(Lstart < 0 || Sstart < 0 || Lstart + Number_line > F->number_line ||
-     Sstart + Number_sample > F->number_sample)
+  // (std::ptrdiff_t: the sums can overflow an int.)
+  if(Lstart < 0 || Sstart < 0 || Number_line < 0 || Number_sample < 0 ||
+     std::ptrdiff_t{Lstart} + Number_line > F->number_line ||
+     std::ptrdiff_t{Sstart} + Number_sample > F->number_sample)
     return -1;
   for(int i = 0; i < Number_line; ++i)
     std::copy_n(
@@ -167,8 +171,9 @@ int Skeleton::legacy_write_block(LegacyRasterFile* F, int Lstart, int Sstart,
                                  int Number_line, int Number_sample,
                                  const int* Buf)
 {
-  if(Lstart < 0 || Sstart < 0 || Lstart + Number_line > F->number_line ||
-     Sstart + Number_sample > F->number_sample)
+  if(Lstart < 0 || Sstart < 0 || Number_line < 0 || Number_sample < 0 ||
+     std::ptrdiff_t{Lstart} + Number_line > F->number_line ||
+     std::ptrdiff_t{Sstart} + Number_sample > F->number_sample)
     return -1;
   for(int i = 0; i < Number_line; ++i)
     std::copy_n(Buf + static_cast<std::ptrdiff_t>(i) * Number_sample,
@@ -255,9 +260,10 @@ SubRasterSample::SubRasterSample(const std::shared_ptr<RasterSample>& Full,
 {
   if(!full_)
     throw Exception("SubRasterSample: Full is null");
+  // (std::ptrdiff_t: the sums can overflow an int.)
   if(Lstart < 0 || Sstart < 0 || Number_line < 0 || Number_sample < 0 ||
-     Lstart + Number_line > full_->number_line() ||
-     Sstart + Number_sample > full_->number_sample())
+     std::ptrdiff_t{Lstart} + Number_line > full_->number_line() ||
+     std::ptrdiff_t{Sstart} + Number_sample > full_->number_sample())
     throw Exception("SubRasterSample: region is outside the full image");
 }
 

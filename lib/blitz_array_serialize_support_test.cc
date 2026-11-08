@@ -32,7 +32,7 @@ BOOST_AUTO_TEST_CASE(serialization)
   blitz::Array<double, 1> dr;
   ia >> SKELETON_NVP(dr);
   BOOST_CHECK_EQUAL(d.rows(), dr.rows());
-  BOOST_CHECK_MATRIX_CLOSE(d, dr);
+  SKELETON_CHECK_MATRIX_CLOSE(d, dr);
 #endif
 }
 

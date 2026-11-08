@@ -9,9 +9,20 @@ AS_HELP_STRING([--enable-debug],[Enable compiler debugging flags]),
   # conda env without the activation (e.g. plain gcc/gxx packages) has
   # CONDA_PREFIX but no DEBUG_CXXFLAGS, and would otherwise get no
   # debug flags at all, so fall back to the gcc flags below.
+  #
+  # conda's activation also puts "-DNDEBUG -D_FORTIFY_SOURCE=2 -O2" in
+  # CPPFLAGS, and -DNDEBUG would turn off assert() in library headers
+  # (BOOST_ASSERT and so on). So use its DEBUG_CPPFLAGS instead (the same
+  # without -DNDEBUG, and -Og for -O2), or drop -DNDEBUG if those aren't
+  # set. -DBZ_DEBUG turns on Blitz's bounds checks, as in the gcc branch.
   if test "x$CONDA_PREFIX" != x && test "x$DEBUG_CXXFLAGS" != x; then
-    CXXFLAGS="$DEBUG_CXXFLAGS"
+    CXXFLAGS="$DEBUG_CXXFLAGS -DBZ_DEBUG"
     CFLAGS="$DEBUG_CFLAGS"
+    if test "x$DEBUG_CPPFLAGS" != x; then
+      CPPFLAGS="$DEBUG_CPPFLAGS"
+    else
+      CPPFLAGS=`echo " $CPPFLAGS " | sed -e 's/ -DNDEBUG / /g' -e 's/^ //' -e 's/ $//'`
+    fi
 # There are some legitimate uses of mve in p1 that appear to violate the
 # bounds-check. This is because arrays are passed into fortran that have
 # negative indicies, which is allowed in fortran. So turn off the bound-check

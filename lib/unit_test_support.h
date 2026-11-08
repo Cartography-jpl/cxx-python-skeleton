@@ -6,9 +6,11 @@
 #include <memory>
 
 //-----------------------------------------------------------------------
-/// Check for two matrixes being equal
+/// Check that two Blitz arrays are equal to within a tolerance. (geocal
+/// has the same macros with a BOOST_ prefix, which is Boost's own.)
 //-----------------------------------------------------------------------
 
-#define BOOST_CHECK_MATRIX_CLOSE_TOL(A, B, tol)                                \
+#define SKELETON_CHECK_MATRIX_CLOSE_TOL(A, B, tol)                             \
   BOOST_CHECK_LT(max(abs((A) - (B))), (tol))
-#define BOOST_CHECK_MATRIX_CLOSE(A, B) BOOST_CHECK_MATRIX_CLOSE_TOL(A, B, 1e-8)
+#define SKELETON_CHECK_MATRIX_CLOSE(A, B)                                      \
+  SKELETON_CHECK_MATRIX_CLOSE_TOL(A, B, 1e-8)

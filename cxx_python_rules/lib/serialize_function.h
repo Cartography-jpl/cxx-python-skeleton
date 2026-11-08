@@ -60,7 +60,7 @@ serialize_read(const std::filesystem::path& Fname)
 }
 
 template<class T>
-inline std::shared_ptr<T>
+[[nodiscard]] std::shared_ptr<T>
 serialize_read_binary(const std::filesystem::path& Fname)
 {
   return std::dynamic_pointer_cast<T>(serialize_read_binary_generic(Fname));

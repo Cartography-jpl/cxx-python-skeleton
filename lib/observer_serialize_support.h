@@ -8,10 +8,10 @@
 /// only a placeholder, but marks itself as serialized, so the weak_ptr
 /// to it in an Observable's olist is kept (two pass rule, see
 /// weak_ptr_serialize_support.h). The Observable writes its lists. On
-// load it merges them with observers that registered themselves while
-// the lists were being read (Observable::merge_loaded); framework's
-// FP_OBSERVER_SERIALIZE loads straight into olist, and gets such an
-// observer twice.
+/// load it merges them with observers that registered themselves while
+/// the lists were being read (Observable::merge_loaded); framework's
+/// FP_OBSERVER_SERIALIZE loads straight into olist, and gets such an
+/// observer twice.
 //-----------------------------------------------------------------------
 
 #ifdef SKELETON_HAVE_BOOST_SERIALIZATION

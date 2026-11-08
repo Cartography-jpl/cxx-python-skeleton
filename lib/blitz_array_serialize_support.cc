@@ -98,12 +98,12 @@ void boost::serialization::load(Archive& ar, blitz::Array<T, N>& A,
 }
 
 #define SKELETON_BLITZ_SERIALIZE_INSTANTIATE(T, N)                             \
-  template void boost::serialization::save(polymorphic_oarchive& ar,           \
-                                           const blitz::Array<T, N>& A,        \
-                                           const unsigned version);            \
-  template void boost::serialization::load(polymorphic_iarchive& ar,           \
-                                           blitz::Array<T, N>& A,              \
-                                           const unsigned version);
+  template void boost::serialization::save(                                    \
+      boost::archive::polymorphic_oarchive& ar, const blitz::Array<T, N>& A,   \
+      const unsigned version);                                                 \
+  template void boost::serialization::load(                                    \
+      boost::archive::polymorphic_iarchive& ar, blitz::Array<T, N>& A,         \
+      const unsigned version);
 #define SKELETON_BLITZ_SERIALIZE_INSTANTIATE_ALL_RANK(T)                       \
   SKELETON_BLITZ_SERIALIZE_INSTANTIATE(T, 1)                                   \
   SKELETON_BLITZ_SERIALIZE_INSTANTIATE(T, 2)                                   \

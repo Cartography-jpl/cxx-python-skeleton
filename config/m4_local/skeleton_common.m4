@@ -171,6 +171,20 @@ case "$enable_sanitizers" in
 esac
 SKELETON_SANITIZER_PRELOAD=
 if test -n "$skeleton_sanitizers"; then
+  # UBSan's vptr check together with Blitz's bounds checks (-DBZ_DEBUG,
+  # from --enable-debug) makes gcc 15 take over half an hour on
+  # blitz_array_serialize_support.cc (under a minute without either).
+  # Keep the vptr check, which covers the casts in the GenericObject
+  # hierarchy, and leave out the Blitz checks: a debug build without
+  # sanitizers has them, and ASan finds most out of bounds accesses.
+  case ",$skeleton_sanitizers," in
+    *,undefined,*|*,vptr,*)
+      case " $CXXFLAGS " in
+        *" -DBZ_DEBUG "*)
+          CXXFLAGS=`echo " $CXXFLAGS " | sed -e 's/ -DBZ_DEBUG / /g' -e 's/^ //' -e 's/ $//'`
+          AC_MSG_NOTICE([no Blitz bounds checks (-DBZ_DEBUG) with the undefined sanitizer: gcc is too slow with both]) ;;
+      esac ;;
+  esac
   skeleton_san_flags="-fsanitize=$skeleton_sanitizers -fno-omit-frame-pointer"
   CXXFLAGS="$CXXFLAGS $skeleton_san_flags"
   CFLAGS="$CFLAGS $skeleton_san_flags"
@@ -192,14 +206,15 @@ AC_SUBST([SKELETON_SANITIZER_PRELOAD])
 AM_CONDITIONAL([SKELETON_SANITIZERS], [test -n "$skeleton_sanitizers"])
 
 #=================================================================
-# Add prefix, THIRDPARTY, and /opt/afids_support for pkgconfig file
+# Look for pkg-config files in the prefix, $THIRDPARTY (if set) and
+# $CONDA_PREFIX (if set) as well as pkg-config's own path.
 
 PKG_PROG_PKG_CONFIG
 
 if test "x$THIRDPARTY" = x ; then
-  pkg_extra_path=${prefix}/lib/pkgconfig:/opt/afids_support/lib/pkgconfig
+  pkg_extra_path=${prefix}/lib/pkgconfig
 else
-  pkg_extra_path=${prefix}/lib/pkgconfig:$THIRDPARTY/lib/pkgconfig:/opt/afids_support/lib/pkgconfig
+  pkg_extra_path=${prefix}/lib/pkgconfig:$THIRDPARTY/lib/pkgconfig
 fi
 if test "x$CONDA_PREFIX" != x; then
    pkg_extra_path=$CONDA_PREFIX/lib/pkgconfig:${pkg_extra_path}

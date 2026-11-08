@@ -11,12 +11,14 @@
 #ifdef SKELETON_ADDR2LINE
 #include <boost/preprocessor/stringize.hpp>
 #include <dlfcn.h>
+#include <elf.h>
 #include <array>
 #include <cstdint>
 #include <cstdio>
 #include <filesystem>
 #include <fstream>
 #include <map>
+#include <string_view>
 #endif
 
 using namespace Skeleton;
@@ -64,9 +66,19 @@ namespace {
 bool is_et_dyn(const std::string& File)
 {
   std::ifstream is(File, std::ios::binary);
-  std::array<char, 18> h{};
+  // e_ident, then e_type: at offset 16 in both ELF classes, in the byte
+  // order e_ident[EI_DATA] gives.
+  std::array<char, EI_NIDENT + 2> h{};
   is.read(h.data(), static_cast<std::streamsize>(h.size()));
-  return is && h[16] == 3 && h[17] == 0;
+  if(!is || std::string_view(h.data(), SELFMAG) != ELFMAG)
+    return false;
+  auto b = [&](std::size_t I) {
+    return static_cast<unsigned>(static_cast<unsigned char>(h[I]));
+  };
+  const unsigned type = b(EI_DATA) == unsigned{ELFDATA2MSB}
+                            ? (b(EI_NIDENT) << 8U) | b(EI_NIDENT + 1)
+                            : b(EI_NIDENT) | (b(EI_NIDENT + 1) << 8U);
+  return type == unsigned{ET_DYN};
 }
 
 std::string shell_quote(const std::string& S)

@@ -120,7 +120,12 @@ public:
   //-----------------------------------------------------------------------
 
   virtual void invalidate_cache() { cache_valid = false; }
-  std::shared_ptr<CacheInvalidatedObserver>& this_obj() { return this_obj_; }
+  // The shared_ptr the Observable makes its weak_ptr from (read only:
+  // resetting it would break the observer).
+  const std::shared_ptr<CacheInvalidatedObserver>& this_obj()
+  {
+    return this_obj_;
+  }
 
   // Python is happier with functions vs accessing cache_valid. So
   // return and allow setting of cache_valid

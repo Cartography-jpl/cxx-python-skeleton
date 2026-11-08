@@ -95,7 +95,7 @@ def read_shelve(f: str | os.PathLike[str]) -> Any:
     fname = os.path.abspath(str(f).split(":")[0])
     dirn = os.path.dirname(fname)
     f2, ext = os.path.splitext(f)
-    if ext not in (".gz"):
+    if ext != ".gz":
         f2 = str(f)
     extra_init = Path(dirn, "extra_python_init.py")
     with _shelve_directory(dirn):
@@ -175,7 +175,7 @@ def write_shelve(f: str | os.PathLike[str], val: Any) -> None:
     """
     # Strip off any compression part, when determining file type
     f2, ext = os.path.splitext(str(f))
-    if ext not in (".gz"):
+    if ext != ".gz":
         f2 = str(f)
     if os.path.splitext(f2)[1] == ".xml":
         skelswig.serialize_write(str(f), val)
