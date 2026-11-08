@@ -217,6 +217,43 @@ BOOST_AUTO_TEST_CASE(write_unopenable_file)
                         });
 }
 
+BOOST_AUTO_TEST_CASE(write_full_disk)
+{
+  // /dev/full accepts open and fails every write with "No space left on
+  // device". Every write must throw, naming the file: a small archive
+  // (written only when the file is closed) and a large one (written
+  // during the archive), plain and .gz. A gzip write error used to hang.
+  if(!std::filesystem::exists("/dev/full")) {
+    BOOST_TEST_MESSAGE("no /dev/full, skipped");
+    return;
+  }
+  TempDir d;
+  auto small = std::make_shared<GenericObjectA>(1);
+  auto large = std::make_shared<GenericObjectMap>();
+  for(int i = 0; i < 20000; ++i)
+    (*large)["a" + std::to_string(i)] = std::make_shared<GenericObjectA>(i);
+  for(std::string f : {"full.xml", "full.xml.gz", "full.bin", "full.bin.gz"}) {
+    std::filesystem::create_symlink("/dev/full", d.p / f);
+    const bool xml = f.contains(".xml");
+    for(const std::shared_ptr<GenericObject>& obj :
+        {std::shared_ptr<GenericObject>(small),
+         std::shared_ptr<GenericObject>(large)}) {
+      BOOST_TEST_CONTEXT(f << (obj == small ? " small" : " large"))
+      {
+        BOOST_CHECK_EXCEPTION(xml ? serialize_write(d.file(f), obj)
+                                  : serialize_write_binary(d.file(f), obj),
+                              std::runtime_error,
+                              [&](const std::runtime_error& e) {
+                                const std::string w = e.what();
+                                return w.contains("Trouble writing file") &&
+                                       w.contains(f) &&
+                                       w.contains("No space left on device");
+                              });
+      }
+    }
+  }
+}
+
 BOOST_AUTO_TEST_CASE(skip_weak_ptr)
 {
   // Normally a first pass marks every object in the archive, so a

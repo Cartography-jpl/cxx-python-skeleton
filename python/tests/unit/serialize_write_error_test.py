@@ -37,20 +37,18 @@ _script = textwrap.dedent(
     """
 )
 
-_xfail = pytest.mark.xfail(strict=True, reason="T2: write errors are lost")
-
 
 @pytest.mark.parametrize(
     "size,fmt,ext",
     [
-        pytest.param("small", "xml", "", marks=_xfail),
-        pytest.param("small", "bin", "", marks=_xfail),
-        pytest.param("small", "xml", ".gz", marks=_xfail),
-        pytest.param("small", "bin", ".gz", marks=_xfail),
+        ("small", "xml", ""),
+        ("small", "bin", ""),
+        ("small", "xml", ".gz"),
+        ("small", "bin", ".gz"),
         ("large", "xml", ""),
         ("large", "bin", ""),
-        pytest.param("large", "xml", ".gz", marks=_xfail),
-        pytest.param("large", "bin", ".gz", marks=_xfail),
+        ("large", "xml", ".gz"),
+        ("large", "bin", ".gz"),
     ],
 )
 def test_serialize_write_full_disk(tmp_path, size, fmt, ext):
@@ -66,3 +64,5 @@ def test_serialize_write_full_disk(tmp_path, size, fmt, ext):
     except subprocess.TimeoutExpired:
         pytest.fail("the write hung")
     assert r.returncode == 3, r.stdout + r.stderr
+    assert "Trouble writing file" in r.stdout
+    assert "No space left on device" in r.stdout

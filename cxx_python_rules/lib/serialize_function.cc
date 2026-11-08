@@ -5,6 +5,7 @@
 #include <cerrno>
 #include <system_error>
 #include <fstream>
+#include <memory>
 #include <spanstream>
 #include <sstream>
 #include <stdexcept>
@@ -107,24 +108,94 @@ std::string errno_text()
 }
 
 //-----------------------------------------------------------------------
+// The first error writing a file: what CheckedSink records.
+//-----------------------------------------------------------------------
+
+struct WriteError {
+  std::string reason; // empty: no error
+};
+
+//-----------------------------------------------------------------------
+// The end of OutputFile's filter chain: passes the data to the file's
+// buffer, and throws on a short write. A std::ofstream at the end of the
+// chain would report a short write only by the count it returns, and the
+// gzip filter retries such a write forever (a full disk hung the
+// program). Boost.Iostreams swallows a sink's exceptions while flushing
+// and closing the chain, so the sink also records the error, which
+// OutputFile::close checks. The record is shared: the chain copies the
+// sink.
+//-----------------------------------------------------------------------
+
+class CheckedSink {
+public:
+  using char_type = char;
+  using category = boost::iostreams::sink_tag;
+  CheckedSink(std::ofstream& F, std::shared_ptr<WriteError> Err)
+    : f(&F), err(std::move(Err))
+  {
+  }
+  std::streamsize write(const char* S, std::streamsize N)
+  {
+    if(err->reason.empty()) {
+      errno = 0;
+      if(f->rdbuf()->sputn(S, N) == N)
+        return N;
+      err->reason =
+          errno != 0 ? std::generic_category().message(errno) : "write failed";
+    }
+    throw std::runtime_error(err->reason);
+  }
+private:
+  std::ofstream* f;
+  std::shared_ptr<WriteError> err;
+};
+
+//-----------------------------------------------------------------------
 // A file opened for writing (reading), gzip compressed (decompressed)
 // if its name ends in ".gz". Opening errors throw, naming the file.
+//
+// Call close() after the archive is destroyed (its destructor writes the
+// closing tag): it writes the rest of the data, and throws if any write
+// failed. The destructor only cleans up after an error. The stream has no
+// exception mask on purpose: a failed write in the archive's destructor
+// would then call std::terminate. A write error sets badbit instead, and
+// the record or close() reports it.
 //-----------------------------------------------------------------------
 
 class OutputFile final {
 public:
   explicit OutputFile(const std::filesystem::path& Fname)
-    : f(clear_errno(Fname))
+    : fname(Fname), f(clear_errno(Fname))
   {
     if(!f)
       throw std::runtime_error("Trouble opening file " + Fname.string() +
                                " for writing" + errno_text());
     if(Fname.extension() == ".gz")
       sb.push(boost::iostreams::gzip_compressor());
-    sb.push(f);
+    sb.push(CheckedSink(f, err));
   }
   std::ostream& stream() { return os; }
+  void close()
+  {
+    os.flush();
+    sb.reset(); // closes the filter chain: writes the gzip trailer
+    clear_errno(fname);
+    f.close();
+    throw_if_error();
+    if(f.fail() || os.bad())
+      throw std::runtime_error("Trouble writing file " + fname.string() +
+                               errno_text());
+  }
+  // If a write failed, throw an exception naming the file and the reason.
+  void throw_if_error() const
+  {
+    if(!err->reason.empty())
+      throw std::runtime_error("Trouble writing file " + fname.string() + ": " +
+                               err->reason);
+  }
 private:
+  std::filesystem::path fname;
+  std::shared_ptr<WriteError> err = std::make_shared<WriteError>();
   // Declaration order matters: the filter (sb, which may hold
   // compressed data still to write) is destroyed before the file (f).
   std::ofstream f;
@@ -177,6 +248,26 @@ void write(std::ostream& Os, const std::shared_ptr<GenericObject>& Obj)
   oa << make_nvp(top_name, Obj);
 }
 
+//-----------------------------------------------------------------------
+// Write Obj to a file with the archive OArchive. If the archive throws
+// because a write failed (boost reports "output stream error"), throw
+// the recorded error instead, which names the file and the reason.
+//-----------------------------------------------------------------------
+
+template<class OArchive>
+void write_file(const std::filesystem::path& Fname,
+                const std::shared_ptr<GenericObject>& Obj)
+{
+  OutputFile out(Fname);
+  try {
+    write<OArchive>(out.stream(), Obj);
+  } catch(...) {
+    out.throw_if_error();
+    throw;
+  }
+  out.close();
+}
+
 template<class IArchive> std::shared_ptr<GenericObject> read(std::istream& Is)
 {
   IArchive ia(Is);
@@ -207,16 +298,14 @@ void CXX_PYTHON_RULES_NAMESPACE::serialize_write(
     const std::filesystem::path& Fname,
     const std::shared_ptr<GenericObject>& Obj)
 {
-  OutputFile out(Fname);
-  write<boost::archive::polymorphic_xml_oarchive>(out.stream(), Obj);
+  write_file<boost::archive::polymorphic_xml_oarchive>(Fname, Obj);
 }
 
 void CXX_PYTHON_RULES_NAMESPACE::serialize_write_binary(
     const std::filesystem::path& Fname,
     const std::shared_ptr<GenericObject>& Obj)
 {
-  OutputFile out(Fname);
-  write<boost::archive::polymorphic_binary_oarchive>(out.stream(), Obj);
+  write_file<boost::archive::polymorphic_binary_oarchive>(Fname, Obj);
 }
 
 std::string CXX_PYTHON_RULES_NAMESPACE::serialize_write_string(
