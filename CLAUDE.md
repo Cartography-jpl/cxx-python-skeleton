@@ -74,7 +74,7 @@ Useful `configure` options:
   `make install PYTHON_EDITABLE_MODE=t` (use `PYTHON_EDITABLE_MODE=` to force a normal install when configure enabled
   it). The extension modules (`.so`) are always a full install. The source tree must stay in place.
 
-Building requires: python >= 3.12 (checked by configure), boost (>=1.84), blitz, nanobind (found through the configured
+Building requires: python >= 3.13 (checked by configure), boost (>=1.84), blitz, nanobind (found through the configured
 python, `config/m4/ac_nanobind.m4`),
 mdspan (conda-forge `mdspan`, pinned snapshot) and doxygen for the docstrings. `configure` (via `AFIDS_PYTHON`,
 `config/m4/afids_python.m4`) also requires numpy, scipy, matplotlib, sphinx, and sqlite3 to be importable by the

@@ -105,9 +105,10 @@ void init_foo(nb::module_& m)
 
 ## Python versions
 
-* Python 3.12 or later: the exception translator uses `PyErr_GetRaisedException` /
-  `PyErr_SetRaisedException` (the `PyErr_Fetch` family is deprecated since 3.12). `configure`
-  checks it (`SKELETON_PYTHON_MINIMUM` in `config/m4_local/skeleton_common.m4`).
+* Python 3.13 or later: the exception translator uses `PyErr_GetRaisedException` /
+  `PyErr_SetRaisedException` (new in 3.12; the `PyErr_Fetch` family is deprecated since 3.12), and
+  `blitz_array.h` calls `Py_IsFinalizing` (public since 3.13). `configure` and `CMakeLists.txt`
+  check it (`SKELETON_PYTHON_MINIMUM` in `config/m4_local/skeleton_common.m4`).
 * **Free-threaded python (3.13t, 3.14t) is not supported.** The modules aren't declared
   `FREE_THREADED` in `NB_MODULE`, so a free-threaded interpreter turns the GIL back on when it
   imports them (with a warning), and everything works with the GIL as usual. Supporting it for real

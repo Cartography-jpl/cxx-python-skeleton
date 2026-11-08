@@ -26,7 +26,7 @@ include(GNUInstallDirs)
 include(CMakePackageConfigHelpers)
 include(CheckCXXCompilerFlag)
 
-find_package(Python 3.12 COMPONENTS Interpreter Development.Module REQUIRED)
+find_package(Python 3.13 COMPONENTS Interpreter Development.Module REQUIRED)
 # nanobind's CMake package comes with the python package
 execute_process(COMMAND "${Python_EXECUTABLE}" -m nanobind --cmake_dir
   OUTPUT_STRIP_TRAILING_WHITESPACE OUTPUT_VARIABLE nanobind_ROOT)
